@@ -495,7 +495,7 @@ window.addEventListener( 'DOMContentLoaded', async function () {
  
             this.gui.Register({
                 type: "title",
-                label: "C: Aimbot Keybind V, N: Wallhack Keybinds"
+                label: "Hack Keybinds [C, V, N]"
             }).container.align = "center";
  
             this.gui.panel.menuButton.style.opacity = 0.3;
