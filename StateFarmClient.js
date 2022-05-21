@@ -32,7 +32,7 @@
 // @match        *://math.international/*
 // @match        *://geometry.pw/*
 // @icon         https://futureclient.net/ogTwitter.jpg
-// @grant        none
+// @grant        unsafeWindow
 // @run-at       document-start
 // @antifeature  ads
 // ==/UserScript==
