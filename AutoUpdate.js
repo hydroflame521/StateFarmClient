@@ -19,7 +19,7 @@ function injectStateFarm() {
     setTimeout(function() {
       unsafeWindow.hack || alert(`Client could not be Injected!. The hosting site may be down. \n Check if ${src} is working`)
     }, 1e4)
-  } else setTimeout(loadCrackWare, 10)
+  } else setTimeout(injectStateFarm, 10)
 }
 if (unsafeWindow.bypass = "v2", unsafeWindow.Loader.loaded[0]) {
   console.warn("ShellShock script already loading using old loader method.");
