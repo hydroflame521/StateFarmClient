@@ -1,5 +1,5 @@
 # StateFarmClient
-Hack Client for Shell Shockers. Zertalious Fork.
+Hack Client for Shell Shockers. Forked Code from ModPanel, Zertalious Aimbot, and Crackware v5
 
 https://discord.gg/UTqWuQ7nq8 
 
