@@ -2,7 +2,7 @@
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
 // @version      0.1.3
-// @description  Aimbot + Tracers + Wallhack; Keybinds V, B, N.
+// @description  Aimbot + Tracers + Wallhack; Keybinds V, C, N.
 // @author       JakeFromStateFarm
 // @match        *://shellshock.io/*
 // @match        https://shellshock.io/*
