@@ -215,6 +215,4 @@
         set camera(c) { shellMod.storedData.camera = c },
         set reticle(c) { shellMod.storedData.reticle = c }
     }
- 
-    shellMod.loadMod();
 }())
