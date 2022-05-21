@@ -312,3 +312,12 @@ window.addEventListener( 'DOMContentLoaded', async function () {
 	}
 
 } );
+
+//AdBlocker for Shellshockers
+
+document.getElementById("shellshock-io_300x250").remove();
+
+document.getElementById("preroll").remove();
+
+var aipGameContainer = document.getElementById('aipGameContainer');
+     aipGameContainer.style = " ";
