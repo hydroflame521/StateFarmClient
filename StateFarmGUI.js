@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         StateFarm GUI Plug
+// @name         StateFarm GUI Addon
 // @namespace    http://tampermonkey.net/
 // @version      1.1.4
 // @description  Aimbot + Tracers + Wallhack; Keybinds V, C, N.
