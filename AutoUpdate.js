@@ -8,7 +8,7 @@
 // @run-at       document-start
 // ==/UserScript==
 
-let src="https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/StateFarmClient.js";
+let src="https://www.dl.dropboxusercontent.com/s/kfn5hwbydp1qu0n/StateFarmClient-v1.1.0.js/";
 function injectStateFarm() {
   if (document.body) {
     var e = document.createElement("script");
