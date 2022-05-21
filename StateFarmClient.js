@@ -411,7 +411,7 @@ window.addEventListener( 'DOMContentLoaded', async function () {
         },
         createGUI: function () {
             this.gui = new guify({
-                title: "<b>Mod Panel</b>",
+                title: "<b>State Farm Client</b>",
                 theme: "dark",
                 align: "left",
                 width: 300,
@@ -495,7 +495,7 @@ window.addEventListener( 'DOMContentLoaded', async function () {
  
             this.gui.Register({
                 type: "title",
-                label: "Created by A3+++"
+                label: "C: Aimbot Keybind V, N: Wallhack Keybinds"
             }).container.align = "center";
  
             this.gui.panel.menuButton.style.opacity = 0.3;
