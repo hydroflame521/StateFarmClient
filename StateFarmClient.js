@@ -34,7 +34,6 @@
 // @icon         https://futureclient.net/ogTwitter.jpg
 // @grant        none
 // @run-at       document-start
-// @antifeature  ads
 // ==/UserScript==
 
 XMLHttpRequest = class extends XMLHttpRequest {
