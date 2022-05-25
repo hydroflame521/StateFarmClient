@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      1.1.2
+// @version      1.1.3
 // @description  Aimbot + Tracers + Wallhack; Keybinds V, C, N.
 // @author       JakeFromStateFarm
 // @match        *://shellshock.io/*
@@ -204,56 +204,3 @@ window.addEventListener( 'keyup', function ( event ) {
 	}
 
 } );
-
-window.addEventListener( 'DOMContentLoaded', async function () {
-
-	const value = parseInt( new URLSearchParams( window.location.search ).get( 'showAd' ), 16 );
-
-	const temp = document.createElement( 'div' );
-
-	temp.innerHTML = '<div class="popup_window popup_lg centered roundme_lg" style="z-index: 9999999;">' +
-		( shouldShowAd ? `<h1 class="roundme_sm">Loading ad...</h1>` : `<button class="popup_close clickme roundme_sm" onclick="this.parentNode.style.display='none';"></button>
-		<h1 class="roundme_sm">Aimbot & ESP!</h1>
-		<h4 style="text-align:center;">
-			[B] to toggle aimbot
-			<br>
-			[V] to toggle ESP
-			<br>
-			[N] to toggle ESP lines
-			<br>
-			<br>
-			By Zertalious
-		</h4>
-		<div id="btn-horizontal" class="f-center">
-			<button class="ss_button btn_red bevel_red btn_sm" onclick="window.open('https://discord.gg/K24Zxy88VM', '_blank')">Discord</button>
-			<button class="ss_button btn_yolk bevel_yolk btn_sm" onclick="window.open('https://greasyfork.org/en/users/662330-zertalious', '_blank')">More scripts</button>
-		</div>
-		<div id="btn-horizontal" class="f-center">
-			<button class="ss_button btn_green bevel_green btn_sm" onclick="window.open('https://www.instagram.com/zertalious/', '_blank')">Instagram</button>
-			<button class="ss_button btn_blue bevel_blue btn_sm" onclick="window.open('https://twitter.com/Zertalious', '_blank')">Twitter</button>
-		</div>` ) +
-	'</div>';
-
-	document.body.appendChild( temp.children[ 0 ] );
-
-	if ( shouldShowAd ) {
-
-		const url = new URL( window.location.href );
-
-		url.searchParams.set( 'showAd', Date.now().toString( 16 ) );
-
-		window.location.href = 'https://zertalious.xyz?ref=' + new TextEncoder().encode( url.href ).toString();
-
-	}
-
-} );
-
-//AdBlocker for Shellshockers
-
-document.getElementById("shellshock-io_300x250").remove();
-
-document.getElementById("preroll").remove();
-
-var aipGameContainer = document.getElementById('aipGameContainer');
-     aipGameContainer.style = " ";
-     
