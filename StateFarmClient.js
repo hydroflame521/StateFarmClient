@@ -31,7 +31,7 @@
 // @match        *://mathactivity.xyz/*
 // @match        *://math.international/*
 // @match        *://geometry.pw/*
-// @icon         https://futureclient.net/ogTwitter.jpg
+// @icon         https://github.com/hydroflame521/StateFarmClient/blob/main/StateFarmClientLogo.png
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
