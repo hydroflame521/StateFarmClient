@@ -10,3 +10,5 @@ Features of State Farm Client over Zertalious Aimbot :
 - State Farm Client has easier keybinds to give you a smoother and less detectable playing experience.
 - State Farm Client respects the community more, and doesn't add extra advertisements when you try to play your game.
 - State Farm Client is still being worked on and developed actively.
+- State Farm has more color options available with more coming on the way.
+- State Farm has a nametag addon so you can show support for the client
