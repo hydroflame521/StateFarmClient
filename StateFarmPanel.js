@@ -27,6 +27,7 @@
 // @match        https://scrambled.today/*
 // @match        https://deathegg.world/*
 // @match        https://violentegg.fun/*
+// @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/StateFarmClientLogo.png
 // @grant        none 
 // @compatible   chrome Only with Tampermonkey or Violentmonkey.
 // @compatible   edge Only in Edge 79+ with Tampermonkey or Violentmonkey.
