@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         StateFarmClient Panel
+// @name         ❌JEHRO❌ Wall hack And Admin Panels
 // @namespace    https://greasyfork.org/en/users/745409
-// @version      1.1.4
-// @description  Addon to StateFarmClient
-// @author       StateFarm fork of JEHRO
+// @version      4.0.2
+// @description  INVISIBILITY, EGG SIZE, SPEED, AIM ASSIST & LOW GRAVITY!! ENJOY YOUR OWN PERSONAL ADMIN PANEL!!
+// @author       JEHRO
 // @match        https://shellshock.io/*
 // @match        https://eggcombat.com/*
 // @match        https://eggfacts.fun/*
@@ -27,7 +27,7 @@
 // @match        https://scrambled.today/*
 // @match        https://deathegg.world/*
 // @match        https://violentegg.fun/*
-// @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/StateFarmClientLogo.png
+// @license      JEHRO
 // @grant        none 
 // @compatible   chrome Only with Tampermonkey or Violentmonkey.
 // @compatible   edge Only in Edge 79+ with Tampermonkey or Violentmonkey.
@@ -38,7 +38,7 @@
 
 (function() {
   const addScript = () => {
-    document.title = 'State Farm Client';
+    document.title = 'JEHRO HACK';
   };
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
@@ -74,7 +74,7 @@
             super.onmessage = callback;
         }
     }
-    
+
     'use strict';
     const oldDefine = Object.defineProperty;
     Object.defineProperty = function(a,b,c){
@@ -93,10 +93,10 @@
     window.settings = {
         FreezeFrame:false,
         WireFrame:false,
-        AimAssist: "Keybind C",
-        ESP: "Player XRay",
+        AimAssist: "Temporarily Disabled",
+        ESP: "Bolded Colorized Outline",
         Render:1,
-        Creator:"StateFarmClient",
+        Creator:"JEHRO",
         Collaborator:"JEHRO",
         Programmers:"JEHRO",
         Speed:1,
@@ -153,7 +153,7 @@
         },
         YouTube: function() {
         if (confirm("Do you really wish to go to this link?")) {
-            window.location='https://youtube.com/';
+            window.location='https://www.youtube.com/c/JEHROagario/videos?sub_confirmation=1';
           }
         },
         ReloadPage: function () {
@@ -357,9 +357,9 @@
                         return window.settings.Speed;
                     }
                 });
- 
+
                 window.settings.FreezeFrame=true;
-              
+
                 Object.defineProperty(window.myPlayer.scene, 'forceWireframe',  {
                     get: () => {
                         return window.settings.WireFrame;
@@ -382,7 +382,7 @@
     }
 
   //Credit: TDStuart
-  
+
 function espCalc(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   var box_size_x=2;
@@ -498,11 +498,11 @@ function espCalc(){
         });
 
         // Settings
-        let guiSettings = gui.addFolder('State Farm Client');
-        guiSettings.add(window.settings, 'Aimbot').onChange();
-        guiSettings.add(window.settings, 'XRay').onChange();
+        let guiSettings = gui.addFolder('JEHRO Admin Panel & Private Server');
+        guiSettings.add(window.settings, 'AimAssist').onChange();
+        guiSettings.add(window.settings, 'ESP').onChange();
         guiSettings.open();
-        guiSettings = gui.addFolder('JEHRO Server');
+        guiSettings = gui.addFolder('JEHRO Private Server');
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
         });
         guiSettings.add(window.settings, 'ReloadPage').onChange((e)=>{
@@ -512,17 +512,17 @@ function espCalc(){
         guiSettings = gui.addFolder('Frame Settings');
         guiSettings.add(window.settings, 'WireFrame').onChange((e)=>{
             window.settings.WireFrame=e;
-                  alert('The Wire Texture is being toggled');
+                  alert('WireFrame Has Been Activated!!❤️');
         });
-        guiSettings.add(window.settings, 'BrokenBlink').onChange((e)=>{
+        guiSettings.add(window.settings, 'FreezeFrame').onChange((e)=>{
             window.settings.FreezeFrame=e;
                 alert('Do you really want to perform this action?');
         });
-        guiSettings = gui.addFolder('Visual Mods');
+        guiSettings = gui.addFolder('Player Settings');
         guiSettings.add(window.settings, 'Invisibility',1,5).step(0.1).onChange((e)=>{
             window.settings.Invisibility=e;
         });
-        guiSettings.add(window.settings, 'MeshSize',1,20).step(1).onChange((e)=>{
+        guiSettings.add(window.settings, 'EggSize',1,20).step(1).onChange((e)=>{
             window.settings.EggSize=e;
         });
         guiSettings.add(window.settings, 'Speed', 1,3).step(0.1).onChange((e)=>{
