@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         ❌JEHRO❌ Wall hack And Admin Panels
+// @name         State Farm Panel
 // @namespace    https://greasyfork.org/en/users/745409
-// @version      4.0.2
-// @description  INVISIBILITY, EGG SIZE, SPEED, AIM ASSIST & LOW GRAVITY!! ENJOY YOUR OWN PERSONAL ADMIN PANEL!!
-// @author       JEHRO
+// @version      1.1.2
+// @description  Jehro Fork Panel for Shellshockers
+// @author       StateFarmClient forked from JEHRO
 // @match        https://shellshock.io/*
 // @match        https://eggcombat.com/*
 // @match        https://eggfacts.fun/*
@@ -27,8 +27,9 @@
 // @match        https://scrambled.today/*
 // @match        https://deathegg.world/*
 // @match        https://violentegg.fun/*
-// @license      JEHRO
-// @grant        none 
+// @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/StateFarmClientLogo.png
+// @license      StateFarm
+// @grant        none
 // @compatible   chrome Only with Tampermonkey or Violentmonkey.
 // @compatible   edge Only in Edge 79+ with Tampermonkey or Violentmonkey.
 // @compatible   firefox Only in Firefox 56+ with Tampermonkey.
@@ -38,7 +39,7 @@
 
 (function() {
   const addScript = () => {
-    document.title = 'JEHRO HACK';
+    document.title = 'StateFarmClient';
   };
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
@@ -93,12 +94,12 @@
     window.settings = {
         FreezeFrame:false,
         WireFrame:false,
-        AimAssist: "Temporarily Disabled",
-        ESP: "Bolded Colorized Outline",
+        AimAssist: "Use Keybind C",
+        ESP: "Xray Texture",
         Render:1,
-        Creator:"JEHRO",
-        Collaborator:"JEHRO",
-        Programmers:"JEHRO",
+        Creator:"StateFarmClient",
+        Collaborator:"StateFarm forked from Jehro",
+        Programmers:"StateFarm forked from Jehro",
         Speed:1,
         Recoil:1,
         aimbot:false,
@@ -137,7 +138,7 @@
         res = String.prototype.replace.call(res, /\.012,/g, ".002,");
        }
       return res;
-                }    
+                }
               }
         }
     }),
@@ -456,7 +457,7 @@ function espCalc(){
                    ctx.fillText(plys.name, x, y);
                }
                if (me.team == 0) {
-                   colour = "#ff0000" 
+                   colour = "#ff0000"
                };
                if (plys["team"] == 1) {
                    colour = "#0000ff"
@@ -498,27 +499,26 @@ function espCalc(){
         });
 
         // Settings
-        let guiSettings = gui.addFolder('JEHRO Admin Panel & Private Server');
+        let guiSettings = gui.addFolder('StateFarmClient Panel');
         guiSettings.add(window.settings, 'AimAssist').onChange();
         guiSettings.add(window.settings, 'ESP').onChange();
         guiSettings.open();
-        guiSettings = gui.addFolder('JEHRO Private Server');
+        guiSettings = gui.addFolder('Jehro World');
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
         });
         guiSettings.add(window.settings, 'ReloadPage').onChange((e)=>{
                 window.location.reload();
         });
-        guiSettings.open();
         guiSettings = gui.addFolder('Frame Settings');
         guiSettings.add(window.settings, 'WireFrame').onChange((e)=>{
             window.settings.WireFrame=e;
-                  alert('WireFrame Has Been Activated!!❤️');
+                  alert('WireFrame Has Been toggled');
         });
         guiSettings.add(window.settings, 'FreezeFrame').onChange((e)=>{
             window.settings.FreezeFrame=e;
                 alert('Do you really want to perform this action?');
         });
-        guiSettings = gui.addFolder('Player Settings');
+        guiSettings = gui.addFolder('Player Textures');
         guiSettings.add(window.settings, 'Invisibility',1,5).step(0.1).onChange((e)=>{
             window.settings.Invisibility=e;
         });
@@ -533,21 +533,6 @@ function espCalc(){
         });
         guiSettings.add(window.settings, 'Recoil',0,4).step(0.4).onChange((e)=>{
             window.settings.Recoil=e;
-        });
-        guiSettings = gui.addFolder('Follow My Socials!! 💬');
-        guiSettings.add(window.settings, 'Instagram').onChange((e)=>{
-        });
-        guiSettings.add(window.settings, 'TikTok').onChange((e)=>{
-        });
-        guiSettings.add(window.settings, 'YouTube').onChange((e)=>{
-        });
-        guiSettings.open();
-        guiSettings = gui.addFolder('Credits');
-        guiSettings.add(window.settings, 'Creator').onChange((e)=>{
-        });
-        guiSettings.add(window.settings, 'Collaborator').onChange((e)=>{
-        });
-        guiSettings.add(window.settings, 'Programmers').onChange((e)=>{
         });
         guiSettings.open();
         document.getElementsByClassName("dg ac")[0].style.zIndex=9999;
