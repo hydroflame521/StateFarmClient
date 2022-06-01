@@ -503,12 +503,13 @@ function espCalc(){
         guiSettings.add(window.settings, 'AimAssist').onChange();
         guiSettings.add(window.settings, 'ESP').onChange();
         guiSettings.open();
-        guiSettings = gui.addFolder('Jehro World');
+        guiSettings = gui.addFolder('Server Loader');
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
         });
         guiSettings.add(window.settings, 'ReloadPage').onChange((e)=>{
                 window.location.reload();
         });
+        guiSettings.open();
         guiSettings = gui.addFolder('Frame Settings');
         guiSettings.add(window.settings, 'WireFrame').onChange((e)=>{
             window.settings.WireFrame=e;
