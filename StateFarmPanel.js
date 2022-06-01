@@ -92,16 +92,18 @@
     var push = Array.prototype.push;
 
     window.settings = {
-        FreezeFrame:false,
-        WireFrame:false,
-        AimAssist: "Use Keybind C",
-        ESP: "Xray Texture",
+        BlinkHack:false,
+        GeometricView:false,
+        Aimbot: "Keybind set to C",
+        Tracer: "Keybind set to N",
+        PlayerESP: "Keybind set to V",
+        XRAY: "Keybind set to -",
         Render:1,
         Creator:"StateFarmClient",
         Collaborator:"StateFarm forked from Jehro",
         Programmers:"StateFarm forked from Jehro",
         Speed:1,
-        Recoil:1,
+        Based:69420,
         aimbot:false,
         Invisibility:1,
         ToggleAim:'KeyF',
@@ -500,8 +502,10 @@ function espCalc(){
 
         // Settings
         let guiSettings = gui.addFolder('StateFarmClient Panel');
-        guiSettings.add(window.settings, 'AimAssist').onChange();
-        guiSettings.add(window.settings, 'ESP').onChange();
+        guiSettings.add(window.settings, 'Aimbot').onChange();
+        guiSettings.add(window.settings, 'Tracer').onChange();
+        guiSettings.add(window.settings, 'PlayerESP').onChange();
+        guiSettings.add(window.settings, 'XRAY').onChange();
         guiSettings.open();
         guiSettings = gui.addFolder('Server Loader');
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
@@ -510,15 +514,16 @@ function espCalc(){
                 window.location.reload();
         });
         guiSettings.open();
-        guiSettings = gui.addFolder('Frame Settings');
-        guiSettings.add(window.settings, 'WireFrame').onChange((e)=>{
+        guiSettings = gui.addFolder('Render');
+        guiSettings.add(window.settings, 'GeometricView').onChange((e)=>{
             window.settings.WireFrame=e;
-                  alert('WireFrame Has Been toggled');
+                  alert('The Geometric View Texture Has Been toggled');
         });
-        guiSettings.add(window.settings, 'FreezeFrame').onChange((e)=>{
+        guiSettings.add(window.settings, 'BlinkHack').onChange((e)=>{
             window.settings.FreezeFrame=e;
                 alert('Do you really want to perform this action?');
         });
+        guiSettings.open();
         guiSettings = gui.addFolder('Player Textures');
         guiSettings.add(window.settings, 'Invisibility',1,5).step(0.1).onChange((e)=>{
             window.settings.Invisibility=e;
@@ -532,7 +537,7 @@ function espCalc(){
         guiSettings.add(window.settings, 'Render',0,10).step(1).onChange((e)=>{
             window.settings.Render=e;
         });
-        guiSettings.add(window.settings, 'Recoil',0,4).step(0.4).onChange((e)=>{
+        guiSettings.add(window.settings, 'Based',0,69420).step(420).onChange((e)=>{
             window.settings.Recoil=e;
         });
         guiSettings.open();
