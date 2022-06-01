@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         State Farm Panel
 // @namespace    https://greasyfork.org/en/users/745409
-// @version      1.1.3
+// @version      2.0
 // @description  Jehro Fork Panel for Shellshockers
 // @author       StateFarmClient forked from JEHRO
 // @match        https://shellshock.io/*
@@ -39,7 +39,7 @@
 
 (function() {
   const addScript = () => {
-    document.title = 'StateFarmClient';
+    document.title = 'StateFarmClient v2.0';
   };
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
