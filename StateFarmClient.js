@@ -5,7 +5,6 @@
 // @description  Aimbot + Tracers + Wallhack; Keybinds V, C, N.
 // @author       JakeFromStateFarm
 // @match        *://shellshock.io/*
-// @match        https://shellshock.io/*
 // @match        https://eggcombat.com/*
 // @match        https://eggfacts.fun/*
 // @match        https://biologyclass.club/*
