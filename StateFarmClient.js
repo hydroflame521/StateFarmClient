@@ -31,7 +31,7 @@
 // @match        *://mathactivity.xyz/*
 // @match        *://math.international/*
 // @match        *://geometry.pw/*
-// @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/StateFarmClientLogo.png
+// @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
