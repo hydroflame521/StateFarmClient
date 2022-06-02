@@ -5,7 +5,6 @@
 // @description  Jehro Fork Panel for Shellshockers
 // @author       StateFarmClient forked from JEHRO
 // @match        *://shellshock.io/*
-// @match        https://shellshock.io/*
 // @match        https://eggcombat.com/*
 // @match        https://eggfacts.fun/*
 // @match        https://biologyclass.club/*
