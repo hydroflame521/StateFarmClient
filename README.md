@@ -29,5 +29,4 @@ State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of
 
 # Credits:
 - Jehro Panel for GUI
-- A3+++ for fov slider
 - Zertalious for aimbot and binds
