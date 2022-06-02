@@ -29,7 +29,7 @@
 // @match        https://violentegg.fun/*
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @license      StateFarm
-// @grant        unsafeWindow
+// @grant        none
 // @compatible   chrome Only with Tampermonkey or Violentmonkey.
 // @compatible   edge Only in Edge 79+ with Tampermonkey or Violentmonkey.
 // @compatible   firefox Only in Firefox 56+ with Tampermonkey.
@@ -151,8 +151,9 @@ document.head.appendChild(style);
             window.location='https://www.youtube.com/c/JEHROagario/videos?sub_confirmation=1';
           }
         },
-        ForceLoad: function () {
+        ReloadPage: function () {
         if (confirm("Do you really want to perform this action?")) {
+            window.location.reload();
         }
       }
     }
@@ -439,7 +440,7 @@ function espCalc(){
         guiSettings = gui.addFolder('Server Loader');
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
         });
-        guiSettings.add(window.settings, 'ForceLoad').onChange((e)=>{
+        guiSettings.add(window.settings, 'ReloadPage').onChange((e)=>{
                 window.location.reload();
         });
         guiSettings.open();
