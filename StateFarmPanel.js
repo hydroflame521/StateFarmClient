@@ -153,7 +153,7 @@ document.head.appendChild(style);
         },
         ReloadPage: function () {
         if (confirm("Do you really want to perform this action?")) {
-            window.location.reload();
+                            window.location.reload();
         }
       }
     }
@@ -441,7 +441,6 @@ function espCalc(){
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
         });
         guiSettings.add(window.settings, 'ReloadPage').onChange((e)=>{
-                window.location.reload();
         });
         guiSettings.open();
         guiSettings = gui.addFolder('Render');
