@@ -39,7 +39,7 @@
 
 (function() {
   const addScript = () => {
-    document.title = 'StateFarmClient v2.0';
+    document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺 𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟬';
   };
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
