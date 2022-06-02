@@ -85,7 +85,7 @@
         Tracer: "Keybind set to N",
         PlayerESP: "Keybind set to V",
         XRAY: "Keybind set to Σ",
-        Render:1,
+        Render:true,
         Creator:"StateFarmClient",
         Collaborator:"StateFarm forked from Jehro",
         Programmers:"StateFarm forked from Jehro",
@@ -146,7 +146,7 @@
             window.location='https://www.youtube.com/c/JEHROagario/videos?sub_confirmation=1';
           }
         },
-        ReloadPage: function () {
+        ForceLoad: function () {
         if (confirm("Do you really want to perform this action?")) {
         }
       }
@@ -434,11 +434,14 @@ function espCalc(){
         guiSettings = gui.addFolder('Server Loader');
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
         });
-        guiSettings.add(window.settings, 'ReloadPage').onChange((e)=>{
+        guiSettings.add(window.settings, 'ForceLoad').onChange((e)=>{
                 window.location.reload();
         });
         guiSettings.open();
         guiSettings = gui.addFolder('Render');
+        guiSettings.add(window.settings, 'Render').onChange((e)=>{
+            window.settings.Render=e;
+        });
         guiSettings.add(window.settings, 'GeometricView').onChange((e)=>{
             window.settings.WireFrame=e;
                   alert('The Geometric View Texture Has Been toggled');
@@ -457,12 +460,6 @@ function espCalc(){
         });
         guiSettings.add(window.settings, 'Speed', 1,3).step(0.1).onChange((e)=>{
             window.settings.Speed=e;
-        });
-        guiSettings.add(window.settings, 'Render',0,10).step(1).onChange((e)=>{
-            window.settings.Render=e;
-        });
-        guiSettings.add(window.settings, 'Based',0,69420).step(420).onChange((e)=>{
-            window.settings.Recoil=e;
         });
         guiSettings.open();
         document.getElementsByClassName("dg ac")[0].style.zIndex=9999;
