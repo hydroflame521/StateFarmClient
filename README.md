@@ -1,5 +1,5 @@
 # StateFarmClient
-Hack Client for Shell Shockers. Forked Code from ModPanel, Zertalious Aimbot, and Crackware v5
+Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO Panel, as well as custom code and modifications.
 
 https://discord.gg/UTqWuQ7nq8 
 
@@ -26,3 +26,8 @@ State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of
 - Blue (0, 0, 255)
 - Green (0, 255, 0)
 - Yellow (255, 255, 0)
+
+# Credits:
+- Jehro Panel for GUI
+- A3+++ for fov slider
+- Zertalious for aimbot and binds
