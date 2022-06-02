@@ -36,10 +36,15 @@
 // @compatible   opera Only with Tampermonkey.
 // @require      https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.5/dat.gui.min.js
 // ==/UserScript==
-
 (function() {
   const addScript = () => {
-    document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟬';
+    document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟬';setTimeout(function(){
+    document.getElementById("logo").innerHTML = "<img src='https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo192px.png'>";
+}, 4000);
+let style = document.createElement('link');
+style.rel = 'stylesheet';
+style.href = 'https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo192px.png';
+document.head.appendChild(style);
   };
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
@@ -507,7 +512,7 @@ function espCalc(){
         }
     };
 })
-//fov slider on pause menu (experimental)
+//fov slider on pause menu
 (function () {
     const degToRad = (deg) => deg * (Math.PI / 180);
     let fovToRadian = 1.25;
@@ -545,8 +550,6 @@ function espCalc(){
             return super.response;
         }
     };
-
-
     let html = [`<style>.slidecontainer{width:100%}.slider{-webkit-appearance:none;width:100%;height:15px;border-radius:5px;background:#d3d3d3;outline:0;opacity:.7;padding:5px;-webkit-transition:.2s;transition:opacity .2s}.slider:hover{opacity:1}.slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#04aa6d;cursor:pointer}.slider::-moz-range-thumb{width:25px;height:25px;border-radius:50%;background:#04aa6d;cursor:pointer}</style>`,
     `<div class="slidecontainer"><p>FOV: <span id="fovDisplay"></span></p><input type="range" min="1" max="179.9" step="0.01" value="71.62" class="slider" id="fovSlider"></div>`,
     `<div class="btn-container"><button id='resetBtn' onclick='window.resetFov()' class="ss_button btn_small btn_pink bevel_yolk"><center>Reset FOV</center></button></div>`].join();
