@@ -43,19 +43,13 @@
   };
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
-
 (function() {
-
     let ping = document.getElementById('ping');
-
-
     const getPing = ()=>{
         try{return parseInt(ping.innerText.toLowerCase().replace('ms', ''))}catch(e){
             document.getElementById('ping');
             return 40}};
-
     let lastShotSpread = 0;
-
     WebSocket = class extends WebSocket{
         constructor(a){
             console.log(a);
@@ -65,7 +59,6 @@
             //console.log(arguments[0]);
             super.send(...arguments);
         }
-
         set onmessage(callback){
             const oldHook = callback;
             callback = function(e){
@@ -75,29 +68,23 @@
             super.onmessage = callback;
         }
     }
-
     'use strict';
     const oldDefine = Object.defineProperty;
     Object.defineProperty = function(a,b,c){
-
         if(arguments[1]=="collisionMask" || b == "collisionMask"){
         }
-
         return oldDefine.apply(this,arguments);
     }
-
-
     window.players = new Map();
     window.myPlayer = null;
     var push = Array.prototype.push;
-
     window.settings = {
         BlinkHack:false,
         GeometricView:false,
         Aimbot: "Keybind set to C",
         Tracer: "Keybind set to N",
         PlayerESP: "Keybind set to V",
-        XRAY: "Keybind set to -",
+        XRAY: "Keybind set to Σ",
         Render:1,
         Creator:"StateFarmClient",
         Collaborator:"StateFarm forked from Jehro",
@@ -164,7 +151,6 @@
         }
       }
     }
-
     let nameFind = setInterval(function(){
         if(document.getElementsByClassName("ss_field fullwidth")[0].value){
             window.settings.myName = document.getElementsByClassName("ss_field fullwidth")[0].value;
@@ -178,35 +164,27 @@
       document.addEventListener('keyup', (e)=>{
        if(e.code===window.settings.ToggleAim) window.settings.aimbot=false;
     })
-
-
     Array.prototype.push = function(data) {
-
         try{
             //console.log(this);
             if(arguments[0].origin || this.origin){};
             if(arguments[0].player && arguments[0].id){
                 arguments[0].player.HACK_VISIBLE = true;
                 window.players.set(arguments[0].player.id, arguments[0].player);
-
             }
         }catch(e){}
-
         return push.apply(this, arguments);
     }
-
     const getNearest = (myPlayer, them) => {
         let nearest = {object:null,dist:999};
         them.forEach((obj, ts) =>{
             if(!obj){};
-
             if(!obj.derp && obj.actor){
                 Object.defineProperty(obj.actor.bodyMesh, 'renderingGroupId',  {
                     get: () => {
                         return window.settings.Invisibility;
                     }
                 });
-
                 const setVis = obj.actor.mesh.setVisible;
                 obj.actor.mesh.setVisible = function(args){
                     obj.HACK_VISIBLE = args;
@@ -215,44 +193,28 @@
                     }else{
                         return setVis.apply(this,arguments);
                     }
-
                 }
-
                 obj.derp =true;
             }
-
             if(obj.actor){
                 obj.actor.bodyMesh.scaling = {x:window.settings.EggSize, y:window.settings.EggSize, z:window.settings.EggSize}
             }
-
-
             if(obj && obj.id != myPlayer.id && obj.hp > 0 && (obj.team == 0 || (obj.team != myPlayer.team))){
-
                 let dist = calcDist2d(myPlayer, obj);
-
                 if(dist < nearest.dist){
                     nearest.dist=dist;
                     nearest.object=obj;
                 }
             }else{};
-
-
         })
         return nearest;
     }
-
     const calcDist2d = (player1, player2)=>{return Math.sqrt((player1.x-player2.x)**2 + (player1.y-player2.y)**2 + (player1.z-player2.z)**2)};
-
     window.angleDistance =(player1, player2)=>{
-
-
     let angle = window.getAngle(player1, player2);
-
     const angleDist = Math.sqrt((player1.yaw - angle.yaw)**2 + (player1.pitch - angle.pitch)**2);
     return angleDist*window.dist3d(player1, player2);
-
 }
-
     window.getTargetAngle = function(angle){
         if (angle < 0) angle += Math.PI * 2;
         if (angle < 0) angle += Math.PI * 2;
@@ -261,18 +223,14 @@
         if (angle - Math.PI * 2 > 0) angle -= Math.PI * 2;
         if (angle - Math.PI * 2 > 0) angle -= Math.PI * 2;
     };
-
     window.getTargetDelta = function(them, us, dist){
           return {x: them.x - us.x + 2*(them.dx * dist / us.weapon.subClass.velocity),
                  y: them.y - us.y - 0.072,
                  z: them.z - us.z + 2*(them.dz * dist / us.weapon.subClass.velocity),
                 };
     };
-
-
     class SeededRandom{
         constructor(){};
-
         setSeed(e) {
             this.seed = e
         }
@@ -282,64 +240,44 @@
                 this.seed = (9301 * this.seed + 49297) % 233280,
                 e + this.seed / 233280 * (t - e)
         }
-
         getInt(e, t) {
             return Math.floor(this.seededRandom(e, t))
         }
-
     }
-
     const adjustedTarget = function(delta, us, Dss, Dt) {
         delta = new BABYLON.Vector3(delta.x, delta.y, delta.z).normalize();
         const desiredMat = BABYLON.Matrix.Translation(delta.x, delta.y, delta.z);
-
         let shotSpread_per_MS = Dss / Dt;
-
         let spread = us.shotSpread - shotSpread_per_MS*getPing()/5 + us.weapon.inaccuracy;
         //var spread = 0;
         if(spread < 0.1){return delta};
         if (isNaN(spread)) {
             spread = 0;
         }
-
         const rgenCopy = new SeededRandom();
         rgenCopy.setSeed(us.randomGen.seed);
-
         const spreadInverseMat = BABYLON.Matrix.RotationYawPitchRoll(
             (rgenCopy.getFloat() - 0.5) * spread,
             (rgenCopy.getFloat() - 0.5) * spread,
             (rgenCopy.getFloat() - 0.5) * spread).invert();
-
         const newAimVector = desiredMat.multiply(spreadInverseMat).getTranslation();
         return newAimVector;
     };
-
     window.lookAtHead = function(us, target, dist, Dss, Dt) {
         const delta = window.getTargetDelta(target, us, dist);
-
         let newAimVector = adjustedTarget(delta, us, Dss, Dt);
-
         const newYaw = Math.radRange(-Math.atan2(newAimVector.z, newAimVector.x) + Math.PI / 2)
-
         const newPitch = Math.clamp(-Math.asin(newAimVector.y), -1.5, 1.5);
-
         us.pitch || newPitch || 0
         us.yaw = newYaw || 0
-
-
     }
-
     window.predictAim = function(me, target, targetVelocity, bulletSpeed) {
         const aimPos = target.add(targetVelocity.scale(BABYLON.Vector3.Distance(me, target) / bulletSpeed) );
               return aimPos;
     }
-
-
     const clearRect =requestAnimationFrame;
     let update = performance.now();
-
     requestAnimationFrame = function(){
-
         window.players.forEach((obj, ts) =>{
             if(obj.ws){
                 window.myPlayer = obj;
@@ -347,32 +285,24 @@
             }
         });
         if(window.myPlayer){
-
             const deltaShotSpread = myPlayer.shotSpread - lastShotSpread;
             const deltaTime = performance.now() - update;
-
             update = performance.now();
             lastShotSpread = myPlayer.shotSpread;
-
             if(!window.settings.FreezeFrame){
                 Object.defineProperty(window.myPlayer.scene.cameras[0], 'Speed',  {
                     get: () => {
                         return window.settings.Speed;
                     }
                 });
-
                 window.settings.FreezeFrame=true;
-
                 Object.defineProperty(window.myPlayer.scene, 'forceWireframe',  {
                     get: () => {
                         return window.settings.WireFrame;
                     }
                 });
-
                 window.settings.HasPwned=true;
                 window.settings.FreeSkins=true;
-
-
             }
             let ret = getNearest(window.myPlayer, window.players);
             if(ret.object && window.settings.aimbot){
@@ -383,9 +313,7 @@
         }
         return clearRect.apply(this,arguments);
     }
-
   //Credit: TDStuart
-
 function espCalc(){
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   var box_size_x=2;
@@ -489,17 +417,13 @@ function espCalc(){
    }
   }
 }
-
-
     datgui();
-
     function datgui(){
         let gui = new dat.GUI({
         autoplace: false,
         width: 300,
         height: 9 * 32 - 1
         });
-
         // Settings
         let guiSettings = gui.addFolder('StateFarmClient Panel');
         guiSettings.add(window.settings, 'Aimbot').onChange();
