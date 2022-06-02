@@ -1,2 +1,0 @@
-384px normal
-64px small
