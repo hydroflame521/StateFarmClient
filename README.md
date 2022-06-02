@@ -22,7 +22,7 @@ State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of
 3. Use a color finding tool, such as https://www.rapidtables.com/web/color/RGB_Color.html , to find what color you want, then change lines 101 and 115 to your own (R, G, B).
 4. Some example rgb codes are listed below if you would like to use them
 
-Red (255, 0, 0)
-Blue (0, 0, 255)
-Green (0, 255, 0)
-Yellow (255, 255, 0)
+- Red (255, 0, 0)
+- Blue (0, 0, 255)
+- Green (0, 255, 0)
+- Yellow (255, 255, 0)
