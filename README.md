@@ -8,10 +8,10 @@ State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of
 # Features of State Farm Client over Zertalious Aimbot :
 - State Farm Client updates to support shell shockers proxies, so you can use the client at school on the newest public shell shockers links.
 - State Farm Client has easier keybinds to give you a smoother and less detectable playing experience.
-- State Farm Client respects the community more, and doesn't add extra advertisements when you try to play your game.
+- There aren't extra advertisements injected into your game by the client
 - State Farm Client is still being worked on and developed actively.
-- State Farm has more color options available with more coming on the way.
+- State Farm has more color options for the ESP modules available with more coming on the way.
 - State Farm has a GUI with many different features for rendering and visual modification.
-- Private world server maker forked from Jehro (Client now deleted). 
+- Force Loader for Shell Shockers that makes the site reload
 - Special modifications to how you see other players on the map, such as size and invisibility.
-- Customizable ClickGUI which also shows you the keybind for Aimbot, and modifies the ShellShockers tab name to fit the client.
+- Customizable ClickGUI which also shows you the keybinds for the client, and renames the tab name.
