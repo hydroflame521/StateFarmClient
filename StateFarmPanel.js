@@ -4,6 +4,7 @@
 // @version      2.0
 // @description  Jehro Fork Panel for Shellshockers
 // @author       StateFarmClient forked from JEHRO
+// @match        *://shellshock.io/*
 // @match        https://shellshock.io/*
 // @match        https://eggcombat.com/*
 // @match        https://eggfacts.fun/*
@@ -27,6 +28,9 @@
 // @match        https://scrambled.today/*
 // @match        https://deathegg.world/*
 // @match        https://violentegg.fun/*
+// @match        *://mathactivity.xyz/*
+// @match        *://math.international/*
+// @match        *://geometry.pw/*
 // @match        *://mathactivity.club/*
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @license      StateFarm
