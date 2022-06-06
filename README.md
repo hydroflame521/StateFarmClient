@@ -27,7 +27,7 @@ State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of
 - Green (0, 255, 0)
 - Yellow (255, 255, 0)
 
-# StateFarm Client for the Chrome Dino Game
+# StateFarm Client for the Chrome Dino Game:
 StateFarm Client now has a hack for the Dino game on chrome https://dino-chrome.com , which offers the hack features listed below:
 - Speed applier GUI Button (Applies drug-like speed to the player)
 - Speed Multiplier (keybind s)
