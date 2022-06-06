@@ -2,7 +2,29 @@
 // @name         StateFarmClient FreeSkins Mod
 // @version      1.0
 // @description  Access to every skin in shell shockers? Here you go!
-// @match        *://shellshock.io/*
+// @match        https://shellshock.io/*
+// @match        https://eggcombat.com/*
+// @match        https://eggfacts.fun/*
+// @match        https://biologyclass.club/*
+// @match        https://egghead.institute/*
+// @match        https://egg.dance/*
+// @match        https://eggisthenewblack.com/*
+// @match        https://mathfun.rocks/*
+// @match        https://hardboiled.life/*
+// @match        https://overeasy.club/*
+// @match        https://zygote.cafe/*
+// @match        https://eggsarecool.com/*
+// @match        https://deadlyegg.com/*
+// @match        https://mathgames.world/*
+// @match        https://hardshell.life/*
+// @match        https://violentegg.club/*
+// @match        https://yolk.life/*
+// @match        https://softboiled.club/*
+// @match        https://scrambled.world/*
+// @match        https://algebra.best/*
+// @match        https://scrambled.today/*
+// @match        https://deathegg.world/*
+// @match        https://violentegg.fun/*
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @run-at       document-start
 // @grant        unsafeWindow
