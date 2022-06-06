@@ -17,6 +17,8 @@ geometry.report
 hardboiled.life
 hardshell.life
 humanorganising.org
+mathactivity.club
+mathactivity.xyz
 mathdrills.info
 mathfun.rocks
 mathgames.world
@@ -30,7 +32,6 @@ scrambled.today
 scrambled.us
 scrambled.world
 shellshockers.club
-mathactivity.xyz 
 shellshockers.site
 shellshockers.us
 shellshockers.world
