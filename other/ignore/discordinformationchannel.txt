@@ -3,7 +3,7 @@ Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO P
 
 <https://discord.gg/UTqWuQ7nq8>
 
-State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of Zertalious Aimbot, State Farm Client provides a cleaner, more developed script for your hacking needs. State Farm Client uses similar code compared to Zertalious Aimbot, but our client is more advanced, more easily usable, and keeps in mind the issues with the community.
+State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of Zertalious Aimbot, State Farm Client provides a cleaner, more developed script for your hacking needs. State Farm Client uses similar code compared to Zertalious Aimbot, but our client is more advanced, more easily usable, and keeps in mind the issues with the community. The client is made for experimental purposes only and the responsibility of its usage belongs to the player.
 
 **Installation tutorial:**
 *Before you can install the client, there are a few things you must set up to be able to run userscripts. *
