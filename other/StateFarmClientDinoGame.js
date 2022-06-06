@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarmClient DinoGame
 // @namespace    http://tampermonkey.net/
-// @version      1.1.1
+// @version      1.1.2
 // @description  Hack Client for https://dino-chrome.com/
 // @author       StateFarmClientFork
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
