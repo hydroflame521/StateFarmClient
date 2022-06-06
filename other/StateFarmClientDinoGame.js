@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarmClient DinoGame
 // @namespace    http://tampermonkey.net/
-// @version      1.1.0
+// @version      1.1.1
 // @description  Hack Client for https://dino-chrome.com/
 // @author       StateFarmClientFork
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
@@ -13,7 +13,7 @@
 
 //Speed hack
 var button = document.createElement("Button");
-button.innerHTML = "Give the dino some drugs";
+button.innerHTML = "Speed Multiplier";
 button.style = "top:0;right:0;position:absolute;z-index:99999;padding:20px;";
 document.body.appendChild(button);
 button.onclick = function(){Runner.instance_.setSpeed(40)};
@@ -34,18 +34,18 @@ function showHacks(){
 
 function hehe(e){
     if(e.keyCode == "83"){
-        var a = prompt("What Speed Would You Like?");
+        var a = prompt("Enter Speed Multiplier Integer:");
         if(isNaN(a)){
-            window.alert("Please enter a number next time");
+            window.alert("The value provided was not a valid integer.");
         }else{
             Runner.instance_.setSpeed(a);
         }
     }
 
 else if(e.keyCode == "68"){
-        var b = prompt("What Distance Would You Like?");
+        var b = prompt("Location to teleport to:");
         if(isNaN(b)){
-            window.alert("Please enter a number next time");
+            window.alert("Invalid Value detected!");
         }else{
             Runner.instance_.distanceRan = b
         }
