@@ -1,3 +1,4 @@
+# Main Proxies:
 algebra.best
 algebra.vip
 biologyclass.club
@@ -42,3 +43,12 @@ yolk.life
 yolk.rocks
 yolk.tech
 zygote.cafe
+
+# 3rd Party Proxies:
+cheezgam.es/shell-shockers-unblocked-online 
+crazygames.com/game/shellshockersio 
+kevin.games/shellshock-io 
+http://strelyaj.ru/shell_shockers 
+poki.com/en/g/shell-shockers 
+shell-shockers.online 
+yohoho.live/game/shell-shockers.html 
