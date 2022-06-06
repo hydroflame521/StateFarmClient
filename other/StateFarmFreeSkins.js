@@ -3,6 +3,7 @@
 // @version      1.0
 // @description  Access to every skin in shell shockers? Here you go!
 // @match        *://shellshock.io/*
+// @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @run-at       document-start
 // @grant        unsafeWindow
 // @namespace    https://greasyfork.org/users/815159
@@ -30,3 +31,4 @@
         }
     };
 }())
+//this does not actually give you free skins, it's only visual on your side. this script is only for experimental use.
