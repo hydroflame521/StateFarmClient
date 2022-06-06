@@ -7,7 +7,9 @@ State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of
 
 # Installation tutorial:
 Before you can install the client, there are a few things you must set up to be able to run userscripts. 
+
 1. Install the proper version of Tampermonkey from https://tampermonkey.net/
+
 2. Make sure you are able to open the extension, and go to the dashboard.
 
 Now you are ready to install StateFarm Client:
