@@ -1,5 +1,5 @@
 # StateFarmClient
-Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO Panel, as well as custom code and modifications.
+Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO Panel, as well as custom code and modifications. Now with a hack made for the chrome dino game, with code from Hypno7767's dino chrome hack.
 
 https://discord.gg/UTqWuQ7nq8 
 
@@ -27,6 +27,13 @@ State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of
 - Green (0, 255, 0)
 - Yellow (255, 255, 0)
 
+# StateFarm Client for the Chrome Dino Game
+StateFarm Client now has a hack for the Dino game on chrome https://dino-chrome.com , which offers the hack features listed below:
+- Speed applier GUI Button (Applies drug-like speed to the player)
+- Speed Multiplier (keybind s)
+- Distanced Teleport (keybind d)
+
 # Credits:
 - Jehro Panel for GUI
 - Zertalious for aimbot and binds
+- Hypno7767 for dino game hack script
