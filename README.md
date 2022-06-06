@@ -36,3 +36,4 @@ StateFarm Client now has a hack for the Dino game on chrome https://dino-chrome.
 - Jehro Panel for GUI
 - Zertalious for aimbot and binds
 - Hypno7767 for dino game hack script
+- A3+++ for some client-side "free skins" script
