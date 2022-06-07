@@ -35,33 +35,21 @@
 // @grant        none
 // @run-at       document-start
 // ==/UserScript==
-
 XMLHttpRequest = class extends XMLHttpRequest {
-
 	open( method, url ) {
-
 		if ( url.indexOf( 'shellshock.js' ) > - 1 ) {
-
 			this.isScript = true;
-
 		}
-
 		return super.open( ...arguments );
-
 	}
-
 	get response() {
-
 		if ( this.isScript ) {
-
 			const code = super.response;
-
 			const babylonVarName = /new ([a-zA-Z]+)\.Vector3/.exec( code )[ 1 ];
 			const playersVarName = /([^,]+)=\[\],{}/.exec( code )[ 1 ];
 			const myPlayerVarName = /"fire":document.pointerLockElement&&([^&]+)&&/.exec( code )[ 1 ];
 			const sceneVarName = /createMapCells\(([^,]+),/.exec( code )[ 1 ];
 			const cullFuncName = /=([a-zA-Z]+)\(this\.mesh,\.[0-9]+\)/.exec( code )[ 1 ];
-
 			console.log( '%cInjecting code...', 'color: red; background: black; font-size: 2em;', {
 				babylonVarName,
 				playersVarName,
@@ -70,7 +58,6 @@ XMLHttpRequest = class extends XMLHttpRequest {
 				sceneVarName,
 				cullFuncName
 			} );
-
 			return code.replace( sceneVarName + '.render()', `( function () {
 				const players = ${playersVarName};
 				const myPlayer = ${myPlayerVarName};
@@ -160,47 +147,26 @@ XMLHttpRequest = class extends XMLHttpRequest {
 						return true;
 					}
 				function someFunctionWhichWillNeverBeUsedNow` );
-
 		}
-
 		return super.response;
-
 	}
-
 };
-
 window.espEnabled = true;
 window.aimbotEnabled = true;
 window.showLines = true;
-
 window.addEventListener( 'keyup', function ( event ) {
-
 	if ( document.activeElement && document.activeElement.tagName === 'INPUT' ) {
-
 		return;
-
 	}
-
 	switch ( String.fromCharCode( event.keyCode ) ) {
-
 		case 'C':
-
 			window.aimbotEnabled = ! window.aimbotEnabled;
-
 			break;
-
 		case 'V':
-
 			window.espEnabled = ! window.espEnabled;
-
 			break;
-
 		case 'N':
-
 			window.showLines = ! window.showLines;
-
 			break;
-
 	}
-
 } );
