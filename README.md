@@ -34,6 +34,7 @@ You are done with installation!
 - Force Loader for Shell Shockers that makes the site reload
 - Special modifications to how you see other players on the map, such as size and invisibility.
 - Customizable ClickGUI which also shows you the keybinds for the client, and renames the tab name.
+- Specific features in order to boost your fps while playing
 
 # How to change the colors of the tracers and PlayerESP:
 1. Download StateFarmClient.js
