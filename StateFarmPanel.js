@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         State Farm Panel
-// @namespace    https://github.com/hydroflame521/StateFarmClient
+// @namespace    https://greasyfork.org/en/users/745409
 // @version      2.0
 // @description  Jehro Fork Panel for Shellshockers
 // @author       StateFarmClient forked from JEHRO
@@ -38,6 +38,7 @@
 // ==/UserScript==
 (function() {
   const addScript = () => {
+    //append tab name and game logo
     document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟬';setTimeout(function(){
     document.getElementById("logo").innerHTML = "<img src='https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo192px.png'>";
 }, 4000);
@@ -48,8 +49,30 @@ document.head.appendChild(style);
   };
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
+//highlightchat function
 (function() {
     setTimeout(()=>{document.getElementById("chatOut").style.userSelect="text"},5e3);
+})();
+//blank sky for fps optimization
+(function () {
+  /*
+  SKYBOX DIRECTORY
+  This is similar to http://shellshock.io/img/skyboxes/default directory and contains square images like: https://www.helloworldmods.tk/ss/lava/skybox_nz.jpg
+  This should contain six img files:
+    skybox_px
+    skybox_py
+    skybox_pz
+    skybox_nx
+    skybox_ny
+    skybox_nz
+
+  EXTENTION
+  Your image file extention. e.g. jpg/png.
+  */
+  let skyboxDirectory = "https://www.helloworldmods.tk/ss/lava/";
+  let extention = 'png';
+
+  const q=f;!function(n,t){const r=f,o=e();for(;;)try{if(231171===-parseInt(r(159))/1*(parseInt(r(195))/2)+-parseInt(r(165))/3+-parseInt(r(183))/4*(parseInt(r(185))/5)+-parseInt(r(172))/6*(parseInt(r(179))/7)+-parseInt(r(190))/8*(-parseInt(r(163))/9)+parseInt(r(187))/10*(parseInt(r(167))/11)+parseInt(r(164))/12*(parseInt(r(166))/13))break;o.push(o.shift())}catch(n){o.push(o.shift())}}();const d=function(){let n=!0;return function(t,r){const e=n?function(){if(r){const n=r[f(177)](t,arguments);return r=null,n}}:function(){};return n=!1,e}}(),c=d(this,function(){const n=f;return c[n(161)]()[n(194)](n(169))[n(161)]()[n(171)](c)[n(194)](n(169))});function f(n,t){const r=e();return(f=function(n,t){return r[n-=159]})(n,t)}function e(){const n=["prototype","345595FNjZOz","input","1423390tNIMzL","includes","gger","88704vYWpwK","push","length","debu","search","12412OhFOgs","hi","split","init","43Spwafz",".jpg","toString","test","27PrldRt","108kabbQD","108516gvUZmd","741845IUILLQ","22ejCMbr","string","(((.+)+)+)+$","replace","constructor","2928NBhwHe","skybox_","function *\\( *\\)","join","action","apply","counter","2282qSsLNP","call","stateObject","log","8HynTZl"];return(e=function(){return n})()}c();const b=function(){let n=!0;return function(t,r){const e=n?function(){if(r){const n=r[f(177)](t,arguments);return r=null,n}}:function(){};return n=!1,e}}();!function(){b(this,function(){const n=f,t=new RegExp(n(174)),r=new RegExp("\\+\\+ *(?:[a-zA-Z_$][0-9a-zA-Z_$]*)","i"),e=a(n(198));t[n(162)](e+"chain")&&r[n(162)](e+n(186))?a():e("0")})()}();let oldPush=Array[q(184)].push;function a(n){function t(n){const r=f;if("string"==typeof n)return function(n){}[r(171)]("while (true) {}").apply(r(178));1!==(""+n/n)[r(192)]||n%20==0?function(){return!0}[r(171)]("debu"+r(189))[r(180)](r(176)):function(){return!1}[r(171)](r(193)+r(189))[r(177)](r(181)),t(++n)}try{if(n)return t;t(0)}catch(n){}}Array.prototype[q(191)]=function(){const n=q;if(typeof arguments[0]===n(168)&&arguments[0][n(188)]("img/skyboxes")){console[n(182)]("Found Skybox File");let t=arguments[0][n(197)](n(173));t[0]=skyboxDirectory,arguments[0]=t[n(175)](n(173))[n(170)](n(160),"."+extention)}return oldPush[n(177)](this,arguments)};
 })();
 (function() {
     let ping = document.getElementById('ping');
@@ -463,7 +486,7 @@ function espCalc(){
         guiSettings.add(window.settings, 'Invisibility',1,5).step(0.1).onChange((e)=>{
             window.settings.Invisibility=e;
         });
-        guiSettings.add(window.settings, 'EggSize',1,20).step(1).onChange((e)=>{
+        guiSettings.add(window.settings, 'EggSize',1,20).step(0.1).onChange((e)=>{
             window.settings.EggSize=e;
         });
         guiSettings.add(window.settings, 'Speed', 1,3).step(0.1).onChange((e)=>{
@@ -556,7 +579,7 @@ function espCalc(){
     let html = [`<style>.slidecontainer{width:100%}.slider{-webkit-appearance:none;width:100%;height:15px;border-radius:5px;background:#d3d3d3;outline:0;opacity:.7;padding:5px;-webkit-transition:.2s;transition:opacity .2s}.slider:hover{opacity:1}.slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:#04aa6d;cursor:pointer}.slider::-moz-range-thumb{width:25px;height:25px;border-radius:50%;background:#04aa6d;cursor:pointer}</style>`,
     `<div class="slidecontainer"><p>FOV: <span id="fovDisplay"></span></p><input type="range" min="1" max="179.9" step="0.01" value="71.62" class="slider" id="fovSlider"></div>`,
     `<div class="btn-container"><button id='resetBtn' onclick='window.resetFov()' class="ss_button btn_small btn_pink bevel_yolk"><center>Reset FOV</center></button></div>`].join();
-
+//fov slider (obsolete)
     let display, slider;
     let interval = setInterval(function () {
         let pauseButtons = document.getElementById("pauseButtons");
