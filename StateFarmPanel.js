@@ -49,6 +49,9 @@ document.head.appendChild(style);
   document.body ? addScript() : document.addEventListener("DOMContentLoaded", e => addScript());
 })();
 (function() {
+    setTimeout(()=>{document.getElementById("chatOut").style.userSelect="text"},5e3);
+})();
+(function() {
     let ping = document.getElementById('ping');
     const getPing = ()=>{
         try{return parseInt(ping.innerText.toLowerCase().replace('ms', ''))}catch(e){
