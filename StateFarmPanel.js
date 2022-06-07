@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         State Farm Panel
 // @namespace    https://greasyfork.org/en/users/745409
-// @version      2.0
+// @version      2.2.0
 // @description  Jehro Fork Panel for Shellshockers
 // @author       StateFarmClient forked from JEHRO
 // @match        https://shellshock.io/*
