@@ -137,7 +137,9 @@ document.head.appendChild(style);
         Aimbot: "Keybind set to C",
         Tracer: "Keybind set to N",
         PlayerESP: "Keybind set to V",
-        XRAY: "Keybind set to Σ",
+        XRAY: "Keybind set to Q",
+        RMH: "Keybind set to L",
+        Help: "Keybind set to H",
         Render:true,
         Creator:"StateFarmClient",
         Collaborator:"StateFarm forked from Jehro",
@@ -484,6 +486,8 @@ function espCalc(){
         guiSettings.add(window.settings, 'Tracer').onChange();
         guiSettings.add(window.settings, 'PlayerESP').onChange();
         guiSettings.add(window.settings, 'XRAY').onChange();
+        guiSettings.add(window.settings, 'RMH').onChange();
+        guiSettings.add(window.settings, 'Help').onChange();
         guiSettings.open();
         guiSettings = gui.addFolder('Server Loader');
         guiSettings.add(window.settings, 'PrivateServer').onChange((e)=>{
