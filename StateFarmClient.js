@@ -177,7 +177,7 @@ temp.innerHTML = `
 <div class="popup_window popup_lg roundme_lg msg" style="display: none;"></div>
 ` + '<div class="popup_window popup_lg centered roundme_lg info" style="z-index: 9999999;">' +
 	( shouldShowAd ? `<h1 class="roundme_sm">Loading ad...</h1>` : `<button class="popup_close clickme roundme_sm" onclick="this.parentNode.style.display='none';"></button>
-	<h1 class="roundme_sm">Aimbot & ESP!</h1>
+	<h1 class="roundme_sm">StateFarm Client</h1>
 	<h4 style="text-align:center;">
 		Keys:
 		<br>
