@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Shellshock.IO Aimbot & ESP
+// @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      2.3.0
-// @description  Locks aim to the nearest player in shellshock.io. Comes with an ESP too. Press B, V, N, L to toggle aimbot, esp, esp lines, aimbot on right mouse hold.
-// @author       Zertalious (Zert)
+// @version      2.3.10
+// @description  Best Hacked Client for shell shockers
+// @author       hydroflame521
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
 // @match        *://algebra.vip/*
@@ -181,7 +181,7 @@ temp.innerHTML = `
 	<h4 style="text-align:center;">
 		Keys:
 		<br>
-		[B] to toggle aimbot
+		[C] to toggle aimbot
 		<br>
 		[V] to toggle ESP
 		<br>
@@ -192,15 +192,13 @@ temp.innerHTML = `
 		[H] to show/hide help
 		<br>
 		<br>
-		By Zertalious
+		By StateFarmTeam
 	</h4>
 	<div id="btn-horizontal" class="f-center">
-		<button class="ss_button btn_red bevel_red btn_sm" onclick="window.open('https://discord.gg/K24Zxy88VM', '_blank')">Discord</button>
-		<button class="ss_button btn_yolk bevel_yolk btn_sm" onclick="window.open('https://greasyfork.org/en/users/662330-zertalious', '_blank')">More scripts</button>
+		<button class="ss_button btn_red bevel_red btn_sm" onclick="window.open('https://discord.gg/UTqWuQ7nq8', '_blank')">Discord</button>
 	</div>
 	<div id="btn-horizontal" class="f-center">
-		<button class="ss_button btn_green bevel_green btn_sm" onclick="window.open('https://www.instagram.com/zertalious/', '_blank')">Instagram</button>
-		<button class="ss_button btn_blue bevel_blue btn_sm" onclick="window.open('https://twitter.com/Zertalious', '_blank')">Twitter</button>
+		<button class="ss_button btn_green bevel_green btn_sm" onclick="window.open('https://github.com/hydroflame521/StateFarmClient', '_blank')">Github</button>
 	</div>` ) +
 '</div>';
 
@@ -253,7 +251,7 @@ window.addEventListener( 'keyup', function ( event ) {
 
 	switch ( event.code ) {
 
-		case 'KeyB' :
+		case 'KeyC' :
 
 			aimbotEnabled = ! aimbotEnabled;
 
