@@ -1,32 +1,54 @@
 // ==UserScript==
-// @name         State Farm Panel
-// @namespace    https://greasyfork.org/en/users/745409
-// @version      2.2.0
-// @description  Jehro Fork Panel for Shellshockers
-// @author       StateFarmClient forked from JEHRO
-// @match        https://shellshock.io/*
-// @match        https://eggcombat.com/*
-// @match        https://eggfacts.fun/*
-// @match        https://biologyclass.club/*
-// @match        https://egghead.institute/*
-// @match        https://egg.dance/*
-// @match        https://eggisthenewblack.com/*
-// @match        https://mathfun.rocks/*
-// @match        https://hardboiled.life/*
-// @match        https://overeasy.club/*
-// @match        https://zygote.cafe/*
-// @match        https://eggsarecool.com/*
-// @match        https://deadlyegg.com/*
-// @match        https://mathgames.world/*
-// @match        https://hardshell.life/*
-// @match        https://violentegg.club/*
-// @match        https://yolk.life/*
-// @match        https://softboiled.club/*
-// @match        https://scrambled.world/*
-// @match        https://algebra.best/*
-// @match        https://scrambled.today/*
-// @match        https://deathegg.world/*
-// @match        https://violentegg.fun/*
+// @name         StateFarm Panel
+// @namespace    https://github.com/hydroflame521/StateFarmClient
+// @version      2.3.10
+// @description  GUI panel for statefarmclient v2.3.10
+// @author       hydroflame521
+// @match        *://shellshock.io/*
+// @match        *://algebra.best/*
+// @match        *://algebra.vip/*
+// @match        *://biologyclass.club/*
+// @match        *://deadlyegg.com/*
+// @match        *://deathegg.world/*
+// @match        *://eggcombat.com/*
+// @match        *://egg.dance/*
+// @match        *://eggfacts.fun/*
+// @match        *://egghead.institute/*
+// @match        *://eggisthenewblack.com/*
+// @match        *://eggsarecool.com/*
+// @match        *://geometry.best/*
+// @match        *://geometry.monster/*
+// @match        *://geometry.pw/*
+// @match        *://geometry.report/*
+// @match        *://hardboiled.life/*
+// @match        *://hardshell.life/*
+// @match        *://humanorganising.org/*
+// @match        *://mathactivity.xyz/*
+// @match        *://mathactivity.club/*
+// @match        *://mathdrills.info/*
+// @match        *://mathfun.rocks/*
+// @match        *://mathgames.world/*
+// @match        *://math.international/*
+// @match        *://mathlete.fun/*
+// @match        *://mathlete.pro/*
+// @match        *://overeasy.club/*
+// @match        *://scrambled.best/*
+// @match        *://scrambled.tech/*
+// @match        *://scrambled.today/*
+// @match        *://scrambled.us/*
+// @match        *://scrambled.world/*
+// @match        *://shellshockers.club/*
+// @match        *://shellshockers.site/*
+// @match        *://shellshockers.us/*
+// @match        *://shellshockers.world/*
+// @match        *://softboiled.club/*
+// @match        *://violentegg.club/*
+// @match        *://violentegg.fun/*
+// @match        *://yolk.best/*
+// @match        *://yolk.life/*
+// @match        *://yolk.rocks/*
+// @match        *://yolk.tech/*
+// @match        *://zygote.cafe/*
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @license      StateFarm
 // @grant        none
@@ -39,7 +61,7 @@
 (function() {
   const addScript = () => {
     //append tab name and game logo
-    document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟬';setTimeout(function(){
+    document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟯';setTimeout(function(){
     document.getElementById("logo").innerHTML = "<img src='https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo192px.png'>";
 }, 4000);
 let style = document.createElement('link');
