@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      2.3.10
+// @version      2.4.1
 // @description  Best Hacked Client for shell shockers
 // @author       hydroflame521
 // @match        *://shellshock.io/*
@@ -113,9 +113,9 @@ window.XMLHttpRequest = class extends window.XMLHttpRequest {
 
 			return code.replace( sceneVarName + '.render()', `
 
-					window[ '${onUpdateFuncName}' ]( 
-						${babylonVarName}, 
-						${playersVarName}, 
+					window[ '${onUpdateFuncName}' ](
+						${babylonVarName},
+						${playersVarName},
 						${myPlayerVarName}
 					);
 
@@ -142,6 +142,8 @@ let espEnabled = true;
 let aimbotEnabled = true;
 let showLines = true;
 let aimbotOnRightMouse = false;
+let packetFlyEnabled = false;
+let meshTP = false;
 
 const value = parseInt( new URLSearchParams( window.location.search ).get( 'shouldShowAd' ), 1 );
 let shouldShowAd = false;
@@ -162,12 +164,12 @@ temp.innerHTML = `
 	z-index: 999999;
 	pointer-events: none;
 }
- 
+
 @keyframes msg {
 	from {
 		transform: translate(-120%, 0);
 	}
- 
+
 	to {
 		transform: none;
 	}
@@ -187,11 +189,15 @@ temp.innerHTML = `
 		<br>
 		[N] to toggle ESP lines
 		<br>
-		[L] to toggle aimbot on <br>right mouse hold 
+		[L] to toggle aimbot on <br>right mouse hold
 		<br>
 		[H] to show/hide help
 		<br>
+        [F] PacketFly (ClientSide Flight Hacking)
 		<br>
+        [M] MeshTP (ClientSide TP)
+        <br>
+        <br>
 		By StateFarmTeam
 	</h4>
 	<div id="btn-horizontal" class="f-center">
@@ -205,7 +211,7 @@ temp.innerHTML = `
 const msgEl = temp.querySelector( '.msg' );
 const infoEl = temp.querySelector( '.info' );
 
-window.addEventListener( 'DOMContentLoaded', async function () {	
+window.addEventListener( 'DOMContentLoaded', async function () {
 
 	while ( temp.children.length > 0 ) {
 
@@ -277,18 +283,24 @@ window.addEventListener( 'keyup', function ( event ) {
 
 		case 'KeyH' :
 
-			infoEl.style.display = infoEl.style.display === '' ? 'none' : ''; 
+			infoEl.style.display = infoEl.style.display === '' ? 'none' : '';
 
 			break;
 
 		case 'KeyL' :
-			
+
 			aimbotOnRightMouse = ! aimbotOnRightMouse;
-			
-			showMsg( 'Aimbot On Right Mouse Hold', aimbotOnRightMouse );
+
+			showMsg( 'RMH', aimbotOnRightMouse );
 
 			break;
+        case 'KeyF' :
 
+            packetFlyEnabled = ! packetFlyEnabled;
+
+            showMsg( 'Packet Fly', packetFlyEnabled );
+
+            break;
 	}
 
 } );
@@ -415,6 +427,35 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
 		}
 
 	}
+
+    if ( packetFlyEnabled ) {
+
+            const xm = myPlayer.actor.mesh.position.x;
+            const ym = myPlayer.actor.mesh.position.y;
+            const zm = myPlayer.actor.mesh.position.z;
+
+            myPlayer.actor.mesh.position.y = myPlayer.actor.mesh.position.y + 1;
+
+        }
+
+    if ( meshTP ) {
+
+            let targetPlayer;
+
+            const xm = myPlayer.actor.mesh.position.x;
+            const ym = myPlayer.actor.mesh.position.y;
+            const zm = myPlayer.actor.mesh.position.z;
+            const xt = targetPlayer.actor.mesh.position.x;
+            const yt = targetPlayer.actor.mesh.position.y;
+            const zt = targetPlayer.actor.mesh.position.z;
+            const farx = targetPlayer.actor.mesh.position.x - myPlayer.actor.mesh.position.x;
+            const fary = targetPlayer.actor.mesh.position.y - myPlayer.actor.mesh.position.y;
+            const farz = targetPlayer.actor.mesh.position.z - myPlayer.actor.mesh.position.z;
+            myPlayer.actor.mesh.position.x = myPlayer.actor.mesh.position.x - farx;
+            myPlayer.actor.mesh.position.y = myPlayer.actor.mesh.position.y - fary;
+            myPlayer.actor.mesh.position.z = myPlayer.actor.mesh.position.z - farz;
+
+        }
 
 	if ( aimbotEnabled && ( aimbotOnRightMouse ? rightMouseDown : true ) && myPlayer.playing ) {
 
