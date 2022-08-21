@@ -35,6 +35,7 @@ You are done with installation!
 - Special modifications to how you see other players on the map, such as size and invisibility.
 - Customizable ClickGUI which also shows you the keybinds for the client, and renames the tab name.
 - Specific features in order to boost your fps while playing
+- Client-Sided packetfly feature for spectation from above.
 
 # How to change the colors of the tracers and PlayerESP:
 1. Download StateFarmClient.js
