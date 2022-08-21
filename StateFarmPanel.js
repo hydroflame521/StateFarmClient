@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Panel
 // @namespace    https://github.com/hydroflame521/StateFarmClient
-// @version      2.3.10
+// @version      2.4.1
 // @description  GUI panel for statefarmclient v2.3.10
 // @author       hydroflame521
 // @match        *://shellshock.io/*
