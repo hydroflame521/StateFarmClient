@@ -61,7 +61,7 @@
 (function() {
   const addScript = () => {
     //append tab name and game logo
-    document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟯';setTimeout(function(){
+    document.title = '𝗦𝘁𝗮𝘁𝗲𝗙𝗮𝗿𝗺𝗖𝗹𝗶𝗲𝗻𝘁 𝘃𝟮.𝟰';setTimeout(function(){
     document.getElementById("logo").innerHTML = "<img src='https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo192px.png'>";
 }, 4000);
 let style = document.createElement('link');
@@ -139,6 +139,7 @@ document.head.appendChild(style);
         PlayerESP: "Keybind set to V",
         XRAY: "Keybind set to Q",
         RMH: "Keybind set to L",
+        PacketFly: "Keybind set to F",
         Help: "Keybind set to H",
         Render:true,
         Creator:"StateFarmClient",
@@ -487,6 +488,7 @@ function espCalc(){
         guiSettings.add(window.settings, 'PlayerESP').onChange();
         guiSettings.add(window.settings, 'XRAY').onChange();
         guiSettings.add(window.settings, 'RMH').onChange();
+        guiSettings.add(window.settings, 'PacketFly').onChange();
         guiSettings.add(window.settings, 'Help').onChange();
         guiSettings.open();
         guiSettings = gui.addFolder('Server Loader');
