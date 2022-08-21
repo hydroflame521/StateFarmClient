@@ -195,8 +195,6 @@ temp.innerHTML = `
 		<br>
         [F] PacketFly (ClientSide Flight Hacking)
 		<br>
-        [M] MeshTP (ClientSide TP)
-        <br>
         <br>
 		By StateFarmTeam
 	</h4>
