@@ -193,7 +193,7 @@ temp.innerHTML = `
 		<br>
 		[H] to show/hide help
 		<br>
-        [F] PacketFly (ClientSide Flight Hacking)
+        [F] to toggle packet fly
 		<br>
         <br>
 		By StateFarmTeam
