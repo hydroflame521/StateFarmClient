@@ -1,6 +1,6 @@
 <H1 align="center">State Farm Client</H1> <img src="https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo6144px.png" align="center" width="128" height="128" alt="StateFarmClientLogo">
 
-[![Discord](https://img.shields.io/discord/724163890803638273.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/UTqWuQ7nq8) 
+[![Discord](https://img.shields.io/discord/977271202924097586.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2)](https://discord.gg/UTqWuQ7nq8) 
 
 Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO Panel, as well as custom code and modifications. Now with a hack made for the chrome dino game, with code from Hypno7767's dino chrome hack.
 
