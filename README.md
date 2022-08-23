@@ -37,17 +37,6 @@ You are done with installation!
 - Specific features in order to boost your fps while playing
 - Client-Sided packetfly feature for spectation from above.
 
-# How to change the colors of the tracers and PlayerESP:
-1. Download StateFarmClient.js
-2. Find lines 101 and 115, then change the albedo of the (R, G, B)
-3. Use a color finding tool, such as https://www.rapidtables.com/web/color/RGB_Color.html , to find what color you want, then change lines 101 and 115 to your own (R, G, B).
-4. Some example rgb codes are listed below if you would like to use them
-
-- Red (255, 0, 0)
-- Blue (0, 0, 255)
-- Green (0, 255, 0)
-- Yellow (255, 255, 0)
-
 # StateFarm Client for the Chrome Dino Game:
 StateFarm Client now has a hack for the Dino game on chrome https://dino-chrome.com , which offers the hack features listed below:
 - Speed applier GUI Button (Applies drug-like speed to the player)
