@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      2.4.1
+// @version      2.5.6
 // @description  Best Hacked Client for shell shockers
 // @author       hydroflame521
 // @match        *://shellshock.io/*
@@ -112,22 +112,16 @@ window.XMLHttpRequest = class extends window.XMLHttpRequest {
 			console.log( '%cInjecting code...', 'color: red; background: black; font-size: 2em;', getVars() );
 
 			return code.replace( sceneVarName + '.render()', `
-
 					window[ '${onUpdateFuncName}' ](
 						${babylonVarName},
 						${playersVarName},
 						${myPlayerVarName}
 					);
-
 				${sceneVarName}.render()` )
 				.replace( `function ${cullFuncName}`, `
-
 					function ${cullFuncName}() {
-
 						return true;
-
 					}
-
 				function someFunctionWhichWillNeverBeUsedNow` );
 
 		}
@@ -144,6 +138,14 @@ let showLines = true;
 let aimbotOnRightMouse = false;
 let packetFlyEnabled = false;
 let meshTP = false;
+const aimbotBind = 'KeyC';
+let espBind = 'KeyV';
+let tracerBind = 'KeyN';
+let helpBind = 'KeyH';
+let rmhBind = 'KeyL';
+let pflyBind = 'KeyF';
+
+var aimbotVar = aimbotBind;
 
 const value = parseInt( new URLSearchParams( window.location.search ).get( 'shouldShowAd' ), 1 );
 let shouldShowAd = false;
@@ -152,7 +154,6 @@ const temp = document.createElement( 'div' );
 
 temp.innerHTML = `
 <style>
-
 .msg {
 	position: absolute;
 	left: 10px;
@@ -164,17 +165,14 @@ temp.innerHTML = `
 	z-index: 999999;
 	pointer-events: none;
 }
-
 @keyframes msg {
 	from {
 		transform: translate(-120%, 0);
 	}
-
 	to {
 		transform: none;
 	}
 }
-
 </style>
 <div class="popup_window popup_lg roundme_lg msg" style="display: none;"></div>
 ` + '<div class="popup_window popup_lg centered roundme_lg info" style="z-index: 9999999;">' +
@@ -241,6 +239,284 @@ function handleMouse( event ) {
 	}
 
 }
+    const shellMod = {
+        interval: null,
+        gui: null,
+        storedData: {
+            scene: null,
+            camera: null,
+            reticle: null,
+            rainbowCrosshairEnabled: false,
+            colorDelta: 0.89,
+            colorIdx: 0,
+            colors: [[], [], []],
+            skyColor: "#FFFFFF",
+            skyBoxAlpha: 1,
+            useModules: false,
+            fogDensity: 0.01,
+            aimbotEnabledqq: true,
+
+            aimbotVar: "KeyC",
+            espVar: "KeyV",
+            esplinesVar: "KeyN",
+            aimbotrmhVar: "KeyL",
+            helpVar: "KeyH",
+            packetflyVar: "KeyF",
+
+            fogColor: "#FFFFFF",
+        },
+        replacements: {
+            unlockSkins: {
+                regex: /inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/,
+                replace: "rep = `${match[0]}||true`"
+            },
+            camera: {
+                regex: /.push\(([A-z])\),\w.maxZ=100/,
+                replace: "rep = `${match[0]},window.modHelper.camera=${match[1]}`"
+            },
+            scene: {
+                regex: /([A-z][A-z])\.fogDensity=.01\);/,
+                replace: "rep = `${match[0]}window.modHelper.scene=${match[1]};`"
+            },
+            crosshairs: {
+                regex: /document.getElementById\("dotReticle"\)/,
+                replace: "rep = `${match[0]};window.modHelper.reticle=this;${atob('ZG9jdW1lbnQudGl0bGU=')}=atob('U2hlbGwgU2hvY2tlcnMgfCBNb2RkZWQgYnkgQTMgfCBieSBCbHVlIFdpemFyZCBEaWdpdGFs');`"
+            }
+        },
+        updateSky: function () {
+            if (!this.storedData.scene) return;
+            let skyMesh = this.storedData.scene.getMeshByID("skyBox");
+            if (skyMesh) {
+                if (!skyMesh.oldTexture) skyMesh.oldTexture = skyMesh.material.reflectionTexture;
+
+                if (this.storedData.useSkyColor) {
+                    skyMesh.material.emissiveColor.set(...this.hexToRgb(this.storedData.skyColor));
+                    skyMesh.material.reflectionTexture = null;
+                    skyMesh.material.alpha = this.storedData.skyBoxAlpha;
+
+                } else {
+                    skyMesh.material.emissiveColor.set(...this.hexToRgb("#000000"));
+                    skyMesh.material.reflectionTexture = skyMesh.oldTexture;
+                    skyMesh.material.alpha = 1;
+
+                }
+            }
+        },
+        updateFog: function () {
+            if (!this.storedData.scene) return;
+
+            this.storedData.scene.fogColor.set(...this.hexToRgb(this.storedData.fogColor));
+            this.storedData.scene.fogDensity = this.storedData.fogDensity;
+        },
+        updateAimbotVar: function () {
+           var aimbotVar = 'KeyC';
+        },
+        updateEspVar: function () {
+          let espVar = this.storedData;
+        },
+        updateEsplinesVar: function () {
+          let esplinesVar = this.storedData;
+        },
+        updateAimbotrmhVar: function () {
+          let aimbotrmhVar = this.storedData;
+        },
+        updateHelpVar: function () {
+          let helpVar = this.storedData;
+        },
+        updatePacketflyVar: function () {
+          let packetflyVar = this.storedData;
+        },
+        updateAimbotEnabled: function () {
+          if ( aimbotEnabled = true ) {
+            let aimbotEnabled = false;
+          }
+          else if ( aimbotEnabled = false ) {
+            let aimbotEnabled = true;
+          }
+        },
+        hexToRgb: function (hex) {
+            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255] : [];
+        },
+        doHooks: function () {
+            window.XMLHttpRequest = class extends window.XMLHttpRequest {
+                constructor() {
+                    super(...arguments);
+                }
+                open() {
+                    if (arguments[1] && arguments[1].includes("shellshock.js")) this.scriptMatch = true;
+
+                    super.open(...arguments);
+                }
+                get response() {
+
+                    if (this.scriptMatch) {
+                        let responseText = super.response;
+
+
+                        let rep;
+                        for (let key of Object.keys(shellMod.replacements)) {
+
+                            let replacement = shellMod.replacements[key];
+                            let match = responseText.match(replacement.regex);
+                            if (match) responseText = responseText.replace(match[0], eval(replacement.replace));
+                        }
+
+                        return responseText;
+                    }
+                    return super.response;
+                }
+            };
+
+        },
+        createGUI: function () {
+            this.gui = new guify({
+                title: "<b>State Farm Client v2.4.1</b>",
+                theme: "dark",
+                align: "right",
+                width: 300,
+                barMode: "none",
+                panelMode: "none",
+                opacity: 0.90,
+                root: window.container,
+                open: true
+            });
+
+            this.gui.Register([{
+                type: "folder",
+                label: "Keybinds",
+                open: true
+            }/*, {
+                type: "folder",
+                label: "Modules",
+                open: true
+            }*/]);
+
+            this.gui.Register([{
+                type: "text",
+                label: "Aimbot",
+                object: this.storedData,
+                property: "aimbotVar",
+                onChange: () => this.updateAimbotVar()
+            },{
+                type: "text",
+                label: "ESP",
+                object: this.storedData,
+                property: "espVar",
+                onChange: () => this.updateEspVar()
+            },{
+                type: "text",
+                label: "Tracers",
+                object: this.storedData,
+                property: "esplinesVar",
+                onChange: () => this.updateEsplinesVar()
+            },{
+                type: "text",
+                label: "RMH",
+                object: this.storedData,
+                property: "aimbotrmhVar",
+                onChange: () => this.updateAimbotrmhVar()
+            },{
+                type: "text",
+                label: "Help",
+                object: this.storedData,
+                property: "helpVar",
+                onChange: () => this.updateHelpVar()
+            },{
+                type: "text",
+                label: "PacketFly",
+                object: this.storedData,
+                property: "packetflyVar",
+                onChange: () => this.updatePacketflyVar()
+            }], {
+                folder: "Keybinds"
+            })
+            this.gui.Register([{
+                type: "checkbox",
+                label: "Aimbot",
+                object: this.storedData,
+                property: "aimbotEnabledqq",
+                onChange: () => this.updateAimbotEnabled()
+            }], {
+                folder: "Modules"
+            });
+
+            this.gui.panel.menuButton.style.opacity = 0.3;
+        },
+        loadMod: function () {
+            const addScript = function () {
+                let script = document.createElement('script');
+                script.onload = function () { shellMod.createGUI() };
+                script.src = "https://unpkg.com/guify@0.12.0/lib/guify.min.js";
+                document.body.appendChild(script);
+            }
+            document.body ? addScript() : document.addEventListener("DOMContentLoaded", addScript);
+
+            this.doHooks();
+
+            function HSVtoRGB(h, s, v) {
+                var r, g, b, i, f, p, q, t;
+                i = Math.floor(h * 6);
+                f = h * 6 - i;
+                p = v * (1 - s);
+                q = v * (1 - f * s);
+                t = v * (1 - (1 - f) * s);
+                switch (i % 6) {
+                    case 0: r = v, g = t, b = p; break;
+                    case 1: r = q, g = v, b = p; break;
+                    case 2: r = p, g = v, b = t; break;
+                    case 3: r = p, g = q, b = v; break;
+                    case 4: r = t, g = p, b = v; break;
+                    case 5: r = v, g = p, b = q; break;
+                }
+                return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+            }
+
+            for (let wl = 0; wl < 100; wl++) {
+                const { r, g, b } = HSVtoRGB(wl / 100.0 * 0.85, 1.0, 1.0);
+
+                this.storedData.colors[0].push(r);
+                this.storedData.colors[1].push(g);
+                this.storedData.colors[2].push(b);
+            }
+
+            if (!this.interval) {
+                this.interval = setInterval(function () {
+                    if (shellMod.storedData.rainbowCrosshairEnabled && typeof extern !== "undefined" && extern.inGame) {
+                        for (let i = 0; i < 4; i++) {
+
+                            let ch = shellMod.storedData.reticle.crosshairs[i];
+                            const idx = Math.mod(Math.floor(shellMod.storedData.colorIdx + 30 * i), 100);
+
+                            const rgbString = `rgb(${shellMod.storedData.colors[0][idx]}, ${shellMod.storedData.colors[1][idx]}, ${shellMod.storedData.colors[2][idx]})`;
+                            ch.style.backgroundColor = rgbString;
+                            ch.style.color = rgbString;
+
+                        }
+
+                        shellMod.storedData.colorIdx += shellMod.storedData.colorDelta;
+                        if (shellMod.storedData.colorIdx >= 100) shellMod.storedData.colorIdx = 0;
+                    }
+                    if (typeof extern !== "undefined" && typeof vueApp !== "undefined") {
+                        if (!vueApp.isUpgraded || !extern.account.isSubscriber) { vueApp.setAccountUpgraded(true, ""); extern.account.isSubscriber = true; }
+                    }
+                }, 33);
+            }
+
+            function varEditor() {
+                var aimbotVar = 'KeyC';
+            }
+        }
+
+    }
+
+    window.modHelper = {
+        set scene(c) { shellMod.storedData.scene = c },
+        set camera(c) { shellMod.storedData.camera = c },
+        set reticle(c) { shellMod.storedData.reticle = c }
+    }
+
+    shellMod.loadMod();
 
 window.addEventListener( 'pointerdown', handleMouse );
 window.addEventListener( 'pointerup', handleMouse );
@@ -252,10 +528,9 @@ window.addEventListener( 'keyup', function ( event ) {
 		return;
 
 	}
-
 	switch ( event.code ) {
 
-		case 'KeyC' :
+		case aimbotVar :
 
 			aimbotEnabled = ! aimbotEnabled;
 
@@ -263,7 +538,7 @@ window.addEventListener( 'keyup', function ( event ) {
 
 			break;
 
-		case 'KeyV' :
+		case espBind :
 
 			espEnabled = ! espEnabled;
 
@@ -271,7 +546,7 @@ window.addEventListener( 'keyup', function ( event ) {
 
 			break;
 
-		case 'KeyN' :
+		case tracerBind :
 
 			showLines = ! showLines;
 
@@ -279,20 +554,20 @@ window.addEventListener( 'keyup', function ( event ) {
 
 			break;
 
-		case 'KeyH' :
+		case helpBind :
 
 			infoEl.style.display = infoEl.style.display === '' ? 'none' : '';
 
 			break;
 
-		case 'KeyL' :
+		case rmhBind :
 
 			aimbotOnRightMouse = ! aimbotOnRightMouse;
 
 			showMsg( 'RMH', aimbotOnRightMouse );
 
 			break;
-        case 'KeyF' :
+        case pflyBind :
 
             packetFlyEnabled = ! packetFlyEnabled;
 
