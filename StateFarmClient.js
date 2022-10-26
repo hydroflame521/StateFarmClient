@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      2.5.7
+// @version      2.5.8
 // @description  Best Hacked Client for shell shockers
 // @author       hydroflame521
 // @match        *://shellshock.io/*
@@ -145,7 +145,7 @@ let espBind = 'KeyV';
 let tracerBind = 'KeyN';
 let helpBind = 'KeyH';
 let rmhBind = 'KeyL';
-let pflyBind = 'KeyF';
+let pflyBind = 'KeyG';
 
 var aimbotVar = aimbotBind;
 
@@ -193,7 +193,7 @@ temp.innerHTML = `
 		<br>
 		[H] to show/hide help
 		<br>
-        [F] to toggle packet fly
+        [G] to toggle packet fly
 		<br>
         <br>
 		By StateFarmTeam
@@ -263,7 +263,7 @@ function handleMouse( event ) {
             esplinesVar: "KeyN",
             aimbotrmhVar: "KeyL",
             helpVar: "KeyH",
-            packetflyVar: "KeyF",
+            packetflyVar: "KeyG",
 
             fogColor: "#FFFFFF",
         },
