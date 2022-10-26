@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      2.5.6
+// @version      2.5.7
 // @description  Best Hacked Client for shell shockers
 // @author       hydroflame521
 // @match        *://shellshock.io/*
@@ -26,6 +26,7 @@
 // @match        *://mathactivity.xyz/*
 // @match        *://mathactivity.club/*
 // @match        *://mathdrills.info/*
+// @math         *://mathdrills.life/*
 // @match        *://mathfun.rocks/*
 // @match        *://mathgames.world/*
 // @match        *://math.international/*
@@ -42,6 +43,7 @@
 // @match        *://shellshockers.us/*
 // @match        *://shellshockers.world/*
 // @match        *://softboiled.club/*
+// @match        *://urbanegger.com/*
 // @match        *://violentegg.club/*
 // @match        *://violentegg.fun/*
 // @match        *://yolk.best/*
