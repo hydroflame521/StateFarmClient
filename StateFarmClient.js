@@ -373,7 +373,7 @@ function handleMouse( event ) {
         },
         createGUI: function () {
             this.gui = new guify({
-                title: "<b>State Farm Client v2.4.1</b>",
+                title: "<b>State Farm Client v2.5.8</b>",
                 theme: "dark",
                 align: "right",
                 width: 300,
