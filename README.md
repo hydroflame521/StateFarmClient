@@ -36,6 +36,7 @@ You are done with installation!
 - Customizable ClickGUI which also shows you the keybinds for the client, and renames the tab name.
 - Specific features in order to boost your fps while playing
 - Client-Sided packetfly feature for spectation from above.
+- advanced coordinate system allows you to see your coordinates ( the x and z coords are dilated by 100 to improve their accuracy )
 
 # StateFarm Client for the Chrome Dino Game:
 StateFarm Client now has a hack for the Dino game on chrome https://dino-chrome.com , which offers the hack features listed below:
