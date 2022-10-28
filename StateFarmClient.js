@@ -592,13 +592,13 @@ window.addEventListener( 'keyup', function ( event ) {
             showMsg( 'Packet Fly', packetFlyEnabled );
 
             break;
-	}
 	
 	case myCoord :
 
             myCoords = ! myCoords;
 
             break;
+	}
 
 } );
 
