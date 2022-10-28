@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      2.5.8
+// @version      2.6.1
 // @description  Best Hacked Client for shell shockers
 // @author       hydroflame521
 // @match        *://shellshock.io/*
@@ -140,12 +140,16 @@ let showLines = true;
 let aimbotOnRightMouse = false;
 let packetFlyEnabled = false;
 let meshTP = false;
-const aimbotBind = 'KeyC';
+let myCoords = false;
+
+let aimbotBind = 'KeyC';
 let espBind = 'KeyV';
 let tracerBind = 'KeyN';
 let helpBind = 'KeyH';
 let rmhBind = 'KeyL';
 let pflyBind = 'KeyG';
+let meshtpBind = 'KeyM';
+let myCoord = 'KeyJ';
 
 var aimbotVar = aimbotBind;
 
@@ -193,7 +197,9 @@ temp.innerHTML = `
 		<br>
 		[H] to show/hide help
 		<br>
-        [G] to toggle packet fly
+                [G] to toggle packet fly
+		<br>
+		[J] to toggle Coordinates (ACS)
 		<br>
         <br>
 		By StateFarmTeam
@@ -264,6 +270,7 @@ function handleMouse( event ) {
             aimbotrmhVar: "KeyL",
             helpVar: "KeyH",
             packetflyVar: "KeyG",
+            coordsVar: "KeyJ",
 
             fogColor: "#FFFFFF",
         },
@@ -328,6 +335,9 @@ function handleMouse( event ) {
         updatePacketflyVar: function () {
           let packetflyVar = this.storedData;
         },
+	updateCoordsVar: function () {
+          let coordsVar = this.storedData;
+        },
         updateAimbotEnabled: function () {
           if ( aimbotEnabled = true ) {
             let aimbotEnabled = false;
@@ -373,7 +383,7 @@ function handleMouse( event ) {
         },
         createGUI: function () {
             this.gui = new guify({
-                title: "<b>State Farm Client v2.5.8</b>",
+                title: "<b>State Farm Client v2.6.1</b>",
                 theme: "dark",
                 align: "right",
                 width: 300,
@@ -430,6 +440,12 @@ function handleMouse( event ) {
                 object: this.storedData,
                 property: "packetflyVar",
                 onChange: () => this.updatePacketflyVar()
+            },{
+                type: "text",
+                label: "ACS",
+                object: this.storedData,
+                property: "coordsVar",
+                onChange: () => this.updateCoordsVar()
             }], {
                 folder: "Keybinds"
             })
@@ -577,6 +593,12 @@ window.addEventListener( 'keyup', function ( event ) {
 
             break;
 	}
+	
+	case myCoord :
+
+            myCoords = ! myCoords;
+
+            break;
 
 } );
 
@@ -713,22 +735,27 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
 
         }
 
-    if ( meshTP ) {
+    if ( myCoords ) {
+	    
+	    const konx = myPlayer.actor.mesh.position.x;
+            const kony = myPlayer.actor.mesh.position.y;
+            const konz = myPlayer.actor.mesh.position.z;
 
-            let targetPlayer;
+            const fonx = Number((konx * 100).toFixed(0));
+            const fony = Number((kony).toFixed(0));
+            const fonz = Number((konz * 100).toFixed(0));
 
-            const xm = myPlayer.actor.mesh.position.x;
-            const ym = myPlayer.actor.mesh.position.y;
-            const zm = myPlayer.actor.mesh.position.z;
-            const xt = targetPlayer.actor.mesh.position.x;
-            const yt = targetPlayer.actor.mesh.position.y;
-            const zt = targetPlayer.actor.mesh.position.z;
-            const farx = targetPlayer.actor.mesh.position.x - myPlayer.actor.mesh.position.x;
-            const fary = targetPlayer.actor.mesh.position.y - myPlayer.actor.mesh.position.y;
-            const farz = targetPlayer.actor.mesh.position.z - myPlayer.actor.mesh.position.z;
-            myPlayer.actor.mesh.position.x = myPlayer.actor.mesh.position.x - farx;
-            myPlayer.actor.mesh.position.y = myPlayer.actor.mesh.position.y - fary;
-            myPlayer.actor.mesh.position.z = myPlayer.actor.mesh.position.z - farz;
+            const personalCoordinate = `${fonx}, ${fony}, ${fonz}`;
+
+           var button = document.createElement("Button");
+              button.innerHTML = `${personalCoordinate}`;
+              button.style = "top:1%;left:46%;position:absolute;z-index:99999;padding:20px;background-color:#5EBAD9;border:2px;border-radius:12px;font-weight:bolder;position:absolute;";
+             document.body.appendChild(button);
+             setTimeout(() => { document.body.removeChild(button); }, 2);
+
+           window.requestAnimFrame = (function() {
+             return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback) {
+             window.setTimeout(callback, 1000 / 60);
 
         }
 
