@@ -592,7 +592,7 @@ window.addEventListener( 'keyup', function ( event ) {
             showMsg( 'Packet Fly', packetFlyEnabled );
 
             break;
-	
+
 	case myCoord :
 
             myCoords = ! myCoords;
@@ -736,7 +736,7 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
         }
 
     if ( myCoords ) {
-	    
+
 	    const konx = myPlayer.actor.mesh.position.x;
             const kony = myPlayer.actor.mesh.position.y;
             const konz = myPlayer.actor.mesh.position.z;
@@ -752,10 +752,6 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
               button.style = "top:1%;left:46%;position:absolute;z-index:99999;padding:20px;background-color:#5EBAD9;border:2px;border-radius:12px;font-weight:bolder;position:absolute;";
              document.body.appendChild(button);
              setTimeout(() => { document.body.removeChild(button); }, 2);
-
-           window.requestAnimFrame = (function() {
-             return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback) {
-             window.setTimeout(callback, 1000 / 60);
 
         }
 
