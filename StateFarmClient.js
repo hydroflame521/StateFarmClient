@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://tampermonkey.net/
-// @version      2.6.2
+// @version      2.6.3
 // @description  Best Hacked Client for shell shockers
 // @author       hydroflame521
 // @match        *://shellshock.io/*
@@ -383,7 +383,7 @@ function handleMouse( event ) {
         },
         createGUI: function () {
             this.gui = new guify({
-                title: "<b>State Farm Client v2.6.2</b>",
+                title: "<b>State Farm Client v2.6.3</b>",
                 theme: "dark",
                 align: "right",
                 width: 300,
