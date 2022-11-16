@@ -26,7 +26,7 @@
 // @match        *://mathactivity.xyz/*
 // @match        *://mathactivity.club/*
 // @match        *://mathdrills.info/*
-// @math         *://mathdrills.life/*
+// @match         *://mathdrills.life/*
 // @match        *://mathfun.rocks/*
 // @match        *://mathgames.world/*
 // @match        *://math.international/*
