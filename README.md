@@ -1,5 +1,6 @@
 <H1 align="center">State Farm Client</H1> 
-Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO Panel, as well as custom code and modifications. Now with a hack made for the chrome dino game, with code from Hypno7767's dino chrome hack.\n
+Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO Panel, as well as custom code and modifications. Now with a hack made for the chrome dino game, with code from Hypno7767's dino chrome hack.
+
 
 <a href="https://discord.gg/UTqWuQ7nq8"><img src="https://invidget.switchblade.xyz/UTqWuQ7nq8"/><a/>
 
