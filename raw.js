@@ -1,3 +1,4 @@
+function injectClient() {
 window.XMLHttpRequest = class extends window.XMLHttpRequest {
 
 	open( method, url ) {
@@ -738,3 +739,4 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
 }
 
 delete localStorage[ 'lastVersionPlayed' ];
+}
