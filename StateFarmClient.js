@@ -26,7 +26,7 @@
 // @match        *://mathactivity.xyz/*
 // @match        *://mathactivity.club/*
 // @match        *://mathdrills.info/*
-// @match         *://mathdrills.life/*
+// @match        *://mathdrills.life/*
 // @match        *://mathfun.rocks/*
 // @match        *://mathgames.world/*
 // @match        *://math.international/*
@@ -50,6 +50,7 @@
 // @match        *://yolk.life/*
 // @match        *://yolk.rocks/*
 // @match        *://yolk.tech/*
+// @match        *://yolk.quest/*
 // @match        *://zygote.cafe/*
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @grant        none
