@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         StateFarm Client
-// @namespace    http://tampermonkey.net/
-// @version      2.6.4
-// @description  Best Hacked Client for shell shockers
-// @author       hydroflame521
+// @namespace    http://github.com/
+// @version      2.7.1
+// @description  Best hack client for shellshockers
+// @author       Hydroflame521
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
 // @match        *://algebra.vip/*
@@ -85,7 +85,7 @@ window.XMLHttpRequest = class extends window.XMLHttpRequest {
 
 			try {
 
-				babylonVarName = /new ([a-zA-Z]+)\.Vector3/.exec( code )[ 1 ];
+				babylonVarName = /this\.origin=new ([a-zA-Z]+)\.Vector3/.exec( code )[ 1 ];
 				playersVarName = /([^,]+)=\[\],{}/.exec( code )[ 1 ];
 				myPlayerVarName = /"fire":document.pointerLockElement&&([^&]+)&&/.exec( code )[ 1 ];
 				sceneVarName = /createMapCells\(([^,]+),/.exec( code )[ 1 ];
@@ -115,16 +115,22 @@ window.XMLHttpRequest = class extends window.XMLHttpRequest {
 			console.log( '%cInjecting code...', 'color: red; background: black; font-size: 2em;', getVars() );
 
 			return code.replace( sceneVarName + '.render()', `
+
 					window[ '${onUpdateFuncName}' ](
 						${babylonVarName},
 						${playersVarName},
 						${myPlayerVarName}
 					);
+
 				${sceneVarName}.render()` )
 				.replace( `function ${cullFuncName}`, `
+
 					function ${cullFuncName}() {
+
 						return true;
+
 					}
+
 				function someFunctionWhichWillNeverBeUsedNow` );
 
 		}
@@ -142,6 +148,7 @@ let aimbotOnRightMouse = false;
 let packetFlyEnabled = false;
 let meshTP = false;
 let myCoords = false;
+let antiCheat = false;
 
 let aimbotBind = 'KeyC';
 let espBind = 'KeyV';
@@ -154,64 +161,126 @@ let myCoord = 'KeyJ';
 
 var aimbotVar = aimbotBind;
 
-const value = parseInt( new URLSearchParams( window.location.search ).get( 'shouldShowAd' ), 1 );
+const value = parseInt( new URLSearchParams( window.location.search ).get( 'showAd' ), 16 );
 let shouldShowAd = false;
 
 const temp = document.createElement( 'div' );
 
-temp.innerHTML = `
-<style>
+temp.innerHTML = `<style>
+
+.info {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	padding: 20px;
+	background: rgba(0, 0, 0, 0.8);
+	border: 6px solid rgba(0, 0, 0, 0.2);
+	color: #fff;
+	transform: translate(-50%, -50%);
+	text-align: center;
+	z-index: 999999;
+	font-weight: bolder;
+}
+
+.info * {
+	color: #fff;
+}
+
+.close-icon {
+	position: absolute;
+	right: 5px;
+	top: 5px;
+	width: 20px;
+	height: 20px;
+	opacity: 0.5;
+	cursor: pointer;
+}
+
+.close-icon:before, .close-icon:after {
+	content: ' ';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 100%;
+	height: 20%;
+	transform: translate(-50%, -50%) rotate(-45deg);
+	background: #fff;
+}
+
+.close-icon:after {
+	transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.close-icon:hover {
+	opacity: 1;
+}
+
+.btn {
+	cursor: pointer;
+	padding: 0.5em;
+	background: red;
+	border: 3px solid rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+	transform: scale(0.8);
+}
+
 .msg {
 	position: absolute;
 	left: 10px;
 	bottom: 10px;
-	color: #0E7697;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.6);
 	font-weight: bolder;
 	padding: 15px;
 	animation: msg 0.5s forwards, msg 0.5s reverse forwards 3s;
 	z-index: 999999;
 	pointer-events: none;
 }
+
 @keyframes msg {
 	from {
 		transform: translate(-120%, 0);
 	}
+
 	to {
 		transform: none;
 	}
 }
+
 </style>
-<div class="popup_window popup_lg roundme_lg msg" style="display: none;"></div>
-` + '<div class="popup_window popup_lg centered roundme_lg info" style="z-index: 9999999;">' +
-	( shouldShowAd ? `<h1 class="roundme_sm">Loading ad...</h1>` : `<button class="popup_close clickme roundme_sm" onclick="this.parentNode.style.display='none';"></button>
-	<h1 class="roundme_sm">StateFarm Client</h1>
-	<h4 style="text-align:center;">
-		Keys:
-		<br>
-		[C] to toggle aimbot
-		<br>
-		[V] to toggle ESP
-		<br>
-		[N] to toggle ESP lines
-		<br>
-		[L] to toggle aimbot on <br>right mouse hold
-		<br>
-		[H] to show/hide help
-		<br>
-                [G] to toggle packet fly
-		<br>
-		[J] to toggle Coordinates (ACS)
-		<br>
-        <br>
-		By StateFarmTeam
-	</h4>
-	<div id="btn-horizontal" class="f-center">
-		<button class="ss_button btn_red bevel_red btn_sm" onclick="window.open('https://discord.gg/UTqWuQ7nq8', '_blank')">Discord</button>
+<div class="msg" style="display: none;"></div>
+<div class="info">${shouldShowAd ? `<big>Loading ad...</big>` : `<div class="close-icon" onclick="this.parentNode.style.display='none';"></div>
+	<big>== StateFarmClient v2.7.1 ==</big>
+	<br>
+	<br>
+	[C] to toggle aimbot
+	<br>
+	[V] to toggle ESP
+	<br>
+	[N] to toggle ESP Lines
+	<br>
+	[L] to toggle aimbot on right mouse hold
+	<br>
+	[H] to show/hide help
+    <br>
+    [G] to enable camera fly
+    <br>
+    [J] to enable coordinate tracking
+    <br>
+    [M] to enable mesh teleport (deprecated)
+	<br>
+	<br>
+	By Hydroflame521
+	<br>
+	<br>
+	<div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 5px;">
+		<div class="btn" onclick="window.open('https://discord.gg/mPa95HB7Q6', '_blank')">Discord</div>
+		<div class="btn" onclick="window.open('https://github.com/hydroflame521/StateFarmClient', '_blank')">Github</div>
 	</div>
-	<div id="btn-horizontal" class="f-center">
-		<button class="ss_button btn_green bevel_green btn_sm" onclick="window.open('https://github.com/hydroflame521/StateFarmClient', '_blank')">Github</button>
-	</div>` ) +
-'</div>';
+	` }
+</div>`;
 
 const msgEl = temp.querySelector( '.msg' );
 const infoEl = temp.querySelector( '.info' );
@@ -248,6 +317,7 @@ function handleMouse( event ) {
 	}
 
 }
+
     const shellMod = {
         interval: null,
         gui: null,
@@ -265,6 +335,7 @@ function handleMouse( event ) {
             fogDensity: 0.01,
             aimbotEnabledqq: true,
 
+            bypassVar: true,
             aimbotVar: "KeyC",
             espVar: "KeyV",
             esplinesVar: "KeyN",
@@ -276,10 +347,10 @@ function handleMouse( event ) {
             fogColor: "#FFFFFF",
         },
         replacements: {
-            unlockSkins: {
+            /*unlockSkins: {
                 regex: /inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/,
                 replace: "rep = `${match[0]}||true`"
-            },
+            },*/
             camera: {
                 regex: /.push\(([A-z])\),\w.maxZ=100/,
                 replace: "rep = `${match[0]},window.modHelper.camera=${match[1]}`"
@@ -317,6 +388,9 @@ function handleMouse( event ) {
 
             this.storedData.scene.fogColor.set(...this.hexToRgb(this.storedData.fogColor));
             this.storedData.scene.fogDensity = this.storedData.fogDensity;
+        },
+        updateBypassVar: function () {
+           let bypassVar = this.storedData;
         },
         updateAimbotVar: function () {
            var aimbotVar = 'KeyC';
@@ -384,10 +458,10 @@ function handleMouse( event ) {
         },
         createGUI: function () {
             this.gui = new guify({
-                title: "<b>State Farm Client v2.6.3</b>",
+                title: "<b>State Farm Client v2.7</b>",
                 theme: "dark",
                 align: "right",
-                width: 300,
+                width: 250,
                 barMode: "none",
                 panelMode: "none",
                 opacity: 0.90,
@@ -406,6 +480,12 @@ function handleMouse( event ) {
             }*/]);
 
             this.gui.Register([{
+                type: "checkbox",
+                label: "Bypass",
+                object: this.storedData,
+                property: "bypassVar",
+                onChange: () => this.updateBypassVar()
+            },{
                 type: "text",
                 label: "Aimbot",
                 object: this.storedData,
@@ -437,13 +517,13 @@ function handleMouse( event ) {
                 onChange: () => this.updateHelpVar()
             },{
                 type: "text",
-                label: "PacketFly",
+                label: "CamFly",
                 object: this.storedData,
                 property: "packetflyVar",
                 onChange: () => this.updatePacketflyVar()
             },{
                 type: "text",
-                label: "ACS",
+                label: "CoordDB",
                 object: this.storedData,
                 property: "coordsVar",
                 onChange: () => this.updateCoordsVar()
@@ -460,7 +540,7 @@ function handleMouse( event ) {
                 folder: "Modules"
             });
 
-            this.gui.panel.menuButton.style.opacity = 0.3;
+            this.gui.panel.menuButton.style.opacity = 0.4;
         },
         loadMod: function () {
             const addScript = function () {
@@ -547,6 +627,7 @@ window.addEventListener( 'keyup', function ( event ) {
 		return;
 
 	}
+
 	switch ( event.code ) {
 
 		case aimbotVar :
@@ -594,11 +675,14 @@ window.addEventListener( 'keyup', function ( event ) {
 
             break;
 
-	case myCoord :
+	    case myCoord :
 
-            myCoords = ! myCoords;
+             myCoords = ! myCoords;
 
-            break;
+             showMsg( 'Coordinates', myCoords );
+
+             break;
+
 	}
 
 } );
@@ -726,7 +810,7 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
 
 	}
 
-    if ( packetFlyEnabled ) {
+        if ( packetFlyEnabled ) {
 
             const xm = myPlayer.actor.mesh.position.x;
             const ym = myPlayer.actor.mesh.position.y;
@@ -750,11 +834,29 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
 
            var button = document.createElement("Button");
               button.innerHTML = `${personalCoordinate}`;
-              button.style = "top:1%;left:46%;position:absolute;z-index:99999;padding:20px;background-color:#5EBAD9;border:2px;border-radius:12px;font-weight:bolder;position:absolute;";
+              button.style = "top:1%;left:46%;position:absolute;z-index:99999;padding:20px;background:rgba(0,0,0,0.2);border:6px solid rgba(0,0,0,0.2);color:#fff;font-weight:bolder;position:absolute;text-align:center;";
              document.body.appendChild(button);
              setTimeout(() => { document.body.removeChild(button); }, 2);
 
         }
+
+    if ( antiCheat ) {
+
+       	    const lonx = myPlayer.actor.mesh.position.x;
+            const lony = myPlayer.actor.mesh.position.y;
+            const lonz = myPlayer.actor.mesh.position.z;
+            const gonx = Number((lonx * 100).toFixed(0));
+            const gony = Number((lony).toFixed(0));
+            const gonz = Number((lonz * 100).toFixed(0));
+            const personalCoordinateB = `${gonx}, ${gony}, ${gonz}`;
+            const anticheatBypass = personalCoordinateB;
+
+            if ( myPlayer.personalCoordinateB != myPlayer.personalCoordinateBypass )
+            {
+               anticheatBypass;
+            }
+
+    }
 
 	if ( aimbotEnabled && ( aimbotOnRightMouse ? rightMouseDown : true ) && myPlayer.playing ) {
 
