@@ -10,6 +10,8 @@
 // @match        *://biologyclass.club/*
 // @match        *://deadlyegg.com/*
 // @match        *://deathegg.world/*
+// @match        *://eggboy.club/*
+// @match        *://eggboy.xyz/*
 // @match        *://eggcombat.com/*
 // @match        *://egg.dance/*
 // @match        *://eggfacts.fun/*
@@ -42,6 +44,8 @@
 // @match        *://shellshockers.site/*
 // @match        *://shellshockers.us/*
 // @match        *://shellshockers.world/*
+// @match        *://shellshockers.xyz/*
+// @match        *://shellsocks.com/*
 // @match        *://softboiled.club/*
 // @match        *://urbanegger.com/*
 // @match        *://violentegg.club/*
@@ -51,6 +55,7 @@
 // @match        *://yolk.rocks/*
 // @match        *://yolk.tech/*
 // @match        *://yolk.quest/*
+// @match        *://yolk.today/*
 // @match        *://zygote.cafe/*
 // @icon         https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @grant        none
@@ -58,7 +63,7 @@
 // ==/UserScript==
 
 window.XMLHttpRequest = class extends window.XMLHttpRequest {
-
+//use egg.hydro.tk as your shell shockers link! StateFarmClient does not list it in the proxy list, but it will always support it.
 	open( method, url ) {
 
 		if ( url.indexOf( 'shellshock.js' ) > - 1 ) {
