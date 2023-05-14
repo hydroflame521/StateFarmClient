@@ -27,6 +27,7 @@ You are done with installation!
 6. Our list of proxies can be found as a file in the "others" folder in this github repository. Have fun!
 
 # ClickGUI
+  Not all buttons currently functions due to issues in code implementation but I hope to fix them in the future.
   
   <H1 align="center"><img src="https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/gui.png"></img></H1>
 
