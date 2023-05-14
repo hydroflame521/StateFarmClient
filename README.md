@@ -26,19 +26,9 @@ You are done with installation!
 
 6. Our list of proxies can be found as a file in the "others" folder in this github repository. Have fun!
 
-# Features of State Farm Client over Zertalious Aimbot:
-- State Farm Client updates to support shell shockers proxies, so you can use the client at school on the newest public shell shockers links.
-- State Farm Client has easier keybinds to give you a smoother and less detectable playing experience.
-- There aren't extra advertisements injected into your game by the client
-- State Farm Client is still being worked on and developed actively.
-- State Farm has more color options for the ESP modules available with more coming on the way.
-- State Farm has a GUI with many different features for rendering and visual modification.
-- Force Loader for Shell Shockers that makes the site reload
-- Special modifications to how you see other players on the map, such as size and invisibility.
-- Customizable ClickGUI which also shows you the keybinds for the client, and renames the tab name.
-- Specific features in order to boost your fps while playing
-- Client-Sided packetfly feature for spectation from above.
-- advanced coordinate system allows you to see your coordinates ( the x and z coords are dilated by 100 to improve their accuracy )
+#ClickGUI
+<img src="https://raw.githubusercontent.com/hydroflame521/StateFarmClient/main/icons/gui.png"></img>
+
 
 # StateFarm Client for the Chrome Dino Game:
 StateFarm Client now has a hack for the Dino game on chrome https://dino-chrome.com , which offers the hack features listed below:
@@ -47,7 +37,6 @@ StateFarm Client now has a hack for the Dino game on chrome https://dino-chrome.
 - Extremely small and compact, a bit buggy, but effective
 
 # Credits:
-- A3+++ for the ClickGUI API and lib.js
-- Zertalious for AngleAura and render definitions
+- Zertalious for angles, rendering, and keybinding
 - Hypno7767 for dino game hack script
-- A3+++ for some client-side "free skins" script
+- flygOn for the main hpDetect js 
