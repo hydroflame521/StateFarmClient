@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://github.com/
-// @version      2.7.1
+// @version      2.9b
 // @description  Best hack client for shellshockers
 // @author       Hydroflame521
 // @match        *://shellshock.io/*
@@ -151,9 +151,9 @@ let aimbotEnabled = true;
 let showLines = true;
 let aimbotOnRightMouse = false;
 let packetFlyEnabled = false;
-let meshTP = false;
-let myCoords = false;
+var myCoords = false;
 let antiCheat = false;
+let hpDetect = false;
 
 let aimbotBind = 'KeyC';
 let espBind = 'KeyV';
@@ -161,8 +161,8 @@ let tracerBind = 'KeyN';
 let helpBind = 'KeyH';
 let rmhBind = 'KeyL';
 let pflyBind = 'KeyG';
-let meshtpBind = 'KeyM';
 let myCoord = 'KeyJ';
+let hpBind = 'KeyZ';
 
 var aimbotVar = aimbotBind;
 
@@ -175,16 +175,24 @@ temp.innerHTML = `<style>
 
 .info {
 	position: absolute;
-	left: 50%;
-	top: 50%;
+	right: 1%;
+	top: 1%;
 	padding: 20px;
 	background: rgba(0, 0, 0, 0.8);
 	border: 6px solid rgba(0, 0, 0, 0.2);
 	color: #fff;
-	transform: translate(-50%, -50%);
 	text-align: center;
 	z-index: 999999;
 	font-weight: bolder;
+}
+
+
+a:link {
+  color: white;
+  text-decoration: none;
+}
+a:hover {
+  color: red;
 }
 
 .info * {
@@ -222,12 +230,23 @@ temp.innerHTML = `<style>
 
 .btn {
 	cursor: pointer;
-	padding: 0.5em;
+	padding: 0.1em;
 	background: red;
 	border: 3px solid rgba(0, 0, 0, 0.2);
 }
 
 .btn:active {
+	transform: scale(0.8);
+}
+
+.btnb {
+	cursor: pointer;
+	padding: 0.1em;
+	background: #EBC909;
+	border: 3px solid rgba(0, 0, 0, 0.2);
+}
+
+.btnb:active {
 	transform: scale(0.8);
 }
 
@@ -257,33 +276,25 @@ temp.innerHTML = `<style>
 </style>
 <div class="msg" style="display: none;"></div>
 <div class="info">${shouldShowAd ? `<big>Loading ad...</big>` : `<div class="close-icon" onclick="this.parentNode.style.display='none';"></div>
-	<big>== StateFarmClient v2.7.1 ==</big>
+	<big>== StateFarmClient v2.9b ==</big>
 	<br>
-	<br>
-	[C] to toggle aimbot
-	<br>
-	[V] to toggle ESP
-	<br>
-	[N] to toggle ESP Lines
-	<br>
-	[L] to toggle aimbot on right mouse hold
-	<br>
-	[H] to show/hide help
-    <br>
-    [G] to enable camera fly
-    <br>
-    [J] to enable coordinate tracking
-    <br>
-    [M] to enable mesh teleport (deprecated)
-	<br>
-	<br>
-	By Hydroflame521
-	<br>
-	<br>
-	<div style="display: grid; grid-template-columns: 1fr 1fr; grid-gap: 5px;">
-		<div class="btn" onclick="window.open('https://discord.gg/mPa95HB7Q6', '_blank')">Discord</div>
-		<div class="btn" onclick="window.open('https://github.com/hydroflame521/StateFarmClient', '_blank')">Github</div>
-	</div>
+    <hr/>
+        Client Modules:
+		<div class="btn" style="margin: 5px 0px 5px 0px;" onclick="window.open('https://classroom.google.com/', '_blank')">[X] Panic</div>
+        <div class="btn" id="menubutton" style="margin: 5px 0px 5px 0px;">[H] Mod Menu</div>
+    <hr/>
+        Exploits:
+        <div class="btn" id="aimbotbutton" style="margin: 5px 0px 5px 0px;">[C] Aimbot</div>
+        <div class="btn" id="espbutton" style="margin: 5px 0px 5px 0px;">[V] ESP Outlines</div>
+        <div class="btn" id="tracerbutton" style="margin: 5px 0px 5px 0px;">[N] Tracers</div>
+        <div class="btn" id="rmhbutton" style="margin: 5px 0px 5px 0px;">[L] Right Mouse Hold</div>
+    <hr/>
+        Unstable Modules:
+        <div class="btnb" id="packetflybutton" title="this relocates your camera upwards. Will be remodeled to freecam in the future" style="margin: 5px 0px 5px 0px;">[G] Packet Fly</div>
+        <div class="btnb" id="coordbutton" title="NOTICE: This Module will cause significant FPS drops, especially on lower-end devices.\nThis module displays your coordinates (X,Y,Z)" style="margin: 5px 0px 5px 0px;">[J] Coordinates</div>
+        <div class="btnb" id="hpbutton" title="NOTICE: This Module will cause significant FPS drops, especially on lower-end devices.\nThis module will create a second player list that displays the health and status of other active players." style="margin: 5px 0px 5px 0px;">[Z] HP Detect</div>
+    <hr/>
+        <a href="https://discord.gg/mPa95HB7Q6">Discord</a> | <a href="https://github.com/hydroflame521/StateFarmClient">Github</a> | <a href="https://youtube.com/@hydroflame521">Youtube</a>
 	` }
 </div>`;
 
@@ -322,305 +333,6 @@ function handleMouse( event ) {
 	}
 
 }
-
-    const shellMod = {
-        interval: null,
-        gui: null,
-        storedData: {
-            scene: null,
-            camera: null,
-            reticle: null,
-            rainbowCrosshairEnabled: false,
-            colorDelta: 0.89,
-            colorIdx: 0,
-            colors: [[], [], []],
-            skyColor: "#FFFFFF",
-            skyBoxAlpha: 1,
-            useModules: false,
-            fogDensity: 0.01,
-            aimbotEnabledqq: true,
-
-            bypassVar: true,
-            aimbotVar: "KeyC",
-            espVar: "KeyV",
-            esplinesVar: "KeyN",
-            aimbotrmhVar: "KeyL",
-            helpVar: "KeyH",
-            packetflyVar: "KeyG",
-            coordsVar: "KeyJ",
-
-            fogColor: "#FFFFFF",
-        },
-        replacements: {
-            /*unlockSkins: {
-                regex: /inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/,
-                replace: "rep = `${match[0]}||true`"
-            },*/
-            camera: {
-                regex: /.push\(([A-z])\),\w.maxZ=100/,
-                replace: "rep = `${match[0]},window.modHelper.camera=${match[1]}`"
-            },
-            scene: {
-                regex: /([A-z][A-z])\.fogDensity=.01\);/,
-                replace: "rep = `${match[0]}window.modHelper.scene=${match[1]};`"
-            },
-            crosshairs: {
-                regex: /document.getElementById\("dotReticle"\)/,
-                replace: "rep = `${match[0]};window.modHelper.reticle=this;${atob('ZG9jdW1lbnQudGl0bGU=')}=atob('U2hlbGwgU2hvY2tlcnMgfCBNb2RkZWQgYnkgQTMgfCBieSBCbHVlIFdpemFyZCBEaWdpdGFs');`"
-            }
-        },
-        updateSky: function () {
-            if (!this.storedData.scene) return;
-            let skyMesh = this.storedData.scene.getMeshByID("skyBox");
-            if (skyMesh) {
-                if (!skyMesh.oldTexture) skyMesh.oldTexture = skyMesh.material.reflectionTexture;
-
-                if (this.storedData.useSkyColor) {
-                    skyMesh.material.emissiveColor.set(...this.hexToRgb(this.storedData.skyColor));
-                    skyMesh.material.reflectionTexture = null;
-                    skyMesh.material.alpha = this.storedData.skyBoxAlpha;
-
-                } else {
-                    skyMesh.material.emissiveColor.set(...this.hexToRgb("#000000"));
-                    skyMesh.material.reflectionTexture = skyMesh.oldTexture;
-                    skyMesh.material.alpha = 1;
-
-                }
-            }
-        },
-        updateFog: function () {
-            if (!this.storedData.scene) return;
-
-            this.storedData.scene.fogColor.set(...this.hexToRgb(this.storedData.fogColor));
-            this.storedData.scene.fogDensity = this.storedData.fogDensity;
-        },
-        updateBypassVar: function () {
-           let bypassVar = this.storedData;
-        },
-        updateAimbotVar: function () {
-           var aimbotVar = 'KeyC';
-        },
-        updateEspVar: function () {
-          let espVar = this.storedData;
-        },
-        updateEsplinesVar: function () {
-          let esplinesVar = this.storedData;
-        },
-        updateAimbotrmhVar: function () {
-          let aimbotrmhVar = this.storedData;
-        },
-        updateHelpVar: function () {
-          let helpVar = this.storedData;
-        },
-        updatePacketflyVar: function () {
-          let packetflyVar = this.storedData;
-        },
-	updateCoordsVar: function () {
-          let coordsVar = this.storedData;
-        },
-        updateAimbotEnabled: function () {
-          if ( aimbotEnabled = true ) {
-            let aimbotEnabled = false;
-          }
-          else if ( aimbotEnabled = false ) {
-            let aimbotEnabled = true;
-          }
-        },
-        hexToRgb: function (hex) {
-            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255] : [];
-        },
-        doHooks: function () {
-            window.XMLHttpRequest = class extends window.XMLHttpRequest {
-                constructor() {
-                    super(...arguments);
-                }
-                open() {
-                    if (arguments[1] && arguments[1].includes("shellshock.js")) this.scriptMatch = true;
-
-                    super.open(...arguments);
-                }
-                get response() {
-
-                    if (this.scriptMatch) {
-                        let responseText = super.response;
-
-
-                        let rep;
-                        for (let key of Object.keys(shellMod.replacements)) {
-
-                            let replacement = shellMod.replacements[key];
-                            let match = responseText.match(replacement.regex);
-                            if (match) responseText = responseText.replace(match[0], eval(replacement.replace));
-                        }
-
-                        return responseText;
-                    }
-                    return super.response;
-                }
-            };
-
-        },
-        createGUI: function () {
-            this.gui = new guify({
-                title: "<b>State Farm Client v2.7</b>",
-                theme: "dark",
-                align: "right",
-                width: 250,
-                barMode: "none",
-                panelMode: "none",
-                opacity: 0.90,
-                root: window.container,
-                open: true
-            });
-
-            this.gui.Register([{
-                type: "folder",
-                label: "Keybinds",
-                open: true
-            }/*, {
-                type: "folder",
-                label: "Modules",
-                open: true
-            }*/]);
-
-            this.gui.Register([{
-                type: "checkbox",
-                label: "Bypass",
-                object: this.storedData,
-                property: "bypassVar",
-                onChange: () => this.updateBypassVar()
-            },{
-                type: "text",
-                label: "Aimbot",
-                object: this.storedData,
-                property: "aimbotVar",
-                onChange: () => this.updateAimbotVar()
-            },{
-                type: "text",
-                label: "ESP",
-                object: this.storedData,
-                property: "espVar",
-                onChange: () => this.updateEspVar()
-            },{
-                type: "text",
-                label: "Tracers",
-                object: this.storedData,
-                property: "esplinesVar",
-                onChange: () => this.updateEsplinesVar()
-            },{
-                type: "text",
-                label: "RMH",
-                object: this.storedData,
-                property: "aimbotrmhVar",
-                onChange: () => this.updateAimbotrmhVar()
-            },{
-                type: "text",
-                label: "Help",
-                object: this.storedData,
-                property: "helpVar",
-                onChange: () => this.updateHelpVar()
-            },{
-                type: "text",
-                label: "CamFly",
-                object: this.storedData,
-                property: "packetflyVar",
-                onChange: () => this.updatePacketflyVar()
-            },{
-                type: "text",
-                label: "CoordDB",
-                object: this.storedData,
-                property: "coordsVar",
-                onChange: () => this.updateCoordsVar()
-            }], {
-                folder: "Keybinds"
-            })
-            this.gui.Register([{
-                type: "checkbox",
-                label: "Aimbot",
-                object: this.storedData,
-                property: "aimbotEnabledqq",
-                onChange: () => this.updateAimbotEnabled()
-            }], {
-                folder: "Modules"
-            });
-
-            this.gui.panel.menuButton.style.opacity = 0.4;
-        },
-        loadMod: function () {
-            const addScript = function () {
-                let script = document.createElement('script');
-                script.onload = function () { shellMod.createGUI() };
-                script.src = "https://unpkg.com/guify@0.12.0/lib/guify.min.js";
-                document.body.appendChild(script);
-            }
-            document.body ? addScript() : document.addEventListener("DOMContentLoaded", addScript);
-
-            this.doHooks();
-
-            function HSVtoRGB(h, s, v) {
-                var r, g, b, i, f, p, q, t;
-                i = Math.floor(h * 6);
-                f = h * 6 - i;
-                p = v * (1 - s);
-                q = v * (1 - f * s);
-                t = v * (1 - (1 - f) * s);
-                switch (i % 6) {
-                    case 0: r = v, g = t, b = p; break;
-                    case 1: r = q, g = v, b = p; break;
-                    case 2: r = p, g = v, b = t; break;
-                    case 3: r = p, g = q, b = v; break;
-                    case 4: r = t, g = p, b = v; break;
-                    case 5: r = v, g = p, b = q; break;
-                }
-                return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
-            }
-
-            for (let wl = 0; wl < 100; wl++) {
-                const { r, g, b } = HSVtoRGB(wl / 100.0 * 0.85, 1.0, 1.0);
-
-                this.storedData.colors[0].push(r);
-                this.storedData.colors[1].push(g);
-                this.storedData.colors[2].push(b);
-            }
-
-            if (!this.interval) {
-                this.interval = setInterval(function () {
-                    if (shellMod.storedData.rainbowCrosshairEnabled && typeof extern !== "undefined" && extern.inGame) {
-                        for (let i = 0; i < 4; i++) {
-
-                            let ch = shellMod.storedData.reticle.crosshairs[i];
-                            const idx = Math.mod(Math.floor(shellMod.storedData.colorIdx + 30 * i), 100);
-
-                            const rgbString = `rgb(${shellMod.storedData.colors[0][idx]}, ${shellMod.storedData.colors[1][idx]}, ${shellMod.storedData.colors[2][idx]})`;
-                            ch.style.backgroundColor = rgbString;
-                            ch.style.color = rgbString;
-
-                        }
-
-                        shellMod.storedData.colorIdx += shellMod.storedData.colorDelta;
-                        if (shellMod.storedData.colorIdx >= 100) shellMod.storedData.colorIdx = 0;
-                    }
-                    if (typeof extern !== "undefined" && typeof vueApp !== "undefined") {
-                        if (!vueApp.isUpgraded || !extern.account.isSubscriber) { vueApp.setAccountUpgraded(true, ""); extern.account.isSubscriber = true; }
-                    }
-                }, 33);
-            }
-
-            function varEditor() {
-                var aimbotVar = 'KeyC';
-            }
-        }
-
-    }
-
-    window.modHelper = {
-        set scene(c) { shellMod.storedData.scene = c },
-        set camera(c) { shellMod.storedData.camera = c },
-        set reticle(c) { shellMod.storedData.reticle = c }
-    }
-
-    shellMod.loadMod();
 
 window.addEventListener( 'pointerdown', handleMouse );
 window.addEventListener( 'pointerup', handleMouse );
@@ -687,6 +399,12 @@ window.addEventListener( 'keyup', function ( event ) {
              showMsg( 'Coordinates', myCoords );
 
              break;
+
+        case hpBind :
+
+            hpDetect = ! hpDetect;
+
+            showMsg( 'HP Detect', hpDetect );
 
 	}
 
@@ -845,6 +563,62 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
 
         }
 
+    if ( hpDetect ) {
+    // main hpdetect code by flyg0n
+    var buttona = document.createElement("Button");
+    buttona.style = "position:absolute;left:10px;top:10px;color:#fff;background:rgba(0, 0, 0, 0.6);font-weight:bolder;padding:15px;z-index:999999;pointer-events:none;";
+    buttona.id = 'buttona';
+    document.body.appendChild(buttona);
+    setTimeout(() => { document.body.removeChild(buttona); }, 2);
+
+    function sortByHealth(a, b) {
+        if (a.hp > b.hp) {
+            return -1;
+        }
+        if (a.hp < b.hp) {
+            return 1;
+        }
+        return 0;
+    }
+
+    function updateHealthDisplay() {
+        let playersArray = Array.from(window.players.values());
+        playersArray.sort(sortByHealth);
+
+        let healthInfo = '';
+        playersArray.forEach((player) => {
+             healthInfo += `${player.name}: ${player.hp === 0 ? 'Paused' : (player.hp).toFixed(0) + ' HP'}<br>`;
+        });
+        buttona.innerHTML = healthInfo;
+    }
+
+    // Store player data
+    window.players = new Map();
+
+    // Intercept push method to store player data
+    const originalPush = Array.prototype.push;
+    Array.prototype.push = function(data) {
+        try {
+            if (arguments[0].player && arguments[0].id) {
+                const playerProxy = new Proxy(arguments[0].player, {
+                    set: (target, property, value) => {
+                        target[property] = value;
+                        if (property === 'hp') {
+                            updateHealthDisplay();
+                        }
+                        return true;
+                    },
+                });
+                window.players.set(playerProxy.id, playerProxy);
+                updateHealthDisplay();
+            }
+        } catch (e) {
+            console.log(e);
+        }
+        return originalPush.apply(this, arguments);
+    };
+    }
+
     if ( antiCheat ) {
 
        	    const lonx = myPlayer.actor.mesh.position.x;
@@ -902,5 +676,11 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
 	}
 
 }
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'x') {
+      window.location.replace("https://classroom.google.com/");
+    }
+})
 
 delete localStorage[ 'lastVersionPlayed' ];
