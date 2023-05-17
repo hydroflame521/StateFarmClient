@@ -1,11 +1,11 @@
 <H1 align="center">State Farm Client</H1> 
-Hack Client for Shell Shockers. Contains code from Zertalious Aimbot and JEHRO Panel, as well as custom code and modifications. Now with a hack made for the chrome dino game, with code from Hypno7767's dino chrome hack.
+Hack Client for Shell Shockers. Contains code from Zertalious Aimbot, as well as custom code and modifications. Now with a hack made for the chrome dino game, with code from Hypno7767's dino chrome hack.
 
 
 <H1 align="center"><a href="https://discord.gg/UTqWuQ7nq8"><img src="https://invidget.switchblade.xyz/UTqWuQ7nq8"/><a/></H1>
 
 
-State Farm Client is a Hack Userscript for the game Shell Shockers. Based off of Zertalious Aimbot, State Farm Client provides a cleaner, more developed script for your hacking needs. State Farm Client uses similar code compared to Zertalious Aimbot, but our client is more advanced, more easily usable, and keeps in mind the issues with the community. The client is made for experimental purposes only and the responsibility of its usage belongs to the player.
+State Farm Client is a Hack Userscript for the game Shell Shockers. The client is a skid of Zertalious Aimbot, without ads and with more features, such as the Coordinate Detector, Mod Menu / ClickGUI, and an HP Detect as well as a Panic function.
 
 # Installation tutorial:
 Before you can install the client, there are a few things you must set up to be able to run userscripts. 
