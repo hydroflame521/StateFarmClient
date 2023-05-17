@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://github.com/
-// @version      2.9b
+// @version      2.9.4
 // @description  Best hack client for shellshockers
 // @author       Hydroflame521
 // @match        *://shellshock.io/*
@@ -154,7 +154,6 @@ let packetFlyEnabled = false;
 var myCoords = false;
 let antiCheat = false;
 let hpDetect = false;
-
 let aimbotBind = 'KeyC';
 let espBind = 'KeyV';
 let tracerBind = 'KeyN';
@@ -186,6 +185,32 @@ temp.innerHTML = `<style>
 	font-weight: bolder;
 }
 
+.coordContainer {
+	position: absolute;
+    right: 46%;
+	top: 1%;
+	padding: 20px;
+	background: rgba(0, 0, 0, 0.8);
+	border: 6px solid rgba(0, 0, 0, 0.2);
+	color: #fff;
+	text-align: center;
+	z-index: 999999;
+	font-weight: bolder;
+}
+
+.hp {
+	position: absolute;
+	right: 1%;
+	top: 1%;
+	padding: 0px;
+	background: rgba(0, 0, 0, 0.8);
+	border: 6px solid rgba(0, 0, 0, 0.2);
+	color: #fff;
+	text-align: center;
+	z-index: 999999;
+	font-weight: bolder;
+}
+
 
 a:link {
   color: white;
@@ -198,6 +223,15 @@ a:hover {
 .info * {
 	color: #fff;
 }
+
+.coordContainer * {
+	color: #fff;
+}
+
+.hp * {
+	color: #fff;
+}
+
 
 .close-icon {
 	position: absolute;
@@ -276,12 +310,13 @@ a:hover {
 </style>
 <div class="msg" style="display: none;"></div>
 <div class="info">${shouldShowAd ? `<big>Loading ad...</big>` : `<div class="close-icon" onclick="this.parentNode.style.display='none';"></div>
-	<big>== StateFarmClient v2.9b ==</big>
+	<big>== StateFarmClient v2.9.4 ==</big>
 	<br>
     <hr/>
         Client Modules:
-		<div class="btn" style="margin: 5px 0px 5px 0px;" onclick="window.open('https://classroom.google.com/', '_blank')">[X] Panic</div>
+	<div class="btn" style="margin: 5px 0px 5px 0px;" onclick="window.open('https://classroom.google.com/', '_blank')">[X] Panic</div>
         <div class="btn" id="menubutton" style="margin: 5px 0px 5px 0px;">[H] Mod Menu</div>
+        <div class="btn" id="coordbutton" title="This module displays your coordinates (X,Y,Z)" style="margin: 5px 0px 5px 0px;">[J] Coordinates</div>
     <hr/>
         Exploits:
         <div class="btn" id="aimbotbutton" style="margin: 5px 0px 5px 0px;">[C] Aimbot</div>
@@ -291,15 +326,17 @@ a:hover {
     <hr/>
         Unstable Modules:
         <div class="btnb" id="packetflybutton" title="this relocates your camera upwards. Will be remodeled to freecam in the future" style="margin: 5px 0px 5px 0px;">[G] Packet Fly</div>
-        <div class="btnb" id="coordbutton" title="NOTICE: This Module will cause significant FPS drops, especially on lower-end devices.\nThis module displays your coordinates (X,Y,Z)" style="margin: 5px 0px 5px 0px;">[J] Coordinates</div>
         <div class="btnb" id="hpbutton" title="NOTICE: This Module will cause significant FPS drops, especially on lower-end devices.\nThis module will create a second player list that displays the health and status of other active players." style="margin: 5px 0px 5px 0px;">[Z] HP Detect</div>
     <hr/>
         <a href="https://discord.gg/mPa95HB7Q6">Discord</a> | <a href="https://github.com/hydroflame521/StateFarmClient">Github</a> | <a href="https://youtube.com/@hydroflame521">Youtube</a>
 	` }
-</div>`;
+</div>
+<div class="coordContainer"></div>
+`;
 
 const msgEl = temp.querySelector( '.msg' );
 const infoEl = temp.querySelector( '.info' );
+const coordEl = temp.querySelector ( '.coordContainer' );
 
 window.addEventListener( 'DOMContentLoaded', async function () {
 
@@ -398,6 +435,8 @@ window.addEventListener( 'keyup', function ( event ) {
 
              showMsg( 'Coordinates', myCoords );
 
+             coordEl.style.display = coordEl.style.display === '' ? 'none' : '';
+
              break;
 
         case hpBind :
@@ -420,6 +459,17 @@ function showMsg( name, bool ) {
 
 	msgEl.style.display = '';
 
+}
+
+function showCoordinates ( name, bool ) {
+
+    coordEl.innerText = name;
+
+    coordEl.style.display = 'none';
+
+    void coordEl.offsetWidth;
+
+    coordEl.style.display = '';
 }
 
 let lineOrigin, lines;
@@ -554,12 +604,7 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
             const fonz = Number((konz * 100).toFixed(0));
 
             const personalCoordinate = `${fonx}, ${fony}, ${fonz}`;
-
-           var button = document.createElement("Button");
-              button.innerHTML = `${personalCoordinate}`;
-              button.style = "top:1%;left:46%;position:absolute;z-index:99999;padding:20px;background:rgba(0,0,0,0.2);border:6px solid rgba(0,0,0,0.2);color:#fff;font-weight:bolder;position:absolute;text-align:center;";
-             document.body.appendChild(button);
-             setTimeout(() => { document.body.removeChild(button); }, 2);
+            showCoordinates(`${personalCoordinate}`);
 
         }
 
@@ -581,7 +626,7 @@ window[ onUpdateFuncName ] = function ( BABYLON, players, myPlayer ) {
         return 0;
     }
 
-    function updateHealthDisplay() {
+     function updateHealthDisplay() {
         let playersArray = Array.from(window.players.values());
         playersArray.sort(sortByHealth);
 
