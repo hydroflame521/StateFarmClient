@@ -1,9 +1,13 @@
-# Main Proxies:
+# Official Proxies:
+shellshock.io
+
 algebra.best
 algebra.vip
 biologyclass.club
 deadlyegg.com
 deathegg.world
+eggboy.club
+eggboy.xyz
 eggcombat.com
 egg.dance
 eggfacts.fun
@@ -17,9 +21,10 @@ geometry.report
 hardboiled.life
 hardshell.life
 humanorganising.org
-mathactivity.club
 mathactivity.xyz
+mathactivity.club
 mathdrills.info
+mathdrills.life
 mathfun.rocks
 mathgames.world
 math.international
@@ -36,16 +41,20 @@ shellshockers.site
 shellshockers.us
 shellshockers.world
 shellshockers.xyz
+shellsocks.com
 softboiled.club
+urbanegger.com
 violentegg.club
 violentegg.fun
 yolk.best
 yolk.life
 yolk.rocks
 yolk.tech
+yolk.quest
+yolk.today
 zygote.cafe
 
-# 3rd Party Proxies:
+# Unofficial Proxies:
 cheezgam.es/shell-shockers-unblocked-online 
 crazygames.com/game/shellshockersio 
 kevin.games/shellshock-io 
