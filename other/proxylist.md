@@ -1,64 +1,64 @@
 # Official Proxies:
-shellshock.io
+- https://shellshock.io
 
-algebra.best
-algebra.vip
-biologyclass.club
-deadlyegg.com
-deathegg.world
-eggboy.club
-eggboy.xyz
-eggcombat.com
-egg.dance
-eggfacts.fun
-egghead.institute
-eggisthenewblack.com
-eggsarecool.com
-geometry.best
-geometry.monster
-geometry.pw
-geometry.report
-hardboiled.life
-hardshell.life
-humanorganising.org
-mathactivity.xyz
-mathactivity.club
-mathdrills.info
-mathdrills.life
-mathfun.rocks
-mathgames.world
-math.international
-mathlete.fun
-mathlete.pro
-overeasy.club
-scrambled.best
-scrambled.tech
-scrambled.today
-scrambled.us
-scrambled.world
-shellshockers.club
-shellshockers.site
-shellshockers.us
-shellshockers.world
-shellshockers.xyz
-shellsocks.com
-softboiled.club
-urbanegger.com
-violentegg.club
-violentegg.fun
-yolk.best
-yolk.life
-yolk.rocks
-yolk.tech
-yolk.quest
-yolk.today
-zygote.cafe
+- https://algebra.best
+- https://algebra.vip
+- https://biologyclass.club
+- https://deadlyegg.com
+- https://deathegg.world
+- https://eggboy.club
+- https://eggboy.xyz
+- https://eggcombat.com
+- https://egg.dance
+- https://eggfacts.fun
+- https://egghead.institute
+- https://eggisthenewblack.com
+- https://eggsarecool.com
+- https://geometry.best
+- https://geometry.monster
+- https://geometry.pw
+- https://geometry.report
+- https://hardboiled.life
+- https://hardshell.life
+- https://humanorganising.org
+- https://mathactivity.xyz
+- https://mathactivity.club
+- https://mathdrills.info
+- https://mathdrills.life
+- https://mathfun.rocks
+- https://mathgames.world
+- https://math.international
+- https://mathlete.fun
+- https://mathlete.pro
+- https://overeasy.club
+- https://scrambled.best
+- https://scrambled.tech
+- https://scrambled.today
+- https://scrambled.us
+- https://scrambled.world
+- https://shellshockers.club
+- https://shellshockers.site
+- https://shellshockers.us
+- https://shellshockers.world
+- https://shellshockers.xyz
+- https://shellsocks.com
+- https://softboiled.club
+- https://urbanegger.com
+- https://violentegg.club
+- https://violentegg.fun
+- https://yolk.best
+- https://yolk.life
+- https://yolk.rocks
+- https://yolk.tech
+- https://yolk.quest
+- https://yolk.today
+- https://zygote.cafe
 
 # Unofficial Proxies:
-cheezgam.es/shell-shockers-unblocked-online 
-crazygames.com/game/shellshockersio 
-kevin.games/shellshock-io 
-http://strelyaj.ru/shell_shockers 
-poki.com/en/g/shell-shockers 
-shell-shockers.online 
-yohoho.live/game/shell-shockers.html 
+- https://cheezgam.es/shell-shockers-unblocked-online 
+- https://crazygames.com/game/shellshockersio 
+- https://kevin.games/shellshock-io 
+- https://strelyaj.ru/shell_shockers 
+- https://poki.com/en/g/shell-shockers 
+- https://shell-shockers.online 
+- https://yohoho.live/game/shell-shockers.html 
