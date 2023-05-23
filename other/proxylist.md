@@ -1,6 +1,5 @@
 # Official Proxies:
 - https://shellshock.io
-
 - https://algebra.best
 - https://algebra.vip
 - https://biologyclass.club
