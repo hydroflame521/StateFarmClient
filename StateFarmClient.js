@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client
 // @namespace    http://github.com/
-// @version      2.9.4
+// @version      2.9.5
 // @description  Best hack client for shellshockers
 // @author       Hydroflame521
 // @match        *://shellshock.io/*
@@ -91,7 +91,7 @@ window.XMLHttpRequest = class extends window.XMLHttpRequest {
 			try {
 
 				babylonVarName = /this\.origin=new ([a-zA-Z]+)\.Vector3/.exec( code )[ 1 ];
-				playersVarName = /([^,]+)=\[\],{}/.exec( code )[ 1 ];
+     			playersVarName = /([^,]+)=\[\],[^,]+=\[\],{}/.exec( code )[ 1 ];
 				myPlayerVarName = /"fire":document.pointerLockElement&&([^&]+)&&/.exec( code )[ 1 ];
 				sceneVarName = /createMapCells\(([^,]+),/.exec( code )[ 1 ];
 				cullFuncName = /=([a-zA-Z_$]+)\(this\.mesh,\.[0-9]+\)/.exec( code )[ 1 ];
@@ -310,7 +310,7 @@ a:hover {
 </style>
 <div class="msg" style="display: none;"></div>
 <div class="info">${shouldShowAd ? `<big>Loading ad...</big>` : `<div class="close-icon" onclick="this.parentNode.style.display='none';"></div>
-	<big>== StateFarmClient v2.9.4 ==</big>
+	<big>== StateFarmClient v2.9.5 ==</big>
 	<br>
     <hr/>
         Client Modules:
