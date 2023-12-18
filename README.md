@@ -1,5 +1,4 @@
-
-<H1 align="center">State Farm Client</H1> 
+ <H1 align="center">State Farm Client</H1> 
 Hack Client for Shell Shockers. Starting off as a skid of Zertalious Aimbot, it has been modified to the extent that it is now it's own thing. Now it is one of the most feature rich clients to exist for the game, with custom binding, highly customisable modules, chat mods and more.
 
 Join the discord server for the latest news: https://discord.gg/UTqWuQ7nq8
@@ -28,7 +27,7 @@ All buttons in the ClickGUI are fully usable and the majority have bindings asso
 
 
 <div style="overflow: hidden;">
-  <img src="https://raw.githubusercontent.com/onlypuppy7/StateFarmClient/main/icons/gui2.png" height="1500px" style="float: left; margin-right: 20px;" />
+  <img src="https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/gui2.png" height="1500px" style="float: left; margin-right: 20px;" />
   
 ## Combat Tab:
 
