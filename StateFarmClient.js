@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         StateFarm Client (CHLX)
+// @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.0.0
+// @version      3.0.1
 // @description  Best hack client for shellshockers
 // @author       Hydroflame521 and onlypuppy7
 // @match        *://shellshock.io/*
@@ -11,7 +11,6 @@
 // @match        *://deadlyegg.com/*
 // @match        *://deathegg.world/*
 // @match        *://eggboy.club/*
-// @match        *://eggboy.me/*
 // @match        *://eggboy.xyz/*
 // @match        *://eggcombat.com/*
 // @match        *://egg.dance/*
@@ -58,6 +57,7 @@
 // @match        *://yolk.quest/*
 // @match        *://yolk.today/*
 // @match        *://zygote.cafe/*
+// @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @grant        none
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
 // @run-at       document-start
@@ -66,7 +66,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.0.0";
+    const version="3.0.1";
     //startup sequence
     const startUp=function() {
         mainLoop()
@@ -81,13 +81,15 @@
         localStorage.timesPlayed = 0;
     };
     //INIT VARS
+    window.newGame=false
     let binding=false;
     let lastSpamMessage=0;
     let lastAntiAFKMessage=0;
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
-    const ESPArray=[];
+    let ESPArray=[];
+    let onlinePlayersArray=[];
     const tp={}; // <-- tp = tweakpane
     let bindsArray,msgElement;
     let linesOrigin,lineOrigin,targetPlayer,ammo,ranOneTime;
@@ -751,6 +753,16 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
+    
+        registerModule("maxChatButton",tp.chatTab.pages[0].addInput(
+            {maxChat: (JSON.parse(localStorage.getItem("maxChat")) || 10)}, "maxChat", {
+                label: "Max Ingame",
+                min: 0, //slider
+                max: 30,
+                step: 1,
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        }));
 
         registerModule("disableChatFilterButton",tp.chatTab.pages[0].addInput(
             {disableChatFilter: JSON.parse(localStorage.getItem("disableChatFilter")) || false}, "disableChatFilter", {
@@ -766,19 +778,42 @@
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
 
-        registerModule("chatHighlightButton",tp.chatTab.pages[0].addInput(
-            {chatHighlight: JSON.parse(localStorage.getItem("chatHighlight")) || false}, "chatHighlight", {
-                label: "HighlightTxt",
+        registerModule("joinMessagesButton",tp.chatTab.pages[0].addInput(
+            {joinMessages: JSON.parse(localStorage.getItem("joinMessages")) || false}, "joinMessages", {
+                label: "Join Msgs",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-    
-        registerModule("maxChatButton",tp.chatTab.pages[0].addInput(
-            {maxChat: (JSON.parse(localStorage.getItem("maxChat")) || 10)}, "maxChat", {
-                label: "Max Ingame",
-                min: 0, //slider
-                max: 30,
-                step: 1,
+
+        registerModule("leaveMessagesButton",tp.chatTab.pages[0].addInput(
+            {leaveMessages: JSON.parse(localStorage.getItem("leaveMessages")) || false}, "leaveMessages", {
+                label: "Leave Msgs",
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        }));
+
+        registerFolder("joinLeaveFolder",tp.chatTab.pages[0].addFolder({
+            title: "Join/Leave Msgs Options",
+            expanded: JSON.parse(localStorage.getItem("joinLeaveFolder")) !== null ? JSON.parse(localStorage.getItem("joinLeaveFolder")) : false
+        }));
+
+        registerModule("publicBroadcastButton",tp.joinLeaveFolder.addInput(
+            {publicBroadcast: JSON.parse(localStorage.getItem("publicBroadcast")) || false}, "publicBroadcast", {
+                label: "Send2Chat",
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        }));
+
+        registerModule("brandingButton",tp.joinLeaveFolder.addInput(
+            {branding: JSON.parse(localStorage.getItem("branding")) || false}, "branding", {
+                label: "Branded",
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        }));
+
+        registerModule("chatHighlightButton",tp.chatTab.pages[0].addInput(
+            {chatHighlight: JSON.parse(localStorage.getItem("chatHighlight")) || false}, "chatHighlight", {
+                label: "HighlightTxt",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
@@ -828,6 +863,34 @@
             title: (JSON.parse(localStorage.getItem("antiAFKBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("antiAFK")
+        });
+    
+        tp.joinMessagesBindButton = tp.chatTab.pages[1].addButton({
+            label: "Join Msgs",
+            title: (JSON.parse(localStorage.getItem("joinMessagesBind")) || "Set Bind"),
+        }).on("click", (value) => {
+            initBind("joinMessages")
+        });
+    
+        tp.leaveMessagesBindButton = tp.chatTab.pages[1].addButton({
+            label: "Leave Msgs",
+            title: (JSON.parse(localStorage.getItem("leaveMessagesBind")) || "Set Bind"),
+        }).on("click", (value) => {
+            initBind("leaveMessages")
+        });
+    
+        tp.publicBroadcastBindButton = tp.chatTab.pages[1].addButton({
+            label: "Send2Chat",
+            title: (JSON.parse(localStorage.getItem("publicBroadcastBind")) || "Set Bind"),
+        }).on("click", (value) => {
+            initBind("publicBroadcast")
+        });
+    
+        tp.brandingBindButton = tp.chatTab.pages[1].addButton({
+            label: "Branded",
+            title: (JSON.parse(localStorage.getItem("brandingBind")) || "Set Bind"),
+        }).on("click", (value) => {
+            initBind("branding")
         });
     
         tp.chatHighlightBindButton = tp.chatTab.pages[1].addButton({
@@ -1252,6 +1315,37 @@
     };
     const isPartialMatch = function(array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
+    };     
+    const processChatItem = function(ss,text,playerName,playerTeam,highlightColor) {
+        let chatItem = document.createElement("div");
+        let playerNameSpan = document.createElement("span");
+        let playerInfoContainer = document.createElement("div");
+        let serverIcon = document.createElement("i");
+        
+        chatItem.classList.add("chat-item");
+        playerInfoContainer.style.display = "inline-block";
+    
+        playerNameSpan.classList.add("chat-player-name", "ss_marginright_xs");
+        playerNameSpan.textContent = playerName + " ";
+    
+        playerInfoContainer.style.color = ss.teamColors.text[playerTeam];
+        playerInfoContainer.appendChild(serverIcon);
+        playerInfoContainer.appendChild(playerNameSpan);
+
+        let messageSpan = document.createElement("span");
+        messageSpan.innerHTML = text;
+        chatItem.style.fontStyle = "italic";
+        messageSpan.style.backgroundColor = highlightColor;
+        playerInfoContainer.style.backgroundColor = highlightColor;
+        
+        chatItem.appendChild(playerInfoContainer);
+        chatItem.appendChild(messageSpan);
+        
+        document.getElementById("chatOut").appendChild(chatItem);
+        
+        if (document.querySelector(".chat-container")) {
+            document.querySelector(".chat-container").scrollTop = document.querySelector(".chat-container").scrollHeight;
+        };
     };
     const everySecond = function() {
         coordElement.style.display = 'none';
@@ -1262,7 +1356,7 @@
         
         if ( extract("antiAFK") ) {
             if (Date.now()>(lastAntiAFKMessage+270000)) {
-                sendChatMessage("Anti AFK Message. Censored Word: DATE, GF, SUCK");
+                sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
                 lastAntiAFKMessage=Date.now();
             };
         };
@@ -1322,7 +1416,9 @@
                         getVarName("weapons", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                         // getVarName("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
                         getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
-                        getVarName("map", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)'); //todo
+                        getVarName("map", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
+                        getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
+                        getVarName("vs", '(vs)'); //todo
                         // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
                         
                         showMsg("Script injected!","success")
@@ -1347,8 +1443,20 @@
                     code = code.replace(_, _ + `,${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red")`);
                     //skins
                     let match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
-                    console.log(match)
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
+                    //trajectories
+                    code = code.replace(',console.log("joinGame()',',window.newGame=true,console.log("joinGame()');
+                    //trajectories
+                    // code = code.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
+                    // code = code.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
+                    //disable autopause
+                    // code = code.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function(){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
+                    //safe unfocus
+                    // code = code.replace('document.onpointerlockchange', 'document.dopausingstuff');
+                    // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+                    // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+                    // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+                    // code = code.replace(',xc("down")', '');
                     //adblock
                     // code = code.replace(/z\.isUpgraded\(\)/g,'true');
                     // code = code.replace(/aipAPItag\.sdkBlocked/g,'false');
@@ -1380,9 +1488,13 @@
             ranOneTime=true;
         };
         const initVars = function (ss) {
+            if (window.newGame) {
+                onlinePlayersArray=[];
+                window.newGame=false;
+            };
             if (!lineOrigin) {
                 lineOrigin=new ss.BABYLON.Vector3();
-            }
+            };
             lineOrigin.copyFrom(ss.myPlayer.actor.mesh.position);
         
             const yaw = ss.myPlayer.actor.mesh.rotation.y;
@@ -1484,14 +1596,28 @@
 
                     player.exists=objExists;
                 };
-                if (extract("nametags") && player && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
-                    player.actor.nameSprite._manager.renderingGroupId = 1;
-                    player.actor.nameSprite.renderingGroupId = 1;
-                    var h = Math.length3(player.x - ss.myPlayer.x, player.y - ss.myPlayer.y, player.z - ss.myPlayer.z),
-                    d = Math.pow(h, 1.25)*2;
-                    player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
-                    ss.myPlayer.actor.scene.activeCamera.fov=0.75
-                };
+                if (player) {
+                    if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
+                        player.actor.nameSprite._manager.renderingGroupId = 1;
+                        player.actor.nameSprite.renderingGroupId = 1;
+                        var h = Math.length3(player.x - ss.myPlayer.x, player.y - ss.myPlayer.y, player.z - ss.myPlayer.z),
+                        d = Math.pow(h, 1.25)*2;
+                        player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
+                        ss.myPlayer.actor.scene.activeCamera.fov=0.75
+                    };
+                    if (!player.logged) {
+                        player.logged=true;
+                        if (extract("joinMessages")) {
+                            if (extract("publicBroadcast")) {
+                                sendChatMessage((extract("branding") ? "[SFC] " : "")+player.name+" joined.")
+                            } else {
+                                processChatItem(ss,"joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
+                            };
+                        };
+                        onlinePlayersArray.push([player,player.name,player.team]);
+                    };
+                    player.isOnline=objExists;
+                }
             };
             //update ammoESP boxes, tracer lines, colors
             for (let i=0; i<ss.renderList.length; i++) {
@@ -1523,9 +1649,6 @@
                         //stuff
                         item.generatedESP=true;
                         ESPArray.push([lines,sphere,item,"ammo"]);
-                    };
-                    if (itemType=="grenadeItem"&&isKeyToggled["I"]) {
-                        console.log(i,item.position,item.isEnabled,item._isEnabled)
                     };
                     const sphereMaterial = item.sphere.material;
                     let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
@@ -1566,6 +1689,20 @@
                     item.lines.visibility = willBeVisible && (itemType=="ammo" && extract("ammoTracers") || extract("grenadeTracers"));
 
                     item.exists=objExists;
+                };
+            };
+            for ( let i=0;i<onlinePlayersArray.length;i++) {
+                if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
+                    onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
+                } else {
+                    if (extract("leaveMessages")) {
+                        if (extract("publicBroadcast")) {
+                            sendChatMessage((extract("branding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
+                        } else {
+                            processChatItem(ss,"left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
+                        };
+                    };
+                    onlinePlayersArray.splice(i,1);
                 };
             };
             for ( let i=0;i<ESPArray.length;i++) {
