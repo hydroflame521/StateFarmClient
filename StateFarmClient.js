@@ -75,7 +75,8 @@
             initMenu();
             applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
             getBinds();
-            const intervalId = setInterval(everySecond, 1000);
+            const intervalId1 = setInterval(everySecond, 1000);
+            const intervalId2 = setInterval(updateConfig, 100);
         });
         //block ads kek
         localStorage.timesPlayed = 0;
@@ -96,13 +97,13 @@
     let onlinePlayersArray=[];
     const tp={}; // <-- tp = tweakpane
     let bindsArray,msgElement;
-    let linesOrigin,lineOrigin,targetPlayer,ammo,ranOneTime,lastWeaponBox;
+    let linesOrigin,lineOrigin,targetPlayer,ammo,ranOneTime,lastWeaponBox,config;
     let whitelistPlayers,blacklistPlayers;
     const onUpdateFuncName=btoa(Math.random().toString(32));
     let isRightButtonDown = false;
     //menu interaction functions
     const extract = function(variable) {
-        return tp.pane.exportPreset()[variable];
+        return config[variable];
     };
     const initBind = function(value) {
         if (binding == false) {
@@ -1378,6 +1379,9 @@
             };
         }
     };
+    const updateConfig = function() {
+        config=tp.pane.exportPreset();
+    };
     const sendChatMessage = function (text) {
         chatThing=document.getElementById('chatIn');
         if (chatThing) {
@@ -1508,23 +1512,6 @@
             ranOneTime=true;
         };
         const initVars = function (ss) {
-            const weaponBox = document.getElementById("weaponBox");
-            if (weaponBox.style.display!=lastWeaponBox) {
-                lastWeaponBox=weaponBox.style.display;
-                const maxChat = extract("maxChat");
-                const maxMessages = (weaponBox.style.display === "block" && maxChat) || 9999999;
-                
-                const chatContainer = document.getElementById('chatOut');
-                const chatItems = chatContainer.getElementsByClassName('chat-item');
-                const startIndex = Math.max(0, chatItems.length - maxMessages);
-                
-                for (let i = chatItems.length - 1; i >= 0; i--) {
-                    const chatIndex = i - startIndex;
-                    const isInRange = chatIndex >= 0 && chatIndex < maxMessages;
-                    chatItems[i].style.display = isInRange ? '' : 'none';
-                }
-            }
-
             if (window.newGame) {
                 onlinePlayersArray=[];
                 window.newGame=false;
@@ -1543,6 +1530,23 @@
 
             whitelistPlayers=extract("whitelist").split(',');
             blacklistPlayers=extract("blacklist").split(',');
+
+            const weaponBox = document.getElementById("weaponBox");
+            if (weaponBox.style.display!=lastWeaponBox) {
+                lastWeaponBox=weaponBox.style.display;
+                const maxChat = extract("maxChat");
+                const maxMessages = (weaponBox.style.display === "block" && maxChat) || 9999999;
+                
+                const chatContainer = document.getElementById('chatOut');
+                const chatItems = chatContainer.getElementsByClassName('chat-item');
+                const startIndex = Math.max(0, chatItems.length - maxMessages);
+                
+                for (let i = chatItems.length - 1; i >= 0; i--) {
+                    const chatIndex = i - startIndex;
+                    const isInRange = chatIndex >= 0 && chatIndex < maxMessages;
+                    chatItems[i].style.display = isInRange ? '' : 'none';
+                }
+            }
         };
         const updateLinesESP = function(ss) {
             const objExists=Date.now();
@@ -1882,9 +1886,13 @@
                         ss.myPlayer.yaw = lerp(ss.myPlayer.yaw, targetYaw, antiSnap);
                         ss.myPlayer.pitch = lerp(ss.myPlayer.pitch, targetPitch, antiSnap);
                     };
-                    targetPlayer.lines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
-                    const sphereMaterial = targetPlayer.sphere.material;
-                    sphereMaterial.emissiveColor = sphereMaterial.diffuseColor = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                    if (extract("tracers")) {
+                        targetPlayer.lines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                    }
+                    if (extract("playerESP")) {
+                        const sphereMaterial = targetPlayer.sphere.material;
+                        sphereMaterial.emissiveColor = sphereMaterial.diffuseColor = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                    }
                     if (extract("autoFire")) {
                         if (ammo.capacity>0) {
                             ss.myPlayer.pullTrigger();
