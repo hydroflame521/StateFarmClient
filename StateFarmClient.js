@@ -96,7 +96,7 @@
     let onlinePlayersArray=[];
     const tp={}; // <-- tp = tweakpane
     let bindsArray,msgElement;
-    let linesOrigin,lineOrigin,targetPlayer,ammo,ranOneTime;
+    let linesOrigin,lineOrigin,targetPlayer,ammo,ranOneTime,lastWeaponBox;
     let whitelistPlayers,blacklistPlayers;
     const onUpdateFuncName=btoa(Math.random().toString(32));
     let isRightButtonDown = false;
@@ -1376,19 +1376,6 @@
                     lastAntiAFKMessage=Date.now();
                 };
             };
-            const weaponBox = document.getElementById("weaponBox");
-            const maxChat = extract("maxChat");
-            const maxMessages = (weaponBox.style.display === "block" && maxChat) || 9999999;
-            
-            const chatContainer = document.getElementById('chatOut');
-            const chatItems = chatContainer.getElementsByClassName('chat-item');
-            const startIndex = Math.max(0, chatItems.length - maxMessages);
-            
-            for (let i = chatItems.length - 1; i >= 0; i--) {
-                const chatIndex = i - startIndex;
-                const isInRange = chatIndex >= 0 && chatIndex < maxMessages;
-                chatItems[i].style.display = isInRange ? '' : 'none';
-            }
         }
     };
     const sendChatMessage = function (text) {
@@ -1521,6 +1508,23 @@
             ranOneTime=true;
         };
         const initVars = function (ss) {
+            const weaponBox = document.getElementById("weaponBox");
+            if (weaponBox.style.display!=lastWeaponBox) {
+                lastWeaponBox=weaponBox.style.display;
+                const maxChat = extract("maxChat");
+                const maxMessages = (weaponBox.style.display === "block" && maxChat) || 9999999;
+                
+                const chatContainer = document.getElementById('chatOut');
+                const chatItems = chatContainer.getElementsByClassName('chat-item');
+                const startIndex = Math.max(0, chatItems.length - maxMessages);
+                
+                for (let i = chatItems.length - 1; i >= 0; i--) {
+                    const chatIndex = i - startIndex;
+                    const isInRange = chatIndex >= 0 && chatIndex < maxMessages;
+                    chatItems[i].style.display = isInRange ? '' : 'none';
+                }
+            }
+
             if (window.newGame) {
                 onlinePlayersArray=[];
                 window.newGame=false;
