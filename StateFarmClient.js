@@ -86,7 +86,9 @@
     let lastSpamMessage=0;
     let lastAntiAFKMessage=0;
     let framesPassed=0;
-    let lastLogicRan=0;
+    let lastFramesPassed=0;
+    let secondsPassed=0;
+    let lastSecondPassed=0;
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
@@ -191,7 +193,7 @@
                     let state=change(moduleLabel,module)
                     if (typeof state === "boolean") {
                         state = (state ? 'ON' : 'OFF');
-                    };
+                    }; 
                     if (state!="NOMSG") {
                         state="Set "+module+" to: "+state;
                     } else {
@@ -210,7 +212,7 @@
     const initMenu = function() {
         //INIT MENU
         //init tp.pane
-
+    
         tp.pane = new Tweakpane.Pane();
         tp.pane.title = name+version;
         //init folders
@@ -238,9 +240,9 @@
             title: "Client & About",
             expanded: JSON.parse(localStorage.getItem("clientFolder")) !== null ? JSON.parse(localStorage.getItem("clientFolder")) : true
         }));
-
+    
         //init module/binds tabs
-
+    
         tp.combatTab=tp.combatFolder.addTab({
             pages: [
             {title: 'Modules'},
@@ -277,9 +279,9 @@
             {title: 'Binds'},
             ],
         });
-
+    
         //init combat modules tab
-
+    
         registerModule("aimbotButton",tp.combatTab.pages[0].addInput(
             {aimbot: JSON.parse(localStorage.getItem("aimbot")) || false}, "aimbot", {
                 label: "Aimbot",
@@ -291,7 +293,7 @@
             title: "Aimbot Options",
             expanded: JSON.parse(localStorage.getItem("aimbotFolder")) !== null ? JSON.parse(localStorage.getItem("aimbotFolder")) : false
         }));
-
+    
         registerModule("aimbotTargetingButton",tp.aimbotFolder.addInput(
             {aimbotTargeting: (JSON.parse(localStorage.getItem("aimbotTargeting")) || "pointingat")}, "aimbotTargeting", {
                 label: "Target",
@@ -302,28 +304,28 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("aimbotRightClickButton",tp.aimbotFolder.addInput(
             {aimbotRightClick: JSON.parse(localStorage.getItem("aimbotRightClick")) || false}, "aimbotRightClick", {
                 label: "ToggleRM",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("lockOnButton",tp.aimbotFolder.addInput(
             {lockOn: JSON.parse(localStorage.getItem("lockOn")) || false}, "lockOn", {
                 label: "Lock On",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("predictionButton",tp.aimbotFolder.addInput(
             {prediction: JSON.parse(localStorage.getItem("prediction")) || false}, "prediction", {
                 label: "Prediction",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("aimbotAntiSnapButton",tp.aimbotFolder.addInput(
             {aimbotAntiSnap: 0}, "aimbotAntiSnap", {
                 label: "Antisnap",
@@ -333,102 +335,102 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("aimbotColorButton",tp.aimbotFolder.addInput(
             {aimbotColor: (JSON.parse(localStorage.getItem("aimbotColor")) || "#0000ff")}, "aimbotColor", {
                 label: "ESPColor",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("autoRefillButton",tp.combatTab.pages[0].addInput(
             {autoRefill: JSON.parse(localStorage.getItem("autoRefill")) || false}, "autoRefill", {
                 label: "Auto Refill",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("autoFireButton",tp.combatTab.pages[0].addInput(
             {autoFire: JSON.parse(localStorage.getItem("autoFire")) || false}, "autoFire", {
                 label: "Auto Fire",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         //init combat binds tab
-
+    
         tp.aimbotBindButton = tp.combatTab.pages[1].addButton({
             label: "Aimbot",
             title: (JSON.parse(localStorage.getItem("aimbotBind")) || "V"),
         }).on("click", (value) => {
             initBind("aimbot")
         });
-
+    
         tp.aimbotTargetingBindButton = tp.combatTab.pages[1].addButton({
             label: "Targeting",
             title: (JSON.parse(localStorage.getItem("aimbotTargetingBind")) || "T"),
         }).on("click", (value) => {
             initBind("aimbotTargeting")
         });
-
+    
         tp.aimbotRightClickBindButton = tp.combatTab.pages[1].addButton({
             label: "ToggleRM",
             title: (JSON.parse(localStorage.getItem("aimbotRightClickBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("aimbotRightClick")
         });
-
+    
         tp.lockOnBindButton = tp.combatTab.pages[1].addButton({
             label: "Lock On",
             title: (JSON.parse(localStorage.getItem("lockOnBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("lockOn")
         });
-
+    
         tp.predictionBindButton = tp.combatTab.pages[1].addButton({
             label: "Prediction",
             title: (JSON.parse(localStorage.getItem("predictionBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("prediction")
         });
-
+    
         tp.autoRefillBindButton = tp.combatTab.pages[1].addButton({
             label: "AutoRefill",
             title: (JSON.parse(localStorage.getItem("autoRefillBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("autoRefill")
         });
-
+    
         tp.autoFireBindButton = tp.combatTab.pages[1].addButton({
             label: "Auto Fire",
             title: (JSON.parse(localStorage.getItem("autoFireBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("autoFire")
         });
-
+        
         //init render modules tab
-
+    
         registerModule("playerESPButton",tp.renderTab.pages[0].addInput(
             {playerESP: JSON.parse(localStorage.getItem("playerESP")) || false}, "playerESP", {
                 label: "PlayerESP",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("tracersButton",tp.renderTab.pages[0].addInput(
             {tracers: JSON.parse(localStorage.getItem("tracers")) || false}, "tracers", {
                 label: "Tracers",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("chamsButton",tp.renderTab.pages[0].addInput(
             {chams: JSON.parse(localStorage.getItem("chams")) || false}, "chams", {
                 label: "Chams",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("nametagsButton",tp.renderTab.pages[0].addInput(
             {nametags: JSON.parse(localStorage.getItem("nametags")) || false}, "nametags", {
                 label: "Nametags",
@@ -440,7 +442,7 @@
             title: "Player ESP/Tracers Options",
             expanded: JSON.parse(localStorage.getItem("tracersFolder")) !== null ? JSON.parse(localStorage.getItem("tracersFolder")) : false
         }));
-
+    
         registerModule("tracersTypeButton",tp.tracersFolder.addInput(
             {tracersType: (JSON.parse(localStorage.getItem("tracersType")) || "static")}, "tracersType", {
                 label: "Type",
@@ -451,14 +453,14 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("tracersColor1Button",tp.tracersFolder.addInput(
             {tracersColor1: (JSON.parse(localStorage.getItem("tracersColor1")) || "#ff0000")}, "tracersColor1", {
                 label: "Color 1",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("tracersColor1to2Button",tp.tracersFolder.addInput(
             {tracersColor1to2: (JSON.parse(localStorage.getItem("tracersColor1to2")) || 5)}, "tracersColor1to2", {
                 label: "Dist 1->2",
@@ -468,14 +470,14 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("tracersColor2Button",tp.tracersFolder.addInput(
             {tracersColor2: (JSON.parse(localStorage.getItem("tracersColor2")) || "#00ff00")}, "tracersColor2", {
                 label: "Color 2",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("tracersColor2to3Button",tp.tracersFolder.addInput(
             {tracersColor2to3: (JSON.parse(localStorage.getItem("tracersColor2to3")) || 15)}, "tracersColor2to3", {
                 label: "Dist 2->3",
@@ -485,7 +487,7 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("tracersColor3Button",tp.tracersFolder.addInput(
             {tracersColor3: (JSON.parse(localStorage.getItem("tracersColor3")) || "#ffffff")}, "tracersColor3", {
                 label: "Color 3",
@@ -502,21 +504,21 @@
             title: "Ammo",
             expanded: JSON.parse(localStorage.getItem("ammoFolder")) !== null ? JSON.parse(localStorage.getItem("ammoFolder")) : false
         }));
-
+    
         registerModule("ammoESPButton",tp.ammoFolder.addInput(
             {ammoESP: JSON.parse(localStorage.getItem("ammoESP")) || false}, "ammoESP", {
                 label: "AESP",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("ammoTracersButton",tp.ammoFolder.addInput(
             {ammoTracers: JSON.parse(localStorage.getItem("ammoTracers")) || false}, "ammoTracers", {
                 label: "ATracers",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("ammoESPRegimeButton",tp.ammoFolder.addInput(
             {ammoESPRegime: (JSON.parse(localStorage.getItem("ammoESPRegime")) || "whendepleted")}, "ammoESPRegime", {
                 label: "ARegime",
@@ -529,7 +531,7 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("ammoESPColorButton",tp.ammoFolder.addInput(
             {ammoESPColor: (JSON.parse(localStorage.getItem("ammoESPColor")) || "#ffff00")}, "ammoESPColor", {
                 label: "AColor",
@@ -541,21 +543,21 @@
             title: "Grenades",
             expanded: JSON.parse(localStorage.getItem("grenadesFolder")) !== null ? JSON.parse(localStorage.getItem("grenadesFolder")) : false
         }));
-
+    
         registerModule("grenadeESPButton",tp.grenadesFolder.addInput(
             {grenadeESP: JSON.parse(localStorage.getItem("grenadeESP")) || false}, "grenadeESP", {
                 label: "GESP",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("grenadeTracersButton",tp.grenadesFolder.addInput(
             {grenadeTracers: JSON.parse(localStorage.getItem("grenadeTracers")) || false}, "grenadeTracers", {
                 label: "GTracers",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("grenadeESPRegimeButton",tp.grenadesFolder.addInput(
             {grenadeESPRegime: (JSON.parse(localStorage.getItem("grenadeESPRegime")) || "whendepleted")}, "grenadeESPRegime", {
                 label: "GRegime",
@@ -568,14 +570,14 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("grenadeESPColorButton",tp.grenadesFolder.addInput(
             {grenadeESPColor: (JSON.parse(localStorage.getItem("grenadeESPColor")) || "#00ffff")}, "grenadeESPColor", {
                 label: "GColor",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("fovButton",tp.renderTab.pages[0].addInput(
             {fov: (JSON.parse(localStorage.getItem("fov")) || 72)}, "fov", {
                 label: "FOV",
@@ -585,7 +587,7 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("zoomButton",tp.renderTab.pages[0].addInput(
             {zoom: (JSON.parse(localStorage.getItem("zoom")) || 15)}, "zoom", {
                 label: "Zoom FOV",
@@ -595,35 +597,35 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("freecamButton",tp.renderTab.pages[0].addInput(
             {freecam: JSON.parse(localStorage.getItem("freecam")) || false}, "freecam", {
                 label: "CamWIP",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("showCoordinatesButton",tp.renderTab.pages[0].addInput(
             {showCoordinates: JSON.parse(localStorage.getItem("showCoordinates")) || false}, "showCoordinates", {
                 label: "Co-ords",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("playerStatsButton",tp.renderTab.pages[0].addInput(
             {playerStats: JSON.parse(localStorage.getItem("playerStats")) || false}, "playerStats", {
                 label: "PlayerStats",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("wireframeButton",tp.renderTab.pages[0].addInput(
             {wireframe: JSON.parse(localStorage.getItem("wireframe")) || false}, "wireframe", {
                 label: "Wireframe",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("eggSizeButton",tp.renderTab.pages[0].addInput(
             {eggSize: 1}, "eggSize", { //no saving, its a bit ridiculous for that...
                 label: "Egg Size",
@@ -632,121 +634,121 @@
                 step: 0.25,
             }).on("change", (value) => {
         }));
-
+    
         //init render binds tab
-
+    
         tp.playerESPBindButton = tp.renderTab.pages[1].addButton({
             label: "PlayerESP",
             title: (JSON.parse(localStorage.getItem("playerESPBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("playerESP")
         });
-
+    
         tp.tracersBindButton = tp.renderTab.pages[1].addButton({
             label: "Tracers",
             title: (JSON.parse(localStorage.getItem("tracersBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("tracers")
         });
-
+    
         tp.chamsBindButton = tp.renderTab.pages[1].addButton({
             label: "Chams",
             title: (JSON.parse(localStorage.getItem("chamsBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("chams")
         });
-
+    
         tp.nametagsBindButton = tp.renderTab.pages[1].addButton({
             label: "Nametags",
             title: (JSON.parse(localStorage.getItem("nametagsBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("nametags")
         });
-
+    
         tp.tracersTypeBindButton = tp.renderTab.pages[1].addButton({
             label: "TracerType",
             title: (JSON.parse(localStorage.getItem("tracersTypeBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("tracersType")
         });
-
+    
         tp.ammoESPBindButton = tp.renderTab.pages[1].addButton({
             label: "AESP",
             title: (JSON.parse(localStorage.getItem("ammoESPBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("ammoESP")
         });
-
+    
         tp.ammoTracersBindButton = tp.renderTab.pages[1].addButton({
             label: "ATracers",
             title: (JSON.parse(localStorage.getItem("ammoTracersBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("ammoTracers")
         });
-
+    
         tp.ammoESPRegimeBindButton = tp.renderTab.pages[1].addButton({
             label: "ARegime",
             title: (JSON.parse(localStorage.getItem("ammoESPRegimeBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("ammoESPRegime")
         });
-
+    
         tp.grenadeESPBindButton = tp.renderTab.pages[1].addButton({
             label: "GESP",
             title: (JSON.parse(localStorage.getItem("grenadeESPBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("grenadeESP")
         });
-
+    
         tp.grenadeTracersBindButton = tp.renderTab.pages[1].addButton({
             label: "GTracers",
             title: (JSON.parse(localStorage.getItem("grenadeTracersBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("grenadeTracers")
         });
-
+    
         tp.grenadeESPRegimeBindButton = tp.renderTab.pages[1].addButton({
             label: "GRegime",
             title: (JSON.parse(localStorage.getItem("grenadeESPRegimeBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("grenadeESPRegime")
         });
-
+    
         tp.zoomBindButton = tp.renderTab.pages[1].addButton({
             label: "Zoom",
             title: (JSON.parse(localStorage.getItem("zoomBind")) || "C"),
         }).on("click", (value) => {
             initBind("zoom")
         });
-
+    
         tp.freecamBindButton = tp.renderTab.pages[1].addButton({
             label: "CamWIP",
             title: (JSON.parse(localStorage.getItem("freecamBind")) || "G"),
         }).on("click", (value) => {
             initBind("freecam")
         });
-
+    
         tp.showCoordinatesBindButton = tp.renderTab.pages[1].addButton({
             label: "Co-ords",
             title: (JSON.parse(localStorage.getItem("showCoordinatesBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("showCoordinates")
         });
-
+    
         tp.playerStatsBindButton = tp.renderTab.pages[1].addButton({
             label: "PlayerStats",
             title: (JSON.parse(localStorage.getItem("playerStatsBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("playerStats")
         });
-
+    
         tp.wireframeBindButton = tp.renderTab.pages[1].addButton({
             label: "Wireframe",
             title: (JSON.parse(localStorage.getItem("wireframeBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("wireframe")
         });
-
+        
         //init chat modules tab
 
         registerModule("chatExtendButton",tp.chatTab.pages[0].addInput(
@@ -755,7 +757,7 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("maxChatButton",tp.chatTab.pages[0].addInput(
             {maxChat: (JSON.parse(localStorage.getItem("maxChat")) || 10)}, "maxChat", {
                 label: "Max Ingame",
@@ -836,7 +838,7 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("spamChatTextButton",tp.chatTab.pages[0].addInput(
             {spamChatText: JSON.parse(localStorage.getItem("spamChatText")) || "StateFarm On Top!"}, "spamChatText", {
                 label: "Spam Text",
@@ -845,63 +847,63 @@
         }));
 
         //init chat binds tab
-
+    
         tp.chatExtendBindButton = tp.chatTab.pages[1].addButton({
             label: "InfiniHistory",
             title: (JSON.parse(localStorage.getItem("chatExtendBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("chatExtend")
         });
-
+    
         tp.disableChatFilterBindButton = tp.chatTab.pages[1].addButton({
             label: "DisableFilter",
             title: (JSON.parse(localStorage.getItem("disableChatFilterBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("disableChatFilter")
         });
-
+    
         tp.antiAFKBindButton = tp.chatTab.pages[1].addButton({
             label: "AntiAFK",
             title: (JSON.parse(localStorage.getItem("antiAFKBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("antiAFK")
         });
-
+    
         tp.joinMessagesBindButton = tp.chatTab.pages[1].addButton({
             label: "Join Msgs",
             title: (JSON.parse(localStorage.getItem("joinMessagesBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("joinMessages")
         });
-
+    
         tp.leaveMessagesBindButton = tp.chatTab.pages[1].addButton({
             label: "Leave Msgs",
             title: (JSON.parse(localStorage.getItem("leaveMessagesBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("leaveMessages")
         });
-
+    
         tp.publicBroadcastBindButton = tp.chatTab.pages[1].addButton({
             label: "Send2Chat",
             title: (JSON.parse(localStorage.getItem("publicBroadcastBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("publicBroadcast")
         });
-
+    
         tp.brandingBindButton = tp.chatTab.pages[1].addButton({
             label: "Branded",
             title: (JSON.parse(localStorage.getItem("brandingBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("branding")
         });
-
+    
         tp.chatHighlightBindButton = tp.chatTab.pages[1].addButton({
             label: "ChatHighlight",
             title: (JSON.parse(localStorage.getItem("chatHighlightBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("chatHighlight")
         });
-
+    
         tp.spamChatBindButton = tp.chatTab.pages[1].addButton({
             label: "Spammer",
             title: (JSON.parse(localStorage.getItem("spamChatBind")) || "Set Bind"),
@@ -910,7 +912,7 @@
         });
 
         //init lists modules tab
-
+    
         //whitelist
 
         registerModule("whitelistButton",tp.listsTab.pages[0].addInput(
@@ -924,14 +926,14 @@
             title: "Whitelist (Target Only) Options",
             expanded: JSON.parse(localStorage.getItem("whitelistFolder")) !== null ? JSON.parse(localStorage.getItem("whitelistFolder")) : false
         }));
-
+    
         registerModule("enableWhitelistAimbotButton",tp.whitelistFolder.addInput(
             {enableWhitelistAimbot: JSON.parse(localStorage.getItem("enableWhitelistAimbot")) || false}, "enableWhitelistAimbot", {
                 label: "WAimbot",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("enableWhitelistTracersButton",tp.whitelistFolder.addInput(
             {enableWhitelistTracers: JSON.parse(localStorage.getItem("enableWhitelistTracers")) || false}, "enableWhitelistTracers", {
                 label: "WESP",
@@ -958,7 +960,7 @@
         }));
 
         //blacklist
-
+    
         registerModule("blacklistButton",tp.listsTab.pages[0].addInput(
             {blacklist: JSON.parse(localStorage.getItem("blacklist")) || "Enter Names"}, "blacklist", {
                 label: "Blacklist",
@@ -970,14 +972,14 @@
             title: "Blacklist (Exclude) Options",
             expanded: JSON.parse(localStorage.getItem("blacklistFolder")) !== null ? JSON.parse(localStorage.getItem("blacklistFolder")) : false
         }));
-
+    
         registerModule("enableBlacklistAimbotButton",tp.blacklistFolder.addInput(
             {enableBlacklistAimbot: JSON.parse(localStorage.getItem("enableBlacklistAimbot")) || false}, "enableBlacklistAimbot", {
                 label: "BAimbot",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("enableBlacklistTracersButton",tp.blacklistFolder.addInput(
             {enableBlacklistTracers: JSON.parse(localStorage.getItem("enableBlacklistTracers")) || false}, "enableBlacklistTracers", {
                 label: "BESP",
@@ -1002,23 +1004,23 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+        
         //init lists binds tab
-
+        
         tp.enableWhitelistAimbotBindButton = tp.listsTab.pages[1].addButton({
             label: "WAimbot",
             title: (JSON.parse(localStorage.getItem("enableWhitelistAimbotBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("enableWhitelistAimbot")
         });
-
+        
         tp.enableWhitelistTracersBindButton = tp.listsTab.pages[1].addButton({
             label: "WESP",
             title: (JSON.parse(localStorage.getItem("enableWhitelistTracersBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("enableWhitelistTracers")
         });
-
+        
         tp.whitelistESPTypeBindButton = tp.listsTab.pages[1].addButton({
             label: "WESPType",
             title: (JSON.parse(localStorage.getItem("whitelistESPTypeBind")) || "Set Bind"),
@@ -1032,41 +1034,41 @@
         }).on("click", (value) => {
             initBind("enableBlacklistAimbot")
         });
-
+        
         tp.enableBlacklistTracersBindButton = tp.listsTab.pages[1].addButton({
             label: "BESP",
             title: (JSON.parse(localStorage.getItem("enableBlacklistTracersBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("enableBlacklistTracers")
         });
-
+        
         tp.blacklistESPTypeBindButton = tp.listsTab.pages[1].addButton({
             label: "BESPType",
             title: (JSON.parse(localStorage.getItem("blacklistESPTypeBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("blacklistESPType")
         });
-
+        
         //init misc modules tab
-
+    
         registerModule("unlockSkinsButton",tp.miscTab.pages[0].addInput(
             {unlockSkins: JSON.parse(localStorage.getItem("unlockSkins")) || false}, "unlockSkins", {
                 label: "Unlock Skins",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+        
         //init misc binds tab
-
+    
         tp.unlockSkinsBindButton = tp.miscTab.pages[1].addButton({
             label: "Unlock Skins",
             title: (JSON.parse(localStorage.getItem("unlockSkinsBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("unlockSkins")
         });
-
+        
         //init client modules tab
-
+    
         registerModule("hideButton",tp.clientTab.pages[0].addButton({
             label: "Hide GUI",
             title: "Hide",
@@ -1083,14 +1085,14 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("popupsButton",tp.clientTab.pages[0].addInput(
             {popups: JSON.parse(localStorage.getItem("popups")) || true}, "popups", {
                 label: "Pop-ups",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("panicButton",tp.clientTab.pages[0].addButton({
             label: "Panic",
             title: "EXIT!",
@@ -1104,14 +1106,14 @@
             title: "Panic Options",
             expanded: JSON.parse(localStorage.getItem("panicFolder")) !== null ? JSON.parse(localStorage.getItem("panicFolder")) : false
         }));
-
+    
         registerModule("enablePanicButton",tp.panicFolder.addInput(
             {enablePanic: JSON.parse(localStorage.getItem("enablePanic")) || true}, "enablePanic", {
                 label: "Enable",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
-
+    
         registerModule("panicURLButton",tp.panicFolder.addInput(
             {panicURL: JSON.parse(localStorage.getItem("panicURL")) || "https://classroom.google.com/"}, "panicURL", {
                 label: "Set URL",
@@ -1123,14 +1125,14 @@
             title: "Creator's Links",
             expanded: JSON.parse(localStorage.getItem("linksFolder")) !== null ? JSON.parse(localStorage.getItem("linksFolder")) : false
         }));
-
+    
         registerModule("discordButton",tp.linksFolder.addButton({
             label: "Discord",
             title: "Link",
         }).on("click", (value) => {
             window.open("https://discord.gg/mPa95HB7Q6");
         }));
-
+    
         registerModule("githubButton",tp.linksFolder.addButton({
             label: "Github",
             title: "Link",
@@ -1148,16 +1150,16 @@
                 userConfirmed=alert("Reload to reset to defaults.");
             };
         }));
-
+        
         //init client binds tab
-
+    
         tp.hideBindButton = tp.clientTab.pages[1].addButton({
             label: "Hide GUI",
             title: (JSON.parse(localStorage.getItem("hideBind")) || "H"),
         }).on("click", (value) => {
             initBind("hide")
         });
-
+    
         tp.panicBindButton = tp.clientTab.pages[1].addButton({
             label: "Panic",
             title: (JSON.parse(localStorage.getItem("panicBind")) || "X"),
@@ -1234,7 +1236,7 @@
                 }
             }
         `;
-
+        
         document.head.appendChild(styleElement);
 
         //initiate message div and css and shit
@@ -1248,7 +1250,7 @@
             font-weight: normal;
             padding: 10px;
             border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);    
             border: 2px solid rgba(255, 255, 255, 0.5);
             animation: msg 0.5s forwards, msg 0.5s reverse forwards 3s;
             z-index: 999999;
@@ -1302,13 +1304,13 @@
     const hexToRgb = function(hex) {
         // Remove the hash sign, if present
         hex = hex.replace(/^#/, '');
-
+    
         // Parse the hexadecimal value into RGB components
         const bigint = parseInt(hex, 16);
         const r = (bigint >> 16) & 255;
         const g = (bigint >> 8) & 255;
         const b = bigint & 255;
-
+    
         // Normalize the values to the range [0, 1]
         return [r / 255, g / 255, b / 255];
     };
@@ -1327,19 +1329,19 @@
     };
     const isPartialMatch = function(array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
-    };
+    };     
     const processChatItem = function(ss,text,playerName,playerTeam,highlightColor) {
         let chatItem = document.createElement("div");
         let playerNameSpan = document.createElement("span");
         let playerInfoContainer = document.createElement("div");
         let serverIcon = document.createElement("i");
-
+        
         chatItem.classList.add("chat-item");
         playerInfoContainer.style.display = "inline-block";
-
+    
         playerNameSpan.classList.add("chat-player-name", "ss_marginright_xs");
         playerNameSpan.textContent = playerName + " ";
-
+    
         playerInfoContainer.style.color = ss.teamColors.text[playerTeam];
         playerInfoContainer.appendChild(serverIcon);
         playerInfoContainer.appendChild(playerNameSpan);
@@ -1349,28 +1351,45 @@
         chatItem.style.fontStyle = "italic";
         messageSpan.style.backgroundColor = highlightColor;
         playerInfoContainer.style.backgroundColor = highlightColor;
-
+        
         chatItem.appendChild(playerInfoContainer);
         chatItem.appendChild(messageSpan);
-
+        
         document.getElementById("chatOut").appendChild(chatItem);
-
+        
         if (document.querySelector(".chat-container")) {
             document.querySelector(".chat-container").scrollTop = document.querySelector(".chat-container").scrollHeight;
         };
     };
     const everySecond = function() {
-        coordElement.style.display = 'none';
-        playerstatsElement.style.display = 'none';
-        allFolders.forEach(function(name) {
-            localStorage.setItem(name,JSON.stringify(tp[name].expanded));
-        });
-        if ( extract("antiAFK") ) {
-            if (Date.now()>(lastAntiAFKMessage+270000)) {
-                sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
-                lastAntiAFKMessage=Date.now();
+        secondsPassed=secondsPassed+1;
+        if (secondsPassed>=(lastSecondPassed+extract("reduceLag"))) {
+            lastSecondPassed=secondsPassed;
+            coordElement.style.display = 'none';
+            playerstatsElement.style.display = 'none';
+            allFolders.forEach(function(name) {
+                localStorage.setItem(name,JSON.stringify(tp[name].expanded));
+            });
+            if ( extract("antiAFK") ) {
+                if (Date.now()>(lastAntiAFKMessage+270000)) {
+                    sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
+                    lastAntiAFKMessage=Date.now();
+                };
             };
-        };
+            const weaponBox = document.getElementById("weaponBox");
+            const maxChat = extract("maxChat");
+            const maxMessages = (weaponBox.style.display === "block" && maxChat) || 9999999;
+            
+            const chatContainer = document.getElementById('chatOut');
+            const chatItems = chatContainer.getElementsByClassName('chat-item');
+            const startIndex = Math.max(0, chatItems.length - maxMessages);
+            
+            for (let i = chatItems.length - 1; i >= 0; i--) {
+                const chatIndex = i - startIndex;
+                const isInRange = chatIndex >= 0 && chatIndex < maxMessages;
+                chatItems[i].style.display = isInRange ? '' : 'none';
+            }
+        }
     };
     const sendChatMessage = function (text) {
         chatThing=document.getElementById('chatIn');
@@ -1432,9 +1451,9 @@
                         getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
                         getVarName("map", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
                         getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
-                        getVarName("vs", '(vs)'); //todo
+                        // getVarName("vs", '(vs)'); //todo
                         // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
-
+                        
                         showMsg("Script injected!","success")
                     } catch ( error ) {
                         showMsg("Error! Scipt injection failed! See console.","error")
@@ -1471,7 +1490,7 @@
                     // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
                     // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
                     // code = code.replace(',xc("down")', '');
-                    //adblock
+                    //adblock/vip spoof
                     // code = code.replace(/z\.isUpgraded\(\)/g,'true');
                     // code = code.replace(/aipAPItag\.sdkBlocked/g,'false');
                     // code = code.replace(/this\.adBlockerDetected\(\)/,'false');
@@ -1510,9 +1529,9 @@
                 lineOrigin=new ss.BABYLON.Vector3();
             };
             lineOrigin.copyFrom(ss.myPlayer.actor.mesh.position);
-
+        
             const yaw = ss.myPlayer.actor.mesh.rotation.y;
-
+        
             lineOrigin.x += Math.sin( yaw );
             lineOrigin.z += Math.cos( yaw );
             lineOrigin.y += Math.sin( - ss.myPlayer.pitch )+0.2;
@@ -1520,24 +1539,10 @@
 
             whitelistPlayers=extract("whitelist").split(',');
             blacklistPlayers=extract("blacklist").split(',');
-
-            const maxMessages = (document.getElementById("weaponBox").style.display == "block" && extract("maxChat")) || 9999999;
-            const chatContainer = document.getElementById('chatOut');
-            const chatItems = chatContainer.getElementsByClassName('chat-item');
-            const startIndex = Math.max(0, chatItems.length - maxMessages);
-
-            for (let i = chatItems.length - 1; i >= 0; i--) {
-                const chatIndex = i - startIndex;
-                if (chatIndex >= 0 && chatIndex < maxMessages) {
-                    chatItems[chatIndex].style.display = '';
-                } else {
-                    chatItems[i].style.display = 'none';
-                };
-            };
         };
         const updateLinesESP = function(ss) {
             const objExists=Date.now();
-
+            
             //update playerESP boxes, tracer lines, colors
             if (extract("playerESP")||extract("tracers")||extract("chams")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
                 for (let i=0; i<ss.players.length; i++) {
@@ -1597,16 +1602,16 @@
                         sphereMaterial.emissiveColor = sphereMaterial.diffuseColor = new ss.BABYLON.Color3(...color);
 
                         player.lines = ss.BABYLON.MeshBuilder.CreateLines( 'lines', player.lineOptions );
-
+                
                         player.sphere.visibility = extract("playerESP") && passedLists && ss.myPlayer !== player && (ss.myPlayer.team === 0 || ss.myPlayer.team !== player.team);
-
+                
                         player.lines.visibility = player.playing && extract("tracers") && passedLists;
-
+        
                         if (player.actor){
                             eggSize=extract("eggSize")
                             player.actor.bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
                         };
-
+                        
                         player.actor.bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
 
                         player.exists=objExists;
@@ -1687,11 +1692,11 @@
                         color = hexToRgb(color);
                         item.lines.color = new ss.BABYLON.Color3(...color);
                         sphereMaterial.emissiveColor = sphereMaterial.diffuseColor = new ss.BABYLON.Color3(...color);
-
+    
                         item.lines = ss.BABYLON.MeshBuilder.CreateLines( 'lines', item.lineOptions );
-
+                        
                         let willBeVisible=false;
-
+    
                         if (itemType=="ammo") { //ammo
                             const regime=extract("ammoESPRegime");
                             if (regime=="whendepleted" && ammo.store==0) {
@@ -1715,11 +1720,11 @@
                                 willBeVisible=true;
                             };
                         };
-
+    
                         item.sphere.visibility = willBeVisible && (itemType=="ammo" && extract("ammoESP") || extract("grenadeESP"));
-
+                
                         item.lines.visibility = willBeVisible && (itemType=="ammo" && extract("ammoTracers") || extract("grenadeTracers"));
-
+    
                         item.exists=objExists;
                     };
                 };
@@ -1745,22 +1750,22 @@
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
             framesPassed=framesPassed+1;
-            if (framesPassed>=(lastLogicRan+extract("reduceLag"))) {
-                lastLogicRan=framesPassed
+            if (framesPassed>=(lastFramesPassed+extract("reduceLag"))) {
+                lastFramesPassed=framesPassed
                 updateLinesESP(ss);
             };
 
             if ( extract("freecam") ) {
                 ss.myPlayer.actor.mesh.position.y = ss.myPlayer.actor.mesh.position.y + 1;
             };
-
+        
             if ( extract("spamChat") ) {
                 if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
                     sendChatMessage(extract("spamChatText")+(Date.now().toString()).substring((Date.now().toString()).length - 3));
                     lastSpamMessage=Date.now()
                 };
             };
-
+        
             if ( extract("showCoordinates") ) {
                 const fonx = Number((ss.myPlayer.actor.mesh.position.x).toFixed(3));
                 const fony = Number((ss.myPlayer.actor.mesh.position.y).toFixed(3));
@@ -1770,7 +1775,7 @@
                 void coordElement.offsetWidth;
                 coordElement.style.display = '';
             };
-
+        
             if (extract("playerStats")) {
                 let playerStates="";
                 for ( let i = 0; i < ss.players.length; i ++ ) {
@@ -1785,7 +1790,7 @@
                 void playerstatsElement.offsetWidth;
                 playerstatsElement.style.display = '';
             };
-
+        
             if ( extract("chatHighlight") ) {
                 document.getElementById("chatOut").style.userSelect="text"
             }
@@ -1796,7 +1801,7 @@
                 // console.log("round",t.rounds);
                 // console.log("capacity",t.capacity);
             }
-
+        
             if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.myPlayer.playing) {
                 if (!extract("lockOn") || !targetPlayer) {
                     targetPlayer=false
@@ -1859,7 +1864,7 @@
 
                     const targetYaw = Math.radAdd(Math.atan2(x, z), 0);
                     const targetPitch = -Math.atan2(y, Math.hypot(x, z)) % 1.5;
-
+                    
                     const antiSnap=1-extract("aimbotAntiSnap");
                     if ( antiSnap ) {
                         function lerp(start, end, alpha) {
