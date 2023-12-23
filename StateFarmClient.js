@@ -1167,6 +1167,8 @@
         }).on("click", (value) => {
             initBind("panic")
         });
+
+	updateConfig();
     };
     //visual functions
     const showMsg = function (text,type) {
