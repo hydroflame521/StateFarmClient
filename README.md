@@ -10,8 +10,8 @@ Join the discord server for the latest news:  [https://discord.gg/UTqWuQ7nq8](ht
 2. [Features](#features)
 3. [Gameplay Strategies](#gameplay-strategies)
 4. [Anti-Detection:](#anti-detection)
-5. [Issues & Troubleshooting](#issues-&-troubleshooting)
-6. [Credits & Disclaimer](#credits-&-disclaimer)
+5. [Issues and Troubleshooting](#issues-and-troubleshooting)
+6. [Credits and Disclaimer](#credits-and-disclaimer)
 
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#installation-tutorial)Installation Tutorial:
@@ -171,7 +171,7 @@ _**Eggforcers are likely to spectate you if**_:
 > It is advised to not use an account while useing Statefarm.
 > If you are banned, simiply deleted cookies and cache of the site and go back.
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#issues-&-troubleshooting)Issues & Troubleshooting
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#issues-and-troubleshooting)Issues and Troubleshooting
 
 
 |       Know Issues         |  Solution                                                |
@@ -181,7 +181,7 @@ _**Eggforcers are likely to spectate you if**_:
 > If you have any issues, feel free to contact use in our discord server.
 > https://discord.gg/HJuZ24jG
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-&-disclaimer)Credits & Disclaimer
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
 
 -  Zertalious for angles, rendering and other hooks. Credit also for base code.
 -  Hydroflame521 and onlypuppy7 for main development
