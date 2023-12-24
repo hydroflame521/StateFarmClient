@@ -161,24 +161,36 @@ _**Eggforcers are likely to spectate you if**_:
 - You have been reported by other players.
 - They are in the same lobby with you and suspects you for cheating.
 
-**Banning**:
+**Booting:**
+> This is one of the tools Shell Shockers gives to private game hosters. Booting immediately IP bans every user in the game sharing an IP, and will not allow them to rejoin that particular game unless they use a VPN/proxy.
+
+**Boot Circumvention:**
+> This is circumvented only by using a new IP, or waiting for the host to create a new game.
+
+**"Banning"**:
 ![ban](https://cdn.discordapp.com/attachments/977271202924097588/1186465326192402614/image.png)
 
-> This is the ban interface. It allows banning of 15, 20, and 60 minutes. Can only be used by Developers/Eggforcers.
+> This is the "ban" interface. It allows "banning" of 5, 15, and 60 minutes. Can only be used by Developers/Eggforcers.
+> This is mainly in place to make people feel like they have power, when in fact this is the most useless measure against cheaters.
 
+**"Ban" Circumvention**:
+> It is advised to not use an account while using Statefarm, as this method of punishment will apply to your account/browser session.
+> If you are "banned", simply deleted cookies and cache of the site and go back (and change account, if you use one).
 
-**Ban Circumvention**:
-> It is advised to not use an account while useing Statefarm.
-> If you are banned, simiply deleted cookies and cache of the site and go back.
+**Real Bans:**:
+> These are only given by the actual developers of the game, who can see the logs and IPs of players. Their tools are more advanced than those of Eggforcer "bans" and can permanently IP ban a user.
+
+**Real Ban Circumvention:**:
+> As these are very rare, we have not been able to analyse one of these bans. However, it can be assumed it works like booting, but for the whole game. VPNs/proxies would most likely work just fine.
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#issues-and-troubleshooting)Issues and Troubleshooting
 
 
 |       Know Issues         |  Solution                                                |
 |----------------|---------------------------------------------|
-|Stuck on Shellshockers loading screen|Press F5(or fn + F5) untill "Script Injected" in shown.
+|Stuck on Shellshockers loading screen|Press Crtl + F5(or fn + F5) until "Script Injected" in shown. This performs a 'hard reset', discarding any cached files which could be causing issues.
 
-> If you have any issues, feel free to contact use in our discord server.
+> If you have any issues, feel free to contact us in our discord server.
 > https://discord.gg/HJuZ24jG
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
