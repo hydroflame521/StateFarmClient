@@ -8,11 +8,10 @@ Join the discord server for the latest news:  [https://discord.gg/UTqWuQ7nq8](ht
 
 1. [Installation Tutorial](#installation-tutorial)
 2. [Features](#features)
-3. [Gameplay Strategies](#gameplaystrategies)
-4. [Anti - Detection:](#anti-detection)
-5. [Issues & Troubleshooting](#troubleshooting)
-6. [Credits & Disclaimer](#credits)
-
+3. [Gameplay Strategies](#gameplay-strategies)
+4. [Anti-Detection:](#anti-detection)
+5. [Issues & Troubleshooting](#issues-&-troubleshooting)
+6. [Credits & Disclaimer](#credits-&-disclaimer)
 
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#installation-tutorial)Installation Tutorial:
@@ -130,7 +129,7 @@ You are done with installation!
 
 With the exception of the color pickers and some links, these should all be bindable to a key of your choice. Press the binds button in the tab, and click on the button next to the module you want to bind. Press a key to bind it, or alternatively press Delete to remove the bind. Use this flexibility to your advantage to be more stealthy, or secure more kills. Eg: switch to  **Nearest**  targeting when being attacked, and then to  **Pointing At**  when sniping.
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#gameplaystrategies)Gameplay Strategies:
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#gameplay-strategies)Gameplay Strategies:
 -   _**Choose your weapon wisely**_: Statefarm client synergies with certian weapons better than others, use them to your advantage. 
 > Aimbot (especially with prediction enabled) in powerful with weapons that require high levels of aim, and weak with weapons that do not rely on aiming.
 > 
@@ -155,7 +154,7 @@ With the exception of the color pickers and some links, these should all be bind
 - _**Lock On**_: use this feature to prevent aimbot from switching targets
 
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#anti-detection)Anti - Detection:
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#anti-detection)Anti-Detection:
 > BWD has appointed **Eggforcers** that will ban cheaters by **first-person spectating** them.
 
 _**Eggforcers are likely to spectate you if**_:
@@ -172,7 +171,7 @@ _**Eggforcers are likely to spectate you if**_:
 > It is advised to not use an account while useing Statefarm.
 > If you are banned, simiply deleted cookies and cache of the site and go back.
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#troubleshooting)Issues & Troubleshooting
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#issues-&-troubleshooting)Issues & Troubleshooting
 
 
 |       Know Issues         |  Solution                                                |
@@ -182,7 +181,7 @@ _**Eggforcers are likely to spectate you if**_:
 > If you have any issues, feel free to contact use in our discord server.
 > https://discord.gg/HJuZ24jG
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits)Credits & Disclaimer
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-&-disclaimer)Credits & Disclaimer
 
 -  Zertalious for angles, rendering and other hooks. Credit also for base code.
 -  Hydroflame521 and onlypuppy7 for main development
