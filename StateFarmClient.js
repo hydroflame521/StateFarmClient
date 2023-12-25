@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.1.0
-// @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, join/leave messages and many more whilst having unsurpassed customisation options. 
+// @version      3.0.1
+// @description  Best hack client for shellshockers
 // @author       Hydroflame521 and onlypuppy7
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -66,7 +66,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.1.0";
+    const version="3.0.1";
     //startup sequence
     const startUp=function() {
         mainLoop()
@@ -78,8 +78,6 @@
             const intervalId1 = setInterval(everySecond, 1000);
             const intervalId2 = setInterval(updateConfig, 100);
         });
-        //block ads kek
-        localStorage.timesPlayed = 0;
     };
     //INIT VARS
     window.newGame=false
@@ -97,9 +95,9 @@
     let onlinePlayersArray=[];
     const tp={}; // <-- tp = tweakpane
     let bindsArray,msgElement;
-    let linesOrigin,lineOrigin,targetPlayer,ammo,ranOneTime,lastWeaponBox,config;
+    let crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers;
-    const onUpdateFuncName=btoa(Math.random().toString(32));
+    const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let isRightButtonDown = false;
     //menu interaction functions
     const extract = function(variable) {
@@ -1138,7 +1136,7 @@
             label: "Github",
             title: "Link",
         }).on("click", (value) => {
-            window.open("https://github.com/Hydroflame522/StateFarmClient");
+            window.open("https://github.com/onlypuppy7/StateFarmClient");
         }));
 
         registerModule("clearButton",tp.clientTab.pages[0].addButton({
@@ -1168,7 +1166,7 @@
             initBind("panic")
         });
 
-	updateConfig();
+        updateConfig();
     };
     //visual functions
     const showMsg = function (text,type) {
@@ -1364,6 +1362,50 @@
             document.querySelector(".chat-container").scrollTop = document.querySelector(".chat-container").scrollHeight;
         };
     };
+    const updateOrCreateLinesESP = function(ss,object,type,color) {
+        let newPosition,newScene,newParent
+        if (type=="playerESP") {
+            newPosition = object.actor.mesh.position;
+            newScene    = object.actor.scene;
+            newParent   = object.actor.mesh;
+        } else {
+            newPosition = object.position;
+            newScene    = object._scene;
+            newParent   = object;
+        };
+        if (!object.generatedESP) {
+            //tracers
+            const tracerLines = ss.BABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+            tracerLines.color=new ss.BABYLON.Color3(1, 1, 1);
+            tracerLines.renderingGroupId=1;
+            object.tracerLines = tracerLines;
+            //ESP
+            const boxMaterial = new ss.BABYLON.StandardMaterial('boxMaterial', newScene);
+            boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(1, 0, 0);
+            boxMaterial.wireframe = true;
+            const boxSize = {
+                playerESP: {width:0.5,height:0.75,depth:0.5},
+                ammoESP: {width: 0.25, height: 0.35, depth: 0.25},
+            }
+            const box = ss.BABYLON.MeshBuilder.CreateBox('box',  boxSize[type] , newScene);
+            const boxOffset = {
+                playerESP: 0.3,
+                ammoESP: 0,
+            }
+            box.position.y=boxOffset[type];
+            box.material = boxMaterial;
+            box.renderingGroupId = 1;
+            box.parent = newParent;
+            object.box = box;
+            //stuff
+            object.generatedESP=true;
+            ESPArray.push([tracerLines,box,object]);
+        };
+        object.tracerLines.setVerticesData(ss.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
+        object.tracerLines.color = new ss.BABYLON.Color3(...color);
+        const boxMaterial = object.box.material;
+        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(...color);
+    };
     const everySecond = function() {
         secondsPassed=secondsPassed+1;
         if (secondsPassed>=(lastSecondPassed+extract("reduceLag"))) {
@@ -1373,13 +1415,15 @@
             allFolders.forEach(function(name) {
                 localStorage.setItem(name,JSON.stringify(tp[name].expanded));
             });
-            if ( extract("antiAFK") ) {
+            if (extract("antiAFK")) {
                 if (Date.now()>(lastAntiAFKMessage+270000)) {
                     sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
                     lastAntiAFKMessage=Date.now();
                 };
             };
-        }
+        };
+        //block ads kek
+        localStorage.timesPlayed = 0;
     };
     const updateConfig = function() {
         config=tp.pane.exportPreset();
@@ -1412,18 +1456,19 @@
         window.getSkinHack = function () {
             return extract("unlockSkins");
         };
-        window.XMLHttpRequest = class extends window.XMLHttpRequest {
-            open( method, url ) {
-                if (url.indexOf('shellshock.js')>-1) {
-                    this.isScript=true;
-                };
+        class ModifiedXMLHttpRequest extends window.XMLHttpRequest {
+            open(method, url) {
+                if (url.includes('shellshock.js')) {
+                    this.isCorrectJS = true;
+                }
                 return super.open(...arguments);
-            };
+            }
             get response() {
-                if (this.isScript) {
+                if (this.isCorrectJS) {
                     let code = super.response;
                     const allFuncName={};
                     let injectionString="";
+                    let match;
                     const getVarName = function(name, regexPattern) {
                         console.log(1, name, regexPattern);
                         const regex = new RegExp(regexPattern);
@@ -1432,13 +1477,11 @@
                         console.log(2, allFuncName);
                         injectionString = injectionString + name + ": " + funcName + ",";
                         console.log(3, injectionString);
-                    }
+                    };
                     try {
-                        getVarName("BABYLON", 'this\\.origin=new ([a-zA-Z]+)\\.Vector3');
-                        getVarName("players", '=([a-zA-Z]+)\\[this\\.controlledBy\\]');
-                        getVarName("myPlayer", '"fire":document.pointerLockElement&&([^&]+)&&');
-                        getVarName("scene", 'createMapCells\\(([^,]+),');
-                        getVarName("cull", '=([a-zA-Z_$]+)\\(this\\.mesh,\\.[0-9]+\\)');
+                        getVarName("BABYLON", 'this\\.origin=new ([a-zA-Z]+)\\.Vector3'); //todo
+                        getVarName("players", '=([a-zA-Z]+)\\[this\\.controlledBy\\]'); //done
+                        getVarName("myPlayer", '"fire":document.pointerLockElement&&([^&]+)&&'); //todo
                         getVarName("weapons", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                         // getVarName("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
                         getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
@@ -1448,15 +1491,22 @@
                         // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
                         
                         showMsg("Script injected!","success")
-                    } catch ( error ) {
+                    } catch (err) {
                         showMsg("Error! Scipt injection failed! See console.","error")
-                        alert( 'Script failed to inject. Report the issue to the script developer.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
+                        alert( 'Oh bollocks! Looks like the script is out of date. Report this data to the original developers and any errors in the console.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
+                        console.log(err);
                         return code;
                     };
-                    console.log( '%cInjecting code...', 'color: red; background: black; font-size: 2em;', allFuncName );
+                    console.log("Variable retrieval successful!")
+                    //hook for main loop function in render loop
+                    match=code.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
+                    code = code.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function(){${match[1]}(),window["${mainLoopFunction}"]({${injectionString}}`);
                     //hook for fov mods
                     code = code.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.fixCamera()');
                     code = code.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.fixCamera()');
+                    //stop removal of objects
+                    match=code.match(/playing&&!([a-zA-Z]+)&&/);
+                    code = code.replace(`if(${match[1]})`,`if(true)`);
                     //chat mods: disable chat culling
                     const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(code)[1];
                     code = code.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.getChatLimit()&&${somethingLength}[0].remove(),`);
@@ -1464,15 +1514,17 @@
                     const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(code)[1];
                     const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(code)[1];
                     code = code.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.getDisableChatFilter())`);
-                    //chat mods: make filtered text red (this is just stolen sorry)
+                    //chat mods: make filtered text red
                     const [_, elm, str] = code.match(/.remove\(\),([a-zA-Z]+).innerHTML=([a-zA-Z]+)/);
                     code = code.replace(_, _ + `,${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red")`);
                     //skins
-                    let match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
+                    match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
+
+                    //replace graveyard:
+
                     //trajectories
-                    code = code.replace(',console.log("joinGame()',',window.newGame=true,console.log("joinGame()');
-                    //trajectories
+                    // code = code.replace(',console.log("joinGame()',',window.newGame=true,console.log("joinGame()');
                     // code = code.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
                     // code = code.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
                     //disable autopause
@@ -1488,24 +1540,18 @@
                     // code = code.replace(/aipAPItag\.sdkBlocked/g,'false');
                     // code = code.replace(/this\.adBlockerDetected\(\)/,'false');
 
+                    console.log("Code replacements successful!")
                     console.log(code)
-                    return code.replace( allFuncName["scene"] + '.render()', `
-                            window[ '${onUpdateFuncName}' ]({
-                                ${injectionString}
-                            });
-                        ${allFuncName["scene"]}.render()` )
-                        .replace( `function ${allFuncName["cull"]}`, `
-                            function ${allFuncName["cull"]}() {
-                                return true;
-                            }
-                        function someFunctionWhichWillNeverBeUsedNow` )
+                    return code
                 };
                 return super.response;
             };
         };
+        window.XMLHttpRequest = ModifiedXMLHttpRequest;
     };
     const mainLoop = function() {
         const oneTime = function (ss) {
+            crosshairsPosition=new ss.BABYLON.Vector3();
             Object.defineProperty(ss.myPlayer.scene, 'forceWireframe',  {
                 get: () => {
                     return extract("wireframe");
@@ -1518,37 +1564,37 @@
                 onlinePlayersArray=[];
                 window.newGame=false;
             };
-            if (!lineOrigin) {
-                lineOrigin=new ss.BABYLON.Vector3();
-            };
-            lineOrigin.copyFrom(ss.myPlayer.actor.mesh.position);
-        
-            const yaw = ss.myPlayer.actor.mesh.rotation.y;
-        
-            lineOrigin.x += Math.sin( yaw );
-            lineOrigin.z += Math.cos( yaw );
-            lineOrigin.y += Math.sin( - ss.myPlayer.pitch )+0.2;
+            
+            crosshairsPosition.copyFrom(ss.myPlayer.actor.mesh.position);
+            const horizontalOffset = Math.sin(ss.myPlayer.actor.mesh.rotation.y);
+            const verticalOffset = Math.sin(-ss.myPlayer.pitch);
+            crosshairsPosition.x += horizontalOffset;
+            crosshairsPosition.z += Math.cos(ss.myPlayer.actor.mesh.rotation.y);
+            crosshairsPosition.y += verticalOffset + 0.4;           
+
             ammo=ss.myPlayer.weapon.ammo;
 
             whitelistPlayers=extract("whitelist").split(',');
             blacklistPlayers=extract("blacklist").split(',');
 
             const weaponBox = document.getElementById("weaponBox");
-            if (weaponBox.style.display!=lastWeaponBox) {
+            const chatContainer = document.getElementById('chatOut');
+            const chatItems = chatContainer.getElementsByClassName('chat-item');
+            if ((weaponBox.style.display!=lastWeaponBox)||(chatItems.length!=lastChatItemLength)) {
                 lastWeaponBox=weaponBox.style.display;
+                lastChatItemLength=chatItems.length;
+
                 const maxChat = extract("maxChat");
                 const maxMessages = (weaponBox.style.display === "block" && maxChat) || 9999999;
                 
-                const chatContainer = document.getElementById('chatOut');
-                const chatItems = chatContainer.getElementsByClassName('chat-item');
                 const startIndex = Math.max(0, chatItems.length - maxMessages);
                 
                 for (let i = chatItems.length - 1; i >= 0; i--) {
                     const chatIndex = i - startIndex;
                     const isInRange = chatIndex >= 0 && chatIndex < maxMessages;
                     chatItems[i].style.display = isInRange ? '' : 'none';
-                }
-            }
+                };
+            };
         };
         const updateLinesESP = function(ss) {
             const objExists=Date.now();
@@ -1561,34 +1607,8 @@
                         const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
                         const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
                         const passedLists=whitelisted&&(!blacklisted);
-                        if (!player.generatedESP) {
-                            //tracers
-                            const options = {
-                                points: [ lineOrigin, player.actor.mesh.position ],
-                                updatable: true
-                            };
-                            const lines = options.instance = ss.BABYLON.MeshBuilder.CreateLines( 'lines', options, player.actor.scene );
-                            lines.color = new ss.BABYLON.Color3( 1, 0, 0 );
-                            lines.alwaysSelectAsActiveMesh = true;
-                            lines.renderingGroupId = 1;
-                            player.lines = lines;
-                            player.lineOptions = options;
-                            //sphere (playerESP)
-                            const material = new ss.BABYLON.StandardMaterial( 'myMaterial', player.actor.scene );
-                            material.emissiveColor = material.diffuseColor = new ss.BABYLON.Color3( 1, 0, 0 );
-                            material.wireframe = true;
-                            const sphere = ss.BABYLON.MeshBuilder.CreateBox( 'mySphere', { width: 0.5, height: 0.75, depth: 0.5 }, player.actor.scene );
-                            sphere.renderingGroupId = 1;
-                            sphere.material = material;
-                            sphere.position.y = 0.3;
-                            sphere.parent = player.actor.mesh;
-                            player.sphere = sphere;
-                            //stuff
-                            player.generatedESP=true;
-                            ESPArray.push([lines,sphere,player,"player"]);
-                        };
-                        const sphereMaterial = player.sphere.material;
                         const tracersType=extract("tracersType");
+
                         let color,progress;
                         if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && isPartialMatch(whitelistPlayers,player.name) ) {
                             color=hexToRgb(extract("whitelistColor"));
@@ -1608,14 +1628,11 @@
                         } else if (tracersType=="static") {
                             color=hexToRgb(extract("tracersColor1"));
                         };
-                        player.lines.color = new ss.BABYLON.Color3(...color);
-                        sphereMaterial.emissiveColor = sphereMaterial.diffuseColor = new ss.BABYLON.Color3(...color);
 
-                        player.lines = ss.BABYLON.MeshBuilder.CreateLines( 'lines', player.lineOptions );
-                
-                        player.sphere.visibility = extract("playerESP") && passedLists && ss.myPlayer !== player && (ss.myPlayer.team === 0 || ss.myPlayer.team !== player.team);
-                
-                        player.lines.visibility = player.playing && extract("tracers") && passedLists;
+                        updateOrCreateLinesESP(ss,player,"playerESP",color);
+
+                        player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
+                        player.box.visibility = extract("playerESP") && passedLists;
         
                         if (player.actor){
                             eggSize=extract("eggSize")
@@ -1647,7 +1664,7 @@
                             onlinePlayersArray.push([player,player.name,player.team]);
                         };
                         player.isOnline=objExists;
-                    }
+                    };
                 };
                 for ( let i=0;i<onlinePlayersArray.length;i++) {
                     if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
@@ -1670,40 +1687,10 @@
                     const item=ss.renderList[i];
                     if ( item._isEnabled && item.sourceMesh && item.sourceMesh.name && (item.sourceMesh.name=="grenadeItem" || item.sourceMesh.name=="ammo") ) { //this is what we want
                         const itemType=item.sourceMesh.name;
-                        if (!item.generatedESP) {
-                            //tracers
-                            const options = {
-                                points: [ lineOrigin, item.position ],
-                                updatable: true
-                            };
-                            const lines = options.instance = ss.BABYLON.MeshBuilder.CreateLines( 'lines', options, item._scene );
-                            lines.color = new ss.BABYLON.Color3( (itemType=="grenadeItem" && 1 || itemType=="ammo" && 0), 0, 0 );
-                            lines.alwaysSelectAsActiveMesh = true;
-                            lines.renderingGroupId = 1;
-                            item.lines = lines;
-                            item.lineOptions = options;
-                            //sphere (ammoESP)
-                            const material = new ss.BABYLON.StandardMaterial( 'myMaterial', item._scene );
-                            material.emissiveColor = material.diffuseColor = new ss.BABYLON.Color3( 1, 0, 0 );
-                            material.wireframe = true;
-                            const sphere = ss.BABYLON.MeshBuilder.CreateBox( 'mySphere', { width: 0.25, height: 0.35, depth: 0.25 }, item._scene );
-                            sphere.material = material;
-                            sphere.renderingGroupId = 1;
-                            sphere.position.y = 0;
-                            sphere.parent = item;
-                            item.sphere = sphere;
-                            //stuff
-                            item.generatedESP=true;
-                            ESPArray.push([lines,sphere,item,"ammo"]);
-                        };
-
-                        const sphereMaterial = item.sphere.material;
                         let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
                         color = hexToRgb(color);
-                        item.lines.color = new ss.BABYLON.Color3(...color);
-                        sphereMaterial.emissiveColor = sphereMaterial.diffuseColor = new ss.BABYLON.Color3(...color);
-    
-                        item.lines = ss.BABYLON.MeshBuilder.CreateLines( 'lines', item.lineOptions );
+
+                        updateOrCreateLinesESP(ss,item,"ammoESP",color)
                         
                         let willBeVisible=false;
     
@@ -1731,10 +1718,9 @@
                             };
                         };
     
-                        item.sphere.visibility = willBeVisible && (itemType=="ammo" && extract("ammoESP") || extract("grenadeESP"));
-                
-                        item.lines.visibility = willBeVisible && (itemType=="ammo" && extract("ammoTracers") || extract("grenadeTracers"));
-    
+                        item.box.visibility = willBeVisible && (itemType=="ammo" && extract("ammoESP") || extract("grenadeESP"));
+                        item.tracerLines.visibility = willBeVisible && (itemType=="ammo" && extract("ammoTracers") || extract("grenadeTracers"));
+
                         item.exists=objExists;
                     };
                 };
@@ -1744,10 +1730,10 @@
                     //do nothing, lol
                 } else {
                     if (ESPArray[i][2]) { //obj still exists but no longer relevant
-                        console.log( '%cRemoving line... (irrelevant object)', 'color: red; background: black; font-size: 2em;' );
+                        console.log( '%cRemoving tracer line due to irrelevant object', 'color: white; background: red' );
                         ESPArray[i][2].generatedESP=false;
                     } else { //obj no longer exists
-                        console.log( '%cRemoving line... (no longer exists)', 'color: red; background: black; font-size: 2em;' );
+                        console.log( '%cRemoving tracer line due to no longer exists', 'color: white; background: red' );
                     };
                     ESPArray[i][0].dispose();
                     ESPArray[i][1].dispose();
@@ -1755,7 +1741,7 @@
                 };
             };
         };
-        window[onUpdateFuncName] = function ( ss ) {
+        window[mainLoopFunction] = function ( ss ) {
             if ( !ss.myPlayer ) { return }; //injection fail
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
@@ -1813,8 +1799,8 @@
             }
         
             if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.myPlayer.playing) {
-                if (!extract("lockOn") || !targetPlayer) {
-                    targetPlayer=false
+                if (!extract("lockOn") || !currentlyTargeting) {
+                    currentlyTargeting=false
                     const targetType=extract("aimbotTargeting");
                     let minimumValue = Infinity;
                     for ( let i = 0; i < ss.players.length; i ++ ) {
@@ -1828,7 +1814,7 @@
                                     const distance = distancePlayers(ss.myPlayer,player);
                                     if ( distance < minimumValue ) {
                                         minimumValue = distance;
-                                        targetPlayer = player;
+                                        currentlyTargeting = player;
                                     };
                                 } else if (targetType=="pointingat") {
                                     // Calculate the direction vector pointing to the player
@@ -1849,51 +1835,53 @@
                                     const angleDifference = Math.abs(ss.myPlayer.yaw - angleYaw) + Math.abs(ss.myPlayer.pitch - anglePitch);
                                     if (angleDifference < minimumValue) {
                                         minimumValue = angleDifference;
-                                        targetPlayer = player;
+                                        currentlyTargeting = player;
                                     };
                                 };
                             };
                         };
                     };
                 };
-                if ( targetPlayer && targetPlayer.playing ) { //found a target
-                    let x=targetPlayer.actor.mesh.position.x
-                        y=targetPlayer.actor.mesh.position.y
-                        z=targetPlayer.actor.mesh.position.z;
+                if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
+                    let x=currentlyTargeting.actor.mesh.position.x
+                        y=currentlyTargeting.actor.mesh.position.y
+                        z=currentlyTargeting.actor.mesh.position.z;
                     if (extract("prediction")) {
-                        const distanceBetweenPlayers=distancePlayers(ss.myPlayer,targetPlayer);
+                        const distanceBetweenPlayers=distancePlayers(ss.myPlayer,currentlyTargeting);
                         const bulletSpeed=ss.weapons.classes[ss.myPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
                         const timeToReachTarget = distanceBetweenPlayers / bulletSpeed;
-                        x = x + targetPlayer.dx * timeToReachTarget;
-                        y = y + targetPlayer.dy * timeToReachTarget;
-                        z = z + targetPlayer.dz * timeToReachTarget;
+                        x = x + currentlyTargeting.dx * timeToReachTarget;
+                        z = z + currentlyTargeting.dz * timeToReachTarget;
+                        if (currentlyTargeting.jumping) {
+                            y = y + (currentlyTargeting.dy * timeToReachTarget) + (0.5 * -0.0387 * timeToReachTarget * timeToReachTarget);
+                        } else {
+                            y = y + currentlyTargeting.dy * timeToReachTarget;
+                        };
                     };
                     x = x - ss.myPlayer.actor.mesh.position.x;
                     y = y - ss.myPlayer.actor.mesh.position.y;
                     z = z - ss.myPlayer.actor.mesh.position.z;
 
-                    const targetYaw = Math.radAdd(Math.atan2(x, z), 0);
-                    const targetPitch = -Math.atan2(y, Math.hypot(x, z)) % 1.5;
+                    const finalYaw = (Math.log(Math.abs(x) + Math.sqrt(z ** 2)) / Math.log(2)) + 0;
+                    const finalPitch = -Math.acos(y / Math.sqrt(x ** 2 + z ** 2)) % 1.5;
                     
-                    const antiSnap=1-extract("aimbotAntiSnap");
-                    if ( antiSnap ) {
-                        function lerp(start, end, alpha) {
-                            let value=(1-alpha) * start + alpha * end;
-                            if (Math.abs(end-start)<0.1) {
-                                value=end
-                            };
-                            return value
-                        }
-                        // Exponential lerp towards the target rotation
-                        ss.myPlayer.yaw = lerp(ss.myPlayer.yaw, targetYaw, antiSnap);
-                        ss.myPlayer.pitch = lerp(ss.myPlayer.pitch, targetPitch, antiSnap);
-                    };
+                    const antiSnap=1-(extract("aimbotAntiSnap")||0);
+                    function lerp(start, end, alpha) {
+                        let value=(1-alpha) * start + alpha * end;
+                        if (Math.abs(end-start)<0.1) {
+                            value=end
+                        };
+                        return value
+                    }
+                    // Exponential lerp towards the target rotation
+                    ss.myPlayer.yaw = lerp(ss.myPlayer.yaw, finalYaw, antiSnap);
+                    ss.myPlayer.pitch = lerp(ss.myPlayer.pitch, finalPitch, antiSnap);
                     if (extract("tracers")) {
-                        targetPlayer.lines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                        currentlyTargeting.tracerLines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                     }
                     if (extract("playerESP")) {
-                        const sphereMaterial = targetPlayer.sphere.material;
-                        sphereMaterial.emissiveColor = sphereMaterial.diffuseColor = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                        const boxMaterial = currentlyTargeting.box.material;
+                        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                     }
                     if (extract("autoFire")) {
                         if (ammo.capacity>0) {
@@ -1903,10 +1891,10 @@
                         };
                     };
                 } else {
-                    targetPlayer="dead";
+                    currentlyTargeting="dead";
                 };
             } else {
-                targetPlayer=false;
+                currentlyTargeting=false;
             };
         };
     };
