@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.0.1
-// @description  Best hack client for shellshockers
+// @version      3.1.0
+// @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, join/leave messages and many more whilst having unsurpassed customisation options. 
 // @author       Hydroflame521 and onlypuppy7
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -66,7 +66,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.0.1";
+    const version="3.1.0";
     //startup sequence
     const startUp=function() {
         mainLoop()
@@ -1138,7 +1138,7 @@
             label: "Github",
             title: "Link",
         }).on("click", (value) => {
-            window.open("https://github.com/onlypuppy7/StateFarmClient");
+            window.open("https://github.com/Hydroflame522/StateFarmClient");
         }));
 
         registerModule("clearButton",tp.clientTab.pages[0].addButton({
