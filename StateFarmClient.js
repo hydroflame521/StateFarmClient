@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.0.1
-// @description  Best hack client for shellshockers
+// @version      3.1.1
+// @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key and easily editable colour scheme - all on the fly! 
 // @author       Hydroflame521 and onlypuppy7
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -66,7 +66,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.0.1";
+    const version="3.1.1";
     //startup sequence
     const startUp=function() {
         mainLoop()
@@ -1230,7 +1230,6 @@
                     transform: translate(-120%, 0);
                     opacity: 0;
                 }
-
                 to {
                     transform: none;
                     opacity: 1;
@@ -1247,7 +1246,7 @@
             position: absolute;
             left: 10px;
             color: #fff;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             font-weight: normal;
             padding: 10px;
             border-radius: 5px;
@@ -1325,8 +1324,8 @@
         ];
         return resultRgb;
     };
-    const distancePlayers = function(myPlayer,player) {
-        return Math.hypot( player.x - myPlayer.x, player.y - myPlayer.y, player.z - myPlayer.z );
+    const distancePlayers = function(yourPlayer,player) {
+        return Math.hypot(player.x-yourPlayer.x,player.y-yourPlayer.y,player.z-yourPlayer.z ); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
     const isPartialMatch = function(array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
@@ -1479,9 +1478,9 @@
                         console.log(3, injectionString);
                     };
                     try {
-                        getVarName("BABYLON", 'this\\.origin=new ([a-zA-Z]+)\\.Vector3'); //todo
+                        getVarName("BABYLON", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible'); //done
                         getVarName("players", '=([a-zA-Z]+)\\[this\\.controlledBy\\]'); //done
-                        getVarName("myPlayer", '"fire":document.pointerLockElement&&([^&]+)&&'); //todo
+                        getVarName("yourPlayer", '&&([a-zA-Z]+)\\.grenadeCountdown<=0\\)this\\.cancelGrenade'); //done
                         getVarName("weapons", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                         // getVarName("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
                         getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
@@ -1552,7 +1551,7 @@
     const mainLoop = function() {
         const oneTime = function (ss) {
             crosshairsPosition=new ss.BABYLON.Vector3();
-            Object.defineProperty(ss.myPlayer.scene, 'forceWireframe',  {
+            Object.defineProperty(ss.yourPlayer.scene, 'forceWireframe',  {
                 get: () => {
                     return extract("wireframe");
                 }
@@ -1565,14 +1564,14 @@
                 window.newGame=false;
             };
             
-            crosshairsPosition.copyFrom(ss.myPlayer.actor.mesh.position);
-            const horizontalOffset = Math.sin(ss.myPlayer.actor.mesh.rotation.y);
-            const verticalOffset = Math.sin(-ss.myPlayer.pitch);
+            crosshairsPosition.copyFrom(ss.yourPlayer.actor.mesh.position);
+            const horizontalOffset = Math.sin(ss.yourPlayer.actor.mesh.rotation.y);
+            const verticalOffset = Math.sin(-ss.yourPlayer.pitch);
             crosshairsPosition.x += horizontalOffset;
-            crosshairsPosition.z += Math.cos(ss.myPlayer.actor.mesh.rotation.y);
+            crosshairsPosition.z += Math.cos(ss.yourPlayer.actor.mesh.rotation.y);
             crosshairsPosition.y += verticalOffset + 0.4;           
 
-            ammo=ss.myPlayer.weapon.ammo;
+            ammo=ss.yourPlayer.weapon.ammo;
 
             whitelistPlayers=extract("whitelist").split(',');
             blacklistPlayers=extract("blacklist").split(',');
@@ -1603,7 +1602,7 @@
             if (extract("playerESP")||extract("tracers")||extract("chams")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
                 for (let i=0; i<ss.players.length; i++) {
                     const player=ss.players[i];
-                    if ( player && player !== ss.myPlayer && ( ss.myPlayer.team === 0 || player.team !== ss.myPlayer.team ) ) {
+                    if ( player && player !== ss.yourPlayer && ( ss.yourPlayer.team === 0 || player.team !== ss.yourPlayer.team ) ) {
                         const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
                         const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
                         const passedLists=whitelisted&&(!blacklisted);
@@ -1615,7 +1614,7 @@
                         } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
                             color=hexToRgb(extract("blacklistColor"));
                         } else if ( tracersType=="proximity" ) {
-                            const distance = distancePlayers(ss.myPlayer,player);
+                            const distance = distancePlayers(ss.yourPlayer,player);
                             if (distance < extract("tracersColor1to2")) { //fade between first set
                                 progress=(distance/extract("tracersColor1to2"));
                                 color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
@@ -1647,10 +1646,10 @@
                         if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
                             player.actor.nameSprite._manager.renderingGroupId = 1;
                             player.actor.nameSprite.renderingGroupId = 1;
-                            var h = Math.length3(player.x - ss.myPlayer.x, player.y - ss.myPlayer.y, player.z - ss.myPlayer.z),
+                            var h = Math.length3(player.x - ss.yourPlayer.x, player.y - ss.yourPlayer.y, player.z - ss.yourPlayer.z),
                             d = Math.pow(h, 1.25)*2;
                             player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
-                            ss.myPlayer.actor.scene.activeCamera.fov=0.75
+                            ss.yourPlayer.actor.scene.activeCamera.fov=0.75
                         };
                         if (!player.logged) {
                             player.logged=true;
@@ -1707,11 +1706,11 @@
                             };
                         } else { //grenades
                             const regime=extract("grenadeESPRegime");
-                            if (regime=="whendepleted" && ss.myPlayer.grenadeCount==0) {
+                            if (regime=="whendepleted" && ss.yourPlayer.grenadeCount==0) {
                                 willBeVisible=true;
-                            } else if (regime=="whenlow" && ss.myPlayer.grenadeCount<=1) {
+                            } else if (regime=="whenlow" && ss.yourPlayer.grenadeCount<=1) {
                                 willBeVisible=true;
-                            } else if (regime=="belowmax" && ss.myPlayer.grenadeCount<ss.myPlayer.grenadeCapacity) {
+                            } else if (regime=="belowmax" && ss.yourPlayer.grenadeCount<ss.yourPlayer.grenadeCapacity) {
                                 willBeVisible=true;
                             } else if (regime=="alwayson") {
                                 willBeVisible=true;
@@ -1742,7 +1741,7 @@
             };
         };
         window[mainLoopFunction] = function ( ss ) {
-            if ( !ss.myPlayer ) { return }; //injection fail
+            if ( !ss.yourPlayer ) { return }; //injection fail
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
             framesPassed=framesPassed+1;
@@ -1752,7 +1751,7 @@
             };
 
             if ( extract("freecam") ) {
-                ss.myPlayer.actor.mesh.position.y = ss.myPlayer.actor.mesh.position.y + 1;
+                ss.yourPlayer.actor.mesh.position.y = ss.yourPlayer.actor.mesh.position.y + 1;
             };
         
             if ( extract("spamChat") ) {
@@ -1763,9 +1762,9 @@
             };
         
             if ( extract("showCoordinates") ) {
-                const fonx = Number((ss.myPlayer.actor.mesh.position.x).toFixed(3));
-                const fony = Number((ss.myPlayer.actor.mesh.position.y).toFixed(3));
-                const fonz = Number((ss.myPlayer.actor.mesh.position.z).toFixed(3));
+                const fonx = Number((ss.yourPlayer.actor.mesh.position.x).toFixed(3));
+                const fony = Number((ss.yourPlayer.actor.mesh.position.y).toFixed(3));
+                const fonz = Number((ss.yourPlayer.actor.mesh.position.z).toFixed(3));
                 const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz}`;
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
@@ -1777,7 +1776,7 @@
                 for ( let i = 0; i < ss.players.length; i ++ ) {
                     const player = ss.players[i];
                     globalPlayer=ss;
-                    if ( player && player !== ss.myPlayer && player.playing && ( ss.myPlayer.team === 0 || player.team !== ss.myPlayer.team ) ) {
+                    if ( player && player !== ss.yourPlayer && player.playing && ( ss.yourPlayer.team === 0 || player.team !== ss.yourPlayer.team ) ) {
                         playerStates=playerStates+player.name+": "+Math.round(player.hp)+" HP\n";
                     };
                 };
@@ -1792,26 +1791,26 @@
             }
             if ( extract("autoRefill") ) {
                 if (ammo.rounds==0) {
-                    ss.myPlayer.reload();
+                    ss.yourPlayer.reload();
                 };
                 // console.log("round",t.rounds);
                 // console.log("capacity",t.capacity);
             }
         
-            if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.myPlayer.playing) {
+            if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.yourPlayer.playing) {
                 if (!extract("lockOn") || !currentlyTargeting) {
                     currentlyTargeting=false
                     const targetType=extract("aimbotTargeting");
                     let minimumValue = Infinity;
                     for ( let i = 0; i < ss.players.length; i ++ ) {
                         const player = ss.players[ i ];
-                        if ( player && player !== ss.myPlayer && player.playing && ( ss.myPlayer.team === 0 || player.team !== ss.myPlayer.team ) ) {
+                        if ( player && player !== ss.yourPlayer && player.playing && ( ss.yourPlayer.team === 0 || player.team !== ss.yourPlayer.team ) ) {
                             const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                             const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                             const passedLists=whitelisted&&(!blacklisted);
                             if (passedLists) {
                                 if (targetType=="nearest") {
-                                    const distance = distancePlayers(ss.myPlayer,player);
+                                    const distance = distancePlayers(ss.yourPlayer,player);
                                     if ( distance < minimumValue ) {
                                         minimumValue = distance;
                                         currentlyTargeting = player;
@@ -1819,20 +1818,18 @@
                                 } else if (targetType=="pointingat") {
                                     // Calculate the direction vector pointing to the player
                                     const directionToPlayer = new ss.BABYLON.Vector3(
-                                        player.actor.mesh.position.x - ss.myPlayer.actor.mesh.position.x,
-                                        player.actor.mesh.position.y - ss.myPlayer.actor.mesh.position.y,
-                                        player.actor.mesh.position.z - ss.myPlayer.actor.mesh.position.z
+                                        player.actor.mesh.position.x - ss.yourPlayer.actor.mesh.position.x,
+                                        player.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y,
+                                        player.actor.mesh.position.z - ss.yourPlayer.actor.mesh.position.z
                                     );
                                     // Calculate the angles between the direction vector and the player vector
-                                    const angleYaw = Math.radAdd(
-                                        Math.atan2(directionToPlayer.x, directionToPlayer.z),0
-                                    );
+                                    const angleYaw = Math.radAdd(Math.atan2(directionToPlayer.x, directionToPlayer.z),0);
                                     const anglePitch = -Math.atan2(
                                         directionToPlayer.y,
                                         Math.hypot(directionToPlayer.x, directionToPlayer.z)
                                     );
                                     // Calculate the absolute angular difference
-                                    const angleDifference = Math.abs(ss.myPlayer.yaw - angleYaw) + Math.abs(ss.myPlayer.pitch - anglePitch);
+                                    const angleDifference = Math.abs(ss.yourPlayer.yaw - angleYaw) + Math.abs(ss.yourPlayer.pitch - anglePitch);
                                     if (angleDifference < minimumValue) {
                                         minimumValue = angleDifference;
                                         currentlyTargeting = player;
@@ -1847,8 +1844,8 @@
                         y=currentlyTargeting.actor.mesh.position.y
                         z=currentlyTargeting.actor.mesh.position.z;
                     if (extract("prediction")) {
-                        const distanceBetweenPlayers=distancePlayers(ss.myPlayer,currentlyTargeting);
-                        const bulletSpeed=ss.weapons.classes[ss.myPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
+                        const distanceBetweenPlayers=distancePlayers(ss.yourPlayer,currentlyTargeting);
+                        const bulletSpeed=ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
                         const timeToReachTarget = distanceBetweenPlayers / bulletSpeed;
                         x = x + currentlyTargeting.dx * timeToReachTarget;
                         z = z + currentlyTargeting.dz * timeToReachTarget;
@@ -1858,12 +1855,12 @@
                             y = y + currentlyTargeting.dy * timeToReachTarget;
                         };
                     };
-                    x = x - ss.myPlayer.actor.mesh.position.x;
-                    y = y - ss.myPlayer.actor.mesh.position.y;
-                    z = z - ss.myPlayer.actor.mesh.position.z;
+                    x = x - ss.yourPlayer.actor.mesh.position.x;
+                    y = y - ss.yourPlayer.actor.mesh.position.y;
+                    z = z - ss.yourPlayer.actor.mesh.position.z;
 
-                    const finalYaw = (Math.log(Math.abs(x) + Math.sqrt(z ** 2)) / Math.log(2)) + 0;
-                    const finalPitch = -Math.acos(y / Math.sqrt(x ** 2 + z ** 2)) % 1.5;
+                    const finalYaw = Math.radAdd(Math.atan2(x,z),0);
+                    const finalPitch = -Math.atan2(y,Math.hypot(x,z))%1.5;
                     
                     const antiSnap=1-(extract("aimbotAntiSnap")||0);
                     function lerp(start, end, alpha) {
@@ -1872,22 +1869,22 @@
                             value=end
                         };
                         return value
-                    }
+                    };
                     // Exponential lerp towards the target rotation
-                    ss.myPlayer.yaw = lerp(ss.myPlayer.yaw, finalYaw, antiSnap);
-                    ss.myPlayer.pitch = lerp(ss.myPlayer.pitch, finalPitch, antiSnap);
+                    ss.yourPlayer.yaw = lerp(ss.yourPlayer.yaw, finalYaw, antiSnap);
+                    ss.yourPlayer.pitch = lerp(ss.yourPlayer.pitch, finalPitch, antiSnap);
                     if (extract("tracers")) {
                         currentlyTargeting.tracerLines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
-                    }
+                    };
                     if (extract("playerESP")) {
                         const boxMaterial = currentlyTargeting.box.material;
                         boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
-                    }
+                    };
                     if (extract("autoFire")) {
                         if (ammo.capacity>0) {
-                            ss.myPlayer.pullTrigger();
+                            ss.yourPlayer.pullTrigger();
                         } else {
-                            ss.myPlayer.melee();
+                            ss.yourPlayer.melee();
                         };
                     };
                 } else {
