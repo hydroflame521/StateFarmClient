@@ -196,7 +196,8 @@ _**Eggforcers are likely to spectate you if**_:
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
 
--  Zertalious for angles, rendering and other hooks. Credit also for base code.
+-  Zertalious (3.1.1 and later): for inspiration.
+-  Zertalious (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code.
 -  Hydroflame521 and onlypuppy7 for main development
 - Susdung for readme file.
 
