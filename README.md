@@ -1,5 +1,3 @@
-![Discord Shield](https://discordapp.com/api/guilds/127498813903601664/widget.png?style=shield)
-
 # State Farm Client
 
 Hack Client for Shell Shockers(shellshock.io). The most feature rich and powerful client to exist for the game, with custom binding, highly customisable modules, chat mods and more.
