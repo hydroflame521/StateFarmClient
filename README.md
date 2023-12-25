@@ -1,4 +1,4 @@
-![Discord Banner 2](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=banner2)
+![Discord Shield](https://discordapp.com/api/guilds/127498813903601664/widget.png?style=shield)
 
 # State Farm Client
 
