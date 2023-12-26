@@ -4,7 +4,7 @@
 // @version      3.1.1
 // @license      SSM
 // @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key and easily editable colour scheme - all on the fly! 
-// @author       Hydroflame521 and onlypuppy7
+// @author       Hydroflame521, onlypuppy7, and enbyte
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
 // @match        *://algebra.vip/*
@@ -1066,6 +1066,13 @@
         }).on("click", (value) => {
             initBind("unlockSkins")
         });
+
+        registerModule("grenadeMaxPowerButton",tp.miscTab.pages[0].addInput(
+            {grenadeMax: JSON.parse(localStorage.getItem("grenadeMax")) || false}, "grenadeMax", {
+                label: "Set all grenades to max power",
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey, JSON.stringify(value.value));
+        }));
         
         //init client modules tab
     
@@ -1895,6 +1902,33 @@
                 currentlyTargeting=false;
             };
         };
+        function modifyPacket(data) {
+            if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
+                return data;
+            }
+        
+            if (data.byteLength == 0) {
+                return data;
+            }
+
+            arr = new Uint8Array(data);
+
+            if (extract("grenadeMax")) {
+                if (arr[0] == 49) { // comm code 49 = client to server grenade throw
+                    arr[1] = 255;
+                    console.log("StateFarm: modified a grenade packet to be at full power");
+                }
+            }
+
+            return arr.buffer;
+        }
+    };
+    WebSocket.prototype._send = WebSocket.prototype.send;
+    WebSocket.prototype.send = function(data) {
+        if (data instanceof ArrayBuffer) {
+            data = modifyPacket(data);
+        }
+        this._send(data);
     };
     //start init thingamajigs
     startUp();
