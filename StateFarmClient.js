@@ -356,8 +356,21 @@
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
+
+        registerModule("grenadeMaxPowerButton",tp.combatTab.pages[0].addInput(
+            {grenadeMax: JSON.parse(localStorage.getItem("grenadeMax")) || false}, "grenadeMax", {
+                label: "GrenadeMax",
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey, JSON.stringify(value.value));
+        }));
     
         //init combat binds tab
+        tp.nadeMaxBindButton = tp.combatTab.pages[1].addButton({
+            label: "GrenadeMax",
+            title: (JSON.parse(localStorage.getItem("grenadeMaxBind")) || "Set Bind"),
+        }).on("click", (value) => {
+            initBind("grenadeMax")
+        });
     
         tp.aimbotBindButton = tp.combatTab.pages[1].addButton({
             label: "Aimbot",
@@ -407,6 +420,7 @@
         }).on("click", (value) => {
             initBind("autoFire")
         });
+
         
         //init render modules tab
     
@@ -1067,12 +1081,7 @@
             initBind("unlockSkins")
         });
 
-        registerModule("grenadeMaxPowerButton",tp.miscTab.pages[0].addInput(
-            {grenadeMax: JSON.parse(localStorage.getItem("grenadeMax")) || false}, "grenadeMax", {
-                label: "Set all grenades to max power",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey, JSON.stringify(value.value));
-        }));
+        
         
         //init client modules tab
     
