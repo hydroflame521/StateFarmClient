@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.1.1
+// @version      3.1.2
 // @license      SSM
 // @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key and easily editable colour scheme - all on the fly! 
 // @author       Hydroflame521, onlypuppy7, and enbyte
@@ -1902,33 +1902,36 @@
                 currentlyTargeting=false;
             };
         };
-        function modifyPacket(data) {
-            if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
-                return data;
-            }
-        
-            if (data.byteLength == 0) {
-                return data;
-            }
-
-            arr = new Uint8Array(data);
-
-            if (extract("grenadeMax")) {
-                if (arr[0] == 49) { // comm code 49 = client to server grenade throw
-                    arr[1] = 255;
-                    console.log("StateFarm: modified a grenade packet to be at full power");
-                }
-            }
-
-            return arr.buffer;
-        }
     };
+    function modifyPacket(data) {
+        if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
+            return data;
+        }
+    
+        if (data.byteLength == 0) {
+            return data;
+        }
+
+        arr = new Uint8Array(data);
+
+        if (arr[0] == 49) { // comm code 49 = client to server grenade throw
+            if (extract("grenadeMax")) {
+                arr[1] = 255;
+                return arr.buffer;
+                console.log("StateFarm: modified a grenade packet to be at full power");
+            } else {
+                console.log("StateFarm: didn't modify grenade packet")
+            }
+        } else {
+            
+        }
+
+        return data;
+    }
     WebSocket.prototype._send = WebSocket.prototype.send;
     WebSocket.prototype.send = function(data) {
-        if (data instanceof ArrayBuffer) {
-            data = modifyPacket(data);
-        }
-        this._send(data);
+        var modified = modifyPacket(data);
+        this._send(modified);
     };
     //start init thingamajigs
     startUp();
