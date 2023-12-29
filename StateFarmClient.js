@@ -1890,6 +1890,13 @@
                     x = x - ss.yourPlayer.actor.mesh.position.x;
                     z = z - ss.yourPlayer.actor.mesh.position.z;
 
+                    if(!extract("prediction"))
+                    {
+                        x = currentlyTargeting.actor.mesh.position.x - ss.yourPlayer.actor.mesh.position.x;
+                        y = currentlyTargeting.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y;
+                        z = currentlyTargeting.actor.mesh.position.z - ss.yourPlayer.actor.mesh.position.z;
+                    }
+
                     const finalYaw = Math.radAdd(Math.atan2(x,z),0);
                     const finalPitch = -Math.atan2(y,Math.hypot(x,z))%1.5;
 
