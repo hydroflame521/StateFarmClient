@@ -1,3 +1,5 @@
+NOTE TO NOTYOU (GreasyFork moderator): This is the main GitHub repo. My account that I use to communicate with you is https://greasyfork.org/en/users/1239580-why-just-why
+
 ![Discord Shield](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=shield)
 # State Farm Client
 
