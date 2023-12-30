@@ -63,11 +63,10 @@
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
 // @run-at       document-start
 // ==/UserScript==
-
 (function () {
     //script info
-    const name="StateFarmClient ";
-    const version="v3.1.1";
+    const name="StateFarmClient";
+    const version="3.1.1";
     //startup sequence
     const startUp=function() {
         mainLoop()
@@ -214,7 +213,7 @@
         //init tp.pane
 
         tp.pane = new Tweakpane.Pane();
-        tp.pane.title = name+version;
+        tp.pane.title = name + " v" + version;
         //init folders
         registerFolder("combatFolder",tp.pane.addFolder({
             title: "Combat",
@@ -1079,7 +1078,7 @@
 
         registerModule("grenadeMaxPowerButton",tp.miscTab.pages[0].addInput(
             {grenadeMax: JSON.parse(localStorage.getItem("grenadeMax")) || false}, "grenadeMax", {
-                label: "Set all grenades to max power",
+                label: "GrenadeMAX",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey, JSON.stringify(value.value));
         }));
@@ -1091,6 +1090,22 @@
             title: "Hide",
         }).on("click", (value) => {
             tp.pane.hidden=!tp.pane.hidden;
+        }));
+
+        registerModule("themeTypeButton",tp.clientTab.pages[0].addInput(
+            {themeType: (JSON.parse(localStorage.getItem("themeType")) || "static")}, "themeType", {
+                label: "Theme",
+                options: [
+                    {text: "Default", value: "defaultTheme"},
+                    {text: "Iceberg", value: "icebergTheme"},
+                    {text: "Jetblack", value: "jetblackTheme"},
+                    {text: "Light", value: "lightTheme"},
+                    {text: "Retro", value: "retroTheme"},
+                    {text: "Translucent", value: "translucentTheme"},
+                    {text: "Statefarmer", value: "statefarmerTheme"}
+                ],
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
 
         registerModule("reduceLagButton",tp.clientTab.pages[0].addInput(
@@ -1218,18 +1233,203 @@
         //get custom font - condensed font works well for space saving
         const head = document.head || document.getElementsByTagName('head').pages[0];
         const link = document.createElement('link');
+        const themeType = extract("themeType");
         link.rel = 'stylesheet';
         link.href = 'https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/other/ms_bahnschrift.css';
         head.appendChild(link);
 
+        let rootTheme = "";
+
+        if ( themeType == "defaultTheme" ) {
+            rootTheme = `
+  --tp-base-background-color: hsla(230, 7%, 17%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+  --tp-button-background-color: hsla(230, 7%, 70%, 1.00);
+  --tp-button-background-color-active: hsla(230, 7%, 85%, 1.00);
+  --tp-button-background-color-focus: hsla(230, 7%, 80%, 1.00);
+  --tp-button-background-color-hover: hsla(230, 7%, 75%, 1.00);
+  --tp-button-foreground-color: hsla(230, 7%, 17%, 1.00);
+  --tp-container-background-color: hsla(230, 7%, 75%, 0.10);
+  --tp-container-background-color-active: hsla(230, 7%, 75%, 0.25);
+  --tp-container-background-color-focus: hsla(230, 7%, 75%, 0.20);
+  --tp-container-background-color-hover: hsla(230, 7%, 75%, 0.15);
+  --tp-container-foreground-color: hsla(230, 7%, 75%, 1.00);
+  --tp-groove-foreground-color: hsla(230, 7%, 75%, 0.10);
+  --tp-input-background-color: hsla(230, 7%, 75%, 0.10);
+  --tp-input-background-color-active: hsla(230, 7%, 75%, 0.25);
+  --tp-input-background-color-focus: hsla(230, 7%, 75%, 0.20);
+  --tp-input-background-color-hover: hsla(230, 7%, 75%, 0.15);
+  --tp-input-foreground-color: hsla(230, 7%, 75%, 1.00);
+  --tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
+  --tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
+  --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`;
+        }
+        else if ( themeType == "icebergTheme" ) {
+            rootTheme = `
+  --tp-base-background-color: hsla(230, 20%, 11%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+  --tp-button-background-color: hsla(230, 10%, 80%, 1.00);
+  --tp-button-background-color-active: hsla(230, 10%, 95%, 1.00);
+  --tp-button-background-color-focus: hsla(230, 10%, 90%, 1.00);
+  --tp-button-background-color-hover: hsla(230, 10%, 85%, 1.00);
+  --tp-button-foreground-color: hsla(230, 20%, 11%, 1);
+  --tp-container-background-color: hsla(230, 25%, 16%, 1.00);
+  --tp-container-background-color-active: hsla(230, 25%, 31%, 1.00);
+  --tp-container-background-color-focus: hsla(230, 25%, 26%, 1.00);
+  --tp-container-background-color-hover: hsla(230, 25%, 21%, 1.00);
+  --tp-container-foreground-color: hsla(230, 10%, 80%, 1.00);
+  --tp-groove-foreground-color: hsla(230, 20%, 8%, 1.00);
+  --tp-input-background-color: hsla(230, 20%, 8%, 1.00);
+  --tp-input-background-color-active: hsla(230, 28%, 23%, 1.00);
+  --tp-input-background-color-focus: hsla(230, 28%, 18%, 1.00);
+  --tp-input-background-color-hover: hsla(230, 20%, 13%, 1.00);
+  --tp-input-foreground-color: hsla(230, 10%, 80%, 1.00);
+  --tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
+  --tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
+  --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`;
+        }
+        else if ( themeType == "jetblackTheme" ) {
+            rootTheme = `
+  --tp-base-background-color: hsla(0, 0%, 0%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+  --tp-button-background-color: hsla(0, 0%, 70%, 1.00);
+  --tp-button-background-color-active: hsla(0, 0%, 85%, 1);
+  --tp-button-background-color-focus: hsla(0, 0%, 80%, 1.00);
+  --tp-button-background-color-hover: hsla(0, 0%, 75%, 1.00);
+  --tp-button-foreground-color: hsla(0, 0%, 0%, 1.00);
+  --tp-container-background-color: hsla(0, 0%, 10%, 1.00);
+  --tp-container-background-color-active: hsla(0, 0%, 25%, 1.00);
+  --tp-container-background-color-focus: hsla(0, 0%, 20%, 1.00);
+  --tp-container-background-color-hover: hsla(0, 0%, 15%, 1.00);
+  --tp-container-foreground-color: hsla(0, 0%, 50%, 1.00);
+  --tp-groove-foreground-color: hsla(0, 0%, 10%, 1.00);
+  --tp-input-background-color: hsla(0, 0%, 10%, 1.00);
+  --tp-input-background-color-active: hsla(0, 0%, 25%, 1.00);
+  --tp-input-background-color-focus: hsla(0, 0%, 20%, 1.00);
+  --tp-input-background-color-hover: hsla(0, 0%, 15%, 1.00);
+  --tp-input-foreground-color: hsla(0, 0%, 70%, 1.00);
+  --tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
+  --tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
+  --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`;
+        }
+        else if ( themeType == "lightTheme" ) {
+            rootTheme = `
+  --tp-base-background-color: hsla(230, 5%, 90%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
+  --tp-button-background-color: hsla(230, 7%, 75%, 1.00);
+  --tp-button-background-color-active: hsla(230, 7%, 60%, 1.00);
+  --tp-button-background-color-focus: hsla(230, 7%, 65%, 1.00);
+  --tp-button-background-color-hover: hsla(230, 7%, 70%, 1.00);
+  --tp-button-foreground-color: hsla(230, 10%, 30%, 1.00);
+  --tp-container-background-color: hsla(230, 15%, 30%, 0.20);
+  --tp-container-background-color-active: hsla(230, 15%, 30%, 0.32);
+  --tp-container-background-color-focus: hsla(230, 15%, 30%, 0.28);
+  --tp-container-background-color-hover: hsla(230, 15%, 30%, 0.24);
+  --tp-container-foreground-color: hsla(230, 10%, 30%, 1.00);
+  --tp-groove-foreground-color: hsla(230, 15%, 30%, 0.10);
+  --tp-input-background-color: hsla(230, 15%, 30%, 0.10);
+  --tp-input-background-color-active: hsla(230, 15%, 30%, 0.22);
+  --tp-input-background-color-focus: hsla(230, 15%, 30%, 0.18);
+  --tp-input-background-color-hover: hsla(230, 15%, 30%, 0.14);
+  --tp-input-foreground-color: hsla(230, 10%, 30%, 1.00);
+  --tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
+  --tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
+  --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`;
+        }
+        else if ( themeType == "retroTheme" ) {
+            rootTheme = `
+  --tp-base-background-color: hsla(40, 3%, 90%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
+  --tp-button-background-color: hsla(40, 3%, 70%, 1.00);
+  --tp-button-background-color-active: hsla(40, 3%, 55%, 1.00);
+  --tp-button-background-color-focus: hsla(40, 3%, 60%, 1.00);
+  --tp-button-background-color-hover: hsla(40, 3%, 65%, 1.00);
+  --tp-button-foreground-color: hsla(40, 3%, 20%, 1.00);
+  --tp-container-background-color: hsla(40, 3%, 70%, 1.00);
+  --tp-container-background-color-active: hsla(40, 3%, 55%, 1.00);
+  --tp-container-background-color-focus: hsla(40, 3%, 60%, 1.00);
+  --tp-container-background-color-hover: hsla(40, 3%, 65%, 1.00);
+  --tp-container-foreground-color: hsla(40, 3%, 20%, 1.00);
+  --tp-groove-foreground-color: hsla(40, 3%, 40%, 1.00);
+  --tp-input-background-color: hsla(120, 3%, 20%, 1.00);
+  --tp-input-background-color-active: hsla(120, 3%, 35%, 1.00);
+  --tp-input-background-color-focus: hsla(120, 3%, 30%, 1.00);
+  --tp-input-background-color-hover: hsla(120, 3%, 25%, 1.00);
+  --tp-input-foreground-color: hsla(120, 40%, 60%, 1.00);
+  --tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
+  --tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
+  --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`;
+        }
+        else if ( themeType == "translucentTheme" ) {
+            rootTheme = `
+  --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
+  --tp-button-background-color: hsla(0, 0%, 80%, 1.00);
+  --tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
+  --tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
+  --tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
+  --tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
+  --tp-container-background-color: hsla(0, 0%, 0%, 0.30);
+  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
+  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
+  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
+  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
+  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
+  --tp-input-background-color: hsla(0, 0%, 0%, 0.30);
+  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
+  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
+  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
+  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
+  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`;
+        }
+        else if ( themeType == "statefarmerTheme" ) {
+            rootTheme = `
+  --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+  --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+  --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+  --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+  --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+  --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+  --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`;
+        }
+
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
         const styleElement = document.createElement('style');
         styleElement.textContent = `
+            @font-face {
+                font-family: "Bahnschrift";
+                src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot");
+                src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot?#iefix")format("embedded-opentype"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff2")format("woff2"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff")format("woff"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
+            }
+            :root {
+                ${rootTheme}
+            }
             .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-lblv_v, .tp-tabv_i, .msg, .coords, .playerstats {
                 font-family: 'Bahnschrift', sans-serif !important;
+                font-size: 16px;
             }
             .tp-lblv_l {
-                font-size: 16px;
+                font-size: 14px;
                 letter-spacing: -1px;
             }
             .tp-btnv {
@@ -2071,7 +2271,7 @@
             }
         }
     };
-    
+
     //start init thingamajigs
     startUp();
 })();
