@@ -337,11 +337,11 @@
         }));
 
         registerModule("antiSneakButton",tp.aimbotFolder.addInput(
-            {antiSneak: 0}, "antiSneak", {
-                label: "Anti Sneak",
+            {antiSneak: 1.8}, "antiSneak", {
+                label: "Antisneak",
                 min: 0,
                 max: 5,
-                step: 0.5,
+                step: 0.2,
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
@@ -1828,7 +1828,7 @@
                             const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                             const passedLists=whitelisted&&(!blacklisted);
                             if (passedLists) {
-                                const distance = distancePlayers(ss.yourPlayer,player);
+                                const distance = Math.hypot( player.x - ss.yourPlayer.x, player.y - ss.yourPlayer.y, player.z - ss.yourPlayer.z );
                                 if (distance < minimumValue) {
                                     minimumDistance = distance;
                                     nearestPlayer = player;
@@ -1861,16 +1861,17 @@
                             };
                         };
                     };
-                    if (extract("antiSneak")!==0) {//beacause people like to jump from up above on you and this will prevent that, or people sneaking from behind when aiming far away
-                       acceptableDistance = extract("antiSneak");
-                       console.log('here');
-                       if (minimumDistance < acceptableDistance)
-                       {
-                           currentlyTargeting = nearestPlayer;
-                       }
-                    };
                     highlightCurrentlyTargeting(currentlyTargeting, ss.players);
                     highlightCrossHairReticleDot(ss.yourPlayer, true);
+                };
+                let antiSneakAutoFire = false;
+                if (extract("aimbot") && (extract("antiSneak")!==0)) {
+                    let acceptableDistance = extract("antiSneak");
+                    if ( minimumDistance < acceptableDistance)
+                    {
+                        currentlyTargeting = nearestPlayer; antiSneakAutoFire = true;
+                        console.log("ANTISNEAK---->", nearestPlayer?.name, minimumDistance);
+                    }
                 };
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     let x=currentlyTargeting.actor.mesh.position.x
@@ -1912,6 +1913,13 @@
                     // Exponential lerp towards the target rotation
                     ss.yourPlayer.yaw = lerp(ss.yourPlayer.yaw, finalYaw, antiSnap);
                     ss.yourPlayer.pitch = lerp(ss.yourPlayer.pitch, finalPitch, antiSnap);
+                    if (antiSneakAutoFire){
+                        if (ammo.rounds === 0) { //bascially after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
+                            if (ss.yourPlayer.weaponIdx === 0){ss.yourPlayer.swapWeapon(1);}
+                            else {ss.yourPlayer.reload();}
+                        }
+                        ss.yourPlayer.pullTrigger();
+                    }
                     if (extract("tracers")) {
                         currentlyTargeting.tracerLines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                     };
