@@ -215,8 +215,8 @@ _**Common detection Methods**_:
 
 -  hydroflame521, onlypuppy7, porcupane, and not_food. for development
 -  susdung for readme file.
-- Zertalious (3.1.1 and later): for inspiration of the project.
-- Zertalious (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code (removed prior to 3.1.1).
+- Zertelius (3.1.1 and later): for inspiration of the project.
+- Zeraliuous (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code (removed prior to 3.1.1).
 
 ## Disclaimer:
 
