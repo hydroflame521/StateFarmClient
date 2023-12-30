@@ -123,7 +123,6 @@
         const moduleLabel=tp[moduleButton].label;
         for (const label of labels) {
             if (label.textContent.includes(moduleLabel)) {
-                updateConfig(); //make sure that any onscreen messages are correct
                 const inputContainer = label.nextElementSibling;
                 const currentValue=extract(module);
                 // check for checkbox
@@ -212,6 +211,7 @@
                                 state="Exiting to set URL..."; break;
                         };
                     };
+                    updateConfig(); //make sure that any onscreen messages are correct
                     showMsg(state);
                 };
             });
