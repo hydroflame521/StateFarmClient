@@ -65,6 +65,7 @@ You are done with installation!
 -   _**Auto Refill**_: refills once ammo is used up.
 -   _**Auto Fire**_: fires when locked onto target player. More fun than useful.
 -   _**GrenadeMAX**_: sets all grenades thrown to max power.
+
 ![combat tab](https://cdn.discordapp.com/attachments/898816619344699436/1190516218550034563/image.png)
 > _The current player being targeted in the leaderboard in highlighted blue._
 > _Crosshair becomes blue when aimbot is enabled._
@@ -101,6 +102,7 @@ You are done with installation!
 -   _**PlayerStats**_: displays the HP of all the online enemy players.
 -   _**Wireframe**_: renders everything as a wireframe.
 -   _**Egg size**_: changes size of eggs for lulz.
+
 ![render tab](https://cdn.discordapp.com/attachments/898816619344699436/1188352803131891823/image.png?)
 ## Chat Tab:
 -   _**InfiniHistory**_: disables the default limiting of history from 5 messages to no limit.
@@ -113,9 +115,11 @@ You are done with installation!
 -   _**Spammer**_: spams chosen text (very annoying and will make all the players in a game mute you. Also likely to get you banned if they implement a measure against this).
 -   _**Delay (ms)**_: delay between each message. 0ms works, but higher values at least let people talk somewhat.
 -   _**Spam Text**_: text to flood the chat with.
+
 ![chat tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354106453147648/image.png)
 ## Misc Tab:
 -   _**UnlockSkins**_: unlocks all skins in shellshockers locally, other players will not see them.
+
 ![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1190517147139588147/image.png)
 ## Client & About:
 -   _**Hide GUI**_: hides upon pressing the button or the keybind (default H).
@@ -126,6 +130,7 @@ You are done with installation!
 -   _**Set Panic URL**_: where it should go.
 -   _**Creator's Links**_: to stay up to date.
 -   _**Reset**_: deletes all locally stored variables, resetting the client config to defaults.  _Warning_: some are used by the game too so you may lose your saved username and some stats.
+
 ![client tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354874577002516/image.png)
 ## Binding Modules:
 With the exception of the color pickers and some links, these should all be bindable to a key of your choice. Press the binds button in the tab, and click on the button next to the module you want to bind. Press a key to bind it, or alternatively press Delete to remove the bind. Use this flexibility to your advantage to be more stealthy, or secure more kills. Eg: switch to  **Nearest**  targeting when being attacked, and then to  **Pointing At**  when sniping.
@@ -170,6 +175,7 @@ _**Common detection Methods**_:
 > This is circumvented only by using a new IP, or waiting for the host to create a new game.
 
 **"Banning"**:
+
 ![ban](https://cdn.discordapp.com/attachments/977271202924097588/1186465326192402614/image.png)
 
 > This is the "ban" interface. It allows "banning" of 5, 15, and 60 minutes. Can only be used by Developers/Eggforcers.
