@@ -1136,6 +1136,8 @@
                 ],
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+            localStorage.setItem("themeType",JSON.stringify(value.value));
+            applyStylesAddElements(value.value);
         }));
 
         registerModule("reduceLagButton",tp.clientTab.pages[0].addInput(
@@ -1265,14 +1267,22 @@
             alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the moderators.");
         }
     };
-    const applyStylesAddElements = function () {
+    const applyStylesAddElements = function (themeToApply = "null") {
         //get custom font - condensed font works well for space saving
         const head = document.head || document.getElementsByTagName('head').pages[0];
         const themeType = extract("themeType");
 
         let rootTheme = "";
 
-        switch (themeType) {
+        var theme = "";
+
+        if (themeToApply === "null") {
+            theme = extract("themeType");
+        } else {
+            theme = themeToApply;
+        }
+
+        switch (theme) {
             case ("defaultTheme"):
             rootTheme = `
   --tp-base-background-color: hsla(230, 7%, 17%, 1.00);
