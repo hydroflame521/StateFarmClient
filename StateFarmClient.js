@@ -1869,8 +1869,9 @@
                            currentlyTargeting = nearestPlayer;
                        }
                     };
+                    highlightCurrentlyTargeting(currentlyTargeting, ss.players);
+                    highlightCrossHairReticleDot(ss.yourPlayer, true);
                 };
-                highlightCurrentlyTargeting(currentlyTargeting, ss.players);
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     let x=currentlyTargeting.actor.mesh.position.x
                         y=currentlyTargeting.actor.mesh.position.y
@@ -1889,6 +1890,13 @@
                     };
                     x = x - ss.yourPlayer.actor.mesh.position.x;
                     z = z - ss.yourPlayer.actor.mesh.position.z;
+
+                    if(!extract("prediction"))
+                    {
+                        x = currentlyTargeting.actor.mesh.position.x - ss.yourPlayer.actor.mesh.position.x;
+                        y = currentlyTargeting.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y;
+                        z = currentlyTargeting.actor.mesh.position.z - ss.yourPlayer.actor.mesh.position.z;
+                    }
 
                     const finalYaw = Math.radAdd(Math.atan2(x,z),0);
                     const finalPitch = -Math.atan2(y,Math.hypot(x,z))%1.5;
@@ -1923,6 +1931,10 @@
                 };
             } else {
                 currentlyTargeting=false;
+                if (!extract("aimbot"))
+                {
+                    highlightCrossHairReticleDot(ss.yourPlayer, false);
+                };
             };
         };
     };
@@ -1950,7 +1962,30 @@
             }
             else{playerList[i].style.backgroundColor = '';}
             console.log(playerArray.find(player => player.name === playerList[i].textContent.slice(0, -3))?.hp);
+        }
+
     }
+
+    function highlightCrossHairReticleDot(yourPlayer, bool)
+    {
+        let dot = document.getElementById("reticleDot");
+        let crosshair = document.getElementById("crosshairContainer");
+        if (bool){
+            let isAmmoFull = yourPlayer.weapon.ammo.rounds === yourPlayer.weapon.ammo.capacity
+            dot.style.backgroundColor = isAmmoFull ? 'blue' : '';
+            for(let i=0;i<crosshair.children.length;i++){
+                crosshair.children[i].style.backgroundColor = isAmmoFull ? 'blue' : '';
+                crosshair.children[i].style.padding = isAmmoFull ? '2px' : '';
+            }
+        }
+        else{
+            dot.style.backgroundColor = '';
+            dot.style.padding = '';
+            for(let i=0;i<crosshair.children.length;i++){
+                crosshair.children[i].style.backgroundColor = '';
+                crosshair.children[i].style.padding = '';
+            }
+        }
 
     }
 
@@ -2013,18 +2048,20 @@
         var arr = new Uint8Array(packetData);
         return arr[0] == 39;
     }
-    WebSocket.prototype._send = WebSocket.prototype.send;
-    WebSocket.prototype.send = function(data) {
+    function ghostSpam() {
+        WebSocket.prototype._send = WebSocket.prototype.send;
+        WebSocket.prototype.send = function(data) {
 
-        var modified = modifyPacket(data);
-        this._send(modified);
+            var modified = modifyPacket(data);
+            this._send(modified);
 
-        if (is39Packet(data)) {
-            for (var i = 0; i < 5; i++) {
-                this._send(constructChatPacket("spammeroonie number #" + new Date().getTime() % 1000));
+            if (is39Packet(data)) {
+                for (var i = 0; i < 5; i++) {
+                    this._send(constructChatPacket("spammeroonie number #" + new Date().getTime() % 1000));
+                }
             }
-        }
-    };
+        };
+    }
     //start init thingamajigs
     startUp();
 })();
