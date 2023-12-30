@@ -320,9 +320,16 @@
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
 
-        registerModule("disableOnKillButton",tp.aimbotFolder.addInput(
-            {disableOnKill: JSON.parse(localStorage.getItem("disableOnKill")) || false}, "disableOnKill", {
-                label: "DisableKill",
+        registerModule("antiSwitchButton",tp.aimbotFolder.addInput(
+            {antiSwitch: JSON.parse(localStorage.getItem("antiSwitch")) || false}, "antiSwitch", {
+                label: "AntiSwitch",
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        }));
+
+        registerModule("lockOnButton",tp.aimbotFolder.addInput(
+            {lockOn: JSON.parse(localStorage.getItem("lockOn")) || false}, "lockOn", {
+                label: "Lock On",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
@@ -405,11 +412,18 @@
             initBind("aimbotRightClick")
         });
 
-        tp.disableOnKillBindButton = tp.combatTab.pages[1].addButton({
-            label: "Lock On",
-            title: (JSON.parse(localStorage.getItem("disableOnKillBind")) || "Set Bind"),
+        tp.antiSwitchBindButton = tp.combatTab.pages[1].addButton({
+            label: "AntiSwitch",
+            title: (JSON.parse(localStorage.getItem("antiSwitchBind")) || "Set Bind"),
         }).on("click", (value) => {
-            initBind("disableOnKill")
+            initBind("antiSwitch")
+        });
+
+        tp.lockOnBindButton = tp.combatTab.pages[1].addButton({
+            label: "Lock On",
+            title: (JSON.parse(localStorage.getItem("lockOnBind")) || "Set Bind"),
+        }).on("click", (value) => {
+            initBind("lockOn")
         });
 
         tp.predictionBindButton = tp.combatTab.pages[1].addButton({
@@ -2146,7 +2160,7 @@
             let minimumDistance = Infinity;
             let nearestPlayer;
             if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.yourPlayer.playing) {
-                if (!extract("disableOnKill") || !currentlyTargeting) {
+                if (!extract("antiSwitch") || !currentlyTargeting) {
                     currentlyTargeting=false
                     const targetType=extract("aimbotTargeting");
                     let minimumValue = Infinity;
@@ -2216,7 +2230,6 @@
                         let targetMult = 2*Math.sqrt(distanceBetweenPlayers)-0.1*(distanceBetweenPlayers) + 0.005*parseInt(document.getElementById("ping").textContent.slice(0,-2));
                         y = currentlyTargeting.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y + timeToReachTarget*(currentlyTargeting.dy - (yourMult*ss.yourPlayer.dy ));
                         //parseInt(document.getElementById("ping").textContent.slice(0,-2) is the ping given by the game, incorporate this is a positive gain factor for the other three axes, and find a metter mult than 0.005
-
                     };
                     x = x - ss.yourPlayer.actor.mesh.position.x;
                     z = z - ss.yourPlayer.actor.mesh.position.z;
@@ -2264,7 +2277,11 @@
                         };
                     };
                 } else {
-                    currentlyTargeting="dead";
+                    if (extract("lockOn")) {
+                        currentlyTargeting="dead";
+                    } else {
+                        currentlyTargeting=false;
+                    }
                 };
             } else {
                 currentlyTargeting=false;
