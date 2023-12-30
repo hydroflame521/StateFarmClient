@@ -4,7 +4,7 @@
 // @version      3.1.3
 // @license      GPL-3.0
 // @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
-// @author       Hydroflame521, onlypuppy7, and enbyte
+// @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
 // @match        *://algebra.vip/*
@@ -1263,7 +1263,7 @@
         let rootTheme = "";
 
         switch (themeType) {
-            case ("defaultTheme") {
+            case ("defaultTheme"):
             rootTheme = `
   --tp-base-background-color: hsla(230, 7%, 17%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1286,8 +1286,7 @@
   --tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
   --tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
   --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`;
-        }
-        case ( "icebergTheme" ) {
+        case ( "icebergTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(230, 20%, 11%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1310,8 +1309,7 @@
   --tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
   --tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
   --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`;
-        }
-        case ( "jetblackTheme" ) {
+        case ( "jetblackTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(0, 0%, 0%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1334,8 +1332,7 @@
   --tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
   --tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
   --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`;
-        }
-        case ( "lightTheme" ) {
+        case ( "lightTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(230, 5%, 90%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
@@ -1358,8 +1355,7 @@
   --tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
   --tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
   --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`;
-        }
-        case ( "retroTheme" ) {
+        case ( "retroTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(40, 3%, 90%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
@@ -1382,8 +1378,7 @@
   --tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
   --tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
   --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`;
-        }
-        case ( "translucentTheme" ) {
+        case ( "translucentTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
@@ -1406,8 +1401,7 @@
   --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
   --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
   --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`;
-        }
-        case ( "statefarmerTheme" ) {
+        case ( "statefarmerTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
