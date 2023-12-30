@@ -327,9 +327,9 @@
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
 
-        registerModule("lockOnButton",tp.aimbotFolder.addInput(
-            {lockOn: JSON.parse(localStorage.getItem("lockOn")) || false}, "lockOn", {
-                label: "Lock On",
+        registerModule("oneKillButton",tp.aimbotFolder.addInput(
+            {oneKill: JSON.parse(localStorage.getItem("oneKill")) || false}, "oneKill", {
+                label: "1 Kill",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
@@ -419,11 +419,11 @@
             initBind("antiSwitch")
         });
 
-        tp.lockOnBindButton = tp.combatTab.pages[1].addButton({
+        tp.oneKillBindButton = tp.combatTab.pages[1].addButton({
             label: "Lock On",
-            title: (JSON.parse(localStorage.getItem("lockOnBind")) || "Set Bind"),
+            title: (JSON.parse(localStorage.getItem("oneKillBind")) || "Set Bind"),
         }).on("click", (value) => {
-            initBind("lockOn")
+            initBind("oneKill")
         });
 
         tp.predictionBindButton = tp.combatTab.pages[1].addButton({
@@ -2277,7 +2277,7 @@
                         };
                     };
                 } else {
-                    if (extract("lockOn")) {
+                    if (extract("oneKill")) {
                         currentlyTargeting="dead";
                     } else {
                         currentlyTargeting=false;
