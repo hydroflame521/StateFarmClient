@@ -1226,7 +1226,7 @@
         const styleElement = document.createElement('style');
         styleElement.textContent = `
             .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-lblv_v, .tp-tabv_i, .msg, .coords, .playerstats {
-                font-family: 'Roboto Condensed', sans-serif !important;
+                font-family: 'Bahnschrift', sans-serif !important;
             }
             .tp-lblv_l {
                 font-size: 16px;
