@@ -9,11 +9,10 @@ Join the discord server for the latest news:  [https://discord.gg/UTqWuQ7nq8](ht
 
 For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
 
-Info accurate as of Statefarm client v3.1.2
+Info accurate as of release version 3.1.2
 
 # Note To the GreasyFork moderators
 This is the main GitHub repo. My account that I use to communicate with you is https://greasyfork.org/en/users/1239580-why-just-why
-
 
 # Table of Contents
 
@@ -49,29 +48,27 @@ You are done with installation!
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#features)Features:
 ## Combat Tab:
-
 -   _**Aimbot**_: locks onto targeted player. The player it locks onto is decided by the targeting type, see below.
 -   _**Aimbot Targeting**_: decides the priority for which aimbot should target.
     -   _**Pointing At**_: Closest to direction the camera is pointing.
     -   _**Proximity**_: Closest in distance to player.
-    -   _**AntiSneak**_: Default distance of 1.8, automatically detects and autokills players within this range. Set to 0 to cancel feature.
 -   _**ToggleRM**_: allows for aimbot to be controlled by use of the right mouse button. This option makes it so that the player only locks on while right mouse is held.
 -   _**Lock On**_: makes it so that while targeting a player, the target does not switch to another one until aimbot is turned back on.
 -   _**Prediction**_: predicts where the player will be when bullet reaches them. Works well! Currently working on nearer to 100% y axis accuracy.
--   _**Antisnap**_: fairly useless feature which creates a smoother transition between selecting a target and focusing on it. Thought it would look less suspect, but does not much at all.
-- _**Antisneak**_: antisneak set default to 1.8, works like this:
---> user is targeting someone far away
---> enemy player sneaks up behind them
---> inside a radius of 1.8 BOOM! MAGDUMP on them, then switch to pistol and magdump, then reload and continue
---> think of it like a tripwire where you are aiming on a target, say, and someone trips within your tripwire's radius now you are firing on them
+-   _**Antisnap**_: fairly useless feature which creates a smoother transition between selecting a target and focusing on it. Thought it would look less suspect, but does not help greatly.
+-   _**AntiSneak**_: Default distance of 1.8, automatically detects and autokills players within this range. Set to 0 to cancel feature.
+    -   user is targeting someone far away
+    -   enemy player sneaks up behind them
+    -   inside a radius of 1.8 BOOM! MAGDUMP on them, then switch to pistol and magdump, then reload and continue
+    -   think of it like a tripwire where you are aiming on a target, say, and someone trips within your tripwire's radius now you are firing on them
 -   _**Aimbot ESP Color**_: the color that should be used to highlight the ESP of a targeted player.
 -   _**Auto Refill**_: refills once ammo is used up.
 -   _**Auto Fire**_: fires when locked onto target player. More fun than useful.
+-   _**GrenadeMAX**_: sets all grenades thrown to max power.
 ![combat tab](https://cdn.discordapp.com/attachments/898816619344699436/1190516218550034563/image.png)
-> Highlights the current player being targeted in the leaderboard in blue.
-> Crosshair becomes blue when aimbot is enabled.
+> _The current player being targeted in the leaderboard in highlighted blue._
+> _Crosshair becomes blue when aimbot is enabled._
 ## Render Tab:
-
 -   _**PlayerESP**_: creates boxes around enemy players.
 -   _**Tracers**_: creates lines pointing from the center of the screen to the location of enemy players.
 -   _**Chams**_: renders players through walls.
@@ -87,15 +84,15 @@ You are done with installation!
 -   _**Ammo/Grenades Tracers**_: draws lines when enabled to the item.
 -   _**Ammo/Grenades ESP**_: draws boxes around item when enabled.
 -   _**Ammo Regime**_:
-    -   _**When depleted**_: activates when you are out of ammo.
+    -   _**When Depleted**_: activates when you are out of ammo.
     -   _**When low**_: activates when you can only reload twice or less more times.
-    -   _**Below max**_: activates when you're not at max capacity.
-    -   _**Always on**_: self explanatory.
+    -   _**Below Max**_: activates when you're not at max capacity.
+    -   _**Always On**_: self explanatory.
 -   _**Grenades Regime**_:
-    -   _**When depleted**_: activates when you are out of grenades.
+    -   _**When Depleted**_: activates when you are out of grenades.
     -   _**When low**_: activates when you have one remaining grenade.
-    -   _**Below max**_: activates when you're not at max capacity (3 grenades).
-    -   _**Always on**_: self explanatory.
+    -   _**Below Max**_: activates when you're not at max capacity (3 grenades).
+    -   _**Always On**_: self explanatory.
 -   _**Ammo/Grenades ESP Color**_: self explanatory.
 -   _**FOV**_: changes fov which you see the map ingame. Higher will zoom out more (above 180 will invert).
 -   _**Zoom FOV**_: changes the FOV at which to switch to while holding down the bind related to it (default C). Lower will zoom in more.
@@ -105,10 +102,7 @@ You are done with installation!
 -   _**Wireframe**_: renders everything as a wireframe.
 -   _**Egg size**_: changes size of eggs for lulz.
 ![render tab](https://cdn.discordapp.com/attachments/898816619344699436/1188352803131891823/image.png?)
-
-
 ## Chat Tab:
-
 -   _**InfiniHistory**_: disables the default limiting of history from 5 messages to no limit.
 -   _**DisableFilter**_: see messages which were filtered for other players! Highlighted in red if a message you or someone else sent has been filtered on non-modified games.
 -  _**AntiAFK**_: sends cencored messages periodically that others players will not see but prevents you from being kicked for afk.
@@ -120,17 +114,10 @@ You are done with installation!
 -   _**Delay (ms)**_: delay between each message. 0ms works, but higher values at least let people talk somewhat.
 -   _**Spam Text**_: text to flood the chat with.
 ![chat tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354106453147648/image.png)
-
 ## Misc Tab:
-
--   _**Unlock skins**_: unlocks all skins in shellshockers locally, other players will not see them.
--  _**Set all grenades to max**_: sets all grenades to max power when thrown
-
+-   _**UnlockSkins**_: unlocks all skins in shellshockers locally, other players will not see them.
 ![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1190517147139588147/image.png)
-
-
 ## Client & About:
-
 -   _**Hide GUI**_: hides upon pressing the button or the keybind (default H).
 -   _**Reduce lag**_: reduces lag that the client causes; bigger numbers for more lag reduction. 
 -   _**Pop-ups**_: suppose you want to be more "stealthy", you can turn off pop-ups.
@@ -141,12 +128,10 @@ You are done with installation!
 -   _**Reset**_: deletes all locally stored variables, resetting the client config to defaults.  _Warning_: some are used by the game too so you may lose your saved username and some stats.
 ![client tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354874577002516/image.png)
 ## Binding Modules:
-
 With the exception of the color pickers and some links, these should all be bindable to a key of your choice. Press the binds button in the tab, and click on the button next to the module you want to bind. Press a key to bind it, or alternatively press Delete to remove the bind. Use this flexibility to your advantage to be more stealthy, or secure more kills. Eg: switch to  **Nearest**  targeting when being attacked, and then to  **Pointing At**  when sniping.
-
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#gameplay-strategies)Gameplay Strategies:
--   _**Choose your weapon wisely**_: Statefarm client synergies with certian weapons better than others, use them to your advantage. 
-> Aimbot (especially with prediction enabled) in powerful with weapons that require high levels of aim, and weak with weapons that do not rely on aiming.
+-   _**Choose your weapon wisely**_: StateFarm client synergises with certain weapons better than others, use them to your advantage. 
+> Aimbot (especially with prediction enabled) is powerful with weapons that require high levels of aim, and weak with weapons that do not rely on aiming.
 > 
 |                |Aimbot synergies                 |Strategy                       |
 |----------------|-------------------------------|-----------------------------|
@@ -161,12 +146,12 @@ With the exception of the color pickers and some links, these should all be bind
 |Whisk(Melee) ![melee](https://cdn.discordapp.com/attachments/898816619344699436/1188362823433191516/latest.png)     |very close range|lock on with aimbot, follow them and spam whisk while jumping around erratically|
 |Grenades  ![nade](https://cdn.discordapp.com/attachments/898816619344699436/1188362881604005938/latest.png)     |no use with aimbot|damage ememies at hard to reach locations (or just make them go away)|
 
--   _**Use lists tab to even further customise the client**_: use blacklist if you're teaming with someone and whitelist if someone talks smack in chat about you.
--  _**Use ESP to reveal all player locations**_: ESP can allow you to see know player locations, even when they are behind walls/obstacles
+- _**Use lists tab to even further customise the client**_: use blacklist if you're teaming with someone and whitelist if someone talks smack in chat about you.
+- _**Use ESP and Chams to reveal all player locations**_: ESP can allow you to see know player locations, even when they are behind walls/obstacles.
 - _**Use Ammo/Grenade ESP to reveal all resource locations**_: Make sure you are never short on resources.
-- _**Proximity ESP**_: use it to gather more info about opponent's distance with you
-- _**Prediction**_: use prediction to greatly enhance aimbot accuracy
-- _**Lock On**_: use this feature to prevent aimbot from switching targets
+- _**Proximity ESP**_: Use it to gather more info about opponent's distance with you.
+- _**Prediction**_: Use prediction to greatly enhance aimbot accuracy.
+- _**Lock On**_: Use this feature to prevent aimbot from switching targets.
 
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#ban-circumvention)Ban Circumvention :
@@ -174,12 +159,12 @@ With the exception of the color pickers and some links, these should all be bind
 
 _**Common detection Methods**_:
 > Eggforcers(Normal players too) will look for the following actions in your gameplay to detection cheating. Avoid showing them to an extent.
-- _**Snapping**_: Immediately locking on to another player after a kill/distance change.
+- _**Snapping**_: Immediately locking on to another player after a kill/distance change (use AntiSnap, or only lock on when you have moved the reticle close to the player, or both).
 - _**Wall locking**_: Locking on to player though walls.
 - _**Unbelievably good aim**_: Inhuman and robotic aiming.
 
 **Booting:**
-> This is one of the tools Shell Shockers gives to private game hosters. Booting immediately IP bans every user in the game sharing an IP, and will not allow them to rejoin that particular game unless they use a VPN/proxy.
+> This is one of the tools Shell Shockers gives to private game hosters. Booting immediately IP bans every user in a private game sharing an IP, and will not allow them to rejoin that particular game unless they use a VPN/proxy.
 
 **Boot Circumvention:**
 > This is circumvented only by using a new IP, or waiting for the host to create a new game.
@@ -213,11 +198,11 @@ _**Common detection Methods**_:
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
 
 
--  hydroflame521, onlypuppy7, porcupane, and not_food. for development
--  susdung for readme file.
+- Hydroflame521, onlypuppy7, porcupane, and not_food. for development
+- susdung for README additions, such as the ban circumvention info.
 - Zertelius (3.1.1 and later): for inspiration of the project.
-- Zeraliuous (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code (removed prior to 3.1.1).
+- Zeraliuous (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code (removed in 3.1.1).
 
 ## Disclaimer:
 
-We are not responsible for your loss of friends or poor reputation if you use Statefarm client. It certainly will make them upset so we would advise against it. If you use this in public lobbies, everyone will hate you, and you risk getting banned and having your stats reset.
+We are not responsible for your loss of friends or poor reputation if you use StateFarm client. It certainly will make them upset so we would advise against it. If you use this in public lobbies, everyone will hate you, and you risk getting banned and having your stats reset.
