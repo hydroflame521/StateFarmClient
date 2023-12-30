@@ -100,7 +100,8 @@
     const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let isRightButtonDown = false;
     //menu interaction functions
-    const extract = function (variable) {
+    const extract = function (variable,shouldUpdate) {
+        if (shouldUpdate) {updateConfig()};
         return config[variable];
     };
     const initBind = function (value) {
@@ -134,7 +135,7 @@
                     if (newValue!=currentValue) {
                         checkbox.click(); // Toggle checkbox
                     };
-                    return extract(module);
+                    return extract(module,true);
                 };
                 // check for button
                 const button = inputContainer.querySelector('.tp-btnv_b');
@@ -150,7 +151,7 @@
                     };
                     dropdown.selectedIndex = newValue;
                     dropdown.dispatchEvent(new Event('change')); // trigger change event for dropdown
-                    return extract(module);
+                    return extract(module,true);
                 };
             };
         };
@@ -211,7 +212,6 @@
                                 state="Exiting to set URL..."; break;
                         };
                     };
-                    updateConfig(); //make sure that any onscreen messages are correct
                     showMsg(state);
                 };
             });
