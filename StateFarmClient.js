@@ -2048,20 +2048,22 @@
         var arr = new Uint8Array(packetData);
         return arr[0] == 39;
     }
-    function ghostSpam() {
-        WebSocket.prototype._send = WebSocket.prototype.send;
-        WebSocket.prototype.send = function(data) {
+    function ghostSpamToggle() {}
+    ghostSpamToggle.enabled = false;
 
-            var modified = modifyPacket(data);
-            this._send(modified);
+    WebSocket.prototype._send = WebSocket.prototype.send;
+    WebSocket.prototype.send = function(data) {
 
-            if (is39Packet(data)) {
-                for (var i = 0; i < 5; i++) {
-                    this._send(constructChatPacket("spammeroonie number #" + new Date().getTime() % 1000));
-                }
+        var modified = modifyPacket(data);
+        this._send(modified);
+
+        if (is39Packet(data) && ghostSpamToggle.enabled) {
+            for (var i = 0; i < 5; i++) {
+                this._send(constructChatPacket("spammeroonie number #" + new Date().getTime() % 1000));
             }
-        };
-    }
+        }
+    };
+    
     //start init thingamajigs
     startUp();
 })();
