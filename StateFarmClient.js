@@ -320,9 +320,9 @@
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
 
-        registerModule("lockOnButton",tp.aimbotFolder.addInput(
-            {lockOn: JSON.parse(localStorage.getItem("lockOn")) || false}, "lockOn", {
-                label: "Lock On",
+        registerModule("disableOnKillButton",tp.aimbotFolder.addInput(
+            {disableOnKill: JSON.parse(localStorage.getItem("disableOnKill")) || false}, "disableOnKill", {
+                label: "DisableKill",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
@@ -405,11 +405,11 @@
             initBind("aimbotRightClick")
         });
 
-        tp.lockOnBindButton = tp.combatTab.pages[1].addButton({
+        tp.disableOnKillBindButton = tp.combatTab.pages[1].addButton({
             label: "Lock On",
-            title: (JSON.parse(localStorage.getItem("lockOnBind")) || "Set Bind"),
+            title: (JSON.parse(localStorage.getItem("disableOnKillBind")) || "Set Bind"),
         }).on("click", (value) => {
-            initBind("lockOn")
+            initBind("disableOnKill")
         });
 
         tp.predictionBindButton = tp.combatTab.pages[1].addButton({
@@ -2146,7 +2146,7 @@
             let minimumDistance = Infinity;
             let nearestPlayer;
             if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.yourPlayer.playing) {
-                if (!extract("lockOn") || !currentlyTargeting) {
+                if (!extract("disableOnKill") || !currentlyTargeting) {
                     currentlyTargeting=false
                     const targetType=extract("aimbotTargeting");
                     let minimumValue = Infinity;
