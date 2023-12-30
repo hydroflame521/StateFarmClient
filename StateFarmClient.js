@@ -1268,11 +1268,7 @@
     const applyStylesAddElements = function () {
         //get custom font - condensed font works well for space saving
         const head = document.head || document.getElementsByTagName('head').pages[0];
-        const link = document.createElement('link');
         const themeType = extract("themeType");
-        link.rel = 'stylesheet';
-        link.href = 'https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/other/ms_bahnschrift.css';
-        head.appendChild(link);
 
         let rootTheme = "";
 
