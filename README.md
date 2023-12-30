@@ -48,9 +48,10 @@ You are done with installation!
 -   _**Aimbot Targeting**_: decides the priority for which aimbot should target.
     -   _**Pointing At**_: Closest to direction the camera is pointing.
     -   _**Proximity**_: Closest in distance to player.
+    -   _**AntiSneak**_: Default distance of 1.8, automatically detects and autokills players within this range. Set to 0 to cancel feature.
 -   _**ToggleRM**_: allows for aimbot to be controlled by use of the right mouse button. This option makes it so that the player only locks on while right mouse is held.
 -   _**Lock On**_: makes it so that while targeting a player, the target does not switch to another one until aimbot is turned back on.
--   _**Prediction**_: predicts where the player will be when bullet reaches them. Not very advanced prediction, so does not work against someone jumping around, but works well for player walking straight.
+-   _**Prediction**_: predicts where the player will be when bullet reaches them. Works well! Currently working on nearer to 100% y axis accuracy.
 -   _**Antisnap**_: fairly useless feature which creates a smoother transition between selecting a target and focusing on it. Thought it would look less suspect, but does not much at all.
 -   _**Aimbot ESP Color**_: the color that should be used to highlight the ESP of a targeted player.
 -   _**Auto Refill**_: refills once ammo is used up.
