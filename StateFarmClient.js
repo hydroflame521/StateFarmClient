@@ -1451,9 +1451,13 @@
             :root {
                 ${rootTheme}
             }
-            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-lblv_v, .tp-tabv_i, .msg, .coords, .playerstats {
+            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats {
                 font-family: 'Bahnschrift', sans-serif !important;
                 font-size: 16px;
+            }
+            .tp-lblv_v, .tp-lstv, .tp-btnv_b, .tp-btnv_t {
+                font-family: 'Bahnschrift';
+                font-size: 12px;
             }
             .tp-lblv_l {
                 font-size: 14px;
