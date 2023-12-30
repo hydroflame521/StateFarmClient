@@ -66,7 +66,7 @@
 
 (function () {
     //script info
-    const name="StateFarmClient";
+    const name="StateFarmClient ";
     const version="3.1.1";
     //startup sequence
     const startUp=function() {
