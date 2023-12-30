@@ -2245,11 +2245,12 @@
                     const finalPitch = -Math.atan2(y,Math.hypot(x,z))%1.5;
 
                     const antiSnap=1-(extract("aimbotAntiSnap")||0);
+
                     function lerp(start, end, alpha) {
-                        let value=(1-alpha) * start + alpha * end;
-                        if (Math.abs(end-start)<0.1) {
-                            value=end
-                        };
+                        let value = (1 - alpha ) * start + alpha * end;
+                        if (Math.abs(end - start) < 0.1) {
+                            value = end;
+                        }
                         return value
                     };
                     // Exponential lerp towards the target rotation
