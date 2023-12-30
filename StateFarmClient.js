@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.1.3
+// @version      3.1.4
 // @license      GPL-3.0
 // @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
@@ -66,7 +66,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.1.3";
+    const version="3.1.4";
     //startup sequence
     const startUp=function () {
         mainLoop()
