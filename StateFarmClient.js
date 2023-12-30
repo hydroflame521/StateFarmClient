@@ -1285,7 +1285,7 @@
   --tp-input-foreground-color: hsla(230, 7%, 75%, 1.00);
   --tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
   --tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
-  --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`;
+  --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`; break;
         case ( "icebergTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(230, 20%, 11%, 1.00);
@@ -1308,7 +1308,7 @@
   --tp-input-foreground-color: hsla(230, 10%, 80%, 1.00);
   --tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
   --tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
-  --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`;
+  --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`; break;
         case ( "jetblackTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(0, 0%, 0%, 1.00);
@@ -1331,7 +1331,7 @@
   --tp-input-foreground-color: hsla(0, 0%, 70%, 1.00);
   --tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
   --tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
-  --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`;
+  --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`; break;
         case ( "lightTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(230, 5%, 90%, 1.00);
@@ -1354,7 +1354,7 @@
   --tp-input-foreground-color: hsla(230, 10%, 30%, 1.00);
   --tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
   --tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
-  --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`;
+  --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`; break;
         case ( "retroTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(40, 3%, 90%, 1.00);
@@ -1377,7 +1377,7 @@
   --tp-input-foreground-color: hsla(120, 40%, 60%, 1.00);
   --tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
   --tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
-  --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`;
+  --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`; break;
         case ( "translucentTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
@@ -1400,7 +1400,7 @@
   --tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
   --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
   --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
-  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`;
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`; break;
         case ( "statefarmerTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
@@ -1423,7 +1423,7 @@
   --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
   --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
   --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
-  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`;
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
         }
 
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
