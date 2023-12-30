@@ -1185,7 +1185,7 @@
             label: "Github",
             title: "Link",
         }).on("click", (value) => {
-            window.open("https://github.com/onlypuppy7/StateFarmClient");
+            window.open("https://github.com/Hydroflame522/StateFarmClient");
         }));
 
         registerModule("clearButton",tp.clientTab.pages[0].addButton({
@@ -1262,7 +1262,8 @@
 
         let rootTheme = "";
 
-        if ( themeType == "defaultTheme" ) {
+        switch (themeType) {
+            case ("defaultTheme") {
             rootTheme = `
   --tp-base-background-color: hsla(230, 7%, 17%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1286,7 +1287,7 @@
   --tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
   --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`;
         }
-        else if ( themeType == "icebergTheme" ) {
+        case ( "icebergTheme" ) {
             rootTheme = `
   --tp-base-background-color: hsla(230, 20%, 11%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1310,7 +1311,7 @@
   --tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
   --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`;
         }
-        else if ( themeType == "jetblackTheme" ) {
+        case ( "jetblackTheme" ) {
             rootTheme = `
   --tp-base-background-color: hsla(0, 0%, 0%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1334,7 +1335,7 @@
   --tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
   --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`;
         }
-        else if ( themeType == "lightTheme" ) {
+        case ( "lightTheme" ) {
             rootTheme = `
   --tp-base-background-color: hsla(230, 5%, 90%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
@@ -1358,7 +1359,7 @@
   --tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
   --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`;
         }
-        else if ( themeType == "retroTheme" ) {
+        case ( "retroTheme" ) {
             rootTheme = `
   --tp-base-background-color: hsla(40, 3%, 90%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
@@ -1382,7 +1383,7 @@
   --tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
   --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`;
         }
-        else if ( themeType == "translucentTheme" ) {
+        case ( "translucentTheme" ) {
             rootTheme = `
   --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
@@ -1406,7 +1407,7 @@
   --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
   --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`;
         }
-        else if ( themeType == "statefarmerTheme" ) {
+        case ( "statefarmerTheme" ) {
             rootTheme = `
   --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
