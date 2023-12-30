@@ -66,7 +66,7 @@ You are done with installation!
 -   _**Auto Fire**_: fires when locked onto target player. More fun than useful.
 -   _**GrenadeMAX**_: sets all grenades thrown to max power.
 
-![combat tab](https://cdn.discordapp.com/attachments/898816619344699436/1190516218550034563/image.png)
+![combat tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/combat.png)
 > _The current player being targeted in the leaderboard in highlighted blue._
 > _Crosshair becomes blue when aimbot is enabled._
 ## Render Tab:
@@ -103,7 +103,7 @@ You are done with installation!
 -   _**Wireframe**_: renders everything as a wireframe.
 -   _**Egg size**_: changes size of eggs for lulz.
 
-![render tab](https://cdn.discordapp.com/attachments/898816619344699436/1188352803131891823/image.png?)
+![render tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/render.png)
 ## Chat Tab:
 -   _**InfiniHistory**_: disables the default limiting of history from 5 messages to no limit.
 -   _**DisableFilter**_: see messages which were filtered for other players! Highlighted in red if a message you or someone else sent has been filtered on non-modified games.
@@ -116,11 +116,11 @@ You are done with installation!
 -   _**Delay (ms)**_: delay between each message. 0ms works, but higher values at least let people talk somewhat.
 -   _**Spam Text**_: text to flood the chat with.
 
-![chat tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354106453147648/image.png)
+![chat tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/chat.png)
 ## Misc Tab:
 -   _**UnlockSkins**_: unlocks all skins in shellshockers locally, other players will not see them.
 
-![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1190517147139588147/image.png)
+![Misc tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/misc.png)
 ## Client & About:
 -   _**Hide GUI**_: hides upon pressing the button or the keybind (default H).
 -   _**Reduce lag**_: reduces lag that the client causes; bigger numbers for more lag reduction. 
@@ -131,9 +131,11 @@ You are done with installation!
 -   _**Creator's Links**_: to stay up to date.
 -   _**Reset**_: deletes all locally stored variables, resetting the client config to defaults.  _Warning_: some are used by the game too so you may lose your saved username and some stats.
 
-![client tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354874577002516/image.png)
+![client tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/client.png)
 ## Binding Modules:
-With the exception of the color pickers and some links, these should all be bindable to a key of your choice. Press the binds button in the tab, and click on the button next to the module you want to bind. Press a key to bind it, or alternatively press Delete to remove the bind. Use this flexibility to your advantage to be more stealthy, or secure more kills. Eg: switch to  **Nearest**  targeting when being attacked, and then to  **Pointing At**  when sniping.
+With the exception of the color pickers and some links, these should all be bindable to a key of your choice. Press the binds button in the tab, and click on the button next to the module you want to bind. Press a key to bind it, or alternatively press Delete to remove the bind. Use this flexibility to your advantage to be more stealthy, or secure more kills. Eg: switch to **Nearest**  targeting when being attacked, and then to  **Pointing At**  when sniping. 
+
+![Binding](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/binding.png)
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#gameplay-strategies)Gameplay Strategies:
 -   _**Choose your weapon wisely**_: StateFarm client synergises with certain weapons better than others, use them to your advantage. 
 > Aimbot (especially with prediction enabled) is powerful with weapons that require high levels of aim, and weak with weapons that do not rely on aiming.
