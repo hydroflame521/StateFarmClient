@@ -67,7 +67,7 @@
 (function () {
     //script info
     const name="StateFarmClient ";
-    const version="3.1.1";
+    const version="v3.1.1";
     //startup sequence
     const startUp=function() {
         mainLoop()
@@ -1219,14 +1219,14 @@
         const head = document.head || document.getElementsByTagName('head').pages[0];
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = 'https://fonts.googleapis.com/css?family=Roboto+Condensed';
+        link.href = 'https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/other/ms_bahnschrift.css';
         head.appendChild(link);
 
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
         const styleElement = document.createElement('style');
         styleElement.textContent = `
-            .tp-dfwv, tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .msg, .coords, .playerstats {
-                font-family: 'Roboto Condensed', sans-serif !important;
+            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-lblv_v, .tp-tabv_i, .msg, .coords, .playerstats {
+                font-family: 'Bahnschrift', sans-serif !important;
             }
             .tp-lblv_l {
                 font-size: 16px;
@@ -2056,20 +2056,22 @@
         var arr = new Uint8Array(packetData);
         return arr[0] == 39;
     }
-    function ghostSpam() {
-        WebSocket.prototype._send = WebSocket.prototype.send;
-        WebSocket.prototype.send = function(data) {
+    function ghostSpamToggle() {}
+    ghostSpamToggle.enabled = false;
 
-            var modified = modifyPacket(data);
-            this._send(modified);
+    WebSocket.prototype._send = WebSocket.prototype.send;
+    WebSocket.prototype.send = function(data) {
 
-            if (is39Packet(data)) {
-                for (var i = 0; i < 5; i++) {
-                    this._send(constructChatPacket("spammeroonie number #" + new Date().getTime() % 1000));
-                }
+        var modified = modifyPacket(data);
+        this._send(modified);
+
+        if (is39Packet(data) && ghostSpamToggle.enabled) {
+            for (var i = 0; i < 5; i++) {
+                this._send(constructChatPacket("spammeroonie number #" + new Date().getTime() % 1000));
             }
-        };
-    }
+        }
+    };
+    
     //start init thingamajigs
     startUp();
 })();
