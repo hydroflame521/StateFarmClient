@@ -1,4 +1,4 @@
-NOTE: To NotYou (GreasyFork moderator): This is the main GitHub repo. My account that I use to communicate with you is https://greasyfork.org/en/users/1239580-why-just-why
+
 
 ![Discord Shield](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=shield)
 # State Farm Client
@@ -9,12 +9,18 @@ Join the discord server for the latest news:  [https://discord.gg/UTqWuQ7nq8](ht
 
 For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
 
+Info accurate as of Statefarm client v3.1.2
+
+# Note To the GreasyFork moderators
+This is the main GitHub repo. My account that I use to communicate with you is https://greasyfork.org/en/users/1239580-why-just-why
+
+
 # Table of Contents
 
 1. [Installation Tutorial](#installation-tutorial)
 2. [Features](#features)
 3. [Gameplay Strategies](#gameplay-strategies)
-4. [Anti-Detection:](#anti-detection)
+4. [Ban Circumvention](#ban-circumvention)
 5. [Issues and Troubleshooting](#issues-and-troubleshooting)
 6. [Credits and Disclaimer](#credits-and-disclaimer)
 
@@ -53,12 +59,17 @@ You are done with installation!
 -   _**Lock On**_: makes it so that while targeting a player, the target does not switch to another one until aimbot is turned back on.
 -   _**Prediction**_: predicts where the player will be when bullet reaches them. Works well! Currently working on nearer to 100% y axis accuracy.
 -   _**Antisnap**_: fairly useless feature which creates a smoother transition between selecting a target and focusing on it. Thought it would look less suspect, but does not much at all.
+- _**Antisneak**_: antisneak set default to 1.8, works like this:
+--> user is targeting someone far away
+--> enemy player sneaks up behind them
+--> inside a radius of 1.8 BOOM! MAGDUMP on them, then switch to pistol and magdump, then reload and continue
+--> think of it like a tripwire where you are aiming on a target, say, and someone trips within your tripwire's radius now you are firing on them
 -   _**Aimbot ESP Color**_: the color that should be used to highlight the ESP of a targeted player.
 -   _**Auto Refill**_: refills once ammo is used up.
 -   _**Auto Fire**_: fires when locked onto target player. More fun than useful.
--
-![combat tab](https://cdn.discordapp.com/attachments/898816619344699436/1188351975415365752/image.png?)
-
+![combat tab](https://cdn.discordapp.com/attachments/898816619344699436/1190516218550034563/image.png)
+> Highlights the current player being targeted in the leaderboard in blue.
+> Crosshair becomes blue when aimbot is enabled.
 ## Render Tab:
 
 -   _**PlayerESP**_: creates boxes around enemy players.
@@ -93,8 +104,7 @@ You are done with installation!
 -   _**PlayerStats**_: displays the HP of all the online enemy players.
 -   _**Wireframe**_: renders everything as a wireframe.
 -   _**Egg size**_: changes size of eggs for lulz.
-- 
-- ![render tab](https://cdn.discordapp.com/attachments/898816619344699436/1188352803131891823/image.png?)
+![render tab](https://cdn.discordapp.com/attachments/898816619344699436/1188352803131891823/image.png?)
 
 
 ## Chat Tab:
@@ -109,14 +119,14 @@ You are done with installation!
 -   _**Spammer**_: spams chosen text (very annoying and will make all the players in a game mute you. Also likely to get you banned if they implement a measure against this).
 -   _**Delay (ms)**_: delay between each message. 0ms works, but higher values at least let people talk somewhat.
 -   _**Spam Text**_: text to flood the chat with.
-
 ![chat tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354106453147648/image.png)
 
 ## Misc Tab:
 
 -   _**Unlock skins**_: unlocks all skins in shellshockers locally, other players will not see them.
+-  _**Set all grenades to max**_: sets all grenades to max power when thrown
 
-![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354584658329650/image.png)
+![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1190517147139588147/image.png)
 
 
 ## Client & About:
@@ -129,7 +139,6 @@ You are done with installation!
 -   _**Set Panic URL**_: where it should go.
 -   _**Creator's Links**_: to stay up to date.
 -   _**Reset**_: deletes all locally stored variables, resetting the client config to defaults.  _Warning_: some are used by the game too so you may lose your saved username and some stats.
-
 ![client tab](https://cdn.discordapp.com/attachments/898816619344699436/1188354874577002516/image.png)
 ## Binding Modules:
 
@@ -141,31 +150,33 @@ With the exception of the color pickers and some links, these should all be bind
 > 
 |                |Aimbot synergies                 |Strategy                       |
 |----------------|-------------------------------|-----------------------------|
-|Eggk47![eggk-47](https://cdn.discordapp.com/attachments/898816619344699436/1188361999319580673/latest.png)|close-mid range fights      |Jump around erratically while emptying magazine with aimbot locked on
-|Scrambler![scrambler](https://cdn.discordapp.com/attachments/898816619344699436/1188362258061992016/latest.png?)|close quarter fights       |appoarch your target, reduce distance, quickly kill          |
-|RPEGG ![rpegg](https://cdn.discordapp.com/attachments/898816619344699436/1188362328446599268/latest.png) |not good with aimbot|use esp to predict where they will go, shoot at the floor|
-|Free Ranger![free ranger](https://cdn.discordapp.com/attachments/898816619344699436/1188362387217203240/latest.png)   |long-mid range|lock on your target and quickly spam shots with prediction|
+|Eggk47![eggk-47](https://cdn.discordapp.com/attachments/898816619344699436/1188361999319580673/latest.png)|Close-mid range fights      |Jump around erratically while emptying magazine with aimbot locked on
+|Scrambler![scrambler](https://cdn.discordapp.com/attachments/898816619344699436/1188362258061992016/latest.png?)|Close quarter fights       |Appoarch your target, reduce distance, quickly kill          |
+|RPEGG ![rpegg](https://cdn.discordapp.com/attachments/898816619344699436/1188362328446599268/latest.png) |Not good with aimbot|use esp to predict where they will go, shoot at the floor|
+|Free Ranger![free ranger](https://cdn.discordapp.com/attachments/898816619344699436/1188362387217203240/latest.png)   |Long-mid range|lock on your target and quickly spam shots with prediction|
 |Whipper  ![whipper](https://cdn.discordapp.com/attachments/898816619344699436/1188362466292416633/latest.png)     |close-mid range fights|Jump around erratically while emptying magazine with aimbot locked on|
 |Crackshot  ![crackshot](https://cdn.discordapp.com/attachments/898816619344699436/1188362580067094608/latest.png)     |Sniping|(with prediction) shot revealed opponents at long range, or defend yourself when attacked
 |Tri-Hard![tri-hard](https://cdn.discordapp.com/attachments/898816619344699436/1188362657040973905/latest.png)      |close-mid (sometimes long) range |Jump around erratically while spamming shots at closer range, scope in and spam at longer range|
 |Pistol ![pistol](https://cdn.discordapp.com/attachments/898816619344699436/1188362754805997639/latest.png)      |close-mid range|for finishing or opponents/no ammo|
-|Whisk(Melee) ![melee](https://cdn.discordapp.com/attachments/898816619344699436/1188362823433191516/latest.png)     |close range|lock on with aimbot, follow them and spam whisk while jumping around erratically|
+|Whisk(Melee) ![melee](https://cdn.discordapp.com/attachments/898816619344699436/1188362823433191516/latest.png)     |very close range|lock on with aimbot, follow them and spam whisk while jumping around erratically|
 |Grenades  ![nade](https://cdn.discordapp.com/attachments/898816619344699436/1188362881604005938/latest.png)     |no use with aimbot|damage ememies at hard to reach locations (or just make them go away)|
 
 -   _**Use lists tab to even further customise the client**_: use blacklist if you're teaming with someone and whitelist if someone talks smack in chat about you.
 -  _**Use ESP to reveal all player locations**_: ESP can allow you to see know player locations, even when they are behind walls/obstacles
 - _**Use Ammo/Grenade ESP to reveal all resource locations**_: Make sure you are never short on resources.
 - _**Proximity ESP**_: use it to gather more info about opponent's distance with you
-- _**Prediction**_: use predition to enhnce aimbot accuracy
+- _**Prediction**_: use prediction to greatly enhance aimbot accuracy
 - _**Lock On**_: use this feature to prevent aimbot from switching targets
 
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#anti-detection)Anti-Detection:
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#ban-circumvention)Ban Circumvention :
 > BWD has appointed **Eggforcers** that will ban cheaters by **first-person spectating** them.
 
-_**Eggforcers are likely to spectate you if**_:
-- You have been reported by other players.
-- They are in the same lobby with you and suspects you for cheating.
+_**Common detection Methods**_:
+> Eggforcers(Normal players too) will look for the following actions in your gameplay to detection cheating. Avoid showing them to an extent.
+- _**Snapping**_: Immediately locking on to another player after a kill/distance change.
+- _**Wall locking**_: Locking on to player though walls.
+- _**Unbelievably good aim**_: Inhuman and robotic aiming.
 
 **Booting:**
 > This is one of the tools Shell Shockers gives to private game hosters. Booting immediately IP bans every user in the game sharing an IP, and will not allow them to rejoin that particular game unless they use a VPN/proxy.
@@ -201,11 +212,12 @@ _**Eggforcers are likely to spectate you if**_:
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
 
--  Zertalious (3.1.1 and later): for inspiration.
--  Zertalious (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code.
--  Hydroflame521 and onlypuppy7 for main development
-- Susdung for readme file.
+
+-  hydroflame521, onlypuppy7, porcupane, and not_food. for development
+-  susdung for readme file.
+- Zertalious (3.1.1 and later): for inspiration of the project.
+- Zertalious (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code (removed prior to 3.1.1).
 
 ## Disclaimer:
 
-We are not responsible for your loss of friends if you use this with them. It certainly will make them upset so I would advise against it. If you use this in public lobbies, everyone will hate you, and you risk getting banned and having your stats reset. BWD may at any point ban you for cheating.
+We are not responsible for your loss of friends or poor reputation if you use Statefarm client. It certainly will make them upset so we would advise against it. If you use this in public lobbies, everyone will hate you, and you risk getting banned and having your stats reset.
