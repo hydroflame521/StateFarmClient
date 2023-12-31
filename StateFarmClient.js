@@ -227,7 +227,7 @@
     const initModule = function (module) {
         const value={}
         value[module.storeAs]=(JSON.parse(localStorage.getItem(module.storeAs)) || module.defaultBind || false);
-        
+
         const config={
             label: module.title,
         };
@@ -326,7 +326,7 @@
 
         initModule({ location: tp.combatTab.pages[0], title: "Aimbot",     storeAs: "aimbot",    });
         initModule({ location: tp.combatTab.pages[0], title: "HoldToFire", storeAs: "holdToFire",});
-        
+
         initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
 
         registerModule("aimbotTargetingButton",tp.aimbotFolder.addInput(
@@ -1740,6 +1740,7 @@
                 };
             };
         };
+        addStreamsWithHrefToInGameUI();
         //block ads kek
         localStorage.timesPlayed = 0;
     };
@@ -1760,6 +1761,27 @@
                 cancelable: true,
             }))
         };
+    };
+    function addStreamsWithHrefToInGameUI() {
+        let inGameUIElement = document.getElementById("inGameUI");
+        let streams = document.getElementById("stream_scroll").children;
+        if (inGameUIElement && streams.length > 0) {
+            for (let i = 0; i < streams.length; i++) {
+                let hrefValue = streams[i].querySelector('a').href;
+                if (!inGameUIElement.querySelector('div[data-href="' + hrefValue + '"]')) {
+                    let newDiv = document.createElement("div");
+                    newDiv.textContent = hrefValue;
+                    newDiv.setAttribute('data-href', hrefValue);
+                    newDiv.style.color = 'white';
+                    newDiv.style.cursor = 'pointer';
+                    newDiv.style.textDecoration = 'none';
+                    newDiv.addEventListener('mouseover', function() { newDiv.style.textDecoration = 'underline'; });
+                    newDiv.addEventListener('mouseout', function() { newDiv.style.textDecoration = 'none'; });
+                    newDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
+                    inGameUIElement.appendChild(newDiv);
+                }
+            }
+        }
     };
     const highlightCurrentlyTargeting = function (currentlyTargeting, players) {
         let playerArray = [];
@@ -1950,7 +1972,7 @@
                     //skins
                     match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
-                    
+
                     code = code.replace('let i=this.accuracy','let i=0');
                     code = code.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(0,0,0); console.log(this.accuracy,i,this.shootingAccuracy)');
                     // code = code.replace('a=0;a<20;a++','a=0;a<200;a++');
