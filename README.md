@@ -161,11 +161,12 @@ With the exception of the color pickers and some links, these should all be bind
 - _**Lock On**_: Use this feature to prevent aimbot from switching targets.
 
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#ban-circumvention)Ban Circumvention :
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#ban-circumvention)Ban Circumvention:
 > BWD has appointed **Eggforcers** that will ban cheaters by **first-person spectating** them.
+> If you use a private window and VPN, then you don't have anything to worry about. However, if you don't, or you want to use an account, or you're just interested, we've compiled some info below.
 
 _**Common detection Methods**_:
-> Eggforcers(Normal players too) will look for the following actions in your gameplay to detection cheating. Avoid showing them to an extent.
+> Eggforcers (normal players too) will look for the following actions in your gameplay to detection cheating. Avoid overusing them to an extent.
 - _**Snapping**_: Immediately locking on to another player after a kill/distance change (use AntiSnap, or only lock on when you have moved the reticle close to the player, or both).
 - _**Wall locking**_: Locking on to player though walls.
 - _**Unbelievably good aim**_: Inhuman and robotic aiming.
