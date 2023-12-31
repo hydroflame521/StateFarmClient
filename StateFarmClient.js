@@ -1168,7 +1168,8 @@
                     {text: "Light", value: "lightTheme"},
                     {text: "Retro", value: "retroTheme"},
                     {text: "Translucent", value: "translucentTheme"},
-                    {text: "Statefarmer", value: "statefarmerTheme"}
+                    {text: "Statefarmer", value: "statefarmerTheme"},
+                    {text: "Blurple", value: "blurpleTheme"}
                 ],
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
@@ -1460,6 +1461,29 @@
         case ( "statefarmerTheme" ):
             rootTheme = `
   --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+  --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+  --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+  --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+  --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+  --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+  --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
+            case ( "blurpleTheme" ):
+                rootTheme = `
+  --tp-base-background-color: hsla(253, 79%, 33%, 1.00);
   --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
   --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
   --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
