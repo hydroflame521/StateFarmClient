@@ -224,6 +224,26 @@
             });
         };
     });
+    const initModule = function (module) {
+        const value={}
+        value[module.storeAs]=(JSON.parse(localStorage.getItem(module.storeAs)) || module.defaultBind || false);
+        
+        const config={
+            label: module.title,
+        };
+
+        tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        });
+        allModules.push(name.replace("Button",""));
+    };
+    const initFolder = function(folder) {
+        tp[folder.storeAs]=folder.location.addFolder({
+            title: folder.title,
+            expanded: JSON.parse(localStorage.getItem(folder.storeAs)) !== null ? JSON.parse(localStorage.getItem(folder.storeAs)) : false
+        });
+        allFolders.push(folder.storeAs);
+    };
     const initMenu = function () {
         //INIT MENU
         //init tp.pane
@@ -297,24 +317,17 @@
 
         //init combat modules tab
 
-        registerModule("aimbotButton",tp.combatTab.pages[0].addInput(
-            {aimbot: JSON.parse(localStorage.getItem("aimbot")) || false}, "aimbot", {
-                label: "Aimbot",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
+        // registerModule("aimbotButton",tp.combatTab.pages[0].addInput(
+        //     {aimbot: JSON.parse(localStorage.getItem("aimbot")) || false}, "aimbot", {
+        //         label: "Aimbot",
+        //     }).on("change", (value) => {
+        //     localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        // }));
 
-        registerModule("holdToFireButton",tp.combatTab.pages[0].addInput(
-            {holdToFire: JSON.parse(localStorage.getItem("holdToFire")) || false}, "holdToFire", {
-                label: "holdToFire",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("aimbotFolder",tp.combatTab.pages[0].addFolder({
-            title: "Aimbot Options",
-            expanded: JSON.parse(localStorage.getItem("aimbotFolder")) !== null ? JSON.parse(localStorage.getItem("aimbotFolder")) : false
-        }));
+        initModule({ location: tp.combatTab.pages[0], title: "Aimbot",     storeAs: "aimbot",    });
+        initModule({ location: tp.combatTab.pages[0], title: "HoldToFire", storeAs: "holdToFire",});
+        
+        initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
 
         registerModule("aimbotTargetingButton",tp.aimbotFolder.addInput(
             {aimbotTargeting: (JSON.parse(localStorage.getItem("aimbotTargeting")) || "pointingat")}, "aimbotTargeting", {
@@ -328,7 +341,9 @@
         }));
 
         registerModule("aimbotRightClickButton",tp.aimbotFolder.addInput(
-            {aimbotRightClick: JSON.parse(localStorage.getItem("aimbotRightClick")) || false}, "aimbotRightClick", {
+            {aimbotRightClick: JSON.parse(localStorage.getItem("aimbotRightClick")) || false},
+            "aimbotRightClick",
+            {
                 label: "ToggleRM",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
@@ -414,7 +429,7 @@
 
         tp.holdToFireBindButton = tp.combatTab.pages[1].addButton({
             label: "holdToFire",
-            title: (JSON.parse(localStorage.getItem("holdToFire")) || "Set Bind"),
+            title: (JSON.parse(localStorage.getItem("holdToFireBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("holdToFire")
         });
@@ -1911,6 +1926,10 @@
                     //skins
                     match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
+                    
+                    code = code.replace('let i=this.accuracy','let i=0');
+                    code = code.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(0,0,0); console.log(this.accuracy,i,this.shootingAccuracy)');
+                    // code = code.replace('a=0;a<20;a++','a=0;a<200;a++');
 
                     //replace graveyard:
 
