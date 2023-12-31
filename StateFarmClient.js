@@ -88,6 +88,7 @@
     let lastFramesPassed=0;
     let secondsPassed=0;
     let lastSecondPassed=0;
+    let mouseDown = false;
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
@@ -172,10 +173,16 @@
         if (event.button === 2) {
             isRightButtonDown = true;
         };
+        if (event.button === 0) {
+            mouseDown = true;
+        };
     });
     document.addEventListener('mouseup', function (event) {
         if (event.button === 2) {
             isRightButtonDown = false;
+        };
+        if (event.button === 0) {
+            mouseDown = false;
         };
     });
     //menu
@@ -297,6 +304,13 @@
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
         }));
 
+        registerModule("holdToFireButton",tp.combatTab.pages[0].addInput(
+            {holdToFire: JSON.parse(localStorage.getItem("holdToFire")) || false}, "holdToFire", {
+                label: "holdToFire",
+            }).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        }));
+
         registerFolder("aimbotFolder",tp.combatTab.pages[0].addFolder({
             title: "Aimbot Options",
             expanded: JSON.parse(localStorage.getItem("aimbotFolder")) !== null ? JSON.parse(localStorage.getItem("aimbotFolder")) : false
@@ -396,6 +410,13 @@
             title: (JSON.parse(localStorage.getItem("aimbotBind")) || "V"),
         }).on("click", (value) => {
             initBind("aimbot")
+        });
+
+        tp.holdToFireBindButton = tp.combatTab.pages[1].addButton({
+            label: "holdToFire",
+            title: (JSON.parse(localStorage.getItem("holdToFire")) || "Set Bind"),
+        }).on("click", (value) => {
+            initBind("holdToFire")
         });
 
         tp.aimbotTargetingBindButton = tp.combatTab.pages[1].addButton({
@@ -2166,6 +2187,10 @@
                 };
                 // console.log("round",t.rounds);
                 // console.log("capacity",t.capacity);
+            }
+            if (extract("holdToFire") && mouseDown)
+            {
+                ss.yourPlayer.pullTrigger();
             }
             let minimumDistance = Infinity;
             let nearestPlayer;
