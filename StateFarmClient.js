@@ -88,7 +88,6 @@
     let lastFramesPassed=0;
     let secondsPassed=0;
     let lastSecondPassed=0;
-    let mouseDown = false;
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
@@ -99,6 +98,7 @@
     let crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers;
     const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
+    let isLeftButtonDown = false;
     let isRightButtonDown = false;
     //menu interaction functions
     const extract = function (variable,shouldUpdate) {
@@ -174,7 +174,7 @@
             isRightButtonDown = true;
         };
         if (event.button === 0) {
-            mouseDown = true;
+            isLeftButtonDown = true;
         };
     });
     document.addEventListener('mouseup', function (event) {
@@ -182,7 +182,7 @@
             isRightButtonDown = false;
         };
         if (event.button === 0) {
-            mouseDown = false;
+            isLeftButtonDown = false;
         };
     });
     //menu
@@ -2188,10 +2188,9 @@
                 // console.log("round",t.rounds);
                 // console.log("capacity",t.capacity);
             }
-            if (extract("holdToFire") && mouseDown)
-            {
+            if (extract("holdToFire") && isLeftButtonDown) {
                 ss.yourPlayer.pullTrigger();
-            }
+            };
             let minimumDistance = Infinity;
             let nearestPlayer;
             if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.yourPlayer.playing) {
