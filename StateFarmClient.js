@@ -1781,7 +1781,7 @@
                     linkDiv.style.cursor = 'pointer';
                     linkDiv.style.textDecoration = 'none';
                     linkDiv.addEventListener('mouseover', function() { linkDiv.style.textDecoration = 'underline'; linkDiv.style.color = 'blue' });
-                    linkDiv.addEventListener('mouseout', function() { linkDiv.style.textDecoration = 'none'; linkDiv.style.color = 'white' });
+                    linkDiv.addEventListener('mouseout', function() { linkDiv.style.textDecoration = 'none'; linkDiv.style.color = 'blue' });
                     linkDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
                     containerDiv.setAttribute('data-name', nameValue);
                     containerDiv.appendChild(nameDiv);
