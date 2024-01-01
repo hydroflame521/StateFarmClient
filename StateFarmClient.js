@@ -224,6 +224,26 @@
             });
         };
     });
+    const initModule = function (module) {
+        const value={}
+        value[module.storeAs]=(JSON.parse(localStorage.getItem(module.storeAs)) || module.defaultBind || false);
+
+        const config={
+            label: module.title,
+        };
+
+        tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config).on("change", (value) => {
+            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        });
+        allModules.push(name.replace("Button",""));
+    };
+    const initFolder = function(folder) {
+        tp[folder.storeAs]=folder.location.addFolder({
+            title: folder.title,
+            expanded: JSON.parse(localStorage.getItem(folder.storeAs)) !== null ? JSON.parse(localStorage.getItem(folder.storeAs)) : false
+        });
+        allFolders.push(folder.storeAs);
+    };
     const initMenu = function () {
         //INIT MENU
         //init tp.pane
@@ -297,24 +317,17 @@
 
         //init combat modules tab
 
-        registerModule("aimbotButton",tp.combatTab.pages[0].addInput(
-            {aimbot: JSON.parse(localStorage.getItem("aimbot")) || false}, "aimbot", {
-                label: "Aimbot",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
+        // registerModule("aimbotButton",tp.combatTab.pages[0].addInput(
+        //     {aimbot: JSON.parse(localStorage.getItem("aimbot")) || false}, "aimbot", {
+        //         label: "Aimbot",
+        //     }).on("change", (value) => {
+        //     localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+        // }));
 
-        registerModule("holdToFireButton",tp.combatTab.pages[0].addInput(
-            {holdToFire: JSON.parse(localStorage.getItem("holdToFire")) || false}, "holdToFire", {
-                label: "holdToFire",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
+        initModule({ location: tp.combatTab.pages[0], title: "Aimbot",     storeAs: "aimbot",    });
+        initModule({ location: tp.combatTab.pages[0], title: "HoldToFire", storeAs: "holdToFire",});
 
-        registerFolder("aimbotFolder",tp.combatTab.pages[0].addFolder({
-            title: "Aimbot Options",
-            expanded: JSON.parse(localStorage.getItem("aimbotFolder")) !== null ? JSON.parse(localStorage.getItem("aimbotFolder")) : false
-        }));
+        initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
 
         registerModule("aimbotTargetingButton",tp.aimbotFolder.addInput(
             {aimbotTargeting: (JSON.parse(localStorage.getItem("aimbotTargeting")) || "pointingat")}, "aimbotTargeting", {
@@ -328,7 +341,9 @@
         }));
 
         registerModule("aimbotRightClickButton",tp.aimbotFolder.addInput(
-            {aimbotRightClick: JSON.parse(localStorage.getItem("aimbotRightClick")) || false}, "aimbotRightClick", {
+            {aimbotRightClick: JSON.parse(localStorage.getItem("aimbotRightClick")) || false},
+            "aimbotRightClick",
+            {
                 label: "ToggleRM",
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
@@ -414,7 +429,7 @@
 
         tp.holdToFireBindButton = tp.combatTab.pages[1].addButton({
             label: "holdToFire",
-            title: (JSON.parse(localStorage.getItem("holdToFire")) || "Set Bind"),
+            title: (JSON.parse(localStorage.getItem("holdToFireBind")) || "Set Bind"),
         }).on("click", (value) => {
             initBind("holdToFire")
         });
@@ -1153,7 +1168,8 @@
                     {text: "Light", value: "lightTheme"},
                     {text: "Retro", value: "retroTheme"},
                     {text: "Translucent", value: "translucentTheme"},
-                    {text: "Statefarmer", value: "statefarmerTheme"}
+                    {text: "Statefarmer", value: "statefarmerTheme"},
+                    {text: "Blurple", value: "blurpleTheme"}
                 ],
             }).on("change", (value) => {
             localStorage.setItem(value.presetKey,JSON.stringify(value.value));
@@ -1465,6 +1481,29 @@
   --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
   --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
   --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
+            case ( "blurpleTheme" ):
+                rootTheme = `
+  --tp-base-background-color: hsla(253, 79%, 33%, 1.00);
+  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+  --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+  --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+  --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+  --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+  --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+  --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
         }
 
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
@@ -1701,6 +1740,7 @@
                 };
             };
         };
+        addStreamsToInGameUI();
         //block ads kek
         localStorage.timesPlayed = 0;
     };
@@ -1721,6 +1761,35 @@
                 cancelable: true,
             }))
         };
+    };
+    function addStreamsToInGameUI() {
+        let inGameUIElement = document.getElementById("inGameUI");
+        let streams = document.getElementById("stream_scroll").children;
+        if (inGameUIElement && streams.length > 0) {
+            for (let i = 0; i < streams.length; i++) {
+                let hrefValue = streams[i].querySelector('a').href;
+                let nameValue = streams[i].querySelector(".stream_name").textContent;
+                if (!inGameUIElement.querySelector('div[data-name="' + nameValue + '"]')) {
+                    let containerDiv = document.createElement("div");
+                    let nameDiv = document.createElement("div");
+                    nameDiv.textContent = nameValue;
+                    nameDiv.style.color = 'white';
+                    let linkDiv = document.createElement("div");
+                    linkDiv.textContent = hrefValue;
+                    linkDiv.setAttribute('data-href', hrefValue);
+                    linkDiv.style.color = 'white';
+                    linkDiv.style.cursor = 'pointer';
+                    linkDiv.style.textDecoration = 'none';
+                    linkDiv.addEventListener('mouseover', function() { linkDiv.style.textDecoration = 'underline'; linkDiv.style.color = 'blue' });
+                    linkDiv.addEventListener('mouseout', function() { linkDiv.style.textDecoration = 'none'; linkDiv.style.color = 'blue' });
+                    linkDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
+                    containerDiv.setAttribute('data-name', nameValue);
+                    containerDiv.appendChild(nameDiv);
+                    containerDiv.appendChild(linkDiv);
+                    inGameUIElement.appendChild(containerDiv);
+                }
+            }
+        }
     };
     const highlightCurrentlyTargeting = function (currentlyTargeting, players) {
         let playerArray = [];
@@ -1911,6 +1980,10 @@
                     //skins
                     match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
+
+                    code = code.replace('let i=this.accuracy','let i=0');
+                    code = code.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(0,0,0); console.log(this.accuracy,i,this.shootingAccuracy)');
+                    // code = code.replace('a=0;a<20;a++','a=0;a<200;a++');
 
                     //replace graveyard:
 
