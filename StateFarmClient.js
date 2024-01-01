@@ -1740,7 +1740,7 @@
                 };
             };
         };
-        addStreamsWithHrefToInGameUI();
+        addStreamsToInGameUI();
         //block ads kek
         localStorage.timesPlayed = 0;
     };
@@ -1762,23 +1762,31 @@
             }))
         };
     };
-    function addStreamsWithHrefToInGameUI() {
+    function addStreamsToInGameUI() {
         let inGameUIElement = document.getElementById("inGameUI");
         let streams = document.getElementById("stream_scroll").children;
         if (inGameUIElement && streams.length > 0) {
             for (let i = 0; i < streams.length; i++) {
                 let hrefValue = streams[i].querySelector('a').href;
-                if (!inGameUIElement.querySelector('div[data-href="' + hrefValue + '"]')) {
-                    let newDiv = document.createElement("div");
-                    newDiv.textContent = hrefValue;
-                    newDiv.setAttribute('data-href', hrefValue);
-                    newDiv.style.color = 'white';
-                    newDiv.style.cursor = 'pointer';
-                    newDiv.style.textDecoration = 'none';
-                    newDiv.addEventListener('mouseover', function() { newDiv.style.textDecoration = 'underline'; });
-                    newDiv.addEventListener('mouseout', function() { newDiv.style.textDecoration = 'none'; });
-                    newDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
-                    inGameUIElement.appendChild(newDiv);
+                let nameValue = streams[i].querySelector(".stream_name").textContent;
+                if (!inGameUIElement.querySelector('div[data-name="' + nameValue + '"]')) {
+                    let containerDiv = document.createElement("div");
+                    let nameDiv = document.createElement("div");
+                    nameDiv.textContent = nameValue;
+                    nameDiv.style.color = 'white';
+                    let linkDiv = document.createElement("div");
+                    linkDiv.textContent = hrefValue;
+                    linkDiv.setAttribute('data-href', hrefValue);
+                    linkDiv.style.color = 'white';
+                    linkDiv.style.cursor = 'pointer';
+                    linkDiv.style.textDecoration = 'none';
+                    linkDiv.addEventListener('mouseover', function() { linkDiv.style.textDecoration = 'underline'; linkDiv.style.color = 'blue' });
+                    linkDiv.addEventListener('mouseout', function() { linkDiv.style.textDecoration = 'none'; linkDiv.style.color = 'white' });
+                    linkDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
+                    containerDiv.setAttribute('data-name', nameValue);
+                    containerDiv.appendChild(nameDiv);
+                    containerDiv.appendChild(linkDiv);
+                    inGameUIElement.appendChild(containerDiv);
                 }
             }
         }
