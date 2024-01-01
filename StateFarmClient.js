@@ -1876,7 +1876,7 @@
                         getVarName("weapons", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                         // getVarName("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
                         getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
-                        getVarName("map", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
+                        getVarName("gameMap", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
                         getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
                         // getVarName("vs", '(vs)'); //todo
                         // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
@@ -1940,6 +1940,26 @@
         };
         window.XMLHttpRequest = ModifiedXMLHttpRequest;
     };
+
+    JSON.safeStringify = (obj, indent = 2) => {
+        let cache = [];
+        const retVal = JSON.stringify(
+          obj,
+          (key, value) =>
+            typeof value === "object" && value !== null
+              ? cache.includes(value)
+                ? undefined // Duplicate reference found, discard key
+                : cache.push(value) && value // Store value in our collection
+              : value,
+          indent
+        );
+        cache = null;
+        return retVal;
+      };
+
+    function loggedGameMap() {}
+    loggedGameMap.logged = false;
+
     const mainLoop = function () {
         const oneTime = function (ss) {
             crosshairsPosition=new ss.BABYLON.Vector3();
@@ -2137,6 +2157,12 @@
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
             framesPassed=framesPassed+1;
+
+            if (!loggedGameMap.logged) {
+                console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
+                loggedGameMap.logged = true;
+            }
+
             if (framesPassed>=(lastFramesPassed+extract("reduceLag"))) {
                 lastFramesPassed=framesPassed
                 updateLinesESP(ss);
