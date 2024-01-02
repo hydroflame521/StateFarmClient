@@ -709,7 +709,7 @@
         playerstatsElement.style.display = 'none';
 
         redCircle = document.createElement('div');
-    
+
         // Set the style properties for the circle (position, size, color)
         redCircle.style.position = 'fixed';
         redCircle.style.width = '5px';
@@ -763,13 +763,13 @@
         // Normalize angles to be within [0, 2π)
         angle1 = (angle1 % fullCircle + fullCircle) % fullCircle;
         angle2 = (angle2 % fullCircle + fullCircle) % fullCircle;
-    
+
         // Find the absolute angular difference
         let diff = Math.abs(angle1 - angle2);
-    
+
         // Ensure the difference is within [0, π)
         diff = Math.min(diff, fullCircle - diff);
-    
+
         // Determine the sign of the difference correctly
         if ((angle1 - angle2 + fullCircle) % fullCircle > Math.PI) {
             return -diff;
@@ -864,6 +864,7 @@
                 lastAntiAFKMessage=Date.now();
             };
         };
+        addStreamsToInGameUI();
         //block ads kek
         localStorage.timesPlayed = 0;
     };
@@ -884,6 +885,35 @@
                 cancelable: true,
             }))
         };
+    };
+    const addStreamsToInGameUI = function () {
+        let inGameUIElement = document.getElementById("inGameUI");
+        let streams = document.getElementById("stream_scroll").children;
+        if (inGameUIElement && streams.length > 0) {
+            for (let i = 0; i < streams.length; i++) {
+                let hrefValue = streams[i].querySelector('a').href;
+                let nameValue = streams[i].querySelector(".stream_name").textContent;
+                if (!inGameUIElement.querySelector('div[data-name="' + nameValue + '"]')) {
+                    let containerDiv = document.createElement("div");
+                    let nameDiv = document.createElement("div");
+                    nameDiv.textContent = nameValue;
+                    nameDiv.style.color = 'white';
+                    let linkDiv = document.createElement("div");
+                    linkDiv.textContent = hrefValue;
+                    linkDiv.setAttribute('data-href', hrefValue);
+                    linkDiv.style.color = 'white';
+                    linkDiv.style.cursor = 'pointer';
+                    linkDiv.style.textDecoration = 'none';
+                    linkDiv.addEventListener('mouseover', function() { linkDiv.style.textDecoration = 'underline'; linkDiv.style.color = 'blue' });
+                    linkDiv.addEventListener('mouseout', function() { linkDiv.style.textDecoration = 'none'; linkDiv.style.color = 'white' });
+                    linkDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
+                    containerDiv.setAttribute('data-name', nameValue);
+                    containerDiv.appendChild(nameDiv);
+                    containerDiv.appendChild(linkDiv);
+                    inGameUIElement.appendChild(containerDiv);
+                }
+            }
+        }
     };
     const highlightCurrentlyTargeting = function (currentlyTargeting, players) {
         let playerArray = [];
@@ -1113,7 +1143,7 @@
                     //skins
                     match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
-                    
+
                     code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
                     console.log("##################################################");
                     console.log("______PLAYER FIRED FUNCTION");
