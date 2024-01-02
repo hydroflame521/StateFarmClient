@@ -1534,9 +1534,12 @@
                     if (extract("prediction")) {
                         const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
                         const timeToReachTarget = distanceBetweenPlayers/bulletSpeed;
-                        x += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        y += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        z += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        let yourMult = ss.yourPlayer.weapon.accuracy;
+                        let targetMult = 2*Math.sqrt(distanceBetweenPlayers)-0.1*(distanceBetweenPlayers) + 0.005*parseInt(document.getElementById("ping").textContent.slice(0,-2));
+                        y = currentlyTargeting.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y + timeToReachTarget*(currentlyTargeting.dy - (yourMult*ss.yourPlayer.dy ));
+                        x += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        y += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        z += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
                     };
 
                     let finalYaw = calculateYaw({x: x,y: y,z: z});
