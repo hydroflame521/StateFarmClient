@@ -74,7 +74,6 @@
         document.addEventListener("DOMContentLoaded", function () {
             initMenu();
             applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
-            getBinds();
             const intervalId1 = setInterval(everySecond, 1000);
             const intervalId2 = setInterval(updateConfig, 100);
         });
@@ -84,18 +83,14 @@
     let binding=false;
     let lastSpamMessage=0;
     let lastAntiAFKMessage=0;
-    let framesPassed=0;
-    let lastFramesPassed=0;
-    let secondsPassed=0;
-    let lastSecondPassed=0;
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
     let ESPArray=[];
     let onlinePlayersArray=[];
+    let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let bindsArray,msgElement;
-    let crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let accuracy,randomValues,msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers;
     const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let isLeftButtonDown = false;
@@ -105,19 +100,11 @@
         if (shouldUpdate) {updateConfig()};
         return config[variable];
     };
-    const initBind = function (value) {
+    const beginBinding = function (value) {
         if (binding == false) {
             binding=value;
             tp[binding+"BindButton"].title="PRESS KEY";
         };
-    };
-    const registerModule = function (name,button) { //usage: not for folders or binding buttons. point of it is to get a module list without hardcoding one
-        tp[name]=button;
-        allModules.push(name.replace("Button",""));
-    };
-    const registerFolder = function (name,folder) { //usage: not for folders or binding buttons. point of it is to get a module list without hardcoding one
-        tp[name]=folder;
-        allFolders.push(name);
     };
     const change = function (module,newValue) { //its important to note that every module must have a unique name
         const labels = document.querySelectorAll('.tp-lblv_l');
@@ -157,18 +144,6 @@
             };
         };
     };
-    const getBinds = function () {
-        bindsArray={};
-        allModules.forEach(function (name) {
-            let nameBindButton=name+"BindButton";
-            try {
-                nameBindButton=tp[nameBindButton].title
-                if (nameBindButton) {
-                    bindsArray[name] = nameBindButton;
-                };
-            } catch (error) {}; //basically, bind button does not exist, so there wont be any binding going on
-        });
-    };
     document.addEventListener('mousedown', function (event) {
         if (event.button === 2) {
             isRightButtonDown = true;
@@ -191,17 +166,17 @@
         isKeyToggled[event]=true;
     });
     document.addEventListener("keyup", function (event) {
-        event=(event.code.substring(3));
+        event=(event.code.replace("Key",""));
         isKeyToggled[event]=false;
         if (document.activeElement&&document.activeElement.tagName==='INPUT' ) {
-      return;
-    } else if (binding!=false) {
-            if (event=="ete") { event="Set Bind" };
-            tp[binding+"BindButton"].title=event;
-            bindsArray[binding]=event;
-            localStorage.setItem(binding+"Bind",JSON.stringify(event));
-            showMsg("Binded "+tp[binding+"Button"].label+" to key: "+event);
-            binding=false;
+            return;
+        } else if (binding!=false) {
+                if (event=="Delete") { event="Set Bind" };
+                tp[binding+"BindButton"].title=event;
+                bindsArray[binding]=event;
+                localStorage.setItem(binding+"Bind",JSON.stringify(event));
+                showMsg("Binded "+tp[binding+"Button"].label+" to key: "+event);
+                binding=false;
         } else {
             Object.keys(bindsArray).forEach(function (module) {
                 if ((bindsArray[module] == event) && module!="zoom") {
@@ -224,18 +199,13 @@
             });
         };
     });
-    const initModule = function (module) {
-        const value={}
-        value[module.storeAs]=(JSON.parse(localStorage.getItem(module.storeAs)) || module.defaultBind || false);
-
-        const config={
-            label: module.title,
-        };
-
-        tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
+    const initTab = function(tab) {
+        tp[tab.storeAs]=tab.location.addTab({
+            pages: [
+            {title: 'Modules'},
+            {title: 'Binds'},
+            ],
         });
-        allModules.push(name.replace("Button",""));
     };
     const initFolder = function(folder) {
         tp[folder.storeAs]=folder.location.addFolder({
@@ -244,1029 +214,169 @@
         });
         allFolders.push(folder.storeAs);
     };
+    const initModule = function (module) {
+        const value={}
+        value[module.storeAs]=(JSON.parse(localStorage.getItem(module.storeAs)) || (module.defaultValue !== undefined ? module.defaultValue : false));
+        if (!(module.slider&&module.slider.step)) {module.slider={}};
+        const config={
+            label: module.title,
+            options: module.dropdown,
+            min: module.slider.min,
+            max: module.slider.max,
+            step: module.slider.step,
+            title: module.button,
+        };
+        if (!module.button) {
+            tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config
+            ).on("change", (value) => {
+                localStorage.setItem(module.storeAs,JSON.stringify(value.value));
+                if (module.changeFunction!==undefined) {module.changeFunction(value)};
+            });
+        } else {
+            tp[(module.storeAs+"Button")]=module.location.addButton({
+                label: module.title,
+                title: module.button,
+            }).on("click", (value) => {
+                if (module.clickFunction!==undefined) {module.clickFunction(value)};
+            });
+        };
+        allModules.push(name.replace("Button",""));
+        if (module.bindLocation) {initBind(module)};
+    };
+    const initBind = function (module) {
+        const theBind=(JSON.parse(localStorage.getItem(module.storeAs+"Bind")) || module.defaultBind || "Set Bind");
+        tp[(module.storeAs+"BindButton")]=module.bindLocation.addButton({
+            label: module.title,
+            title: theBind,
+        }).on("click", (value) => {
+            beginBinding(module.storeAs);
+        });
+        bindsArray[module.storeAs]=theBind;
+    };
     const initMenu = function () {
         //INIT MENU
         //init tp.pane
 
         tp.pane = new Tweakpane.Pane();
         tp.pane.title = name + " v" + version;
-        //init folders
-        registerFolder("combatFolder",tp.pane.addFolder({
-            title: "Combat",
-            expanded: JSON.parse(localStorage.getItem("combatFolder")) !== null ? JSON.parse(localStorage.getItem("combatFolder")) : true
-        }));
-        registerFolder("renderFolder",tp.pane.addFolder({
-            title: "Render",
-            expanded: JSON.parse(localStorage.getItem("renderFolder")) !== null ? JSON.parse(localStorage.getItem("renderFolder")) : true
-        }));
-        registerFolder("chatFolder",tp.pane.addFolder({
-            title: "Chat",
-            expanded: JSON.parse(localStorage.getItem("chatFolder")) !== null ? JSON.parse(localStorage.getItem("chatFolder")) : true
-        }));
-        registerFolder("listsFolder",tp.pane.addFolder({
-            title: "Lists",
-            expanded: JSON.parse(localStorage.getItem("listsFolder")) !== null ? JSON.parse(localStorage.getItem("listsFolder")) : true
-        }));
-        registerFolder("miscFolder",tp.pane.addFolder({
-            title: "Misc",
-            expanded: JSON.parse(localStorage.getItem("miscFolder")) !== null ? JSON.parse(localStorage.getItem("miscFolder")) : true
-        }));
-        registerFolder("clientFolder",tp.pane.addFolder({
-            title: "Client & About",
-            expanded: JSON.parse(localStorage.getItem("clientFolder")) !== null ? JSON.parse(localStorage.getItem("clientFolder")) : true
-        }));
-
-        //init module/binds tabs
-
-        tp.combatTab=tp.combatFolder.addTab({
-            pages: [
-            {title: 'Modules'},
-            {title: 'Binds'},
-            ],
-        });
-        tp.renderTab=tp.renderFolder.addTab({
-            pages: [
-            {title: 'Modules'},
-            {title: 'Binds'},
-            ],
-        });
-        tp.chatTab=tp.chatFolder.addTab({
-            pages: [
-            {title: 'Modules'},
-            {title: 'Binds'},
-            ],
-        });
-        tp.listsTab=tp.listsFolder.addTab({
-            pages: [
-            {title: 'Modules'},
-            {title: 'Binds'},
-            ],
-        });
-        tp.miscTab=tp.miscFolder.addTab({
-            pages: [
-            {title: 'Modules'},
-            {title: 'Binds'},
-            ],
-        });
-        tp.clientTab=tp.clientFolder.addTab({
-            pages: [
-            {title: 'Modules'},
-            {title: 'Binds'},
-            ],
-        });
-
-        //init combat modules tab
-
-        // registerModule("aimbotButton",tp.combatTab.pages[0].addInput(
-        //     {aimbot: JSON.parse(localStorage.getItem("aimbot")) || false}, "aimbot", {
-        //         label: "Aimbot",
-        //     }).on("change", (value) => {
-        //     localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        // }));
-
-        initModule({ location: tp.combatTab.pages[0], title: "Aimbot",     storeAs: "aimbot",    });
-        initModule({ location: tp.combatTab.pages[0], title: "HoldToFire", storeAs: "holdToFire",});
-
-        initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
-
-        registerModule("aimbotTargetingButton",tp.aimbotFolder.addInput(
-            {aimbotTargeting: (JSON.parse(localStorage.getItem("aimbotTargeting")) || "pointingat")}, "aimbotTargeting", {
-                label: "Target",
-                options: [
-                    {text: "Pointing At", value: "pointingat"},
-                    {text: "Nearest", value: "nearest"},
-                ],
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("aimbotRightClickButton",tp.aimbotFolder.addInput(
-            {aimbotRightClick: JSON.parse(localStorage.getItem("aimbotRightClick")) || false},
-            "aimbotRightClick",
-            {
-                label: "ToggleRM",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("antiSwitchButton",tp.aimbotFolder.addInput(
-            {antiSwitch: JSON.parse(localStorage.getItem("antiSwitch")) || false}, "antiSwitch", {
-                label: "AntiSwitch",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("oneKillButton",tp.aimbotFolder.addInput(
-            {oneKill: JSON.parse(localStorage.getItem("oneKill")) || false}, "oneKill", {
-                label: "1 Kill",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("predictionButton",tp.aimbotFolder.addInput(
-            {prediction: JSON.parse(localStorage.getItem("prediction")) || false}, "prediction", {
-                label: "Prediction",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("aimbotAntiSnapButton",tp.aimbotFolder.addInput(
-            {aimbotAntiSnap: 0}, "aimbotAntiSnap", {
-                label: "Antisnap",
-                min: 0, //slider
-                max: 1.05,
-                step: 0.05,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("antiSneakButton",tp.aimbotFolder.addInput(
-            {antiSneak: 1.8}, "antiSneak", {
-                label: "Antisneak",
-                min: 0,
-                max: 5,
-                step: 0.2,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("aimbotColorButton",tp.aimbotFolder.addInput(
-            {aimbotColor: (JSON.parse(localStorage.getItem("aimbotColor")) || "#0000ff")}, "aimbotColor", {
-                label: "ESPColor",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("autoRefillButton",tp.combatTab.pages[0].addInput(
-            {autoRefill: JSON.parse(localStorage.getItem("autoRefill")) || false}, "autoRefill", {
-                label: "Auto Refill",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("autoFireButton",tp.combatTab.pages[0].addInput(
-            {autoFire: JSON.parse(localStorage.getItem("autoFire")) || false}, "autoFire", {
-                label: "Auto Fire",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("grenadeMaxButton",tp.combatTab.pages[0].addInput(
-            {grenadeMax: JSON.parse(localStorage.getItem("grenadeMax")) || false}, "grenadeMax", {
-                label: "GrenadeMAX",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey, JSON.stringify(value.value));
-        }));
-
-        //init combat binds tab
-
-        tp.aimbotBindButton = tp.combatTab.pages[1].addButton({
-            label: "Aimbot",
-            title: (JSON.parse(localStorage.getItem("aimbotBind")) || "V"),
-        }).on("click", (value) => {
-            initBind("aimbot")
-        });
-
-        tp.holdToFireBindButton = tp.combatTab.pages[1].addButton({
-            label: "holdToFire",
-            title: (JSON.parse(localStorage.getItem("holdToFireBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("holdToFire")
-        });
-
-        tp.aimbotTargetingBindButton = tp.combatTab.pages[1].addButton({
-            label: "Targeting",
-            title: (JSON.parse(localStorage.getItem("aimbotTargetingBind")) || "T"),
-        }).on("click", (value) => {
-            initBind("aimbotTargeting")
-        });
-
-        tp.aimbotRightClickBindButton = tp.combatTab.pages[1].addButton({
-            label: "ToggleRM",
-            title: (JSON.parse(localStorage.getItem("aimbotRightClickBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("aimbotRightClick")
-        });
-
-        tp.antiSwitchBindButton = tp.combatTab.pages[1].addButton({
-            label: "AntiSwitch",
-            title: (JSON.parse(localStorage.getItem("antiSwitchBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("antiSwitch")
-        });
-
-        tp.oneKillBindButton = tp.combatTab.pages[1].addButton({
-            label: "Lock On",
-            title: (JSON.parse(localStorage.getItem("oneKillBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("oneKill")
-        });
-
-        tp.predictionBindButton = tp.combatTab.pages[1].addButton({
-            label: "Prediction",
-            title: (JSON.parse(localStorage.getItem("predictionBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("prediction")
-        });
-
-        tp.autoRefillBindButton = tp.combatTab.pages[1].addButton({
-            label: "AutoRefill",
-            title: (JSON.parse(localStorage.getItem("autoRefillBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("autoRefill")
-        });
-
-        tp.autoFireBindButton = tp.combatTab.pages[1].addButton({
-            label: "Auto Fire",
-            title: (JSON.parse(localStorage.getItem("autoFireBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("autoFire")
-        });
-
-        tp.grenadeMaxBindButton = tp.combatTab.pages[1].addButton({
-            label: "GrenadeMAX",
-            title: (JSON.parse(localStorage.getItem("grenadeMaxBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("grenadeMax")
-        });
-
-        //init render modules tab
-
-        registerModule("playerESPButton",tp.renderTab.pages[0].addInput(
-            {playerESP: JSON.parse(localStorage.getItem("playerESP")) || false}, "playerESP", {
-                label: "PlayerESP",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("tracersButton",tp.renderTab.pages[0].addInput(
-            {tracers: JSON.parse(localStorage.getItem("tracers")) || false}, "tracers", {
-                label: "Tracers",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("chamsButton",tp.renderTab.pages[0].addInput(
-            {chams: JSON.parse(localStorage.getItem("chams")) || false}, "chams", {
-                label: "Chams",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("nametagsButton",tp.renderTab.pages[0].addInput(
-            {nametags: JSON.parse(localStorage.getItem("nametags")) || false}, "nametags", {
-                label: "Nametags",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("tracersFolder",tp.renderTab.pages[0].addFolder({
-            title: "Player ESP/Tracers Options",
-            expanded: JSON.parse(localStorage.getItem("tracersFolder")) !== null ? JSON.parse(localStorage.getItem("tracersFolder")) : false
-        }));
-
-        registerModule("tracersTypeButton",tp.tracersFolder.addInput(
-            {tracersType: (JSON.parse(localStorage.getItem("tracersType")) || "static")}, "tracersType", {
-                label: "Type",
-                options: [
-                    {text: "Static", value: "static"},
-                    {text: "Proximity", value: "proximity"},
-                ],
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("tracersColor1Button",tp.tracersFolder.addInput(
-            {tracersColor1: (JSON.parse(localStorage.getItem("tracersColor1")) || "#ff0000")}, "tracersColor1", {
-                label: "Color 1",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("tracersColor1to2Button",tp.tracersFolder.addInput(
-            {tracersColor1to2: (JSON.parse(localStorage.getItem("tracersColor1to2")) || 5)}, "tracersColor1to2", {
-                label: "Dist 1->2",
-                min: 0, //slider
-                max: 30,
-                step: 1,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("tracersColor2Button",tp.tracersFolder.addInput(
-            {tracersColor2: (JSON.parse(localStorage.getItem("tracersColor2")) || "#00ff00")}, "tracersColor2", {
-                label: "Color 2",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("tracersColor2to3Button",tp.tracersFolder.addInput(
-            {tracersColor2to3: (JSON.parse(localStorage.getItem("tracersColor2to3")) || 15)}, "tracersColor2to3", {
-                label: "Dist 2->3",
-                min: 0, //slider
-                max: 30,
-                step: 1,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("tracersColor3Button",tp.tracersFolder.addInput(
-            {tracersColor3: (JSON.parse(localStorage.getItem("tracersColor3")) || "#ffffff")}, "tracersColor3", {
-                label: "Color 3",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("tracersAmmoFolder",tp.renderTab.pages[0].addFolder({
-            title: "Ammo ESP/Tracers Options",
-            expanded: JSON.parse(localStorage.getItem("tracersAmmoFolder")) !== null ? JSON.parse(localStorage.getItem("tracersAmmoFolder")) : false
-        }));
-
-        registerFolder("ammoFolder",tp.tracersAmmoFolder.addFolder({
-            title: "Ammo",
-            expanded: JSON.parse(localStorage.getItem("ammoFolder")) !== null ? JSON.parse(localStorage.getItem("ammoFolder")) : false
-        }));
-
-        registerModule("ammoESPButton",tp.ammoFolder.addInput(
-            {ammoESP: JSON.parse(localStorage.getItem("ammoESP")) || false}, "ammoESP", {
-                label: "AESP",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("ammoTracersButton",tp.ammoFolder.addInput(
-            {ammoTracers: JSON.parse(localStorage.getItem("ammoTracers")) || false}, "ammoTracers", {
-                label: "ATracers",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("ammoESPRegimeButton",tp.ammoFolder.addInput(
-            {ammoESPRegime: (JSON.parse(localStorage.getItem("ammoESPRegime")) || "whendepleted")}, "ammoESPRegime", {
-                label: "ARegime",
-                options: [
-                    {text: "When Depleted", value: "whendepleted"},
-                    {text: "When Low", value: "whenlow"},
-                    {text: "Below Max", value: "belowmax"},
-                    {text: "Always On", value: "alwayson"},
-                ],
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("ammoESPColorButton",tp.ammoFolder.addInput(
-            {ammoESPColor: (JSON.parse(localStorage.getItem("ammoESPColor")) || "#ffff00")}, "ammoESPColor", {
-                label: "AColor",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("grenadesFolder",tp.tracersAmmoFolder.addFolder({
-            title: "Grenades",
-            expanded: JSON.parse(localStorage.getItem("grenadesFolder")) !== null ? JSON.parse(localStorage.getItem("grenadesFolder")) : false
-        }));
-
-        registerModule("grenadeESPButton",tp.grenadesFolder.addInput(
-            {grenadeESP: JSON.parse(localStorage.getItem("grenadeESP")) || false}, "grenadeESP", {
-                label: "GESP",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("grenadeTracersButton",tp.grenadesFolder.addInput(
-            {grenadeTracers: JSON.parse(localStorage.getItem("grenadeTracers")) || false}, "grenadeTracers", {
-                label: "GTracers",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("grenadeESPRegimeButton",tp.grenadesFolder.addInput(
-            {grenadeESPRegime: (JSON.parse(localStorage.getItem("grenadeESPRegime")) || "whendepleted")}, "grenadeESPRegime", {
-                label: "GRegime",
-                options: [
-                    {text: "When Depleted", value: "whendepleted"},
-                    {text: "When Low", value: "whenlow"},
-                    {text: "Below Max", value: "belowmax"},
-                    {text: "Always On", value: "alwayson"},
-                ],
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("grenadeESPColorButton",tp.grenadesFolder.addInput(
-            {grenadeESPColor: (JSON.parse(localStorage.getItem("grenadeESPColor")) || "#00ffff")}, "grenadeESPColor", {
-                label: "GColor",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("fovButton",tp.renderTab.pages[0].addInput(
-            {fov: (JSON.parse(localStorage.getItem("fov")) || 72)}, "fov", {
-                label: "FOV",
-                min: 0, //slider
-                max: 360,
-                step: 3,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("zoomButton",tp.renderTab.pages[0].addInput(
-            {zoom: (JSON.parse(localStorage.getItem("zoom")) || 15)}, "zoom", {
-                label: "Zoom FOV",
-                min: 0, //slider
-                max: 72,
-                step: 3,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("freecamButton",tp.renderTab.pages[0].addInput(
-            {freecam: JSON.parse(localStorage.getItem("freecam")) || false}, "freecam", {
-                label: "CamWIP",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("showCoordinatesButton",tp.renderTab.pages[0].addInput(
-            {showCoordinates: JSON.parse(localStorage.getItem("showCoordinates")) || false}, "showCoordinates", {
-                label: "Co-ords",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("playerStatsButton",tp.renderTab.pages[0].addInput(
-            {playerStats: JSON.parse(localStorage.getItem("playerStats")) || false}, "playerStats", {
-                label: "PlayerStats",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("wireframeButton",tp.renderTab.pages[0].addInput(
-            {wireframe: JSON.parse(localStorage.getItem("wireframe")) || false}, "wireframe", {
-                label: "Wireframe",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("eggSizeButton",tp.renderTab.pages[0].addInput(
-            {eggSize: 1}, "eggSize", { //no saving, its a bit ridiculous for that...
-                label: "Egg Size",
-                min: 0,
-                max: 10,
-                step: 0.25,
-            }).on("change", (value) => {
-        }));
-
-        //init render binds tab
-
-        tp.playerESPBindButton = tp.renderTab.pages[1].addButton({
-            label: "PlayerESP",
-            title: (JSON.parse(localStorage.getItem("playerESPBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("playerESP")
-        });
-
-        tp.tracersBindButton = tp.renderTab.pages[1].addButton({
-            label: "Tracers",
-            title: (JSON.parse(localStorage.getItem("tracersBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("tracers")
-        });
-
-        tp.chamsBindButton = tp.renderTab.pages[1].addButton({
-            label: "Chams",
-            title: (JSON.parse(localStorage.getItem("chamsBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("chams")
-        });
-
-        tp.nametagsBindButton = tp.renderTab.pages[1].addButton({
-            label: "Nametags",
-            title: (JSON.parse(localStorage.getItem("nametagsBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("nametags")
-        });
-
-        tp.tracersTypeBindButton = tp.renderTab.pages[1].addButton({
-            label: "TracerType",
-            title: (JSON.parse(localStorage.getItem("tracersTypeBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("tracersType")
-        });
-
-        tp.ammoESPBindButton = tp.renderTab.pages[1].addButton({
-            label: "AESP",
-            title: (JSON.parse(localStorage.getItem("ammoESPBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("ammoESP")
-        });
-
-        tp.ammoTracersBindButton = tp.renderTab.pages[1].addButton({
-            label: "ATracers",
-            title: (JSON.parse(localStorage.getItem("ammoTracersBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("ammoTracers")
-        });
-
-        tp.ammoESPRegimeBindButton = tp.renderTab.pages[1].addButton({
-            label: "ARegime",
-            title: (JSON.parse(localStorage.getItem("ammoESPRegimeBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("ammoESPRegime")
-        });
-
-        tp.grenadeESPBindButton = tp.renderTab.pages[1].addButton({
-            label: "GESP",
-            title: (JSON.parse(localStorage.getItem("grenadeESPBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("grenadeESP")
-        });
-
-        tp.grenadeTracersBindButton = tp.renderTab.pages[1].addButton({
-            label: "GTracers",
-            title: (JSON.parse(localStorage.getItem("grenadeTracersBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("grenadeTracers")
-        });
-
-        tp.grenadeESPRegimeBindButton = tp.renderTab.pages[1].addButton({
-            label: "GRegime",
-            title: (JSON.parse(localStorage.getItem("grenadeESPRegimeBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("grenadeESPRegime")
-        });
-
-        tp.zoomBindButton = tp.renderTab.pages[1].addButton({
-            label: "Zoom",
-            title: (JSON.parse(localStorage.getItem("zoomBind")) || "C"),
-        }).on("click", (value) => {
-            initBind("zoom")
-        });
-
-        tp.freecamBindButton = tp.renderTab.pages[1].addButton({
-            label: "CamWIP",
-            title: (JSON.parse(localStorage.getItem("freecamBind")) || "G"),
-        }).on("click", (value) => {
-            initBind("freecam")
-        });
-
-        tp.showCoordinatesBindButton = tp.renderTab.pages[1].addButton({
-            label: "Co-ords",
-            title: (JSON.parse(localStorage.getItem("showCoordinatesBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("showCoordinates")
-        });
-
-        tp.playerStatsBindButton = tp.renderTab.pages[1].addButton({
-            label: "PlayerStats",
-            title: (JSON.parse(localStorage.getItem("playerStatsBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("playerStats")
-        });
-
-        tp.wireframeBindButton = tp.renderTab.pages[1].addButton({
-            label: "Wireframe",
-            title: (JSON.parse(localStorage.getItem("wireframeBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("wireframe")
-        });
-
-        //init chat modules tab
-
-        registerModule("chatExtendButton",tp.chatTab.pages[0].addInput(
-            {chatExtend: JSON.parse(localStorage.getItem("chatExtend")) || false}, "chatExtend", {
-                label: "InfiniHistory",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("maxChatButton",tp.chatTab.pages[0].addInput(
-            {maxChat: (JSON.parse(localStorage.getItem("maxChat")) || 10)}, "maxChat", {
-                label: "Max Ingame",
-                min: 0, //slider
-                max: 30,
-                step: 1,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("disableChatFilterButton",tp.chatTab.pages[0].addInput(
-            {disableChatFilter: JSON.parse(localStorage.getItem("disableChatFilter")) || false}, "disableChatFilter", {
-                label: "DisableFilter",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("antiAFKButton",tp.chatTab.pages[0].addInput(
-            {antiAFK: JSON.parse(localStorage.getItem("antiAFK")) || false}, "antiAFK", {
-                label: "AntiAFK",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("joinMessagesButton",tp.chatTab.pages[0].addInput(
-            {joinMessages: JSON.parse(localStorage.getItem("joinMessages")) || false}, "joinMessages", {
-                label: "Join Msgs",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("leaveMessagesButton",tp.chatTab.pages[0].addInput(
-            {leaveMessages: JSON.parse(localStorage.getItem("leaveMessages")) || false}, "leaveMessages", {
-                label: "Leave Msgs",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("joinLeaveFolder",tp.chatTab.pages[0].addFolder({
-            title: "Join/Leave Msgs Options",
-            expanded: JSON.parse(localStorage.getItem("joinLeaveFolder")) !== null ? JSON.parse(localStorage.getItem("joinLeaveFolder")) : false
-        }));
-
-        registerModule("publicBroadcastButton",tp.joinLeaveFolder.addInput(
-            {publicBroadcast: JSON.parse(localStorage.getItem("publicBroadcast")) || false}, "publicBroadcast", {
-                label: "Send2Chat",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("brandingButton",tp.joinLeaveFolder.addInput(
-            {branding: JSON.parse(localStorage.getItem("branding")) || false}, "branding", {
-                label: "Branded",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("chatHighlightButton",tp.chatTab.pages[0].addInput(
-            {chatHighlight: JSON.parse(localStorage.getItem("chatHighlight")) || false}, "chatHighlight", {
-                label: "HighlightTxt",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("spamChatButton",tp.chatTab.pages[0].addInput(
-            {spamChat: JSON.parse(localStorage.getItem("spamChat")) || false}, "spamChat", {
-                label: "Spammer",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("spamChatDelayButton",tp.chatTab.pages[0].addInput(
-            {spamChatDelay: (JSON.parse(localStorage.getItem("spamChatDelay")) || 500)}, "spamChatDelay", {
-                label: "Delay (ms)",
-                min: 0, //slider
-                max: 60000,
-                step: 10,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("spamChatTextButton",tp.chatTab.pages[0].addInput(
-            {spamChatText: JSON.parse(localStorage.getItem("spamChatText")) || "StateFarm On Top!"}, "spamChatText", {
-                label: "Spam Text",
-            }).on("change", (value) => {
-                localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        //init chat binds tab
-
-        tp.chatExtendBindButton = tp.chatTab.pages[1].addButton({
-            label: "InfiniHistory",
-            title: (JSON.parse(localStorage.getItem("chatExtendBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("chatExtend")
-        });
-
-        tp.disableChatFilterBindButton = tp.chatTab.pages[1].addButton({
-            label: "DisableFilter",
-            title: (JSON.parse(localStorage.getItem("disableChatFilterBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("disableChatFilter")
-        });
-
-        tp.antiAFKBindButton = tp.chatTab.pages[1].addButton({
-            label: "AntiAFK",
-            title: (JSON.parse(localStorage.getItem("antiAFKBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("antiAFK")
-        });
-
-        tp.joinMessagesBindButton = tp.chatTab.pages[1].addButton({
-            label: "Join Msgs",
-            title: (JSON.parse(localStorage.getItem("joinMessagesBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("joinMessages")
-        });
-
-        tp.leaveMessagesBindButton = tp.chatTab.pages[1].addButton({
-            label: "Leave Msgs",
-            title: (JSON.parse(localStorage.getItem("leaveMessagesBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("leaveMessages")
-        });
-
-        tp.publicBroadcastBindButton = tp.chatTab.pages[1].addButton({
-            label: "Send2Chat",
-            title: (JSON.parse(localStorage.getItem("publicBroadcastBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("publicBroadcast")
-        });
-
-        tp.brandingBindButton = tp.chatTab.pages[1].addButton({
-            label: "Branded",
-            title: (JSON.parse(localStorage.getItem("brandingBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("branding")
-        });
-
-        tp.chatHighlightBindButton = tp.chatTab.pages[1].addButton({
-            label: "ChatHighlight",
-            title: (JSON.parse(localStorage.getItem("chatHighlightBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("chatHighlight")
-        });
-
-        tp.spamChatBindButton = tp.chatTab.pages[1].addButton({
-            label: "Spammer",
-            title: (JSON.parse(localStorage.getItem("spamChatBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("spamChat")
-        });
-
-        //init lists modules tab
-
-        //whitelist
-
-        registerModule("whitelistButton",tp.listsTab.pages[0].addInput(
-            {whitelist: JSON.parse(localStorage.getItem("whitelist")) || "Enter Names"}, "whitelist", {
-                label: "Whitelist",
-            }).on("change", (value) => {
-                localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("whitelistFolder",tp.listsTab.pages[0].addFolder({
-            title: "Whitelist (Target Only) Options",
-            expanded: JSON.parse(localStorage.getItem("whitelistFolder")) !== null ? JSON.parse(localStorage.getItem("whitelistFolder")) : false
-        }));
-
-        registerModule("enableWhitelistAimbotButton",tp.whitelistFolder.addInput(
-            {enableWhitelistAimbot: JSON.parse(localStorage.getItem("enableWhitelistAimbot")) || false}, "enableWhitelistAimbot", {
-                label: "WAimbot",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("enableWhitelistTracersButton",tp.whitelistFolder.addInput(
-            {enableWhitelistTracers: JSON.parse(localStorage.getItem("enableWhitelistTracers")) || false}, "enableWhitelistTracers", {
-                label: "WESP",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("whitelistESPTypeButton",tp.whitelistFolder.addInput(
-            {whitelistESPType: (JSON.parse(localStorage.getItem("whitelistESPType")) || "onlyinclude")}, "whitelistESPType", {
-                label: "WESPType",
-                options: [
-                    {text: "Only Include", value: "onlyinclude"},
-                    {text: "Highlight", value: "highlight"},
-                ],
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("whitelistColorButton",tp.whitelistFolder.addInput(
-            {whitelistColor: (JSON.parse(localStorage.getItem("whitelistColor")) || "#e80aac")}, "whitelistColor", {
-                label: "WHighlight",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        //blacklist
-
-        registerModule("blacklistButton",tp.listsTab.pages[0].addInput(
-            {blacklist: JSON.parse(localStorage.getItem("blacklist")) || "Enter Names"}, "blacklist", {
-                label: "Blacklist",
-            }).on("change", (value) => {
-                localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("blacklistFolder",tp.listsTab.pages[0].addFolder({
-            title: "Blacklist (Exclude) Options",
-            expanded: JSON.parse(localStorage.getItem("blacklistFolder")) !== null ? JSON.parse(localStorage.getItem("blacklistFolder")) : false
-        }));
-
-        registerModule("enableBlacklistAimbotButton",tp.blacklistFolder.addInput(
-            {enableBlacklistAimbot: JSON.parse(localStorage.getItem("enableBlacklistAimbot")) || false}, "enableBlacklistAimbot", {
-                label: "BAimbot",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("enableBlacklistTracersButton",tp.blacklistFolder.addInput(
-            {enableBlacklistTracers: JSON.parse(localStorage.getItem("enableBlacklistTracers")) || false}, "enableBlacklistTracers", {
-                label: "BESP",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("blacklistESPTypeButton",tp.blacklistFolder.addInput(
-            {blacklistESPType: (JSON.parse(localStorage.getItem("blacklistESPType")) || "justexclude")}, "blacklistESPType", {
-                label: "BESPType",
-                options: [
-                    {text: "Just Exclude", value: "justexclude"},
-                    {text: "Highlight", value: "highlight"},
-                ],
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("blacklistColorButton",tp.blacklistFolder.addInput(
-            {blacklistColor: (JSON.parse(localStorage.getItem("blacklistColor")) || "#00ff00")}, "blacklistColor", {
-                label: "BHighlight",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        //init lists binds tab
-
-        tp.enableWhitelistAimbotBindButton = tp.listsTab.pages[1].addButton({
-            label: "WAimbot",
-            title: (JSON.parse(localStorage.getItem("enableWhitelistAimbotBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("enableWhitelistAimbot")
-        });
-
-        tp.enableWhitelistTracersBindButton = tp.listsTab.pages[1].addButton({
-            label: "WESP",
-            title: (JSON.parse(localStorage.getItem("enableWhitelistTracersBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("enableWhitelistTracers")
-        });
-
-        tp.whitelistESPTypeBindButton = tp.listsTab.pages[1].addButton({
-            label: "WESPType",
-            title: (JSON.parse(localStorage.getItem("whitelistESPTypeBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("whitelistESPType")
-        });
-
-        tp.enableBlacklistAimbotBindButton = tp.listsTab.pages[1].addButton({
-            label: "BAimbot",
-            title: (JSON.parse(localStorage.getItem("enableBlacklistAimbotBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("enableBlacklistAimbot")
-        });
-
-        tp.enableBlacklistTracersBindButton = tp.listsTab.pages[1].addButton({
-            label: "BESP",
-            title: (JSON.parse(localStorage.getItem("enableBlacklistTracersBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("enableBlacklistTracers")
-        });
-
-        tp.blacklistESPTypeBindButton = tp.listsTab.pages[1].addButton({
-            label: "BESPType",
-            title: (JSON.parse(localStorage.getItem("blacklistESPTypeBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("blacklistESPType")
-        });
-
-        //init misc modules tab
-
-        registerModule("unlockSkinsButton",tp.miscTab.pages[0].addInput(
-            {unlockSkins: JSON.parse(localStorage.getItem("unlockSkins")) || false}, "unlockSkins", {
-                label: "Unlock Skins",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        //init misc binds tab
-
-        tp.unlockSkinsBindButton = tp.miscTab.pages[1].addButton({
-            label: "Unlock Skins",
-            title: (JSON.parse(localStorage.getItem("unlockSkinsBind")) || "Set Bind"),
-        }).on("click", (value) => {
-            initBind("unlockSkins")
-        });
-
-        //init client modules tab
-
-        registerModule("hideButton",tp.clientTab.pages[0].addButton({
-            label: "Hide GUI",
-            title: "Hide",
-        }).on("click", (value) => {
-            tp.pane.hidden=!tp.pane.hidden;
-        }));
-
-        registerModule("themeTypeButton",tp.clientTab.pages[0].addInput(
-            {themeType: (JSON.parse(localStorage.getItem("themeType")) || "static")}, "themeType", {
-                label: "Theme",
-                options: [
-                    {text: "Default", value: "defaultTheme"},
-                    {text: "Iceberg", value: "icebergTheme"},
-                    {text: "Jetblack", value: "jetblackTheme"},
-                    {text: "Light", value: "lightTheme"},
-                    {text: "Retro", value: "retroTheme"},
-                    {text: "Translucent", value: "translucentTheme"},
-                    {text: "Statefarmer", value: "statefarmerTheme"},
-                    {text: "Blurple", value: "blurpleTheme"}
-                ],
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-            localStorage.setItem("themeType",JSON.stringify(value.value));
-            applyStylesAddElements(value.value);
-        }));
-
-        registerModule("reduceLagButton",tp.clientTab.pages[0].addInput(
-            {reduceLag: (JSON.parse(localStorage.getItem("reduceLag")) || 1)}, "reduceLag", {
-                label: "Reduce Lag",
-                min: 1, //slider
-                max: 4,
-                step: 1,
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("popupsButton",tp.clientTab.pages[0].addInput(
-            {popups: JSON.parse(localStorage.getItem("popups")) || true}, "popups", {
-                label: "Pop-ups",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("panicButton",tp.clientTab.pages[0].addButton({
-            label: "Panic",
-            title: "EXIT!",
-        }).on("click", (value) => {
-            if (extract("enablePanic")) {
-                window.location.replace(extract("panicURL"));
-            };
-        }));
-
-        registerFolder("panicFolder",tp.clientTab.pages[0].addFolder({
-            title: "Panic Options",
-            expanded: JSON.parse(localStorage.getItem("panicFolder")) !== null ? JSON.parse(localStorage.getItem("panicFolder")) : false
-        }));
-
-        registerModule("enablePanicButton",tp.panicFolder.addInput(
-            {enablePanic: JSON.parse(localStorage.getItem("enablePanic")) || true}, "enablePanic", {
-                label: "Enable",
-            }).on("change", (value) => {
-            localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerModule("panicURLButton",tp.panicFolder.addInput(
-            {panicURL: JSON.parse(localStorage.getItem("panicURL")) || "https://classroom.google.com/"}, "panicURL", {
-                label: "Set URL",
-            }).on("change", (value) => {
-                localStorage.setItem(value.presetKey,JSON.stringify(value.value));
-        }));
-
-        registerFolder("linksFolder",tp.clientTab.pages[0].addFolder({
-            title: "Creator's Links",
-            expanded: JSON.parse(localStorage.getItem("linksFolder")) !== null ? JSON.parse(localStorage.getItem("linksFolder")) : false
-        }));
-
-        registerModule("discordButton",tp.linksFolder.addButton({
-            label: "Discord",
-            title: "Link",
-        }).on("click", (value) => {
-            window.open("https://discord.gg/mPa95HB7Q6");
-        }));
-
-        registerModule("githubButton",tp.linksFolder.addButton({
-            label: "Github",
-            title: "Link",
-        }).on("click", (value) => {
-            window.open("https://github.com/Hydroflame522/StateFarmClient");
-        }));
-
-        registerModule("clearButton",tp.clientTab.pages[0].addButton({
-            label: "Reset",
-            title: "DELETE",
-        }).on("click", (value) => {
-            const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored keybinds, but also some of the game's stuff too (username, and other stuff).");
-            if (userConfirmed) {
-                localStorage.clear();
-                userConfirmed=alert("Reload to reset to defaults.");
-            };
-        }));
-
-        //init client binds tab
-
-        tp.hideBindButton = tp.clientTab.pages[1].addButton({
-            label: "Hide GUI",
-            title: (JSON.parse(localStorage.getItem("hideBind")) || "H"),
-        }).on("click", (value) => {
-            initBind("hide")
-        });
-
-        tp.panicBindButton = tp.clientTab.pages[1].addButton({
-            label: "Panic",
-            title: (JSON.parse(localStorage.getItem("panicBind")) || "X"),
-        }).on("click", (value) => {
-            initBind("panic")
-        });
+        //COMBAT MODULES
+        initFolder({ location: tp.pane, title: "Combat", storeAs: "combatFolder",});
+        initTab({ location: tp.combatFolder, storeAs: "combatTab" })
+            initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
+            initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
+                initModule({ location: tp.aimbotFolder, title: "Target", storeAs: "aimbotTargeting", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
+                initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "Antisnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 1.05, step: 0.01}, defaultValue: 0,});
+                initModule({ location: tp.aimbotFolder, title: "Antisneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
+                initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
+            initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "HoldToFire", storeAs: "holdToFire", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "autoFire", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
+        //RENDER MODULES
+        initFolder({ location: tp.pane, title: "Render", storeAs: "renderFolder",});
+        initTab({ location: tp.renderFolder, storeAs: "renderTab" })
+            initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1],});
+            initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder",});
+                initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}], defaultValue: "static",});
+                initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000",});
+                initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 5,});
+                initModule({ location: tp.tracersFolder, title: "Color 2", storeAs: "tracersColor2", defaultValue: "#00ff00",});
+                initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 15,});
+                initModule({ location: tp.tracersFolder, title: "Color 3", storeAs: "tracersColor3", defaultValue: "#ffffff",});
+            initFolder({ location: tp.renderTab.pages[0], title: "Ammo ESP/Tracers Options", storeAs: "tracersAmmoFolder",});
+                initFolder({ location: tp.tracersAmmoFolder, title: "Ammo", storeAs: "ammoFolder",});
+                    initModule({ location: tp.ammoFolder, title: "AESP", storeAs: "ammoESP", bindLocation: tp.renderTab.pages[1],});
+                    initModule({ location: tp.ammoFolder, title: "ATracers", storeAs: "ammoTracers", bindLocation: tp.renderTab.pages[1],});
+                    initModule({ location: tp.ammoFolder, title: "ARegime", storeAs: "ammoESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted"});
+                    initModule({ location: tp.ammoFolder, title: "AColor", storeAs: "ammoESPColor", defaultValue: "#ffff00",});
+                initFolder({ location: tp.tracersAmmoFolder, title: "Grenades", storeAs: "grenadesFolder",});
+                    initModule({ location: tp.grenadesFolder, title: "GESP", storeAs: "grenadeESP", bindLocation: tp.renderTab.pages[1],});
+                    initModule({ location: tp.grenadesFolder, title: "GTracers", storeAs: "grenadeTracers", bindLocation: tp.renderTab.pages[1],});
+                    initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted"});
+                    initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff",});
+            initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
+            initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 3}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
+            initModule({ location: tp.renderTab.pages[0], title: "ShowBloom", storeAs: "revealBloom", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "PlayerStats", storeAs: "playerStats", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: {min: 0, max: 10, step: 0.25}, defaultValue: 1,});
+        //CHAT MODULES
+        initFolder({ location: tp.pane, title: "Chat", storeAs: "chatFolder",});
+        initTab({ location: tp.chatFolder, storeAs: "chatTab" })
+            initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtendButton", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
+            initModule({ location: tp.chatTab.pages[0], title: "DisableFilter", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
+            initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
+                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 0, max: 60000, step: 10}, defaultValue: 500,});
+                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm On Top! ",});
+            initFolder({ location: tp.chatTab.pages[0], title: "Join/Leave Msgs Options", storeAs: "joinLeaveFolder",});
+                initModule({ location: tp.joinLeaveFolder, title: "Join Msgs", storeAs: "joinMessages", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.joinLeaveFolder, title: "Leave Msgs", storeAs: "leaveMessages", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.joinLeaveFolder, title: "Send2Chat", storeAs: "publicBroadcast", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.joinLeaveFolder, title: "Branded", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1],});
+        //LISTS MODULES
+        initFolder({ location: tp.pane, title: "Lists", storeAs: "listsFolder",});
+        initTab({ location: tp.listsFolder, storeAs: "listsTab" })
+            initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2",});
+            initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder",});
+                initModule({ location: tp.whitelistFolder, title: "WAimbot", storeAs: "enableWhitelistAimbot", bindLocation: tp.listsTab.pages[1],});
+                initModule({ location: tp.whitelistFolder, title: "WESP", storeAs: "enableWhitelistTracers", bindLocation: tp.listsTab.pages[1],});
+                initModule({ location: tp.whitelistFolder, title: "WESPType", storeAs: "whitelistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Only Include", value: "onlyinclude"},{text: "Highlight", value: "highlight"},], defaultValue: "onlyinclude",});
+                initModule({ location: tp.whitelistFolder, title: "WHighlight", storeAs: "whitelistColor", defaultValue: "#e80aac",});
+            initModule({ location: tp.listsTab.pages[0], title: "Blacklist", storeAs: "blacklist", defaultValue: "User-1, User-2",});
+            initFolder({ location: tp.listsTab.pages[0], title: "Blacklist (Exclude) Options", storeAs: "blacklistFolder",});
+                initModule({ location: tp.blacklistFolder, title: "BAimbot", storeAs: "enableBlacklistAimbot", bindLocation: tp.listsTab.pages[1],});
+                initModule({ location: tp.blacklistFolder, title: "BESP", storeAs: "enableBlacklistTracers", bindLocation: tp.listsTab.pages[1],});
+                initModule({ location: tp.blacklistFolder, title: "BESPType", storeAs: "blacklistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Just Exclude", value: "justexclude"},{text: "Highlight", value: "highlight"},], defaultValue: "justexclude",});
+                initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00",});
+        //MISC MODULES
+        initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
+        initTab({ location: tp.miscFolder, storeAs: "miscTab" })
+            initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
+        //CLIENT MODULES
+        initFolder({ location: tp.pane, title: "Client & About", storeAs: "clientFolder",});
+        initTab({ location: tp.clientFolder, storeAs: "clientTab" })
+            initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.pane.hidden=!tp.pane.hidden},});
+            initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
+                {text: "Default", value: "defaultTheme"},
+                {text: "Iceberg", value: "icebergTheme"},
+                {text: "Jetblack", value: "jetblackTheme"},
+                {text: "Light", value: "lightTheme"},
+                {text: "Retro", value: "retroTheme"},
+                {text: "Translucent", value: "translucentTheme"},
+                {text: "Statefarmer", value: "statefarmerTheme"}
+            ], defaultValue: "defaultTheme", changeFunction: function(value) {
+                applyStylesAddElements(value.value);
+            }});
+            initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
+            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { window.location.replace(extract("panicURL")) }},});
+            initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
+                initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
+                initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
+            initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
+                initModule({ location: tp.linksFolder, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#features")},});
+                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){window.open("https://discord.gg/mPa95HB7Q6")},});
+                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient")},});
+            initModule({ location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function(){
+                const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored keybinds, but also some of the game's stuff too (username, and other stuff).");
+                if (userConfirmed) {
+                    localStorage.clear();
+                    userConfirmed=alert("Reload to reset to defaults.");
+                };
+            },});
 
         updateConfig();
     };
@@ -1322,188 +432,165 @@
         switch (theme) {
             case ("defaultTheme"):
             rootTheme = `
-  --tp-base-background-color: hsla(230, 7%, 17%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
-  --tp-button-background-color: hsla(230, 7%, 70%, 1.00);
-  --tp-button-background-color-active: hsla(230, 7%, 85%, 1.00);
-  --tp-button-background-color-focus: hsla(230, 7%, 80%, 1.00);
-  --tp-button-background-color-hover: hsla(230, 7%, 75%, 1.00);
-  --tp-button-foreground-color: hsla(230, 7%, 17%, 1.00);
-  --tp-container-background-color: hsla(230, 7%, 75%, 0.10);
-  --tp-container-background-color-active: hsla(230, 7%, 75%, 0.25);
-  --tp-container-background-color-focus: hsla(230, 7%, 75%, 0.20);
-  --tp-container-background-color-hover: hsla(230, 7%, 75%, 0.15);
-  --tp-container-foreground-color: hsla(230, 7%, 75%, 1.00);
-  --tp-groove-foreground-color: hsla(230, 7%, 75%, 0.10);
-  --tp-input-background-color: hsla(230, 7%, 75%, 0.10);
-  --tp-input-background-color-active: hsla(230, 7%, 75%, 0.25);
-  --tp-input-background-color-focus: hsla(230, 7%, 75%, 0.20);
-  --tp-input-background-color-hover: hsla(230, 7%, 75%, 0.15);
-  --tp-input-foreground-color: hsla(230, 7%, 75%, 1.00);
-  --tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
-  --tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
-  --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`; break;
+--tp-base-background-color: hsla(230, 7%, 17%, 1.00);
+--tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+--tp-button-background-color: hsla(230, 7%, 70%, 1.00);
+--tp-button-background-color-active: hsla(230, 7%, 85%, 1.00);
+--tp-button-background-color-focus: hsla(230, 7%, 80%, 1.00);
+--tp-button-background-color-hover: hsla(230, 7%, 75%, 1.00);
+--tp-button-foreground-color: hsla(230, 7%, 17%, 1.00);
+--tp-container-background-color: hsla(230, 7%, 75%, 0.10);
+--tp-container-background-color-active: hsla(230, 7%, 75%, 0.25);
+--tp-container-background-color-focus: hsla(230, 7%, 75%, 0.20);
+--tp-container-background-color-hover: hsla(230, 7%, 75%, 0.15);
+--tp-container-foreground-color: hsla(230, 7%, 75%, 1.00);
+--tp-groove-foreground-color: hsla(230, 7%, 75%, 0.10);
+--tp-input-background-color: hsla(230, 7%, 75%, 0.10);
+--tp-input-background-color-active: hsla(230, 7%, 75%, 0.25);
+--tp-input-background-color-focus: hsla(230, 7%, 75%, 0.20);
+--tp-input-background-color-hover: hsla(230, 7%, 75%, 0.15);
+--tp-input-foreground-color: hsla(230, 7%, 75%, 1.00);
+--tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
+--tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
+--tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`; break;
         case ( "icebergTheme" ):
             rootTheme = `
-  --tp-base-background-color: hsla(230, 20%, 11%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
-  --tp-button-background-color: hsla(230, 10%, 80%, 1.00);
-  --tp-button-background-color-active: hsla(230, 10%, 95%, 1.00);
-  --tp-button-background-color-focus: hsla(230, 10%, 90%, 1.00);
-  --tp-button-background-color-hover: hsla(230, 10%, 85%, 1.00);
-  --tp-button-foreground-color: hsla(230, 20%, 11%, 1);
-  --tp-container-background-color: hsla(230, 25%, 16%, 1.00);
-  --tp-container-background-color-active: hsla(230, 25%, 31%, 1.00);
-  --tp-container-background-color-focus: hsla(230, 25%, 26%, 1.00);
-  --tp-container-background-color-hover: hsla(230, 25%, 21%, 1.00);
-  --tp-container-foreground-color: hsla(230, 10%, 80%, 1.00);
-  --tp-groove-foreground-color: hsla(230, 20%, 8%, 1.00);
-  --tp-input-background-color: hsla(230, 20%, 8%, 1.00);
-  --tp-input-background-color-active: hsla(230, 28%, 23%, 1.00);
-  --tp-input-background-color-focus: hsla(230, 28%, 18%, 1.00);
-  --tp-input-background-color-hover: hsla(230, 20%, 13%, 1.00);
-  --tp-input-foreground-color: hsla(230, 10%, 80%, 1.00);
-  --tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
-  --tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
-  --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`; break;
+--tp-base-background-color: hsla(230, 20%, 11%, 1.00);
+--tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+--tp-button-background-color: hsla(230, 10%, 80%, 1.00);
+--tp-button-background-color-active: hsla(230, 10%, 95%, 1.00);
+--tp-button-background-color-focus: hsla(230, 10%, 90%, 1.00);
+--tp-button-background-color-hover: hsla(230, 10%, 85%, 1.00);
+--tp-button-foreground-color: hsla(230, 20%, 11%, 1);
+--tp-container-background-color: hsla(230, 25%, 16%, 1.00);
+--tp-container-background-color-active: hsla(230, 25%, 31%, 1.00);
+--tp-container-background-color-focus: hsla(230, 25%, 26%, 1.00);
+--tp-container-background-color-hover: hsla(230, 25%, 21%, 1.00);
+--tp-container-foreground-color: hsla(230, 10%, 80%, 1.00);
+--tp-groove-foreground-color: hsla(230, 20%, 8%, 1.00);
+--tp-input-background-color: hsla(230, 20%, 8%, 1.00);
+--tp-input-background-color-active: hsla(230, 28%, 23%, 1.00);
+--tp-input-background-color-focus: hsla(230, 28%, 18%, 1.00);
+--tp-input-background-color-hover: hsla(230, 20%, 13%, 1.00);
+--tp-input-foreground-color: hsla(230, 10%, 80%, 1.00);
+--tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
+--tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
+--tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`; break;
         case ( "jetblackTheme" ):
             rootTheme = `
-  --tp-base-background-color: hsla(0, 0%, 0%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
-  --tp-button-background-color: hsla(0, 0%, 70%, 1.00);
-  --tp-button-background-color-active: hsla(0, 0%, 85%, 1);
-  --tp-button-background-color-focus: hsla(0, 0%, 80%, 1.00);
-  --tp-button-background-color-hover: hsla(0, 0%, 75%, 1.00);
-  --tp-button-foreground-color: hsla(0, 0%, 0%, 1.00);
-  --tp-container-background-color: hsla(0, 0%, 10%, 1.00);
-  --tp-container-background-color-active: hsla(0, 0%, 25%, 1.00);
-  --tp-container-background-color-focus: hsla(0, 0%, 20%, 1.00);
-  --tp-container-background-color-hover: hsla(0, 0%, 15%, 1.00);
-  --tp-container-foreground-color: hsla(0, 0%, 50%, 1.00);
-  --tp-groove-foreground-color: hsla(0, 0%, 10%, 1.00);
-  --tp-input-background-color: hsla(0, 0%, 10%, 1.00);
-  --tp-input-background-color-active: hsla(0, 0%, 25%, 1.00);
-  --tp-input-background-color-focus: hsla(0, 0%, 20%, 1.00);
-  --tp-input-background-color-hover: hsla(0, 0%, 15%, 1.00);
-  --tp-input-foreground-color: hsla(0, 0%, 70%, 1.00);
-  --tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
-  --tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
-  --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`; break;
+--tp-base-background-color: hsla(0, 0%, 0%, 1.00);
+--tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+--tp-button-background-color: hsla(0, 0%, 70%, 1.00);
+--tp-button-background-color-active: hsla(0, 0%, 85%, 1);
+--tp-button-background-color-focus: hsla(0, 0%, 80%, 1.00);
+--tp-button-background-color-hover: hsla(0, 0%, 75%, 1.00);
+--tp-button-foreground-color: hsla(0, 0%, 0%, 1.00);
+--tp-container-background-color: hsla(0, 0%, 10%, 1.00);
+--tp-container-background-color-active: hsla(0, 0%, 25%, 1.00);
+--tp-container-background-color-focus: hsla(0, 0%, 20%, 1.00);
+--tp-container-background-color-hover: hsla(0, 0%, 15%, 1.00);
+--tp-container-foreground-color: hsla(0, 0%, 50%, 1.00);
+--tp-groove-foreground-color: hsla(0, 0%, 10%, 1.00);
+--tp-input-background-color: hsla(0, 0%, 10%, 1.00);
+--tp-input-background-color-active: hsla(0, 0%, 25%, 1.00);
+--tp-input-background-color-focus: hsla(0, 0%, 20%, 1.00);
+--tp-input-background-color-hover: hsla(0, 0%, 15%, 1.00);
+--tp-input-foreground-color: hsla(0, 0%, 70%, 1.00);
+--tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
+--tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
+--tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`; break;
         case ( "lightTheme" ):
             rootTheme = `
-  --tp-base-background-color: hsla(230, 5%, 90%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
-  --tp-button-background-color: hsla(230, 7%, 75%, 1.00);
-  --tp-button-background-color-active: hsla(230, 7%, 60%, 1.00);
-  --tp-button-background-color-focus: hsla(230, 7%, 65%, 1.00);
-  --tp-button-background-color-hover: hsla(230, 7%, 70%, 1.00);
-  --tp-button-foreground-color: hsla(230, 10%, 30%, 1.00);
-  --tp-container-background-color: hsla(230, 15%, 30%, 0.20);
-  --tp-container-background-color-active: hsla(230, 15%, 30%, 0.32);
-  --tp-container-background-color-focus: hsla(230, 15%, 30%, 0.28);
-  --tp-container-background-color-hover: hsla(230, 15%, 30%, 0.24);
-  --tp-container-foreground-color: hsla(230, 10%, 30%, 1.00);
-  --tp-groove-foreground-color: hsla(230, 15%, 30%, 0.10);
-  --tp-input-background-color: hsla(230, 15%, 30%, 0.10);
-  --tp-input-background-color-active: hsla(230, 15%, 30%, 0.22);
-  --tp-input-background-color-focus: hsla(230, 15%, 30%, 0.18);
-  --tp-input-background-color-hover: hsla(230, 15%, 30%, 0.14);
-  --tp-input-foreground-color: hsla(230, 10%, 30%, 1.00);
-  --tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
-  --tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
-  --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`; break;
+--tp-base-background-color: hsla(230, 5%, 90%, 1.00);
+--tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
+--tp-button-background-color: hsla(230, 7%, 75%, 1.00);
+--tp-button-background-color-active: hsla(230, 7%, 60%, 1.00);
+--tp-button-background-color-focus: hsla(230, 7%, 65%, 1.00);
+--tp-button-background-color-hover: hsla(230, 7%, 70%, 1.00);
+--tp-button-foreground-color: hsla(230, 10%, 30%, 1.00);
+--tp-container-background-color: hsla(230, 15%, 30%, 0.20);
+--tp-container-background-color-active: hsla(230, 15%, 30%, 0.32);
+--tp-container-background-color-focus: hsla(230, 15%, 30%, 0.28);
+--tp-container-background-color-hover: hsla(230, 15%, 30%, 0.24);
+--tp-container-foreground-color: hsla(230, 10%, 30%, 1.00);
+--tp-groove-foreground-color: hsla(230, 15%, 30%, 0.10);
+--tp-input-background-color: hsla(230, 15%, 30%, 0.10);
+--tp-input-background-color-active: hsla(230, 15%, 30%, 0.22);
+--tp-input-background-color-focus: hsla(230, 15%, 30%, 0.18);
+--tp-input-background-color-hover: hsla(230, 15%, 30%, 0.14);
+--tp-input-foreground-color: hsla(230, 10%, 30%, 1.00);
+--tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
+--tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
+--tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`; break;
         case ( "retroTheme" ):
             rootTheme = `
-  --tp-base-background-color: hsla(40, 3%, 90%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
-  --tp-button-background-color: hsla(40, 3%, 70%, 1.00);
-  --tp-button-background-color-active: hsla(40, 3%, 55%, 1.00);
-  --tp-button-background-color-focus: hsla(40, 3%, 60%, 1.00);
-  --tp-button-background-color-hover: hsla(40, 3%, 65%, 1.00);
-  --tp-button-foreground-color: hsla(40, 3%, 20%, 1.00);
-  --tp-container-background-color: hsla(40, 3%, 70%, 1.00);
-  --tp-container-background-color-active: hsla(40, 3%, 55%, 1.00);
-  --tp-container-background-color-focus: hsla(40, 3%, 60%, 1.00);
-  --tp-container-background-color-hover: hsla(40, 3%, 65%, 1.00);
-  --tp-container-foreground-color: hsla(40, 3%, 20%, 1.00);
-  --tp-groove-foreground-color: hsla(40, 3%, 40%, 1.00);
-  --tp-input-background-color: hsla(120, 3%, 20%, 1.00);
-  --tp-input-background-color-active: hsla(120, 3%, 35%, 1.00);
-  --tp-input-background-color-focus: hsla(120, 3%, 30%, 1.00);
-  --tp-input-background-color-hover: hsla(120, 3%, 25%, 1.00);
-  --tp-input-foreground-color: hsla(120, 40%, 60%, 1.00);
-  --tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
-  --tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
-  --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`; break;
+--tp-base-background-color: hsla(40, 3%, 90%, 1.00);
+--tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
+--tp-button-background-color: hsla(40, 3%, 70%, 1.00);
+--tp-button-background-color-active: hsla(40, 3%, 55%, 1.00);
+--tp-button-background-color-focus: hsla(40, 3%, 60%, 1.00);
+--tp-button-background-color-hover: hsla(40, 3%, 65%, 1.00);
+--tp-button-foreground-color: hsla(40, 3%, 20%, 1.00);
+--tp-container-background-color: hsla(40, 3%, 70%, 1.00);
+--tp-container-background-color-active: hsla(40, 3%, 55%, 1.00);
+--tp-container-background-color-focus: hsla(40, 3%, 60%, 1.00);
+--tp-container-background-color-hover: hsla(40, 3%, 65%, 1.00);
+--tp-container-foreground-color: hsla(40, 3%, 20%, 1.00);
+--tp-groove-foreground-color: hsla(40, 3%, 40%, 1.00);
+--tp-input-background-color: hsla(120, 3%, 20%, 1.00);
+--tp-input-background-color-active: hsla(120, 3%, 35%, 1.00);
+--tp-input-background-color-focus: hsla(120, 3%, 30%, 1.00);
+--tp-input-background-color-hover: hsla(120, 3%, 25%, 1.00);
+--tp-input-foreground-color: hsla(120, 40%, 60%, 1.00);
+--tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
+--tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
+--tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`; break;
         case ( "translucentTheme" ):
             rootTheme = `
-  --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
-  --tp-button-background-color: hsla(0, 0%, 80%, 1.00);
-  --tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
-  --tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
-  --tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
-  --tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
-  --tp-container-background-color: hsla(0, 0%, 0%, 0.30);
-  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
-  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
-  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
-  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
-  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
-  --tp-input-background-color: hsla(0, 0%, 0%, 0.30);
-  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
-  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
-  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
-  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
-  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
-  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
-  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`; break;
+--tp-base-background-color: hsla(0, 0%, 10%, 0.80);
+--tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
+--tp-button-background-color: hsla(0, 0%, 80%, 1.00);
+--tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
+--tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
+--tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
+--tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
+--tp-container-background-color: hsla(0, 0%, 0%, 0.30);
+--tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
+--tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
+--tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
+--tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
+--tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
+--tp-input-background-color: hsla(0, 0%, 0%, 0.30);
+--tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
+--tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
+--tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
+--tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
+--tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
+--tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
+--tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`; break;
         case ( "statefarmerTheme" ):
             rootTheme = `
-  --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
-  --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
-  --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
-  --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
-  --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
-  --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
-  --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
-  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
-  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
-  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
-  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
-  --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
-  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
-  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
-  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
-  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
-  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
-            case ( "blurpleTheme" ):
-                rootTheme = `
-  --tp-base-background-color: hsla(253, 79%, 33%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
-  --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
-  --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
-  --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
-  --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
-  --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
-  --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
-  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
-  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
-  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
-  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
-  --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
-  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
-  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
-  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
-  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
-  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
+--tp-base-background-color: hsla(0, 80%, 40%, 1.00);
+--tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+--tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+--tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+--tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+--tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+--tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+--tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+--tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+--tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+--tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+--tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+--tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+--tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+--tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+--tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+--tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+--tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+--tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+--tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+--tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
         }
 
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
@@ -1618,6 +705,19 @@
         `);
         document.body.appendChild(playerstatsElement);
         playerstatsElement.style.display = 'none';
+
+        redCircle = document.createElement('div');
+    
+        // Set the style properties for the circle (position, size, color)
+        redCircle.style.position = 'fixed';
+        redCircle.style.width = '5px';
+        redCircle.style.height = '5px';
+        redCircle.style.borderRadius = '50%';
+        redCircle.style.backgroundColor = 'red';
+        redCircle.style.transform = 'translate(-50%, -50%)'; // Center the circle
+
+        // Append the circle to the body of the document
+        document.body.appendChild(redCircle);
     };
     //1337 H4X
     const hexToRgb = function (hex) {
@@ -1645,6 +745,12 @@
     };
     const distancePlayers = function (yourPlayer,player) {
         return Math.hypot(player.x-yourPlayer.x,player.y-yourPlayer.y,player.z-yourPlayer.z ); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
+    };
+    const calculateYaw = function (pos) {
+        return Math.radAdd(Math.atan2(pos.x,pos.z),0)
+    };
+    const calculatePitch = function (pos) {
+        return (-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
     };
     const isPartialMatch = function (array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
@@ -1725,22 +831,17 @@
         boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(...color);
     };
     const everySecond = function () {
-        secondsPassed=secondsPassed+1;
-        if (secondsPassed>=(lastSecondPassed+extract("reduceLag"))) {
-            lastSecondPassed=secondsPassed;
-            coordElement.style.display = 'none';
-            playerstatsElement.style.display = 'none';
-            allFolders.forEach(function (name) {
-                localStorage.setItem(name,JSON.stringify(tp[name].expanded));
-            });
-            if (extract("antiAFK")) {
-                if (Date.now()>(lastAntiAFKMessage+270000)) {
-                    sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
-                    lastAntiAFKMessage=Date.now();
-                };
+        coordElement.style.display = 'none';
+        playerstatsElement.style.display = 'none';
+        allFolders.forEach(function (name) {
+            localStorage.setItem(name,JSON.stringify(tp[name].expanded));
+        });
+        if (extract("antiAFK")) {
+            if (Date.now()>(lastAntiAFKMessage+270000)) {
+                sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
+                lastAntiAFKMessage=Date.now();
             };
         };
-        addStreamsToInGameUI();
         //block ads kek
         localStorage.timesPlayed = 0;
     };
@@ -1762,40 +863,11 @@
             }))
         };
     };
-    function addStreamsToInGameUI() {
-        let inGameUIElement = document.getElementById("inGameUI");
-        let streams = document.getElementById("stream_scroll").children;
-        if (inGameUIElement && streams.length > 0) {
-            for (let i = 0; i < streams.length; i++) {
-                let hrefValue = streams[i].querySelector('a').href;
-                let nameValue = streams[i].querySelector(".stream_name").textContent;
-                if (!inGameUIElement.querySelector('div[data-name="' + nameValue + '"]')) {
-                    let containerDiv = document.createElement("div");
-                    let nameDiv = document.createElement("div");
-                    nameDiv.textContent = nameValue;
-                    nameDiv.style.color = 'white';
-                    let linkDiv = document.createElement("div");
-                    linkDiv.textContent = hrefValue;
-                    linkDiv.setAttribute('data-href', hrefValue);
-                    linkDiv.style.color = 'white';
-                    linkDiv.style.cursor = 'pointer';
-                    linkDiv.style.textDecoration = 'none';
-                    linkDiv.addEventListener('mouseover', function() { linkDiv.style.textDecoration = 'underline'; linkDiv.style.color = 'blue' });
-                    linkDiv.addEventListener('mouseout', function() { linkDiv.style.textDecoration = 'none'; linkDiv.style.color = 'blue' });
-                    linkDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
-                    containerDiv.setAttribute('data-name', nameValue);
-                    containerDiv.appendChild(nameDiv);
-                    containerDiv.appendChild(linkDiv);
-                    inGameUIElement.appendChild(containerDiv);
-                }
-            }
-        }
-    };
     const highlightCurrentlyTargeting = function (currentlyTargeting, players) {
         let playerArray = [];
         for (let i=0;i<players.length; i++)
         {
-           player = players[ i ];
+        player = players[ i ];
             if ( player && player !== currentlyTargeting && player.playing && ( currentlyTargeting.team === 0 || player.team !== currentlyTargeting.team ) ) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
@@ -1903,9 +975,27 @@
             }
         }
     };
+    const predictRandomFloats = function(ss) {
+        let seed = ss.yourPlayer.randomGen.seed;
+        let numbers = [];
+        for (var i = 0; i < 2; i++) { //generate from seed the values used to scatter shot
+            seed = (seed * 9301 + 49297) % 233280;
+            numbers.push((seed / 233280) - 0.5);
+        };
+        const yaw = ss.yourPlayer.yaw;
+        const pitch = ss.yourPlayer.pitch;
+
+        // Use trigonometric functions to adjust pitch based on yaw
+        const pitchAdjustment = Math.min(Math.max(Math.cos(yaw) * Math.cos(pitch) * 2, -1), 1);
+        
+        //TODO ADJUST IT
+        numbers[1] = numbers[1] * pitchAdjustment
+
+        return [numbers[0],numbers[1]];
+    };
     const injectScript = function () {
         window.fixCamera = function () {
-            return isKeyToggled[bindsArray.zoom] && (extract("zoom")*(Math.PI / 180)) || (extract("fov")*(Math.PI / 180)) || 1.25;
+            return isKeyToggled[bindsArray.zoom] && (extract("zoom")*(Math.PI / 180)) || (extract("fov")*(Math.PI/180)) || 1.25;
         };
         window.getChatLimit = function () {
             return (extract("chatExtend")&&999999)||4;
@@ -1915,6 +1005,10 @@
         };
         window.getSkinHack = function () {
             return extract("unlockSkins");
+        };
+        window.beforeFiring = function (yourPlayer) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
+            // yourPlayer.yaw=1;
+            return;
         };
         class ModifiedXMLHttpRequest extends window.XMLHttpRequest {
             open(method, url) {
@@ -1947,6 +1041,7 @@
                         getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
                         getVarName("gameMap", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
                         getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
+                        getVarName("camera", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"');
                         // getVarName("vs", '(vs)'); //todo
                         // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
 
@@ -1961,6 +1056,8 @@
                     //hook for main loop function in render loop
                     match=code.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
                     code = code.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${mainLoopFunction}"]({${injectionString}}`);
+                    //hook for modifications just before firing
+                    code = code.replace('fire(){var','fire(){window.beforeFiring(this.player);var');
                     //hook for fov mods
                     code = code.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.fixCamera()');
                     code = code.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.fixCamera()');
@@ -1980,9 +1077,25 @@
                     //skins
                     match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
-
-                    code = code.replace('let i=this.accuracy','let i=0');
-                    code = code.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(0,0,0); console.log(this.accuracy,i,this.shootingAccuracy)');
+                    
+                    code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+                    console.log("##################################################");
+                    console.log("______PLAYER FIRED FUNCTION");
+                    console.log("Player Name: ",t.name);
+                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
+                    console.log("Actual Bullet Yaw: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
+                `);
+                    code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+                    console.log("##################################################");
+                    console.log("______IN FIRE FUNCTION");
+                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
+                    console.log("Actual Bullet Yaw: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
+                `);
+                    // code = code.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
+                    // code = code.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
+                    // code = code.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
+                    // code = code.replace('let i=this.accuracy','let i=0');
+                    // code = code.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
                     // code = code.replace('a=0;a<20;a++','a=0;a<200;a++');
 
                     //replace graveyard:
@@ -2048,6 +1161,10 @@
                 onlinePlayersArray=[];
                 window.newGame=false;
             };
+            if (!loggedGameMap.logged) {
+                console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
+                loggedGameMap.logged = true;
+            };
 
             crosshairsPosition.copyFrom(ss.yourPlayer.actor.mesh.position);
             const horizontalOffset = Math.sin(ss.yourPlayer.actor.mesh.rotation.y);
@@ -2079,6 +1196,8 @@
                     chatItems[i].style.display = isInRange ? '' : 'none';
                 };
             };
+            randomValues=predictRandomFloats(ss);
+            accuracy=ss.yourPlayer.weapon.accuracy;
         };
         const updateLinesESP = function (ss) {
             const objExists=Date.now();
@@ -2140,7 +1259,7 @@
                             player.logged=true;
                             if (extract("joinMessages")) {
                                 if (extract("publicBroadcast")) {
-                                    sendChatMessage((extract("branding") ? "[SFC] " : "")+player.name+" joined.")
+                                    sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
                                 } else {
                                     processChatItem(ss,"joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
                                 };
@@ -2156,7 +1275,7 @@
                     } else {
                         if (extract("leaveMessages")) {
                             if (extract("publicBroadcast")) {
-                                sendChatMessage((extract("branding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
+                                sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
                             } else {
                                 processChatItem(ss,"left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
                             };
@@ -2229,18 +1348,7 @@
             if ( !ss.yourPlayer ) { return }; //injection fail
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
-            framesPassed=framesPassed+1;
-
-            if (!loggedGameMap.logged) {
-                console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
-                loggedGameMap.logged = true;
-            }
-
-            if (framesPassed>=(lastFramesPassed+extract("reduceLag"))) {
-                lastFramesPassed=framesPassed
-                updateLinesESP(ss);
-            };
-
+            updateLinesESP(ss);
             if ( extract("freecam") ) {
                 ss.yourPlayer.actor.mesh.position.y = ss.yourPlayer.actor.mesh.position.y + 1;
             };
@@ -2256,12 +1364,13 @@
                 const fonx = Number((ss.yourPlayer.actor.mesh.position.x).toFixed(3));
                 const fony = Number((ss.yourPlayer.actor.mesh.position.y).toFixed(3));
                 const fonz = Number((ss.yourPlayer.actor.mesh.position.z).toFixed(3));
-                const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz}`;
+                const yaw = Number((ss.yourPlayer.yaw).toFixed(3));
+                const pitch = Number((ss.yourPlayer.pitch).toFixed(3));
+                const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
                 coordElement.style.display = '';
             };
-
             if (extract("playerStats")) {
                 let playerStates="";
                 for ( let i = 0; i < ss.players.length; i ++ ) {
@@ -2279,16 +1388,27 @@
 
             if ( extract("chatHighlight") ) {
                 document.getElementById("chatOut").style.userSelect="text"
-            }
+            };
             if ( extract("autoRefill") ) {
                 if (ammo.rounds==0) {
                     ss.yourPlayer.reload();
                 };
-                // console.log("round",t.rounds);
-                // console.log("capacity",t.capacity);
-            }
+            };
             if (extract("holdToFire") && isLeftButtonDown) {
                 ss.yourPlayer.pullTrigger();
+            };
+            if (extract("revealBloom")) {
+                redCircle.style.display='';
+                const distCenterToOuter = 2 * accuracy * (200 / ss.camera.fov);
+                // Set the new position of the circle
+                const centerX = (window.innerWidth / 2);
+                const centerY = (window.innerHeight / 2);
+                const offsettedX = centerX + (2 * distCenterToOuter * randomValues[0]);
+                const offsettedY = centerY + (2 * distCenterToOuter * randomValues[1]);
+                redCircle.style.top = offsettedY + 'px';
+                redCircle.style.left = offsettedX + 'px';
+            } else {
+                redCircle.style.display='none';
             };
             let minimumDistance = Infinity;
             let nearestPlayer;
@@ -2322,11 +1442,8 @@
                                         player.actor.mesh.position.z - ss.yourPlayer.actor.mesh.position.z
                                     );
                                     // Calculate the angles between the direction vector and the player vector
-                                    const angleYaw = Math.radAdd(Math.atan2(directionToPlayer.x, directionToPlayer.z),0);
-                                    const anglePitch = -Math.atan2(
-                                        directionToPlayer.y,
-                                        Math.hypot(directionToPlayer.x, directionToPlayer.z)
-                                    );
+                                    const angleYaw = calculateYaw(directionToPlayer);
+                                    const anglePitch = calculatePitch(directionToPlayer);
                                     // Calculate the absolute angular difference
                                     const angleDifference = Math.abs(ss.yourPlayer.yaw - angleYaw) + Math.abs(ss.yourPlayer.pitch - anglePitch);
                                     if (angleDifference < minimumValue) {
@@ -2340,42 +1457,27 @@
                     highlightCurrentlyTargeting(currentlyTargeting, ss);
                     highlightCrossHairReticleDot(ss, true);
                 };
-                let antiSneakAutoFire = false;
-                if (extract("aimbot") && (extract("antiSneak")!==0)) {
-                    let acceptableDistance = extract("antiSneak");
-                    if ( minimumDistance < acceptableDistance)
-                    {
-                        currentlyTargeting = nearestPlayer; antiSneakAutoFire = true;
-                        console.log("ANTISNEAK---->", nearestPlayer?.name, minimumDistance);
-                    }
-                };
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
-                    let x=currentlyTargeting.actor.mesh.position.x
-                        y=currentlyTargeting.actor.mesh.position.y
-                        z=currentlyTargeting.actor.mesh.position.z;
+                    let x = currentlyTargeting.x - ss.yourPlayer.x;
+                    let y = currentlyTargeting.y - ss.yourPlayer.y;
+                    let z = currentlyTargeting.z - ss.yourPlayer.z;
+                    const bulletSpeed=ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
+
                     if (extract("prediction")) {
-                        const distanceBetweenPlayers=distancePlayers(ss.yourPlayer,currentlyTargeting);
-                        const bulletSpeed=ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
-                        const timeToReachTarget = distanceBetweenPlayers / bulletSpeed;
-                        x = x + currentlyTargeting.dx * timeToReachTarget;
-                        z = z + currentlyTargeting.dz * timeToReachTarget;
-                        let yourMult = ss.yourPlayer.weapon.accuracy;
-                        let targetMult = 2*Math.sqrt(distanceBetweenPlayers)-0.1*(distanceBetweenPlayers) + 0.005*parseInt(document.getElementById("ping").textContent.slice(0,-2));
-                        y = currentlyTargeting.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y + timeToReachTarget*(currentlyTargeting.dy - (yourMult*ss.yourPlayer.dy ));
-                        //parseInt(document.getElementById("ping").textContent.slice(0,-2) is the ping given by the game, incorporate this is a positive gain factor for the other three axes, and find a metter mult than 0.005
+                        const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
+                        const timeToReachTarget = distanceBetweenPlayers/bulletSpeed;
+                        x += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        y += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        z += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
                     };
-                    x = x - ss.yourPlayer.actor.mesh.position.x;
-                    z = z - ss.yourPlayer.actor.mesh.position.z;
 
-                    if(!extract("prediction"))
-                    {
-                        x = currentlyTargeting.actor.mesh.position.x - ss.yourPlayer.actor.mesh.position.x;
-                        y = currentlyTargeting.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y;
-                        z = currentlyTargeting.actor.mesh.position.z - ss.yourPlayer.actor.mesh.position.z;
-                    }
+                    let finalYaw = calculateYaw({x: x,y: y,z: z});
+                    let finalPitch = calculatePitch({x: x,y: y,z: z});
 
-                    const finalYaw = Math.radAdd(Math.atan2(x,z),0);
-                    const finalPitch = -Math.atan2(y,Math.hypot(x,z))%1.5;
+                    if (extract("antiBloom")) {
+                        finalYaw    =finalYaw-((randomValues[0]) * accuracy);
+                        finalPitch=finalPitch-((randomValues[1]) * accuracy);
+                    };
 
                     const antiSnap=1-(extract("aimbotAntiSnap")||0);
 
@@ -2386,16 +1488,23 @@
                         }
                         return value
                     };
+
                     // Exponential lerp towards the target rotation
                     ss.yourPlayer.yaw = lerp(ss.yourPlayer.yaw, finalYaw, antiSnap);
                     ss.yourPlayer.pitch = lerp(ss.yourPlayer.pitch, finalPitch, antiSnap);
-                    if (antiSneakAutoFire){
-                        if (ammo.rounds === 0) { //bascially after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
-                            if (ss.yourPlayer.weaponIdx === 0){ss.yourPlayer.swapWeapon(1);}
-                            else {ss.yourPlayer.reload();}
-                        }
-                        ss.yourPlayer.pullTrigger();
-                    }
+                    if (extract("antiSneak")!==0) {
+                        let acceptableDistance = extract("antiSneak");
+                        if ( minimumDistance < acceptableDistance) {
+                            currentlyTargeting = nearestPlayer;
+                            if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
+                                if (ss.yourPlayer.weaponIdx === 0){ss.yourPlayer.swapWeapon(1);}
+                                else {ss.yourPlayer.reload();}
+                            };
+                            ss.yourPlayer.pullTrigger();
+                            console.log("ANTISNEAK---->", nearestPlayer?.name, minimumDistance);
+                        };
+                    };
+
                     if (extract("tracers")) {
                         currentlyTargeting.tracerLines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                     };
@@ -2415,7 +1524,7 @@
                         currentlyTargeting="dead";
                     } else {
                         currentlyTargeting=false;
-                    }
+                    };
                 };
             } else {
                 currentlyTargeting=false;
