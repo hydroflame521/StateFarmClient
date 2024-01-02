@@ -315,7 +315,7 @@
         //CHAT MODULES
         initFolder({ location: tp.pane, title: "Chat", storeAs: "chatFolder",});
         initTab({ location: tp.chatFolder, storeAs: "chatTab" })
-            initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtendButton", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
             initModule({ location: tp.chatTab.pages[0], title: "DisableFilter", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
@@ -351,7 +351,7 @@
         //CLIENT MODULES
         initFolder({ location: tp.pane, title: "Client & About", storeAs: "clientFolder",});
         initTab({ location: tp.clientFolder, storeAs: "clientTab" })
-            initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.pane.hidden=!tp.pane.hidden},});
+            initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.pane.hidden=!tp.pane.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "Default", value: "defaultTheme"},
                 {text: "Iceberg", value: "icebergTheme"},
@@ -364,7 +364,7 @@
                 applyStylesAddElements(value.value);
             }});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
-            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { window.location.replace(extract("panicURL")) }},});
+            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { window.location.replace(extract("panicURL")) }}, defaultBind:"X",});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
