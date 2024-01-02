@@ -83,6 +83,8 @@
     let binding=false;
     let lastSpamMessage=0;
     let lastAntiAFKMessage=0;
+    let accuracy=0;
+    let accuracyDiff=0;
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
@@ -90,7 +92,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let accuracy,randomValues,msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let randomValues,msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers;
     const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let isLeftButtonDown = false;
@@ -755,6 +757,26 @@
     const isPartialMatch = function (array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
     };
+    const radianAngleDiff = function (angle1,angle2) {
+        const fullCircle = 2 * Math.PI;
+
+        // Normalize angles to be within [0, 2π)
+        angle1 = (angle1 % fullCircle + fullCircle) % fullCircle;
+        angle2 = (angle2 % fullCircle + fullCircle) % fullCircle;
+    
+        // Find the absolute angular difference
+        let diff = Math.abs(angle1 - angle2);
+    
+        // Ensure the difference is within [0, π)
+        diff = Math.min(diff, fullCircle - diff);
+    
+        // Determine the sign of the difference correctly
+        if ((angle1 - angle2 + fullCircle) % fullCircle > Math.PI) {
+            return -diff;
+        } else {
+            return diff;
+        }
+    };
     const processChatItem = function (ss,text,playerName,playerTeam,highlightColor) {
         let chatItem = document.createElement("div");
         let playerNameSpan = document.createElement("span");
@@ -978,20 +1000,34 @@
     const predictRandomFloats = function(ss) {
         let seed = ss.yourPlayer.randomGen.seed;
         let numbers = [];
-        for (var i = 0; i < 2; i++) { //generate from seed the values used to scatter shot
+        for (var i = 0; i < 3; i++) { //generate from seed the values used to scatter shot
             seed = (seed * 9301 + 49297) % 233280;
-            numbers.push((seed / 233280) - 0.5);
+            numbers.push(seed / 233280);
         };
         const yaw = ss.yourPlayer.yaw;
         const pitch = ss.yourPlayer.pitch;
+        const T=ss.BABYLON;
+        const range = ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.range;
+        var f = T.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
+        let c = T.Matrix.Translation(0, 0, range);
+        let r = c.multiply(f);
+        const l=accuracy;
+        let u = T.Matrix.RotationYawPitchRoll((numbers[0] - .5) * l, (numbers[1] - .5) * l, (numbers[2] - .5) * l);
+        r = r.multiply(u);
+        var a = r.getTranslation();
+        console.log("generated:",numbers);
+        console.log("matrixes",f, c, r, l, u, a);
+        console.log("player dir:",yaw, pitch);
+        console.log("predicted bullet dir:",calculateYaw(a), calculatePitch(a));
+        const yawDiff=radianAngleDiff(yaw,calculateYaw(a))
+        const pitchDiff=radianAngleDiff(pitch,calculatePitch(a))
 
-        // Use trigonometric functions to adjust pitch based on yaw
-        const pitchAdjustment = Math.min(Math.max(Math.cos(yaw) * Math.cos(pitch) * 2, -1), 1);
-        
-        //TODO ADJUST IT
-        numbers[1] = numbers[1] * pitchAdjustment
+        console.log("diff:",yawDiff,pitchDiff)
+        console.log("old rands",numbers[0]-.5,numbers[1]-.5)
+        console.log("-----------------------")
 
-        return [numbers[0],numbers[1]];
+        // return [numbers[0]-.5,numbers[1]-.5];
+        return [yawDiff,pitchDiff];
     };
     const injectScript = function () {
         window.fixCamera = function () {
@@ -1088,6 +1124,7 @@
                     code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
                     console.log("##################################################");
                     console.log("______IN FIRE FUNCTION");
+                    console.log("Range Number: ",this.constructor.range);
                     console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
                     console.log("Actual Bullet Yaw: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
                 `);
@@ -1196,6 +1233,7 @@
                     chatItems[i].style.display = isInRange ? '' : 'none';
                 };
             };
+            accuracyDiff=ss.yourPlayer.weapon.accuracy-accuracy;
             randomValues=predictRandomFloats(ss);
             accuracy=ss.yourPlayer.weapon.accuracy;
         };
@@ -1399,14 +1437,14 @@
             };
             if (extract("revealBloom")) {
                 redCircle.style.display='';
-                const distCenterToOuter = 2 * accuracy * (200 / ss.camera.fov);
+                const distCenterToOuter = 2 * (200 / ss.camera.fov);
                 // Set the new position of the circle
                 const centerX = (window.innerWidth / 2);
                 const centerY = (window.innerHeight / 2);
                 const offsettedX = centerX + (2 * distCenterToOuter * randomValues[0]);
                 const offsettedY = centerY + (2 * distCenterToOuter * randomValues[1]);
-                redCircle.style.top = offsettedY + 'px';
-                redCircle.style.left = offsettedX + 'px';
+                redCircle.style.bottom = offsettedY + 'px';
+                redCircle.style.right = offsettedX + 'px';
             } else {
                 redCircle.style.display='none';
             };
@@ -1475,8 +1513,9 @@
                     let finalPitch = calculatePitch({x: x,y: y,z: z});
 
                     if (extract("antiBloom")) {
-                        finalYaw    =finalYaw-((randomValues[0]) * accuracy);
-                        finalPitch=finalPitch-((randomValues[1]) * accuracy);
+                        // const predictAccuracy = Math.min(Math.max(accuracy+(2*accuracyDiff),ss.yourPlayer.weapon.accuracyMin),ss.yourPlayer.weapon.accuracyMax);
+                        finalYaw    =finalYaw+(randomValues[0]);
+                        finalPitch=finalPitch+(randomValues[1]);
                     };
 
                     const antiSnap=1-(extract("aimbotAntiSnap")||0);
@@ -1533,6 +1572,7 @@
                     highlightCrossHairReticleDot(ss, false);
                 };
             };
+
         };
     };
 
