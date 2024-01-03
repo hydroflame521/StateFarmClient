@@ -5,14 +5,11 @@
 
 Hack Client for Shell Shockers(shellshock.io). The most feature rich and powerful client to exist for the game, with custom binding, highly customisable modules, chat mods and more.
 
-Join the discord server for the latest news:  [https://discord.gg/UTqWuQ7nq8](https://discord.gg/UTqWuQ7nq8)
+Join the discord server for the latest news: https://discord.gg/6kzNpHFRSN
 
 For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
 
 Info accurate as of release version 3.1.2
-
-# Note To the GreasyFork moderators
-This is the main GitHub repo. My account that I use to communicate with you is https://greasyfork.org/en/users/1239580-why-just-why
 
 # Table of Contents
 
@@ -202,7 +199,7 @@ _**Common detection Methods**_:
 |Stuck on Shellshockers loading screen|Press Crtl + F5(or fn + F5) until "Script Injected" in shown. This performs a 'hard reset', discarding any cached files which could be causing issues.
 
 > If you have any issues, feel free to contact us in our discord server.
-> https://discord.gg/HJuZ24jG
+> [https://discord.gg/HJuZ24jG](https://discord.gg/6kzNpHFRSN)
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
 
