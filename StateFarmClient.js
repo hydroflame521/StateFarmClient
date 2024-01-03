@@ -3,7 +3,7 @@
 // @namespace    http://github.com/
 // @version      3.1.4
 // @license      GPL-3.0
-// @description  Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @description  Only public script with bloom cheats! Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -1219,7 +1219,6 @@
         const initVars = function (ss) {
             if (window.newGame) {
                 onlinePlayersArray=[];
-                window.newGame=false;
             };
             if (!loggedGameMap.logged) {
                 console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
@@ -1317,7 +1316,7 @@
                         };
                         if (!player.logged) {
                             player.logged=true;
-                            if (extract("joinMessages")) {
+                            if (extract("joinMessages") && (!window.newGame)) {
                                 if (extract("publicBroadcast")) {
                                     sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
                                 } else {
@@ -1333,7 +1332,7 @@
                     if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
                         onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
                     } else {
-                        if (extract("leaveMessages")) {
+                        if (extract("leaveMessages") && (!window.newGame)) {
                             if (extract("publicBroadcast")) {
                                 sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
                             } else {
@@ -1402,7 +1401,7 @@
                     ESPArray[i][1].dispose();
                     ESPArray.splice(i,1);
                 };
-            };
+            }; window.newGame=false;
         };
         window[mainLoopFunction] = function ( ss ) {
             if ( !ss.yourPlayer ) { return }; //injection fail
@@ -1528,8 +1527,8 @@
                         const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
                         const timeToReachTarget = distanceBetweenPlayers/bulletSpeed;
                         x += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        y += + (currentlyTargeting.dy - ss.yourPlayer.dy) * timeToReachTarget;
-                        z += + (currentlyTargeting.dz - ss.yourPlayer.dz) * timeToReachTarget;
+                        y += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        z += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
                     };
 
                     let finalYaw = calculateYaw({x: x,y: y,z: z});
