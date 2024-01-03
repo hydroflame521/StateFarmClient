@@ -92,7 +92,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let randomValues,msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers;
     const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let isLeftButtonDown = false;
@@ -1027,36 +1027,26 @@
             }
         }
     };
-    const predictRandomFloats = function(ss) {
+    const predictBloom = function(ss,yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
         let seed = ss.yourPlayer.randomGen.seed;
         let numbers = [];
+        const min = ss.weapons.classes[2].weapon.accuracyMax; //confused? max is most accurate it can be, the least from the center. so the smaller value.
+        const max = ss.weapons.classes[2].weapon.accuracyMin;
+        const predictNextFrameBloom = Math.max(Math.min(accuracy+accuracyDiff,max),min)
         for (var i = 0; i < 3; i++) { //generate from seed the values used to scatter shot
             seed = (seed * 9301 + 49297) % 233280;
-            numbers.push(seed / 233280);
+            numbers.push(((seed/233280)-0.5)*predictNextFrameBloom);
         };
-        const yaw = ss.yourPlayer.yaw;
-        const pitch = ss.yourPlayer.pitch;
-        const T=ss.BABYLON;
         const range = ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.range;
-        var f = T.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
-        let c = T.Matrix.Translation(0, 0, range);
-        let r = c.multiply(f);
-        const l=accuracy;
-        let u = T.Matrix.RotationYawPitchRoll((numbers[0] - .5) * l, (numbers[1] - .5) * l, (numbers[2] - .5) * l);
-        r = r.multiply(u);
-        var a = r.getTranslation();
-        console.log("generated:",numbers);
-        console.log("matrixes",f, c, r, l, u, a);
-        console.log("player dir:",yaw, pitch);
-        console.log("predicted bullet dir:",calculateYaw(a), calculatePitch(a));
-        const yawDiff=radianAngleDiff(yaw,calculateYaw(a))
-        const pitchDiff=radianAngleDiff(pitch,calculatePitch(a))
+        const playerYPRMatrixThing = ss.BABYLON.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
+        const rangeMatrixThing = ss.BABYLON.Matrix.Translation(0, 0, range);
+        const playerAndRangeMatrix = rangeMatrixThing.multiply(playerYPRMatrixThing);
+        const bloomMatrix = ss.BABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
+        const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
+        const finalBulletTranslation = finalBulletMatrix.getTranslation();
+        const yawDiff = radianAngleDiff(yaw,calculateYaw(finalBulletTranslation))
+        const pitchDiff = radianAngleDiff(pitch,calculatePitch(finalBulletTranslation))
 
-        console.log("diff:",yawDiff,pitchDiff)
-        console.log("old rands",numbers[0]-.5,numbers[1]-.5)
-        console.log("-----------------------")
-
-        // return [numbers[0]-.5,numbers[1]-.5];
         return [yawDiff,pitchDiff];
     };
     const injectScript = function () {
@@ -1143,32 +1133,35 @@
                     //skins
                     match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
+                    //reset join/leave msgs
+                    code = code.replace(',console.log("joinGame()',',window.newGame=true,console.log("value changed, also joinGame()');
 
-                    code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
-                    console.log("##################################################");
-                    console.log("______PLAYER FIRED FUNCTION");
-                    console.log("Player Name: ",t.name);
-                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
-                    console.log("Actual Bullet Yaw: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
-                `);
-                    code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
-                    console.log("##################################################");
-                    console.log("______IN FIRE FUNCTION");
-                    console.log("Range Number: ",this.constructor.range);
-                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
-                    console.log("Actual Bullet Yaw: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
-                `);
+
+
+                    //replace graveyard:
+
+                    //trajectories
+                    //bullet debugging
+                //     code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+                //     console.log("##################################################");
+                //     console.log("______PLAYER FIRED FUNCTION");
+                //     console.log("Player Name: ",t.name);
+                //     console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
+                //     console.log("Actual Bullet Yaw: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
+                // `);
+                //     code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+                //     console.log("##################################################");
+                //     console.log("______IN FIRE FUNCTION");
+                //     console.log("Range Number: ",this.constructor.range);
+                //     console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
+                //     console.log("Actual Bullet Yaw: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
+                // `);
                     // code = code.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
                     // code = code.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
                     // code = code.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
                     // code = code.replace('let i=this.accuracy','let i=0');
                     // code = code.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
                     // code = code.replace('a=0;a<20;a++','a=0;a<200;a++');
-
-                    //replace graveyard:
-
-                    //trajectories
-                    // code = code.replace(',console.log("joinGame()',',window.newGame=true,console.log("joinGame()');
                     // code = code.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
                     // code = code.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
                     //disable autopause
@@ -1264,7 +1257,6 @@
                 };
             };
             accuracyDiff=ss.yourPlayer.weapon.accuracy-accuracy;
-            randomValues=predictRandomFloats(ss);
             accuracy=ss.yourPlayer.weapon.accuracy;
         };
         const updateLinesESP = function (ss) {
@@ -1468,11 +1460,12 @@
             if (extract("revealBloom")) {
                 redCircle.style.display='';
                 const distCenterToOuter = 2 * (200 / ss.camera.fov);
+                const bloomValues=predictBloom(ss,ss.yourPlayer.yaw,ss.yourPlayer.pitch);
                 // Set the new position of the circle
                 const centerX = (window.innerWidth / 2);
                 const centerY = (window.innerHeight / 2);
-                const offsettedX = centerX + (2 * distCenterToOuter * randomValues[0]);
-                const offsettedY = centerY + (2 * distCenterToOuter * randomValues[1]);
+                const offsettedX = centerX + (2 * distCenterToOuter * bloomValues[0]);
+                const offsettedY = centerY + (2 * distCenterToOuter * bloomValues[1]);
                 redCircle.style.bottom = offsettedY + 'px';
                 redCircle.style.right = offsettedX + 'px';
             } else {
@@ -1544,8 +1537,9 @@
 
                     if (extract("antiBloom")) {
                         // const predictAccuracy = Math.min(Math.max(accuracy+(2*accuracyDiff),ss.yourPlayer.weapon.accuracyMin),ss.yourPlayer.weapon.accuracyMax);
-                        finalYaw    =finalYaw+(randomValues[0]);
-                        finalPitch=finalPitch+(randomValues[1]);
+                        const bloomValues=predictBloom(ss,finalYaw,finalPitch);
+                        finalYaw    =finalYaw+(bloomValues[0]);
+                        finalPitch=finalPitch+(bloomValues[1]);
                     };
 
                     const antiSnap=1-(extract("aimbotAntiSnap")||0);
