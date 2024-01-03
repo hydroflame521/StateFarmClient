@@ -1528,8 +1528,8 @@
                         const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
                         const timeToReachTarget = distanceBetweenPlayers/bulletSpeed;
                         x += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        y += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        z += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        y += + (currentlyTargeting.dy - ss.yourPlayer.dy) * timeToReachTarget;
+                        z += + (currentlyTargeting.dz - ss.yourPlayer.dz) * timeToReachTarget;
                     };
 
                     let finalYaw = calculateYaw({x: x,y: y,z: z});
