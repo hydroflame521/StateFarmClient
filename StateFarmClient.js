@@ -1484,7 +1484,7 @@
                             const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                             const passedLists=whitelisted&&(!blacklisted);
                             if (passedLists) {
-                                const distance = Math.hypot( player.x - ss.yourPlayer.x, player.y - ss.yourPlayer.y, player.z - ss.yourPlayer.z );
+                                const distance = distancePlayers(ss.yourPlayer,player);
                                 if (distance < minimumValue) {
                                     minimumDistance = distance;
                                     nearestPlayer = player;
