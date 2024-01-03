@@ -1,5 +1,3 @@
-
-
 ![Discord Shield](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=shield)
 # State Farm Client
 
