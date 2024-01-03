@@ -369,7 +369,6 @@
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
-                initModule({ location: tp.linksFolder, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#features")},});
                 initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){window.open("https://discord.gg/mPa95HB7Q6")},});
                 initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient")},});
             initModule({ location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function(){
@@ -379,6 +378,7 @@
                     userConfirmed=alert("Reload to reset to defaults.");
                 };
             },});
+        initModule({ location: tp.pane, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#features")},});
 
         updateConfig();
     };
@@ -694,8 +694,8 @@
         playerstatsElement.classList.add('playerstats');
         playerstatsElement.setAttribute('style', `
             position: fixed;
-            top: 10px;
-            left: 240px;
+            top: 20px;
+            left: 280px;
             color: #fff;
             background: rgba(0, 0, 0, 0.6);
             font-weight: bolder;
