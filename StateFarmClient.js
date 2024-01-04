@@ -365,7 +365,7 @@
                 {text: "Translucent", value: "translucentTheme"},
                 {text: "Statefarmer", value: "statefarmerTheme"}
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
-                applyStylesAddElements(value.value);
+                applyTheme(value.value);
             }});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { window.location.replace(extract("panicURL")) }}, defaultBind:"X",});
@@ -421,21 +421,130 @@
         }
     };
     const applyStylesAddElements = function (themeToApply = "null") {
-        //get custom font - condensed font works well for space saving
         const head = document.head || document.getElementsByTagName('head').pages[0];
-        const themeType = extract("themeType");
+        //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
+        const styleElement = document.createElement('style');
+        styleElement.textContent = `
+            @font-face {
+                font-family: "Bahnschrift";
+                src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot");
+                src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot?#iefix")format("embedded-opentype"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff2")format("woff2"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff")format("woff"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
+                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
+            }
+            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats {
+                font-family: 'Bahnschrift', sans-serif !important;
+                font-size: 16px;
+            }
+            .tp-lblv_v, .tp-lstv, .tp-btnv_b, .tp-btnv_t {
+                font-family: 'Bahnschrift';
+                font-size: 12px;
+            }
+            .tp-lblv_l {
+                font-size: 14px;
+                letter-spacing: -1px;
+            }
+            .tp-btnv {
+                width: 100px;
+                margin-left: 60px !important;
+            }
+            .tp-ckbv_w {
+                margin-left: 4px !important;
+            }
+            .tp-dfwv, .tp-rotv, .tp-rotv_c, .tp-fldv, .tp-fldv_c, .tp-lblv, .tp-lstv, .tp-btnv, .tp-sldv {
+                z-index: 9999 !important;
+                white-space: nowrap !important;
+            }
+            @keyframes msg {
+                from {
+                    transform: translate(-120%, 0);
+                    opacity: 0;
+                }
+                to {
+                    transform: none;
+                    opacity: 1;
+                }
+            }
+        `;
 
-        let rootTheme = "";
+        document.head.appendChild(styleElement);
+        applyTheme();
 
-        var theme = "";
-
-        if (themeToApply === "null") {
-            theme = extract("themeType");
-        } else {
-            theme = themeToApply;
-        }
-
-        switch (theme) {
+        //initiate message div and css and shit
+        msgElement = document.createElement('div'); // create the element directly
+        msgElement.classList.add('msg');
+        msgElement.setAttribute('style', `
+            position: absolute;
+            left: 10px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            font-weight: normal;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            animation: msg 0.5s forwards, msg 0.5s reverse forwards 3s;
+            z-index: 999999;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        `);
+        document.body.appendChild(msgElement);
+        msgElement.style.display = 'none';
+        const messageContainer = document.createElement('div'); //so it can be cloned. i think.
+        messageContainer.id = 'message-container';
+        document.body.appendChild(messageContainer);
+        //initiate coord div and css and shit
+        coordElement = document.createElement('div'); // create the element directly
+        coordElement.classList.add('coords');
+        coordElement.setAttribute('style', `
+            position: fixed;
+            top: -2px;
+            left: -2px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            font-weight: bolder;
+            padding: 2px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            z-index: 999999;
+        `);
+        document.body.appendChild(coordElement);
+        coordElement.style.display = 'none';
+        //initiate hp div and css and shit
+        playerstatsElement = document.createElement('div'); // create the element directly
+        playerstatsElement.classList.add('playerstats');
+        playerstatsElement.setAttribute('style', `
+            position: fixed;
+            top: 20px;
+            left: 280px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            font-weight: bolder;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            z-index: 999999;
+        `);
+        document.body.appendChild(playerstatsElement);
+        playerstatsElement.style.display = 'none';
+        //initiate bloom indicator div and css and shit
+        redCircle = document.createElement('div');
+        redCircle.style.position = 'fixed';
+        redCircle.style.width = '5px';
+        redCircle.style.height = '5px';
+        redCircle.style.borderRadius = '50%';
+        redCircle.style.backgroundColor = 'red';
+        redCircle.style.transform = 'translate(-50%, -50%)';
+        document.body.appendChild(redCircle);
+    };
+    const applyTheme = function(setTheme) {
+        setTheme = (setTheme||extract("themeType")||"defaultTheme");
+        switch (setTheme) {
             case ("defaultTheme"):
             rootTheme = `
 --tp-base-background-color: hsla(230, 7%, 17%, 1.00);
@@ -602,124 +711,9 @@
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
         const styleElement = document.createElement('style');
         styleElement.textContent = `
-            @font-face {
-                font-family: "Bahnschrift";
-                src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot");
-                src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot?#iefix")format("embedded-opentype"),
-                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff2")format("woff2"),
-                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff")format("woff"),
-                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
-                url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
-            }
-            :root {
-                ${rootTheme}
-            }
-            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats {
-                font-family: 'Bahnschrift', sans-serif !important;
-                font-size: 16px;
-            }
-            .tp-lblv_v, .tp-lstv, .tp-btnv_b, .tp-btnv_t {
-                font-family: 'Bahnschrift';
-                font-size: 12px;
-            }
-            .tp-lblv_l {
-                font-size: 14px;
-                letter-spacing: -1px;
-            }
-            .tp-btnv {
-                width: 100px;
-                margin-left: 60px !important;
-            }
-            .tp-ckbv_w {
-                margin-left: 4px !important;
-            }
-            .tp-dfwv, .tp-rotv, .tp-rotv_c, .tp-fldv, .tp-fldv_c, .tp-lblv, .tp-lstv, .tp-btnv, .tp-sldv {
-                z-index: 9999 !important;
-                white-space: nowrap !important;
-            }
-            @keyframes msg {
-                from {
-                    transform: translate(-120%, 0);
-                    opacity: 0;
-                }
-                to {
-                    transform: none;
-                    opacity: 1;
-                }
-            }
+            :root { ${rootTheme} }
         `;
-
         document.head.appendChild(styleElement);
-
-        //initiate message div and css and shit
-        msgElement = document.createElement('div'); // create the element directly
-        msgElement.classList.add('msg');
-        msgElement.setAttribute('style', `
-            position: absolute;
-            left: 10px;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.7);
-            font-weight: normal;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            animation: msg 0.5s forwards, msg 0.5s reverse forwards 3s;
-            z-index: 999999;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease-in-out;
-        `);
-        document.body.appendChild(msgElement);
-        msgElement.style.display = 'none';
-        const messageContainer = document.createElement('div'); //so it can be cloned. i think.
-        messageContainer.id = 'message-container';
-        document.body.appendChild(messageContainer);
-        //initiate coord div and css and shit
-        coordElement = document.createElement('div'); // create the element directly
-        coordElement.classList.add('coords');
-        coordElement.setAttribute('style', `
-            position: fixed;
-            top: -2px;
-            left: -2px;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.6);
-            font-weight: bolder;
-            padding: 2px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            z-index: 999999;
-        `);
-        document.body.appendChild(coordElement);
-        coordElement.style.display = 'none';
-        //initiate hp div and css and shit
-        playerstatsElement = document.createElement('div'); // create the element directly
-        playerstatsElement.classList.add('playerstats');
-        playerstatsElement.setAttribute('style', `
-            position: fixed;
-            top: 20px;
-            left: 280px;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.6);
-            font-weight: bolder;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            z-index: 999999;
-        `);
-        document.body.appendChild(playerstatsElement);
-        playerstatsElement.style.display = 'none';
-        //initiate bloom indicator div and css and shit
-        redCircle = document.createElement('div');
-        redCircle.style.position = 'fixed';
-        redCircle.style.width = '5px';
-        redCircle.style.height = '5px';
-        redCircle.style.borderRadius = '50%';
-        redCircle.style.backgroundColor = 'red';
-        redCircle.style.transform = 'translate(-50%, -50%)';
-        document.body.appendChild(redCircle);
     };
     //1337 H4X
     const hexToRgb = function (hex) {
@@ -748,9 +742,9 @@
     const distancePlayers = function (yourPlayer,player) {
         return Math.hypot(player.x-yourPlayer.x,player.y-yourPlayer.y,player.z-yourPlayer.z ); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
-    const setPrecision = function (value) { return Math.floor(value * 8192) / 8192 };
+    const setPrecision = function (value) { return Math.floor(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
-        return setPrecision(Math.mod(Math.atan2(pos.x,pos.z), Math.PI2)) //required precision
+        return setPrecision(Math.mod(Math.atan2(pos.x,pos.z), Math.PI2));
     };
     const calculatePitch = function (pos) {
         return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
@@ -891,28 +885,31 @@
     const addStreamsToInGameUI = function () {
         let inGameUIElement = document.getElementById("inGameUI");
         let streams = document.getElementById("stream_scroll").children;
-        if (extract("showStreams") && inGameUIElement && streams.length > 0) {
+        if ( inGameUIElement && streams.length > 0) {
             for (let i = 0; i < streams.length; i++) {
                 let hrefValue = streams[i].querySelector('a').href;
                 let nameValue = streams[i].querySelector(".stream_name").textContent;
-                if (!inGameUIElement.querySelector('div[data-name="' + nameValue + '"]')) {
+                const streamElement = inGameUIElement.querySelector('div[data-name="' + nameValue + '"]');
+                if (extract("showStreams") && !streamElement) {
                     let containerDiv = document.createElement("div");
-                    let linkDiv = document.createElement("div");
-                    linkDiv.textContent = nameValue;
-                    linkDiv.setAttribute('data-href', hrefValue);
-                    linkDiv.style.color = 'white';
-                    linkDiv.style.cursor = 'pointer';
-                    linkDiv.style.textDecoration = 'none';
-                    linkDiv.addEventListener('mouseover', function() { linkDiv.style.textDecoration = 'underline'; linkDiv.style.color = 'blue' });
-                    linkDiv.addEventListener('mouseout', function() { linkDiv.style.textDecoration = 'none'; linkDiv.style.color = 'white' });
-                    linkDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
+                    let nameDiv = document.createElement("div");
+                    nameDiv.textContent = nameValue;
+                    nameDiv.setAttribute('data-href', hrefValue);
+                    nameDiv.style.color = 'white';
+                    nameDiv.style.cursor = 'pointer';
+                    nameDiv.style.textDecoration = 'none';
+                    nameDiv.addEventListener('mouseover', function() { nameDiv.style.textDecoration = 'underline'; nameDiv.style.color = 'blue' });
+                    nameDiv.addEventListener('mouseout', function() { nameDiv.style.textDecoration = 'none'; nameDiv.style.color = 'white' });
+                    nameDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
                     containerDiv.setAttribute('data-name', nameValue);
                     containerDiv.appendChild(nameDiv);
-                    containerDiv.appendChild(linkDiv);
+                    containerDiv.appendChild(nameDiv);
                     inGameUIElement.appendChild(containerDiv);
-                }
-            }
-        }
+                } else if (!extract("showStreams") && streamElement) {
+                    inGameUIElement.removeChild(streamElement);
+                };
+            };
+        };
     };
     const highlightCurrentlyTargeting = function (currentlyTargeting, players) {
         let playerArray = [];
