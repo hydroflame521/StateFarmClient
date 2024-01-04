@@ -351,6 +351,7 @@
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
+            initModule({ location: tp.miscTab.pages[0], title: "ShowStreams", storeAs: "showStreams", bindLocation: tp.miscTab.pages[1],});
         //CLIENT MODULES
         initFolder({ location: tp.pane, title: "Client & About", storeAs: "clientFolder",});
         initTab({ location: tp.clientFolder, storeAs: "clientTab" })
@@ -710,18 +711,14 @@
         `);
         document.body.appendChild(playerstatsElement);
         playerstatsElement.style.display = 'none';
-
+        //initiate bloom indicator div and css and shit
         redCircle = document.createElement('div');
-
-        // Set the style properties for the circle (position, size, color)
         redCircle.style.position = 'fixed';
         redCircle.style.width = '5px';
         redCircle.style.height = '5px';
         redCircle.style.borderRadius = '50%';
         redCircle.style.backgroundColor = 'red';
-        redCircle.style.transform = 'translate(-50%, -50%)'; // Center the circle
-
-        // Append the circle to the body of the document
+        redCircle.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(redCircle);
     };
     //1337 H4X
@@ -858,6 +855,7 @@
     const everySecond = function () {
         coordElement.style.display = 'none';
         playerstatsElement.style.display = 'none';
+        redCircle.style.display = 'none';
         allFolders.forEach(function (name) {
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
@@ -892,17 +890,14 @@
     const addStreamsToInGameUI = function () {
         let inGameUIElement = document.getElementById("inGameUI");
         let streams = document.getElementById("stream_scroll").children;
-        if (inGameUIElement && streams.length > 0) {
+        if (extract("showStreams") && inGameUIElement && streams.length > 0) {
             for (let i = 0; i < streams.length; i++) {
                 let hrefValue = streams[i].querySelector('a').href;
                 let nameValue = streams[i].querySelector(".stream_name").textContent;
                 if (!inGameUIElement.querySelector('div[data-name="' + nameValue + '"]')) {
                     let containerDiv = document.createElement("div");
-                    let nameDiv = document.createElement("div");
-                    nameDiv.textContent = nameValue;
-                    nameDiv.style.color = 'white';
                     let linkDiv = document.createElement("div");
-                    linkDiv.textContent = hrefValue;
+                    linkDiv.textContent = nameValue;
                     linkDiv.setAttribute('data-href', hrefValue);
                     linkDiv.style.color = 'white';
                     linkDiv.style.cursor = 'pointer';
@@ -1274,8 +1269,6 @@
             // accuracyDiff=ss.yourPlayer.weapon.accuracy-accuracy;
             yawDiff=radianAngleDiff(yawCache,ss.yourPlayer.yaw);
             pitchDiff=radianAngleDiff(pitchCache,ss.yourPlayer.pitch);
-            yawCache=ss.yourPlayer.yaw;
-            pitchCache=ss.yourPlayer.pitch;
         };
         const updateLinesESP = function (ss) {
             const objExists=Date.now();
@@ -1551,8 +1544,8 @@
                         z += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
                     };
 
-                    let finalYaw = (calculateYaw({x: x,y: y,z: z}))%(Math.PI*2);
-                    let finalPitch = Math.min(Math.max(calculatePitch({x: x,y: y,z: z}),-1.5),1.5);
+                    let finalYaw = calculateYaw({x: x,y: y,z: z});
+                    let finalPitch = calculatePitch({x: x,y: y,z: z});
                     // let finalYaw = calculateYaw({x: x,y: y,z: z});
                     // let finalPitch = calculatePitch({x: x,y: y,z: z});
 
@@ -1619,7 +1612,8 @@
                     highlightCrossHairReticleDot(ss, false);
                 };
             };
-
+            yawCache=ss.yourPlayer.yaw;
+            pitchCache=ss.yourPlayer.pitch;
         };
     };
 
