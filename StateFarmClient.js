@@ -1105,6 +1105,7 @@
                         getVarName("gameMap", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
                         getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
                         getVarName("camera", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"');
+                        getVarName("rays", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
                         // getVarName("vs", '(vs)'); //todo
                         // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
 
