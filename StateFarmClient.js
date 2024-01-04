@@ -83,8 +83,11 @@
     let binding=false;
     let lastSpamMessage=0;
     let lastAntiAFKMessage=0;
-    let accuracy=0;
-    let accuracyDiff=0;
+    let yawCache=0;
+    let yawDiff=0;
+    let pitchCache=0;
+    let pitchDiff=0;
+    let targetingComplete=false;
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
@@ -749,7 +752,7 @@
         return Math.hypot(player.x-yourPlayer.x,player.y-yourPlayer.y,player.z-yourPlayer.z ); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
     const calculateYaw = function (pos) {
-        return Math.radAdd(Math.atan2(pos.x,pos.z),0)
+        return Math.floor(Math.mod(Math.atan2(pos.x,pos.z), Math.PI2) * 8192) / 8192 //required precision
     };
     const calculatePitch = function (pos) {
         return (-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
@@ -1030,16 +1033,15 @@
     const predictBloom = function(ss,yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
         let seed = ss.yourPlayer.randomGen.seed;
         let numbers = [];
-        // const min = ss.weapons.classes[2].weapon.accuracyMax; //confused? max is most accurate it can be, the least from the center. so the smaller value.
-        // const max = ss.weapons.classes[2].weapon.accuracyMin;
-        // const predictNextFrameAccuracy = Math.max(Math.min(accuracy+accuracyDiff,max),min) //after testing, this is useless and sometimes makes it worse. will delete maybe later
-
+        const accuracy=ss.yourPlayer.weapon.accuracy;
         for (var i = 0; i < 3; i++) { //generate from seed the values used to scatter shot
             seed = (seed * 9301 + 49297) % 233280;
             numbers.push(((seed/233280)-0.5)*accuracy);
         };
+        const predictedYaw=(yaw-yawDiff)%(Math.PI*2)
+        const predictedPitch=Math.min(Math.max(pitch-pitchDiff,-1.5),1.5);
         const range = ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.range;
-        const playerYPRMatrixThing = ss.BABYLON.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
+        const playerYPRMatrixThing = ss.BABYLON.Matrix.RotationYawPitchRoll(predictedYaw, predictedPitch, 0);
         const rangeMatrixThing = ss.BABYLON.Matrix.Translation(0, 0, range);
         const playerAndRangeMatrix = rangeMatrixThing.multiply(playerYPRMatrixThing);
         const bloomMatrix = ss.BABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
@@ -1047,18 +1049,19 @@
         const finalBulletTranslation = finalBulletMatrix.getTranslation();
         const bulletYaw = calculateYaw(finalBulletTranslation);
         const bulletPitch = calculatePitch(finalBulletTranslation);
-        const yawDiff = radianAngleDiff(yaw,bulletYaw)
-        const pitchDiff = radianAngleDiff(pitch,bulletPitch)
-
+        const yawBulletDiff = radianAngleDiff(yaw,bulletYaw)
+        const pitchBulletDiff = radianAngleDiff(pitch,bulletPitch)
         console.log("current accuracy: ",accuracy)
         console.log("input yaw: ",yaw)
         console.log("input pitch: ",pitch)
+        console.log("diff yaw/pitch",yawDiff,pitchDiff)
+        console.log("predicted yaw/pitch",predictedYaw,predictedPitch)
         console.log("calculated bullet yaw: ",bulletYaw)
         console.log("calculated bullet pitch: ",bulletPitch)
-        console.log("therefore yaw diff: ",yawDiff)
-        console.log("therefore pitch diff: ",pitchDiff)
+        console.log("therefore yaw diff: ",yawBulletDiff)
+        console.log("therefore pitch diff: ",pitchBulletDiff)
 
-        return [yawDiff,pitchDiff];
+        return [yawBulletDiff,pitchBulletDiff];
     };
     const injectScript = function () {
         window.fixCamera = function () {
@@ -1157,16 +1160,17 @@
                     console.log("##################################################");
                     console.log("______PLAYER FIRED FUNCTION");
                     console.log("Player Name: ",t.name);
-                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
-                    console.log("Actual Bullet Yaw: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
+                    console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
+                    console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
                 `);
                     code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
                     console.log("##################################################");
                     console.log("______IN FIRE FUNCTION");
                     console.log("Range Number: ",this.constructor.range);
                     console.log("Accuracy: ",this.accuracy);
-                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
-                    console.log("Actual Bullet Yaw: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
+                    console.log("Yaw/Pitch: ",this.player.yaw, this.player.pitch);
+                    console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
+                    console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
                 `);
                     // code = code.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
                     // code = code.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
@@ -1267,8 +1271,11 @@
                     chatItems[i].style.display = isInRange ? '' : 'none';
                 };
             };
-            accuracyDiff=ss.yourPlayer.weapon.accuracy-accuracy;
-            accuracy=ss.yourPlayer.weapon.accuracy;
+            // accuracyDiff=ss.yourPlayer.weapon.accuracy-accuracy;
+            yawDiff=radianAngleDiff(yawCache,ss.yourPlayer.yaw);
+            pitchDiff=radianAngleDiff(pitchCache,ss.yourPlayer.pitch);
+            yawCache=ss.yourPlayer.yaw;
+            pitchCache=ss.yourPlayer.pitch;
         };
         const updateLinesESP = function (ss) {
             const objExists=Date.now();
@@ -1484,14 +1491,15 @@
             };
             let minimumDistance = Infinity;
             let nearestPlayer;
-            if (extract("aimbot") && ( extract("aimbotRightClick") ? isRightButtonDown : true ) && ss.yourPlayer.playing) {
+            let previousTarget=currentlyTargeting;
+            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.yourPlayer.playing) {
                 if (!extract("antiSwitch") || !currentlyTargeting) {
                     currentlyTargeting=false
                     const targetType=extract("aimbotTargeting");
-                    let minimumValue = Infinity;
-                    for ( let i = 0; i < ss.players.length; i ++ ) {
-                        const player = ss.players[ i ];
-                        if ( player && player !== ss.yourPlayer && player.playing && ( ss.yourPlayer.team === 0 || player.team !== ss.yourPlayer.team ) ) {
+                    let minimumValue = 9999;
+                    for (let i=0; i<ss.players.length; i++) {
+                        const player = ss.players[i];
+                        if (player && player !== ss.yourPlayer && player.playing && (ss.yourPlayer.team===0||player.team!==ss.yourPlayer.team) ) {
                             const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                             const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                             const passedLists=whitelisted&&(!blacklisted);
@@ -1543,8 +1551,10 @@
                         z += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
                     };
 
-                    let finalYaw = calculateYaw({x: x,y: y,z: z});
-                    let finalPitch = calculatePitch({x: x,y: y,z: z});
+                    let finalYaw = (calculateYaw({x: x,y: y,z: z}))%(Math.PI*2);
+                    let finalPitch = Math.min(Math.max(calculatePitch({x: x,y: y,z: z}),-1.5),1.5);
+                    // let finalYaw = calculateYaw({x: x,y: y,z: z});
+                    // let finalPitch = calculatePitch({x: x,y: y,z: z});
 
                     if (extract("antiBloom")) {
                         // const predictAccuracy = Math.min(Math.max(accuracy+(2*accuracyDiff),ss.yourPlayer.weapon.accuracyMin),ss.yourPlayer.weapon.accuracyMax);
@@ -1555,11 +1565,13 @@
 
                     const antiSnap=1-(extract("aimbotAntiSnap")||0);
 
-                    function lerp(start, end, alpha) {
+                    if (previousTarget!==currentlyTargeting) { targetingComplete=false };
+
+                    function lerp(start, end, alpha, player) {
                         let value = (1 - alpha ) * start + alpha * end;
-                        if (Math.abs(end - start) < 0.1) {
-                            value = end;
-                        }
+                        if ((Math.abs(end - start) < 0.1) || (targetingComplete)) {
+                            value = end; targetingComplete=true;
+                        };
                         return value
                     };
 
@@ -1602,8 +1614,8 @@
                 };
             } else {
                 currentlyTargeting=false;
-                if (!extract("aimbot"))
-                {
+                targetingComplete=false;
+                if (!extract("aimbot")) {
                     highlightCrossHairReticleDot(ss, false);
                 };
             };
