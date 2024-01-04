@@ -1,13 +1,24 @@
+# StateFarm Client for Shell Shockers
+
+Hack Client for Shell Shockers (shellshock.io). The most feature rich and powerful client to exist for the game. 
+
+It includes **aimbot**, **ESP**, **blooms hacks**, **custom binding**, **highly customisable modules**, **chat mods** and much more.
+
 ![Discord Shield](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=shield)
-# State Farm Client
 
-Hack Client for Shell Shockers(shellshock.io). The most feature rich and powerful client to exist for the game, with custom binding, highly customisable modules, chat mods and more.
+- _**Join the [Discord](https://discord.gg/6kzNpHFRSN) server for the latest news**_.
 
-Join the discord server for the latest news: https://discord.gg/6kzNpHFRSN
 
-For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
+- _**Check out our [Github repository](https://github.com/Hydroflame522/StateFarmClient)**_.
 
-Info accurate as of release version 3.1.2
+
+- _**Download the client from [Greasyfork](https://greasyfork.org/en/scripts/482982-statefarm-client-v3)**_.
+
+
+
+>For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
+
+>Information accurate as of Statefarm client v3.1.4.
 
 # Table of Contents
 
@@ -30,9 +41,10 @@ Before you can install the client, there are a few things you must set up to be 
 
 Now you are ready to install StateFarm Client:
 
-3.  Go to the releases tab of this GitHub or download the latest client release from the discord server (listed above in this description).
+3.  Go to the Github repository and download/copy [StateFarmClient.js](https://github.com/Hydroflame522/StateFarmClient/blob/main/StateFarmClient.js).
+4. **Or** visit to the [Greasyfork script](https://greasyfork.org/en/scripts/482982-statefarm-client-v3).
     
-4.  Download the client and install it into Tampermonkey.
+5.  Download the client and install it into your userscript manager of choice.
     
 
 You are done with installation!
@@ -48,7 +60,9 @@ You are done with installation!
     -   _**Pointing At**_: Closest to direction the camera is pointing.
     -   _**Proximity**_: Closest in distance to player.
 -   _**ToggleRM**_: allows for aimbot to be controlled by use of the right mouse button. This option makes it so that the player only locks on while right mouse is held.
--   _**Lock On**_: makes it so that while targeting a player, the target does not switch to another one until aimbot is turned back on.
+-   _**AntiBloom**_: locks the predicted bloom point on to the target player instead of the center crosshair.
+- _**AntiSwitch**_: prevents the aimbot from changing targets
+- _**1kill**_: disables aimbot after 1 kill
 -   _**Prediction**_: predicts where the player will be when bullet reaches them. Works well! Currently working on nearer to 100% y axis accuracy.
 -   _**Antisnap**_: fairly useless feature which creates a smoother transition between selecting a target and focusing on it. Thought it would look less suspect, but does not help greatly.
 -   _**AntiSneak**_: Default distance of 1.8, automatically detects and autokills players within this range. Set to 0 to cancel feature.
@@ -59,9 +73,9 @@ You are done with installation!
 -   _**Aimbot ESP Color**_: the color that should be used to highlight the ESP of a targeted player.
 -   _**Auto Refill**_: refills once ammo is used up.
 -   _**Auto Fire**_: fires when locked onto target player. More fun than useful.
--   _**GrenadeMAX**_: sets all grenades thrown to max power.
+-   _**GrenadeMAX**_: sets grenades to be thrown to max power without the need of charging.
 
-![combat tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/combat.png)
+![combat tab](https://cdn.discordapp.com/attachments/898816619344699436/1192292156094808184/image.png)
 > _The current player being targeted in the leaderboard in highlighted blue._
 > _Crosshair becomes blue when aimbot is enabled._
 ## Render Tab:
@@ -92,13 +106,14 @@ You are done with installation!
 -   _**Ammo/Grenades ESP Color**_: self explanatory.
 -   _**FOV**_: changes fov which you see the map ingame. Higher will zoom out more (above 180 will invert).
 -   _**Zoom FOV**_: changes the FOV at which to switch to while holding down the bind related to it (default C). Lower will zoom in more.
+-   _**ShowBloom**_: shows the bloom of the next shot as a red dot on screen.
 -   _**CamWIP**_: one day could be freecam. Currently just moves the camera up a bit.
 -   _**Co-ords**_: displays current position in top left corner.
 -   _**PlayerStats**_: displays the HP of all the online enemy players.
 -   _**Wireframe**_: renders everything as a wireframe.
 -   _**Egg size**_: changes size of eggs for lulz.
 
-![render tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/render.png)
+![render tab](https://cdn.discordapp.com/attachments/898816619344699436/1192291516308271125/image.png)
 ## Chat Tab:
 -   _**InfiniHistory**_: disables the default limiting of history from 5 messages to no limit.
 -   _**DisableFilter**_: see messages which were filtered for other players! Highlighted in red if a message you or someone else sent has been filtered on non-modified games.
@@ -118,6 +133,8 @@ You are done with installation!
 ![Misc tab](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/misc.png)
 ## Client & About:
 -   _**Hide GUI**_: hides upon pressing the button or the keybind (default H).
+-  _**Theme**_: Allows the user to choose from a wide range of themes.
+![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1192290731608506429/image.png)
 -   _**Reduce lag**_: reduces lag that the client causes; bigger numbers for more lag reduction. 
 -   _**Pop-ups**_: suppose you want to be more "stealthy", you can turn off pop-ups.
 -   _**Panic**_: replaces the shell shockers page to a URL of your choice. For educational purposes only.
@@ -134,7 +151,9 @@ With the exception of the color pickers and some links, these should all be bind
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#gameplay-strategies)Gameplay Strategies:
 -   _**Choose your weapon wisely**_: StateFarm client synergises with certain weapons better than others, use them to your advantage. 
 > Aimbot (especially with prediction enabled) is powerful with weapons that require high levels of aim, and weak with weapons that do not rely on aiming.
-> 
+>
+> Bloom hacks are powerful with weapons with bigger blooms, such as the crackshot.
+
 |                |Aimbot synergies                 |Strategy                       |
 |----------------|-------------------------------|-----------------------------|
 |Eggk47![eggk-47](https://cdn.discordapp.com/attachments/898816619344699436/1188361999319580673/latest.png)|Close-mid range fights      |Jump around erratically while emptying magazine with aimbot locked on
@@ -195,18 +214,21 @@ _**Common detection Methods:**_
 |       Know Issues         |  Solution                                                |
 |----------------|---------------------------------------------|
 |Stuck on Shellshockers loading screen|Press Crtl + F5(or fn + F5) until "Script Injected" in shown. This performs a 'hard reset', discarding any cached files which could be causing issues.
+|Minor bloom prediction inaccuracy|N/A
 
 > If you have any issues, feel free to contact us in our discord server.
 > [https://discord.gg/HJuZ24jG](https://discord.gg/6kzNpHFRSN)
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
 
+ - **Hydroflame521** for founding the project.
+- **Hydroflame521**, **onlypuppy7**, **porcupane**, and **not_food**. for development.
 
-- Hydroflame521, onlypuppy7, porcupane, and not_food. for development
-- susdung for README additions, such as the ban circumvention info.
-- Zertelius (3.1.1 and later): for inspiration of the project.
-- Zeraliuous (prior to 3.1.1): for angles, rendering and other hooks. Credit also for base code (removed in 3.1.1).
+- **susdung** for README additions.
+
+- **Zertalious**: for inspiration of the project.
+
 
 ## Disclaimer:
 
-We are not responsible for your loss of friends or poor reputation if you use StateFarm client. It certainly will make them upset so we would advise against it. If you use this in public lobbies, everyone will hate you, and you risk getting banned and having your stats reset.
+We would like to emphasize that we cannot be held accountable for any negative consequences, such as the loss of friendships or a tarnished reputation, that may arise from your decision to use StateFarm client. It is highly likely that such a choice will result in significant displeasure among those around you. We strongly discourage using StateFarm in public lobbies, as it may lead to widespread animosity, potential bans, and the reset of your statistics.
