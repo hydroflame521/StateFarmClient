@@ -748,11 +748,12 @@
     const distancePlayers = function (yourPlayer,player) {
         return Math.hypot(player.x-yourPlayer.x,player.y-yourPlayer.y,player.z-yourPlayer.z ); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
+    const setPrecision = function (value) { return Math.floor(value * 8192) / 8192 };
     const calculateYaw = function (pos) {
-        return Math.floor(Math.mod(Math.atan2(pos.x,pos.z), Math.PI2) * 8192) / 8192 //required precision
+        return setPrecision(Math.mod(Math.atan2(pos.x,pos.z), Math.PI2)) //required precision
     };
     const calculatePitch = function (pos) {
-        return (-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
+        return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
     };
     const isPartialMatch = function (array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
@@ -1546,13 +1547,11 @@
 
                     let finalYaw = calculateYaw({x: x,y: y,z: z});
                     let finalPitch = calculatePitch({x: x,y: y,z: z});
-                    // let finalYaw = calculateYaw({x: x,y: y,z: z});
-                    // let finalPitch = calculatePitch({x: x,y: y,z: z});
 
                     if (extract("antiBloom")) {
                         // const predictAccuracy = Math.min(Math.max(accuracy+(2*accuracyDiff),ss.yourPlayer.weapon.accuracyMin),ss.yourPlayer.weapon.accuracyMax);
                         const bloomValues=predictBloom(ss,finalYaw,finalPitch);
-                        finalYaw    =finalYaw+(bloomValues[0]);
+                        finalYaw  =finalYaw  +(bloomValues[0]);
                         finalPitch=finalPitch+(bloomValues[1]);
                     };
 
@@ -1569,8 +1568,8 @@
                     };
 
                     // Exponential lerp towards the target rotation
-                    ss.yourPlayer.yaw = lerp(ss.yourPlayer.yaw, finalYaw, antiSnap);
-                    ss.yourPlayer.pitch = lerp(ss.yourPlayer.pitch, finalPitch, antiSnap);
+                    ss.yourPlayer.yaw = setPrecision(lerp(ss.yourPlayer.yaw, finalYaw, antiSnap));
+                    ss.yourPlayer.pitch = setPrecision(lerp(ss.yourPlayer.pitch, finalPitch, antiSnap));
                     if (extract("antiSneak")!==0) {
                         let acceptableDistance = extract("antiSneak");
                         if ( minimumDistance < acceptableDistance) {
