@@ -1030,12 +1030,13 @@
     const predictBloom = function(ss,yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
         let seed = ss.yourPlayer.randomGen.seed;
         let numbers = [];
-        const min = ss.weapons.classes[2].weapon.accuracyMax; //confused? max is most accurate it can be, the least from the center. so the smaller value.
-        const max = ss.weapons.classes[2].weapon.accuracyMin;
-        const predictNextFrameBloom = Math.max(Math.min(accuracy+accuracyDiff,max),min)
+        // const min = ss.weapons.classes[2].weapon.accuracyMax; //confused? max is most accurate it can be, the least from the center. so the smaller value.
+        // const max = ss.weapons.classes[2].weapon.accuracyMin;
+        // const predictNextFrameAccuracy = Math.max(Math.min(accuracy+accuracyDiff,max),min) //after testing, this is useless and sometimes makes it worse. will delete maybe later
+
         for (var i = 0; i < 3; i++) { //generate from seed the values used to scatter shot
             seed = (seed * 9301 + 49297) % 233280;
-            numbers.push(((seed/233280)-0.5)*predictNextFrameBloom);
+            numbers.push(((seed/233280)-0.5)*accuracy);
         };
         const range = ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.range;
         const playerYPRMatrixThing = ss.BABYLON.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
@@ -1044,8 +1045,18 @@
         const bloomMatrix = ss.BABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
         const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
         const finalBulletTranslation = finalBulletMatrix.getTranslation();
-        const yawDiff = radianAngleDiff(yaw,calculateYaw(finalBulletTranslation))
-        const pitchDiff = radianAngleDiff(pitch,calculatePitch(finalBulletTranslation))
+        const bulletYaw = calculateYaw(finalBulletTranslation);
+        const bulletPitch = calculatePitch(finalBulletTranslation);
+        const yawDiff = radianAngleDiff(yaw,bulletYaw)
+        const pitchDiff = radianAngleDiff(pitch,bulletPitch)
+
+        console.log("current accuracy: ",accuracy)
+        console.log("input yaw: ",yaw)
+        console.log("input pitch: ",pitch)
+        console.log("calculated bullet yaw: ",bulletYaw)
+        console.log("calculated bullet pitch: ",bulletPitch)
+        console.log("therefore yaw diff: ",yawDiff)
+        console.log("therefore pitch diff: ",pitchDiff)
 
         return [yawDiff,pitchDiff];
     };
@@ -1142,20 +1153,21 @@
 
                     //trajectories
                     //bullet debugging
-                //     code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
-                //     console.log("##################################################");
-                //     console.log("______PLAYER FIRED FUNCTION");
-                //     console.log("Player Name: ",t.name);
-                //     console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
-                //     console.log("Actual Bullet Yaw: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
-                // `);
-                //     code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
-                //     console.log("##################################################");
-                //     console.log("______IN FIRE FUNCTION");
-                //     console.log("Range Number: ",this.constructor.range);
-                //     console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
-                //     console.log("Actual Bullet Yaw: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
-                // `);
+                    code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+                    console.log("##################################################");
+                    console.log("______PLAYER FIRED FUNCTION");
+                    console.log("Player Name: ",t.name);
+                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
+                    console.log("Actual Bullet Yaw: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
+                `);
+                    code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+                    console.log("##################################################");
+                    console.log("______IN FIRE FUNCTION");
+                    console.log("Range Number: ",this.constructor.range);
+                    console.log("Accuracy: ",this.accuracy);
+                    console.log("Actual Bullet Pitch: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
+                    console.log("Actual Bullet Yaw: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
+                `);
                     // code = code.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
                     // code = code.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
                     // code = code.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
