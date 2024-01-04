@@ -160,7 +160,7 @@ With the exception of the color pickers and some links, these should all be bind
 > BWD has appointed **Eggforcers** that will ban cheaters by **first-person spectating** them.
 > If you use a private window and VPN, then you don't have anything to worry about. However, if you don't, or you want to use an account, or you're just interested, we've compiled some info below.
 
-_**Common detection Methods**_:
+_**Common detection Methods:**_
 > Eggforcers (normal players too) will look for the following actions in your gameplay to detection cheating. Avoid overusing them to an extent.
 - _**Snapping**_: Immediately locking on to another player after a kill/distance change (use AntiSnap, or only lock on when you have moved the reticle close to the player, or both).
 - _**Wall locking**_: Locking on to player though walls.
@@ -172,21 +172,21 @@ _**Common detection Methods**_:
 **Boot Circumvention:**
 > This is circumvented only by using a new IP, or waiting for the host to create a new game.
 
-**"Banning"**:
+**"Banning":**
 
 ![ban](https://cdn.discordapp.com/attachments/977271202924097588/1186465326192402614/image.png)
 
 > This is the "ban" interface. It allows "banning" of 5, 15, and 60 minutes. Can only be used by Developers/Eggforcers.
 > This is mainly in place to make people feel like they have power, when in fact this is the most useless measure against cheaters.
 
-**"Ban" Circumvention**:
+**"Ban" Circumvention:**
 > It is advised to not use an account while using Statefarm, as this method of punishment will apply to your account/browser session.
 > If you are "banned", simply deleted cookies and cache of the site and go back (and change account, if you use one).
 
-**Real Bans:**:
+**Real Bans:**
 > These are only given by the actual developers of the game, who can see the logs and IPs of players. Their tools are more advanced than those of Eggforcer "bans" and can permanently IP ban a user.
 
-**Real Ban Circumvention:**:
+**Real Ban Circumvention:**
 > As these are very rare, we have not been able to analyse one of these bans. However, it can be assumed it works like booting, but for the whole game. VPNs/proxies would most likely work just fine.
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#issues-and-troubleshooting)Issues and Troubleshooting
