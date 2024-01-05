@@ -1029,8 +1029,8 @@
         if (arr[0] == 49) { // comm code 49 = client to server grenade throw
             if (extract("grenadeMax")) {
                 arr[1] = 255;
-                return arr.buffer;
                 console.log("StateFarm: modified a grenade packet to be at full power");
+                return arr.buffer;
             } else {
                 console.log("StateFarm: didn't modify grenade packet")
             };
