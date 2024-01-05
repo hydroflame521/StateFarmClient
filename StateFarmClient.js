@@ -1080,15 +1080,15 @@
         const bulletPitch = calculatePitch(finalBulletTranslation);
         const yawBulletDiff = radianAngleDiff(yaw,bulletYaw)
         const pitchBulletDiff = radianAngleDiff(pitch,bulletPitch)
-        console.log("current accuracy: ",accuracy)
-        console.log("input yaw: ",yaw)
-        console.log("input pitch: ",pitch)
-        console.log("diff yaw/pitch",yawDiff,pitchDiff)
-        console.log("predicted yaw/pitch",predictedYaw,predictedPitch)
-        console.log("calculated bullet yaw: ",bulletYaw)
-        console.log("calculated bullet pitch: ",bulletPitch)
-        console.log("therefore yaw diff: ",yawBulletDiff)
-        console.log("therefore pitch diff: ",pitchBulletDiff)
+        //console.log("current accuracy: ",accuracy)
+        //console.log("input yaw: ",yaw)
+        //console.log("input pitch: ",pitch)
+        //console.log("diff yaw/pitch",yawDiff,pitchDiff)
+        //console.log("predicted yaw/pitch",predictedYaw,predictedPitch)
+        //console.log("calculated bullet yaw: ",bulletYaw)
+        //console.log("calculated bullet pitch: ",bulletPitch)
+        //console.log("therefore yaw diff: ",yawBulletDiff)
+        //console.log("therefore pitch diff: ",pitchBulletDiff)
 
         return [yawBulletDiff,pitchBulletDiff];
     };
