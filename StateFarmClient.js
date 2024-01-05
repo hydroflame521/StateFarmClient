@@ -88,6 +88,8 @@
     let pitchCache=0;
     let pitchDiff=0;
     let targetingComplete=false;
+    let yourPlayerKills = 0;
+    let currentlyTargetingName = "none";
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
@@ -325,6 +327,8 @@
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Filter Bypass", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "mockMode", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "chatOnKill", storeAs: "chatOnKill", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
                 initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 0, max: 60000, step: 10}, defaultValue: 500,});
                 initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm On Top! ",});
@@ -970,7 +974,7 @@
         //console.log(arr);
         return arr.buffer;
     };
-    
+
     const extractChatPacket = function (packet) {
         if (!(packet instanceof ArrayBuffer)) {
             var pack_arr = new Uint8Array(packet);
@@ -986,7 +990,7 @@
 
         return str;
 
-        
+
     }
 
     const reverse_string = function (str) {
@@ -1011,8 +1015,8 @@
 
             return constructed;
         }
-        
-        return packet;  
+
+        return packet;
     }
 
     const modifyPacket = function (data) {
@@ -1468,14 +1472,34 @@
             if ( extract("freecam") ) {
                 ss.yourPlayer.actor.mesh.position.y = ss.yourPlayer.actor.mesh.position.y + 1;
             };
-
             if ( extract("spamChat") ) {
                 if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
                     sendChatMessage(extract("spamChatText")+(Date.now().toString()).substring((Date.now().toString()).length - 3));
                     lastSpamMessage=Date.now()
                 };
             };
-
+            if ( extract("mockMode") ) {
+                let lastMessage = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].textContent;
+                let textAfterLastColon = lastMessage.substring(lastMessage.lastIndexOf(':') + 1).trim();
+                let chatName = lastMessage.substring(0, lastMessage.lastIndexOf(':')).trim();
+                if (chatName !== ss.yourPlayer?.name)
+                {
+                    sendChatMessage(textAfterLastColon);
+                }//mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
+            }
+            if ( extract("chatOnKill") ) {
+                if (ss.yourPlayer.score !== yourPlayerKills)
+                {
+                    yourPlayerKills = ss.yourPlayer.score;
+                    if(ss.yourPlayer?.playing)
+                    {
+                        sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
+                    }
+                    else{
+                        sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
+                    }
+                }//chatOnKill
+            }
             if ( extract("showCoordinates") ) {
                 const fonx = Number((ss.yourPlayer.actor.mesh.position.x).toFixed(3));
                 const fony = Number((ss.yourPlayer.actor.mesh.position.y).toFixed(3));
@@ -1569,6 +1593,7 @@
                                         currentlyTargeting = player;
                                     };
                                 };
+                                currentlyTargetingName = currentlyTargeting?.name;
                             };
                         };
                     };
