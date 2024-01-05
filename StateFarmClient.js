@@ -998,11 +998,13 @@
     const chatPacketHandler = function (packet) {
         if (extract("chatFilterBypass")) {
             string = extractChatPacket(packet);
-            new_str = [UNICODE_RTL_OVERRIDE] + reverse_string(string);
-            return constructChatPacket(new_str);
+            new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(string).split(""))).join("");
+            var constructed =  constructChatPacket(new_str);
+            console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
+            return constructed;
         }
         
-        return packet;
+        return packet;  
     }
 
     const modifyPacket = function (data) {
@@ -1025,7 +1027,7 @@
                 console.log("StateFarm: didn't modify grenade packet")
             };
         } else if (arr[0] == 4) {
-            console.log('%c Chat packet sent', css);
+            console.log('%c Chat packet sent, chat handler!!!', css);
             return chatPacketHandler(data);
         } else {
 
@@ -1187,11 +1189,11 @@
                     //trajectories
                     //bullet debugging
                     code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
-                    console.log("##################################################");
-                    console.log("______PLAYER FIRED FUNCTION");
-                    console.log("Player Name: ",t.name);
-                    console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
-                    console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
+                    //console.log("##################################################");
+                    //console.log("______PLAYER FIRED FUNCTION");
+                    //console.log("Player Name: ",t.name);
+                    //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
+                    //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
                 `);
                     code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
                     console.log("##################################################");
