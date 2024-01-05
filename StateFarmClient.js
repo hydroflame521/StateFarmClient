@@ -962,6 +962,41 @@
             };
         };
     };
+    const handleChat = function (textAfterLastColon) {
+        const responses = {
+            "report": "report me? pffft. I'm not even human",
+            "bot": "you're a booooT",
+            "stop": "u stop",
+            "aimbot": "what aimboot?",
+            "cheat": "sham bam bam banned who? not me",
+            "bro": "brooooo what",
+            "lmao": "heeheeheehaw",
+            "lol": "lolzedong",
+            "bruh": "large BRUH",
+            "dude": "dudeinator3000: what is your request",
+            "what": "dude what",
+            "tf": "toasted fries",
+            "wtf": "watch your profanity",
+            "i'm": "yes you are",
+            "im": "yes you are",
+            "imagine": "imagine who asked",
+            "f u": "funny uncleburger",
+            "gg": "good grief",
+            "code": "A1BXDQ is the code",
+        };
+
+        const foundKeywords = Object.keys(responses).filter(keyword =>
+                                                            textAfterLastColon.toLowerCase().includes(keyword.toLowerCase())
+                                                           );
+
+        if (foundKeywords.length > 0) {
+            const firstKeyword = foundKeywords[0];
+            sendChatMessage(responses[firstKeyword]);
+            console.log(firstKeyword);
+            return true;
+        }
+        return false;
+    };
     const constructChatPacket = function (str) {
         if (str.length > 255) {
             console.log('%c UH OH UR PACKET IS TOO LONG!!!!', css);
@@ -979,7 +1014,7 @@
         //console.log(arr);
         return arr.buffer;
     };
-    
+
     const extractChatPacket = function (packet) {
         if (!(packet instanceof ArrayBuffer)) {
             var pack_arr = new Uint8Array(packet);
@@ -1479,14 +1514,11 @@
                 };
             };
             if (extract("mockMode")) {
-                let lastMessage = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].textContent;
-                let firstColonIndex = lastMessage.indexOf(':');
-                let chatName = lastMessage.substring(0, firstColonIndex).trim();
+                let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
+                let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
                 console.log("Chat Name:", chatName);
-                let textAfterFirstColon = lastMessage.substring(firstColonIndex + 1).trim();
-
-                if (chatName && chatName!==ss.yourPlayer?.name) {
-                    sendChatMessage(textAfterFirstColon);
+                if (chatName && chatName!==ss.yourPlayer?.name && !handleChat(textAfterLastColon)) {
+                    sendChatMessage(textAfterLastColon);
                 }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
             };
 
