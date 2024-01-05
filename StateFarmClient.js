@@ -83,6 +83,7 @@
     let binding=false;
     let lastSpamMessage=0;
     let lastAntiAFKMessage=0;
+    let lastSentMessage="";
     let yawCache=0;
     let yawDiff=0;
     let pitchCache=0;
@@ -322,16 +323,18 @@
         initTab({ location: tp.chatFolder, storeAs: "chatTab" })
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
-            initModule({ location: tp.chatTab.pages[0], title: "DisableFilter", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "ShowFiltered", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "BypassFilter", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});;
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "Filter Bypass", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "mockMode", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "chatOnKill", storeAs: "chatOnKill", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
                 initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 0, max: 60000, step: 10}, defaultValue: 500,});
                 initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm On Top! ",});
+            initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
+                initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.trollingFolder, title: "AutoEZ", storeAs: "autoEZ", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.trollingFolder, title: "CheatAccuse", storeAs: "cheatAccuse", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Join/Leave Msgs Options", storeAs: "joinLeaveFolder",});
                 initModule({ location: tp.joinLeaveFolder, title: "Join Msgs", storeAs: "joinMessages", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.joinLeaveFolder, title: "Leave Msgs", storeAs: "leaveMessages", bindLocation: tp.chatTab.pages[1],});
@@ -754,6 +757,7 @@
     const calculatePitch = function (pos) {
         return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
     };
+    const reverse_string = function (str) { return str.split("").reverse().join("") };
     const isPartialMatch = function (array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
     };
@@ -873,6 +877,7 @@
         config=tp.pane.exportPreset();
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
+        lastSentMessage=text;
         chatThing=document.getElementById('chatIn');
         if (chatThing) {
             extern.startChat();
@@ -974,50 +979,33 @@
         //console.log(arr);
         return arr.buffer;
     };
-
+    
     const extractChatPacket = function (packet) {
         if (!(packet instanceof ArrayBuffer)) {
             var pack_arr = new Uint8Array(packet);
         } else {
             var pack_arr = packet;
-        }
-
+        };
         var str = "";
-
         for (var i = 0; i < pack_arr[1]; i++) {
             str += String.fromCharCode(pack_arr[2 * i + 2] + (pack_arr[2 * i + 3] << 8)); // ripped straight outta unpackInt16 (thanks github copilot)
-        }
-
+        };
         return str;
-
-
-    }
-
-    const reverse_string = function (str) {
-        return str.split("").reverse().join("");
-    }
-
-    const UNICODE_RTL_OVERRIDE = '\u202e'
+    };
 
     const chatPacketHandler = function (packet) {
-        if (extract("chatFilterBypass")) {
-
-            string = extractChatPacket(packet);
-
-            if ('AntiAFK' in string) {
-                return packet;
-            };
-
-            new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(string).split(""))).join("");
-            var constructed =  constructChatPacket(new_str);
-
-            //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
-
-            return constructed;
-        }
-
-        return packet;
-    }
+        return packet; //icl idk how this stuff works lol
+        // if (extract("chatFilterBypass")) {
+        //     string = extractChatPacket(packet);
+        //     if ('AntiAFK' in string) {
+        //         return packet;
+        //     };
+        //     new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(string).split(""))).join("");
+        //     var constructed =  constructChatPacket(new_str);
+        //     //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
+        //     return constructed;
+        // };
+    };
 
     const modifyPacket = function (data) {
         if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
@@ -1123,6 +1111,16 @@
             // yourPlayer.yaw=1;
             return;
         };
+        window.modifyChat = function(msg) {
+            console.log(msg,lastSentMessage);
+            if (msg!==lastSentMessage) { //not spammed or afked
+                if (extract("chatFilterBypass")) {
+                    const UNICODE_RTL_OVERRIDE = '\u202e'
+                    msg = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(msg).split(""))).join("");
+                };
+            };
+            return msg
+        };
         class ModifiedXMLHttpRequest extends window.XMLHttpRequest {
             open(method, url) {
                 if (url.includes('shellshock.js')) {
@@ -1193,8 +1191,9 @@
                     if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
                     //reset join/leave msgs
                     code = code.replace(',console.log("joinGame()',',window.newGame=true,console.log("value changed, also joinGame()');
-
-
+                    //bypass chat filter
+                    match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(code)[1];
+                    code=code.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
 
                     //replace graveyard:
 
@@ -1472,34 +1471,36 @@
             if ( extract("freecam") ) {
                 ss.yourPlayer.actor.mesh.position.y = ss.yourPlayer.actor.mesh.position.y + 1;
             };
+
             if ( extract("spamChat") ) {
                 if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
                     sendChatMessage(extract("spamChatText")+(Date.now().toString()).substring((Date.now().toString()).length - 3));
                     lastSpamMessage=Date.now()
                 };
             };
-            if ( extract("mockMode") ) {
+            if (extract("mockMode")) {
                 let lastMessage = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].textContent;
-                let textAfterLastColon = lastMessage.substring(lastMessage.lastIndexOf(':') + 1).trim();
-                let chatName = lastMessage.substring(0, lastMessage.lastIndexOf(':')).trim();
-                if (chatName !== ss.yourPlayer?.name)
-                {
-                    sendChatMessage(textAfterLastColon);
-                }//mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
-            }
-            if ( extract("chatOnKill") ) {
-                if (ss.yourPlayer.score !== yourPlayerKills)
-                {
+                let firstColonIndex = lastMessage.indexOf(':');
+                let chatName = lastMessage.substring(0, firstColonIndex).trim();
+                console.log("Chat Name:", chatName);
+                let textAfterFirstColon = lastMessage.substring(firstColonIndex + 1).trim();
+
+                if (chatName && chatName!==ss.yourPlayer?.name) {
+                    sendChatMessage(textAfterFirstColon);
+                }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
+            };
+
+            if (extract("autoEZ")||extract("cheatAccuse")) {
+                if (ss.yourPlayer.score !== yourPlayerKills) {
                     yourPlayerKills = ss.yourPlayer.score;
-                    if(ss.yourPlayer?.playing)
-                    {
+                    if (ss.yourPlayer?.playing && extract("autoEZ")) {
                         sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
-                    }
-                    else{
+                    } else if (extract("cheatAccuse")) {
                         sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
-                    }
-                }//chatOnKill
-            }
+                    };
+                }; //chatOnKill
+            };
+
             if ( extract("showCoordinates") ) {
                 const fonx = Number((ss.yourPlayer.actor.mesh.position.x).toFixed(3));
                 const fony = Number((ss.yourPlayer.actor.mesh.position.y).toFixed(3));
