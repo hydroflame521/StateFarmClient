@@ -91,6 +91,7 @@
     let targetingComplete=false;
     let yourPlayerKills = 0;
     let currentlyTargetingName = "none";
+    let username = "";
     const allModules=[];
     const allFolders=[];
     const isKeyToggled={};
@@ -360,6 +361,12 @@
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "ShowStreams", storeAs: "showStreams", bindLocation: tp.miscTab.pages[1],});
+            // initModule({ location: tp.miscTab.pages[0], title: "Upside Down", storeAs: "upsideDown", bindLocation: tp.miscTab.pages[1],});
+            initFolder({ location: tp.miscTab.pages[0], title: "Seizure Options", storeAs: "seizureFolder",});
+                initModule({ location: tp.seizureFolder, title: "SeizureX", storeAs: "enableSeizureX", bindLocation: tp.miscTab.pages[1],});
+                initModule({ location: tp.seizureFolder, title: "X Amount", storeAs: "amountSeizureX", slider: {min: -10, max: 10, step: 0.01}, defaultValue: 2,});
+                initModule({ location: tp.seizureFolder, title: "SeizureY", storeAs: "enableSeizureY", bindLocation: tp.miscTab.pages[1],});
+                initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: {min: -10, max: 10, step: 0.01}, defaultValue: 2,});
         //CLIENT MODULES
         initFolder({ location: tp.pane, title: "Client & About", storeAs: "clientFolder",});
         initTab({ location: tp.clientFolder, storeAs: "clientTab" })
@@ -863,6 +870,14 @@
         allFolders.forEach(function (name) {
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
+        if (extract("mockMode")) {
+            let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
+            let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
+            console.log("Chat Name:", chatName);
+            if (chatName && chatName!==username && textAfterLastColon!=="joined." && textAfterLastColon!=="left." && !handleChat(textAfterLastColon)) {
+                sendChatMessage(textAfterLastColon);
+            }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
+        };
         if (extract("antiAFK")) {
             if (Date.now()>(lastAntiAFKMessage+270000)) {
                 sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
@@ -1328,6 +1343,7 @@
                 console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
                 loggedGameMap.logged = true;
             };
+            username=ss.yourPlayer?.name;
 
             crosshairsPosition.copyFrom(ss.yourPlayer.actor.mesh.position);
             const horizontalOffset = Math.sin(ss.yourPlayer.actor.mesh.rotation.y);
@@ -1523,14 +1539,6 @@
                     lastSpamMessage=Date.now()
                 };
             };
-            if (extract("mockMode")) {
-                let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
-                let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
-                console.log("Chat Name:", chatName);
-                if (chatName && chatName!==ss.yourPlayer?.name && textAfterLastColon!=="joined." && textAfterLastColon!=="left." && !handleChat(textAfterLastColon)) {
-                    sendChatMessage(textAfterLastColon);
-                }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
-            };
 
             if (extract("autoEZ")||extract("cheatAccuse")) {
                 if (ss.yourPlayer.score !== yourPlayerKills) {
@@ -1652,9 +1660,9 @@
                     if (extract("prediction")) {
                         const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
                         const timeToReachTarget = distanceBetweenPlayers/bulletSpeed;
-                        x += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        y += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        z += + (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        x += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        y += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
+                        z += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
                     };
 
                     let finalYaw = calculateYaw({x: x,y: y,z: z});
@@ -1722,9 +1730,20 @@
                 if (!extract("aimbot")) {
                     highlightCrossHairReticleDot(ss, false);
                 };
+                if (extract("enableSeizureX")) {
+                    ss.yourPlayer.yaw+=extract("amountSeizureX")
+                };
+                if (extract("enableSeizureY")) {
+                    ss.yourPlayer.pitch+=extract("amountSeizureY")
+                };
             };
             yawCache=ss.yourPlayer.yaw;
             pitchCache=ss.yourPlayer.pitch;
+            if (extract("upsideDown")) {
+                if (ss.yourPlayer.pitch<1.5 && ss.yourPlayer.pitch>-1.5) {
+                    ss.yourPlayer.pitch=Math.PI;
+                };
+            };
         };
     };
 
