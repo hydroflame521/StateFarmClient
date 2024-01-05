@@ -1517,7 +1517,7 @@
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
                 let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
                 console.log("Chat Name:", chatName);
-                if (chatName && chatName!==ss.yourPlayer?.name && !handleChat(textAfterLastColon)) {
+                if (chatName && chatName!==ss.yourPlayer?.name && textAfterLastColon!=="joined." && textAfterLastColon!=="left." && !handleChat(textAfterLastColon)) {
                     sendChatMessage(textAfterLastColon);
                 }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
             };
