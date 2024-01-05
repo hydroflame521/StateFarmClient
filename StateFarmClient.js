@@ -323,6 +323,7 @@
             initModule({ location: tp.chatTab.pages[0], title: "DisableFilter", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "Filter Bypass", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
                 initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 0, max: 60000, step: 10}, defaultValue: 500,});
@@ -969,6 +970,41 @@
         //console.log(arr);
         return arr.buffer;
     };
+    
+    const extractChatPacket = function (packet) {
+        if (!(packet instanceof ArrayBuffer)) {
+            var pack_arr = new Uint8Array(packet);
+        } else {
+            var pack_arr = packet;
+        }
+
+        var str = "";
+
+        for (var i = 0; i < pack_arr[1]; i++) {
+            str += String.fromCharCode(pack_arr[2 * i + 2] + (pack_arr[2 * i + 3] << 8)); // ripped straight outta unpackInt16 (thanks github copilot)
+        }
+
+        return str;
+
+        
+    }
+
+    const reverse_string = function (str) {
+        return str.split("").reverse().join("");
+    }
+
+    const UNICODE_RTL_OVERRIDE = '\u202e'
+
+    const chatPacketHandler = function (packet) {
+        if (extract("chatFilterBypass")) {
+            string = extractChatPacket(packet);
+            new_str = [UNICODE_RTL_OVERRIDE] + reverse_string(string);
+            return constructChatPacket(new_str);
+        }
+        
+        return packet;
+    }
+
     const modifyPacket = function (data) {
         if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
             return data;
@@ -990,7 +1026,7 @@
             };
         } else if (arr[0] == 4) {
             console.log('%c Chat packet sent', css);
-            return data;
+            return chatPacketHandler(data);
         } else {
 
         };
