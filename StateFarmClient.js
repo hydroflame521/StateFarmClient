@@ -964,12 +964,15 @@
     };
     const handleChat = function (textAfterLastColon) {
         const responses = {
-            "report": "report me? pffft. I'm not even human",
+            "report": "report me? pffft. i'm not even human",
             "bot": "you're a booooT",
             "stop": "u stop",
             "aimbot": "what aimboot?",
             "cheat": "sham bam bam banned who? not me",
             "bro": "brooooo what",
+            "spam": "me, spamming? im just chatting",
+            "mute": "you dont want to listen to me talk? how weak hahaha",
+            "ban": "ban me? no free speech these days",
             "lmao": "heeheeheehaw",
             "lol": "lolzedong",
             "bruh": "large BRUH",
@@ -979,9 +982,16 @@
             "wtf": "watch your profanity",
             "i'm": "yes you are",
             "im": "yes you are",
+            "u r": "no im not. proof?",
+            "you r": "no im not. proof?",
+            "you are": "no im not. proof?",
+            "you're": "no im not. proof?",
             "imagine": "imagine who asked",
             "f u": "funny uncleburger",
             "gg": "good grief",
+            "shut up": "B͇͈͉͍͎̽̾̿̀́͂̓̈́͆͊͋͌͗ͅ͏͎͗͏͇͇̽̾̿̀́̽̿̀̀́̽̀͆̓̈́̓͋͌ͅ͏͌͏͎͉͗͗͌̓̓̓̓̓́̿",
+            "stfu": "just reported u for swearing",
+            "loser": "ive been speccing u, cheater",
             "code": "A1BXDQ is the code",
         };
 
