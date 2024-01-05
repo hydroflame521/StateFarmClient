@@ -2,7 +2,9 @@
 
 Hack Client for Shell Shockers (shellshock.io). The most feature rich and powerful client to exist for the game. 
 
-It includes **aimbot**, **ESP**, **blooms hacks**, **custom binding**, **highly customisable modules**, **chat mods** and much more.
+It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly Customisable Modules**, **Chat Mods** and much more.
+
+Subscribe to our low effort channel: https://www.youtube.com/channel/UCHFtwK_KROnWWfvb04ZAFOw
 
 ![Discord Shield](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=shield)
 
