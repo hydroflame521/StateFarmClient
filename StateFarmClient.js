@@ -997,10 +997,18 @@
 
     const chatPacketHandler = function (packet) {
         if (extract("chatFilterBypass")) {
+
             string = extractChatPacket(packet);
+
+            if ('AntiAFK' in string) {
+                return packet;
+            };
+
             new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(string).split(""))).join("");
             var constructed =  constructChatPacket(new_str);
-            console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
+
+            //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
+
             return constructed;
         }
         
