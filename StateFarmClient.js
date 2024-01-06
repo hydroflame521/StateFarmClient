@@ -397,6 +397,7 @@
                     userConfirmed=alert("Reload to reset to defaults.");
                 };
             },});
+            initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
         initModule({ location: tp.pane, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#features")},});
 
         updateConfig();
@@ -832,19 +833,19 @@
         };
         if (!object.generatedESP) {
             //tracers
-            const tracerLines = ss.BABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
-            tracerLines.color=new ss.BABYLON.Color3(1, 1, 1);
+            const tracerLines = ss.BabylonJS.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+            tracerLines.color=new ss.BabylonJS.Color3(1, 1, 1);
             tracerLines.renderingGroupId=1;
             object.tracerLines = tracerLines;
             //ESP
-            const boxMaterial = new ss.BABYLON.StandardMaterial('boxMaterial', newScene);
-            boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(1, 0, 0);
+            const boxMaterial = new ss.BabylonJS.StandardMaterial('boxMaterial', newScene);
+            boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BabylonJS.Color3(1, 0, 0);
             boxMaterial.wireframe = true;
             const boxSize = {
                 playerESP: {width:0.5,height:0.75,depth:0.5},
                 ammoESP: {width: 0.25, height: 0.35, depth: 0.25},
             }
-            const box = ss.BABYLON.MeshBuilder.CreateBox('box',  boxSize[type] , newScene);
+            const box = ss.BabylonJS.MeshBuilder.CreateBox('box',  boxSize[type] , newScene);
             const boxOffset = {
                 playerESP: 0.3,
                 ammoESP: 0,
@@ -858,10 +859,10 @@
             object.generatedESP=true;
             ESPArray.push([tracerLines,box,object]);
         };
-        object.tracerLines.setVerticesData(ss.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-        object.tracerLines.color = new ss.BABYLON.Color3(...color);
+        object.tracerLines.setVerticesData(ss.BabylonJS.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
+        object.tracerLines.color = new ss.BabylonJS.Color3(...color);
         const boxMaterial = object.box.material;
-        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(...color);
+        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BabylonJS.Color3(...color);
     };
     const everySecond = function () {
         coordElement.style.display = 'none';
@@ -873,15 +874,16 @@
         if (extract("mockMode")) {
             let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
             let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
-            console.log("Chat Name:", chatName);
+            // console.log("Chat Name:", chatName);
             if (chatName && chatName!==username && textAfterLastColon!=="joined." && textAfterLastColon!=="left." && !handleChat(textAfterLastColon)) {
                 sendChatMessage(textAfterLastColon);
             }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
         };
         if (extract("antiAFK")) {
             if (Date.now()>(lastAntiAFKMessage+270000)) {
-                sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK");
-                lastAntiAFKMessage=Date.now();
+                if (sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK")) {
+                    lastAntiAFKMessage=Date.now();
+                };
             };
         };
         addStreamsToInGameUI();
@@ -892,19 +894,26 @@
         config=tp.pane.exportPreset();
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
-        lastSentMessage=text;
-        chatThing=document.getElementById('chatIn');
-        if (chatThing) {
-            extern.startChat();
-            chatThing.value=text;
-            chatThing.dispatchEvent(new KeyboardEvent('keydown', {
-                key: 'Enter',
-                code: 'Enter',
-                keyCode: 13,
-                which: 13,
-                bubbles: true,
-                cancelable: true,
-            }))
+        try {
+            lastSentMessage=text;
+            chatThing=document.getElementById('chatIn');
+            if (chatThing && extern.startChat) {
+                extern.startChat();
+                chatThing.value=text;
+                chatThing.dispatchEvent(new KeyboardEvent('keydown', {
+                    key: 'Enter',
+                    code: 'Enter',
+                    keyCode: 13,
+                    which: 13,
+                    bubbles: true,
+                    cancelable: true,
+                }));
+                return true;
+            } else {
+                return false;
+            };
+        } catch (error) {
+            return false
         };
     };
     const addStreamsToInGameUI = function () {
@@ -936,27 +945,24 @@
             };
         };
     };
-    const highlightCurrentlyTargeting = function (currentlyTargeting, players) {
+    const highlightCurrentlyTargeting = function (ss, currentlyTargeting) {
         let playerArray = [];
-        for (let i=0;i<players.length; i++)
-        {
-        player = players[ i ];
+        ss.players.forEach(player=>{
             if ( player && player !== currentlyTargeting && player.playing && ( currentlyTargeting.team === 0 || player.team !== currentlyTargeting.team ) ) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
                 const hp = player.hp
                 playerArray.push({ player, uniqueId, name, hp });
             };
-        };
-        let playerList = document.getElementById("playerList").children;
-        for (let i = 0; i < playerList.length; i++) {
-            if (currentlyTargeting?.playing && currentlyTargeting?.name === playerList[i].textContent.slice(0, -3))//need to slice otherwise won't match properly
-            {
-                playerList[i].style.backgroundColor = 'blue';
-            }
-            else{playerList[i].style.backgroundColor = '';}
-            console.log(playerArray.find(player => player.name === playerList[i].textContent.slice(0, -3))?.hp);
-        };
+        });
+        Array.from(document.getElementById("playerList").children).forEach(playerListItem=>{
+            if (currentlyTargeting?.playing && currentlyTargeting?.name === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
+                playerListItem.style.backgroundColor = 'blue';
+            } else {
+                playerListItem.style.backgroundColor = '';
+            };
+            // console.log(playerArray.find(player => player.name === playerListItem.textContent.slice(0, -3))?.hp);
+        });
     };
     const highlightCrossHairReticleDot = function (ss, bool) {
         let dot = document.getElementById("reticleDot");
@@ -964,17 +970,17 @@
         if (bool){
             let isAmmoFull = ss.yourPlayer.weapon.ammo.rounds === ss.yourPlayer.weapon.ammo.capacity
             dot.style.backgroundColor = isAmmoFull ? 'blue' : '';
-            for(let i=0;i<crosshair.children.length;i++){
-                crosshair.children[i].style.backgroundColor = isAmmoFull ? 'blue' : '';
-                crosshair.children[i].style.padding = isAmmoFull ? '2px' : '';
-            };
+            Array.from(crosshair.children).forEach(part=>{
+                part.style.backgroundColor = isAmmoFull ? 'blue' : '';
+                part.style.padding = isAmmoFull ? '2px' : '';
+            });
         } else {
             dot.style.backgroundColor = '';
             dot.style.padding = '';
-            for(let i=0;i<crosshair.children.length;i++){
-                crosshair.children[i].style.backgroundColor = '';
-                crosshair.children[i].style.padding = '';
-            };
+            Array.from(crosshair.children).forEach(part=>{
+                part.style.backgroundColor = '';
+                part.style.padding = '';
+            });
         };
     };
     const handleChat = function (textAfterLastColon) {
@@ -1017,7 +1023,7 @@
         if (foundKeywords.length > 0) {
             const firstKeyword = foundKeywords[0];
             sendChatMessage(responses[firstKeyword]);
-            console.log(firstKeyword);
+            // console.log(firstKeyword);
             return true;
         }
         return false;
@@ -1118,8 +1124,8 @@
         if (is39Packet(data) && ghostSpamToggle.enabled) {
             for (var i = 0; i < 5; i++) {
                 this._send(constructChatPacket("spammeroonie number #" + new Date().getTime() % 1000));
-            }
-        }
+            };
+        };
     };
     const predictBloom = function(ss,yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
         let seed = ss.yourPlayer.randomGen.seed;
@@ -1132,10 +1138,10 @@
         const predictedYaw=(yaw-yawDiff)%(Math.PI*2)
         const predictedPitch=Math.min(Math.max(pitch-pitchDiff,-1.5),1.5);
         const range = ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.range;
-        const playerYPRMatrixThing = ss.BABYLON.Matrix.RotationYawPitchRoll(predictedYaw, predictedPitch, 0);
-        const rangeMatrixThing = ss.BABYLON.Matrix.Translation(0, 0, range);
+        const playerYPRMatrixThing = ss.BabylonJS.Matrix.RotationYawPitchRoll(predictedYaw, predictedPitch, 0);
+        const rangeMatrixThing = ss.BabylonJS.Matrix.Translation(0, 0, range);
         const playerAndRangeMatrix = rangeMatrixThing.multiply(playerYPRMatrixThing);
-        const bloomMatrix = ss.BABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
+        const bloomMatrix = ss.BabylonJS.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
         const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
         const finalBulletTranslation = finalBulletMatrix.getTranslation();
         const bulletYaw = calculateYaw(finalBulletTranslation);
@@ -1172,7 +1178,6 @@
             return;
         };
         window.modifyChat = function(msg) {
-            console.log(msg,lastSentMessage);
             if (msg!==lastSentMessage) { //not spammed or afked
                 if (extract("chatFilterBypass")) {
                     const UNICODE_RTL_OVERRIDE = '\u202e'
@@ -1190,118 +1195,120 @@
             }
             get response() {
                 if (this.isCorrectJS) {
-                    let code = super.response;
-                    const allFuncName={};
-                    let injectionString="";
-                    let match;
-                    const getVarName = function (name, regexPattern) {
-                        console.log(1, name, regexPattern);
-                        const regex = new RegExp(regexPattern);
-                        const funcName = eval(`${regex}.exec(code)[1]`);
-                        allFuncName[name] = funcName;
-                        console.log(2, allFuncName);
-                        injectionString = injectionString + name + ": " + funcName + ",";
-                        console.log(3, injectionString);
-                    };
-                    try {
-                        getVarName("BABYLON", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible'); //done
-                        getVarName("players", '=([a-zA-Z]+)\\[this\\.controlledBy\\]'); //done
-                        getVarName("yourPlayer", '&&([a-zA-Z]+)\\.grenadeCountdown<=0\\)this\\.cancelGrenade'); //done
-                        getVarName("weapons", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
-                        // getVarName("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
-                        getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
-                        getVarName("gameMap", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
-                        getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
-                        getVarName("camera", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"');
-                        getVarName("rays", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
-                        // getVarName("vs", '(vs)'); //todo
-                        // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
-
-                        showMsg("Script injected!","success")
-                    } catch (err) {
-                        showMsg("Error! Scipt injection failed! See console.","error")
-                        alert( 'Oh bollocks! Looks like the script is out of date. Report this data to the original developers and any errors in the console.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
-                        console.log(err);
-                        return code;
-                    };
-                    console.log("Variable retrieval successful!")
-                    //hook for main loop function in render loop
-                    match=code.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
-                    code = code.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${mainLoopFunction}"]({${injectionString}}`);
-                    //hook for modifications just before firing
-                    code = code.replace('fire(){var','fire(){window.beforeFiring(this.player);var');
-                    //hook for fov mods
-                    code = code.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.fixCamera()');
-                    code = code.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.fixCamera()');
-                    //stop removal of objects
-                    match=code.match(/playing&&!([a-zA-Z]+)&&/);
-                    code = code.replace(`if(${match[1]})`,`if(true)`);
-                    //chat mods: disable chat culling
-                    const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(code)[1];
-                    code = code.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.getChatLimit()&&${somethingLength}[0].remove(),`);
-                    //chat mods: disable filter (credit to A3+++ for this finding)
-                    const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(code)[1];
-                    const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(code)[1];
-                    code = code.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.getDisableChatFilter())`);
-                    //chat mods: make filtered text red
-                    const [_, elm, str] = code.match(/.remove\(\),([a-zA-Z]+).innerHTML=([a-zA-Z]+)/);
-                    code = code.replace(_, _ + `,${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red")`);
-                    //skins
-                    match = code.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
-                    if (match) code = code.replace(match[0], match[0] + `||window.getSkinHack()`);
-                    //reset join/leave msgs
-                    code = code.replace(',console.log("joinGame()',',window.newGame=true,console.log("value changed, also joinGame()');
-                    //bypass chat filter
-                    match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(code)[1];
-                    code=code.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
-
-                    //replace graveyard:
-
-                    //trajectories
-                    //bullet debugging
-                    code = code.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
-                    //console.log("##################################################");
-                    //console.log("______PLAYER FIRED FUNCTION");
-                    //console.log("Player Name: ",t.name);
-                    //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
-                    //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
-                `);
-                    code = code.replace('var s=n.getTranslation();',`var s=n.getTranslation();
-                    console.log("##################################################");
-                    console.log("______IN FIRE FUNCTION");
-                    console.log("Range Number: ",this.constructor.range);
-                    console.log("Accuracy: ",this.accuracy);
-                    console.log("Yaw/Pitch: ",this.player.yaw, this.player.pitch);
-                    console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
-                    console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
-                `);
-                    // code = code.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
-                    // code = code.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
-                    // code = code.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
-                    // code = code.replace('let i=this.accuracy','let i=0');
-                    // code = code.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
-                    // code = code.replace('a=0;a<20;a++','a=0;a<200;a++');
-                    // code = code.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
-                    // code = code.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
-                    //disable autopause
-                    // code = code.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
-                    //safe unfocus
-                    // code = code.replace('document.onpointerlockchange', 'document.dopausingstuff');
-                    // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-                    // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-                    // code = code.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-                    // code = code.replace(',xc("down")', '');
-                    //adblock/vip spoof
-                    // code = code.replace(/z\.isUpgraded\(\)/g,'true');
-                    // code = code.replace(/aipAPItag\.sdkBlocked/g,'false');
-                    // code = code.replace(/this\.adBlockerDetected\(\)/,'false');
-
-                    console.log("Code replacements successful!")
-                    console.log(code)
-                    return code
+                     return modifyScript(super.response);
                 };
                 return super.response;
             };
+        };
+        const modifyScript = function(script) {
+            const allFuncName={};
+            let injectionString="";
+            let match;
+            const getVarName = function (name, regexPattern) {
+                console.log(1, name, regexPattern);
+                const regex = new RegExp(regexPattern);
+                const funcName = eval(`${regex}.exec(script)[1]`);
+                allFuncName[name] = funcName;
+                console.log(2, allFuncName);
+                injectionString = injectionString + name + ": " + funcName + ",";
+                console.log(3, injectionString);
+            };
+            try {
+                getVarName("players", '=([a-zA-Z]+)\\[this\\.controlledBy\\]');
+                getVarName("yourPlayer", '&&([a-zA-Z]+)\\.grenadeCountdown<=0\\)this\\.cancelGrenade');
+                getVarName("weapons", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
+                getVarName("BabylonJS", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible');
+                getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
+                getVarName("gameMap", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
+                getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
+                getVarName("camera", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"');
+                getVarName("rays", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
+                // getVarName("vs", '(vs)'); //todo
+                // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
+                // getVarName("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
+
+                showMsg("Script injected!","success")
+            } catch (err) {
+                showMsg("Error! Scipt injection failed! See console.","error")
+                alert( 'Oh bollocks! Looks like the script is out of date. Report this data to the original developers and any errors in the console.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
+                console.log(err);
+                return script;
+            };
+            console.log("Variable retrieval successful!")
+            //hook for main loop function in render loop
+            match=script.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
+            script = script.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${mainLoopFunction}"]({${injectionString}}`);
+            //hook for modifications just before firing
+            script = script.replace('fire(){var','fire(){window.beforeFiring(this.player);var');
+            //hook for fov mods
+            script = script.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.fixCamera()');
+            script = script.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.fixCamera()');
+            //stop removal of objects
+            match=script.match(/playing&&!([a-zA-Z]+)&&/);
+            script = script.replace(`if(${match[1]})`,`if(true)`);
+            //chat mods: disable chat culling
+            const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(script)[1];
+            script = script.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.getChatLimit()&&${somethingLength}[0].remove(),`);
+            //chat mods: disable filter (credit to A3+++ for this finding)
+            const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(script)[1];
+            const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(script)[1];
+            script = script.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.getDisableChatFilter())`);
+            //chat mods: make filtered text red
+            const [_, elm, str] = script.match(/.remove\(\),([a-zA-Z]+).innerHTML=([a-zA-Z]+)/);
+            script = script.replace(_, _ + `,${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red")`);
+            //skins
+            match = script.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
+            if (match) script = script.replace(match[0], match[0] + `||window.getSkinHack()`);
+            //reset join/leave msgs
+            script = script.replace(',console.log("joinGame()',',window.newGame=true,console.log("value changed, also joinGame()');
+            //bypass chat filter
+            match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(script)[1];
+            script=script.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
+
+            //replace graveyard:
+
+            //trajectories
+            //bullet debugging
+            script = script.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+                //console.log("##################################################");
+                //console.log("______PLAYER FIRED FUNCTION");
+                //console.log("Player Name: ",t.name);
+                //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
+                //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
+            `);
+            script = script.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+                console.log("##################################################");
+                console.log("______IN FIRE FUNCTION");
+                console.log("Range Number: ",this.constructor.range);
+                console.log("Accuracy: ",this.accuracy);
+                console.log("Yaw/Pitch: ",this.player.yaw, this.player.pitch);
+                console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
+                console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
+            `);
+            // script = script.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
+            // script = script.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
+            // script = script.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
+            // script = script.replace('let i=this.accuracy','let i=0');
+            // script = script.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
+            // script = script.replace('a=0;a<20;a++','a=0;a<200;a++');
+            // script = script.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
+            // script = script.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
+            //disable autopause
+            // script = script.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
+            //safe unfocus
+            // script = script.replace('document.onpointerlockchange', 'document.dopausingstuff');
+            // script = script.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+            // script = script.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+            // script = script.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+            // script = script.replace(',xc("down")', '');
+            //adblock/vip spoof
+            // script = script.replace(/z\.isUpgraded\(\)/g,'true');
+            // script = script.replace(/aipAPItag\.sdkBlocked/g,'false');
+            // script = script.replace(/this\.adBlockerDetected\(\)/,'false');
+
+            console.log("Code replacements successful!")
+            console.log(script)
+            return script;
         };
         window.XMLHttpRequest = ModifiedXMLHttpRequest;
     };
@@ -1327,7 +1334,7 @@
 
     const mainLoop = function () {
         const oneTime = function (ss) {
-            crosshairsPosition=new ss.BABYLON.Vector3();
+            crosshairsPosition=new ss.BabylonJS.Vector3();
             Object.defineProperty(ss.yourPlayer.scene, 'forceWireframe',  {
                 get: () => {
                     return extract("wireframe");
@@ -1384,8 +1391,7 @@
 
             //update playerESP boxes, tracer lines, colors
             if (extract("playerESP")||extract("tracers")||extract("chams")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
-                for (let i=0; i<ss.players.length; i++) {
-                    const player=ss.players[i];
+                ss.players.forEach(player=>{
                     if ( player && player !== ss.yourPlayer && ( ss.yourPlayer.team === 0 || player.team !== ss.yourPlayer.team ) ) {
                         const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
                         const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
@@ -1417,7 +1423,7 @@
                         player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
                         player.box.visibility = extract("playerESP") && passedLists;
 
-                        if (player.actor){
+                        if (player.actor) {
                             eggSize=extract("eggSize")
                             player.actor.bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
                         };
@@ -1448,7 +1454,7 @@
                         };
                         player.isOnline=objExists;
                     };
-                };
+                });
                 for ( let i=0;i<onlinePlayersArray.length;i++) {
                     if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
                         onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
@@ -1466,8 +1472,7 @@
             };
             //update ammoESP boxes, tracer lines, colors
             if (extract("ammoESP")||extract("ammoTracers")||extract("grenadeESP")||extract("grenadeTracers")) {
-                for (let i=0; i<ss.renderList.length; i++) {
-                    const item=ss.renderList[i];
+                ss.renderList.forEach(item=>{
                     if ( item._isEnabled && item.sourceMesh && item.sourceMesh.name && (item.sourceMesh.name=="grenadeItem" || item.sourceMesh.name=="ammo") ) { //this is what we want
                         const itemType=item.sourceMesh.name;
                         let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
@@ -1506,7 +1511,7 @@
 
                         item.exists=objExists;
                     };
-                };
+                });
             };
             for ( let i=0;i<ESPArray.length;i++) {
                 if (ESPArray[i][2] && ESPArray[i][2].exists==objExists) { //obj still exists and still relevant
@@ -1564,17 +1569,18 @@
             };
             if (extract("playerStats")) {
                 let playerStates="";
-                for ( let i = 0; i < ss.players.length; i ++ ) {
-                    const player = ss.players[i];
-                    globalPlayer=ss;
-                    if ( player && player !== ss.yourPlayer && player.playing && ( ss.yourPlayer.team === 0 || player.team !== ss.yourPlayer.team ) ) {
+                ss.players.forEach(player=>{
+                    if (player && (player!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
                         playerStates=playerStates+player.name+": "+Math.round(player.hp)+" HP\n";
                     };
-                };
+                });
                 if (playerStates=="") {playerStates="No Enemy Players"};
                 playerstatsElement.innerText = playerStates;
                 void playerstatsElement.offsetWidth;
                 playerstatsElement.style.display = '';
+            };
+            if (extract("debug")) {
+                globalPlayer=ss;
             };
 
             if ( extract("chatHighlight") ) {
@@ -1605,14 +1611,14 @@
             let minimumDistance = Infinity;
             let nearestPlayer;
             let previousTarget=currentlyTargeting;
+            console.log(targetingComplete);
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.yourPlayer.playing) {
                 if (!extract("antiSwitch") || !currentlyTargeting) {
                     currentlyTargeting=false
                     const targetType=extract("aimbotTargeting");
                     let minimumValue = 9999;
-                    for (let i=0; i<ss.players.length; i++) {
-                        const player = ss.players[i];
-                        if (player && player !== ss.yourPlayer && player.playing && (ss.yourPlayer.team===0||player.team!==ss.yourPlayer.team) ) {
+                    ss.players.forEach(player=>{
+                        if (player && (player!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
                             const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                             const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                             const passedLists=whitelisted&&(!blacklisted);
@@ -1621,7 +1627,7 @@
                                 if (distance < minimumValue) {
                                     minimumDistance = distance;
                                     nearestPlayer = player;
-                                }
+                                };
                                 if (targetType=="nearest") {
                                     if ( distance < minimumValue ) {
                                         minimumValue = distance;
@@ -1629,7 +1635,7 @@
                                     };
                                 } else if (targetType=="pointingat") {
                                     // Calculate the direction vector pointing to the player
-                                    const directionToPlayer = new ss.BABYLON.Vector3(
+                                    const directionToPlayer = new ss.BabylonJS.Vector3(
                                         player.actor.mesh.position.x - ss.yourPlayer.actor.mesh.position.x,
                                         player.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y,
                                         player.actor.mesh.position.z - ss.yourPlayer.actor.mesh.position.z
@@ -1647,8 +1653,8 @@
                                 currentlyTargetingName = currentlyTargeting?.name;
                             };
                         };
-                    };
-                    highlightCurrentlyTargeting(currentlyTargeting, ss);
+                    });
+                    highlightCurrentlyTargeting(ss, currentlyTargeting);
                     highlightCrossHairReticleDot(ss, true);
                 };
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
@@ -1656,9 +1662,9 @@
                     let y = currentlyTargeting.y - ss.yourPlayer.y;
                     let z = currentlyTargeting.z - ss.yourPlayer.z;
                     const bulletSpeed=ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
+                    const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
 
                     if (extract("prediction")) {
-                        const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
                         const timeToReachTarget = distanceBetweenPlayers/bulletSpeed;
                         x += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
                         y += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
@@ -1675,13 +1681,13 @@
                         finalPitch=finalPitch+(bloomValues[1]);
                     };
 
-                    const antiSnap=1-(extract("aimbotAntiSnap")||0);
+                    const antiSnap=(1-(extract("aimbotAntiSnap")||0));
 
                     if (previousTarget!==currentlyTargeting) { targetingComplete=false };
 
                     function lerp(start, end, alpha, player) {
                         let value = (1 - alpha ) * start + alpha * end;
-                        if ((Math.abs(end - start) < 0.1) || (targetingComplete)) {
+                        if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
                             value = end; targetingComplete=true;
                         };
                         return value
@@ -1699,16 +1705,16 @@
                                 else {ss.yourPlayer.reload();}
                             };
                             ss.yourPlayer.pullTrigger();
-                            console.log("ANTISNEAK---->", nearestPlayer?.name, minimumDistance);
+                            // console.log("ANTISNEAK---->", nearestPlayer?.name, minimumDistance);
                         };
                     };
 
                     if (extract("tracers")) {
-                        currentlyTargeting.tracerLines.color = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                        currentlyTargeting.tracerLines.color = new ss.BabylonJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                     if (extract("playerESP")) {
                         const boxMaterial = currentlyTargeting.box.material;
-                        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BabylonJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                     if (extract("autoFire")) {
                         if (ammo.capacity>0) {
