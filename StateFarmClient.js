@@ -454,6 +454,9 @@
                 font-family: 'Bahnschrift', sans-serif !important;
                 font-size: 16px;
             }
+            .tp-rotv_m, .tp-fldv_m {
+                display: none;
+            }
             .tp-lblv_v, .tp-lstv, .tp-btnv_b, .tp-btnv_t {
                 font-family: 'Bahnschrift';
                 font-size: 12px;
