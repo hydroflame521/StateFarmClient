@@ -1213,28 +1213,31 @@
             };
             return msg
         };
-        class ModifiedXMLHttpRequest extends window.XMLHttpRequest {
-            open(method, url) {
-                if (url.includes('shellshock.js')) {
-                    this.isCorrectJS = true;
-                }
-                return super.open(...arguments);
-            }
-            get response() {
-                if (this.isCorrectJS) {
-                     return modifyScript(super.response);
-                };
-                return super.response;
+        const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? liberty mutual collab??????
+        const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
+        let shellshockjs
+        XMLHttpRequest.prototype.open = function(...args) {
+            const url = args[1];
+            if (url && url.includes("js/shellshock.js")) {
+                shellshockjs = this;
             };
+            originalXHROpen.apply(this, args);
         };
+        Object.defineProperty(XMLHttpRequest.prototype, 'response', {
+            get: function() {
+                if (this===shellshockjs) {
+                    return modifyScript(originalXHRGetResponse.get.call(this));
+                };
+                return originalXHRGetResponse.get.call(this);
+            }
+        });
         const modifyScript = function(script) {
             const allFuncName={};
             let injectionString="";
             let match;
             const getVarName = function (name, regexPattern) {
                 console.log(1, name, regexPattern);
-                const regex = new RegExp(regexPattern);
-                const funcName = eval(`${regex}.exec(script)[1]`);
+                const funcName = eval(new RegExp(regexPattern)+`.exec(script)[1]`);
                 allFuncName[name] = funcName;
                 console.log(2, allFuncName);
                 injectionString = injectionString + name + ": " + funcName + ",";
@@ -1296,22 +1299,22 @@
 
             //trajectories
             //bullet debugging
-            script = script.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
-                //console.log("##################################################");
-                //console.log("______PLAYER FIRED FUNCTION");
-                //console.log("Player Name: ",t.name);
-                //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
-                //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
-            `);
-            script = script.replace('var s=n.getTranslation();',`var s=n.getTranslation();
-                console.log("##################################################");
-                console.log("______IN FIRE FUNCTION");
-                console.log("Range Number: ",this.constructor.range);
-                console.log("Accuracy: ",this.accuracy);
-                console.log("Yaw/Pitch: ",this.player.yaw, this.player.pitch);
-                console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
-                console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
-            `);
+            // script = script.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+            //     //console.log("##################################################");
+            //     //console.log("______PLAYER FIRED FUNCTION");
+            //     //console.log("Player Name: ",t.name);
+            //     //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
+            //     //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
+            // `);
+            // script = script.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+            //     console.log("##################################################");
+            //     console.log("______IN FIRE FUNCTION");
+            //     console.log("Range Number: ",this.constructor.range);
+            //     console.log("Accuracy: ",this.accuracy);
+            //     console.log("Yaw/Pitch: ",this.player.yaw, this.player.pitch);
+            //     console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
+            //     console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
+            // `);
             // script = script.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
             // script = script.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
             // script = script.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
@@ -1337,7 +1340,6 @@
             console.log(script)
             return script;
         };
-        window.XMLHttpRequest = ModifiedXMLHttpRequest;
     };
 
     JSON.safeStringify = (obj, indent = 2) => {
@@ -1374,7 +1376,7 @@
                 onlinePlayersArray=[];
             };
             if (!loggedGameMap.logged) {
-                console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
+                // console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
                 loggedGameMap.logged = true;
             };
             username=ss.yourPlayer?.name;
@@ -1638,7 +1640,7 @@
             let minimumDistance = Infinity;
             let nearestPlayer;
             let previousTarget=currentlyTargeting;
-            console.log(targetingComplete);
+            // console.log(targetingComplete);
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.yourPlayer.playing) {
                 if (!extract("antiSwitch") || !currentlyTargeting) {
                     currentlyTargeting=false
