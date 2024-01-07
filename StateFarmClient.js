@@ -865,22 +865,36 @@
             tracerLines.renderingGroupId=1;
             object.tracerLines = tracerLines;
             //ESP
-            const boxMaterial = new ss.BabylonJS.StandardMaterial('boxMaterial', newScene);
-            boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BabylonJS.Color3(1, 0, 0);
-            boxMaterial.wireframe = true;
+            //FUCK WIREFRAME BOXES! we making our own MANUALLY bitch! to hell with vertical lines
             const boxSize = {
-                playerESP: {width:0.5,height:0.75,depth:0.5},
-                ammoESP: {width: 0.25, height: 0.35, depth: 0.25},
-            }
-            const box = ss.BabylonJS.MeshBuilder.CreateBox('box',  boxSize[type] , newScene);
+                playerESP: { width: 0.5, height: 0.75, depth: 0.5 },
+                ammoESP: { width: 0.25, height: 0.35, depth: 0.25 },
+            };
             const boxOffset = {
-                playerESP: 0.3,
-                ammoESP: 0,
-            }
+                playerESP: 0,
+                ammoESP: -0.05,
+            };
+            const vertices = [
+                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+            ];
+            const lines = [];
+            for (let i = 0; i < 4; i++) {
+                lines.push([vertices[i], vertices[(i + 1) % 4]]);
+                lines.push([vertices[i + 4], vertices[(i + 1) % 4 + 4]]);
+                lines.push([vertices[i], vertices[i + 4]]);
+            };
+            const box = ss.BabylonJS.MeshBuilder.CreateLineSystem('boxLines', { lines }, newScene);
+            box.color = new ss.BabylonJS.Color3(1, 1, 1);
             box.position.y=boxOffset[type];
-            box.material = boxMaterial;
             box.renderingGroupId = 1;
-            box.parent = newParent;
+            box.parent=newParent;
             object.box = box;
             //stuff
             object.generatedESP=true;
@@ -888,8 +902,7 @@
         };
         object.tracerLines.setVerticesData(ss.BabylonJS.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
         object.tracerLines.color = new ss.BabylonJS.Color3(...color);
-        const boxMaterial = object.box.material;
-        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BabylonJS.Color3(...color);
+        object.box.color = new ss.BabylonJS.Color3(...color);
     };
     const everySecond = function () {
         coordElement.style.display = 'none';
@@ -1213,7 +1226,7 @@
             };
             return msg
         };
-        const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? liberty mutual collab??????
+        const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
         let shellshockjs
         XMLHttpRequest.prototype.open = function(...args) {
@@ -1251,7 +1264,7 @@
                 getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
                 getVarName("gameMap", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
                 getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
-                getVarName("camera", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"');
+                getVarName("camera", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"'); //todo
                 getVarName("rays", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
                 // getVarName("vs", '(vs)'); //todo
                 // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
@@ -1742,8 +1755,7 @@
                         currentlyTargeting.tracerLines.color = new ss.BabylonJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                     if (extract("playerESP")) {
-                        const boxMaterial = currentlyTargeting.box.material;
-                        boxMaterial.emissiveColor = boxMaterial.diffuseColor = new ss.BabylonJS.Color3(...hexToRgb(extract("aimbotColor")));
+                        currentlyTargeting.box.color = new ss.BabylonJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                     if (extract("autoFire")) {
                         if (ammo.capacity>0) {
