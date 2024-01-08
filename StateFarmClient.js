@@ -66,7 +66,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.2.0";
+    const version="3.2.1";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -99,7 +99,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let ss,msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers;
     const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let isLeftButtonDown = false;
@@ -276,6 +276,7 @@
                 initModule({ location: tp.aimbotFolder, title: "Target", storeAs: "aimbotTargeting", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
                 initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
@@ -785,7 +786,7 @@
     const distancePlayers = function (yourPlayer,player) {
         return Math.hypot(player.x-yourPlayer.x,player.y-yourPlayer.y,player.z-yourPlayer.z ); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
-    const setPrecision = function (value) { return Math.floor(value * 8192) / 8192 }; //required precision
+    const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
         return setPrecision(Math.mod(Math.atan2(pos.x,pos.z), Math.PI2));
     };
@@ -895,7 +896,7 @@
             box.position.y=boxOffset[type];
             box.renderingGroupId = 1;
             box.parent=newParent;
-            object.box = box;
+            object.box=box;
             //stuff
             object.generatedESP=true;
             ESPArray.push([tracerLines,box,object]);
@@ -988,7 +989,7 @@
     const highlightCurrentlyTargeting = function (ss, currentlyTargeting) {
         let playerArray = [];
         ss.players.forEach(player=>{
-            if ( player && player !== currentlyTargeting && player.playing && ( currentlyTargeting.team === 0 || player.team !== currentlyTargeting.team ) ) {
+            if (player && (currentlyTargeting!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
                 const hp = player.hp
@@ -1175,10 +1176,8 @@
             seed = (seed * 9301 + 49297) % 233280;
             numbers.push(((seed/233280)-0.5)*accuracy);
         };
-        const predictedYaw=(yaw-yawDiff)%(Math.PI*2)
-        const predictedPitch=Math.min(Math.max(pitch-pitchDiff,-1.5),1.5);
         const range = ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.range;
-        const playerYPRMatrixThing = ss.BabylonJS.Matrix.RotationYawPitchRoll(predictedYaw, predictedPitch, 0);
+        const playerYPRMatrixThing = ss.BabylonJS.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
         const rangeMatrixThing = ss.BabylonJS.Matrix.Translation(0, 0, range);
         const playerAndRangeMatrix = rangeMatrixThing.multiply(playerYPRMatrixThing);
         const bloomMatrix = ss.BabylonJS.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
@@ -1191,14 +1190,54 @@
         //console.log("current accuracy: ",accuracy)
         //console.log("input yaw: ",yaw)
         //console.log("input pitch: ",pitch)
-        //console.log("diff yaw/pitch",yawDiff,pitchDiff)
-        //console.log("predicted yaw/pitch",predictedYaw,predictedPitch)
         //console.log("calculated bullet yaw: ",bulletYaw)
         //console.log("calculated bullet pitch: ",bulletPitch)
         //console.log("therefore yaw diff: ",yawBulletDiff)
         //console.log("therefore pitch diff: ",pitchBulletDiff)
 
         return [yawBulletDiff,pitchBulletDiff];
+    };
+    const predictPosition = function(ss,player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
+        let velocityVector = new ss.BabylonJS.Vector3(player.dx, player.dy, player.dz);
+        const bulletSpeed=ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
+        const timeDiff = ss.BabylonJS.Vector3.Distance(ss.yourPlayer,player) / bulletSpeed + 1;
+        let newPos = new ss.BabylonJS.Vector3(player.x,player.y,player.z).add(velocityVector.scale(timeDiff));
+        newPos.y = player.y;
+        const cappedVector = new ss.BabylonJS.Vector3(velocityVector.x, 0.29, velocityVector.z);
+        Math.capVector3(cappedVector);
+        const terminalVelocity = -cappedVector.y;
+        const timeAccelerating = Math.min(timeDiff, (terminalVelocity - velocityVector.y) / -0.012);
+        const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
+        const rayToGround = ss.rays.rayCollidesWithMap(newPos, new ss.BabylonJS.Vector3(0, predictedY - 1 - newPos.y, 0), ss.rays.grenadeCollidesWithCell);
+        newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
+        return newPos;
+    };
+    const getAimbot = function(ss,player) {
+        let aimAt;
+        if (extract("prediction")) {
+            aimAt=predictPosition(ss,currentlyTargeting);
+        } else {
+            aimAt = new ss.BabylonJS.Vector3(player.x, player.y, player.z);
+        };
+        let aimDir = {
+            x: aimAt.x - ss.yourPlayer.x,
+            y: aimAt.y - ss.yourPlayer.y,
+            z: aimAt.z - ss.yourPlayer.z,
+        };
+
+        let finalYaw   = calculateYaw(aimDir);
+        let finalPitch = calculatePitch(aimDir);
+
+        if (extract("antiBloom")) {
+            const bloomValues=predictBloom(ss,finalYaw,finalPitch);
+            finalYaw  =finalYaw  +(bloomValues[0]);
+            finalPitch=finalPitch+(bloomValues[1]);
+        };
+        
+        return {
+            yaw: finalYaw,
+            pitch: finalPitch,
+        };
     };
     const injectScript = function () {
         window.fixCamera = function () {
@@ -1214,8 +1253,12 @@
             return extract("unlockSkins");
         };
         window.beforeFiring = function (yourPlayer) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
-            // yourPlayer.yaw=1;
-            return;
+            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.yourPlayer.playing && currentlyTargeting && currentlyTargeting.playing) {
+                ss.yourPlayer=yourPlayer;
+                const aimbot = getAimbot(ss,currentlyTargeting);
+                ss.yourPlayer.yaw = setPrecision(aimbot.yaw);
+                ss.yourPlayer.pitch = setPrecision(aimbot.pitch);
+            };
         };
         window.modifyChat = function(msg) {
             if (msg!==lastSentMessage) { //not spammed or afked
@@ -1434,7 +1477,7 @@
             //update playerESP boxes, tracer lines, colors
             if (extract("playerESP")||extract("tracers")||extract("chams")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
                 ss.players.forEach(player=>{
-                    if ( player && player !== ss.yourPlayer && ( ss.yourPlayer.team === 0 || player.team !== ss.yourPlayer.team ) ) {
+                    if (player && (player!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
                         const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
                         const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
                         const passedLists=whitelisted&&(!blacklisted);
@@ -1571,8 +1614,8 @@
                 };
             }; window.newGame=false;
         };
-        window[mainLoopFunction] = function ( ss ) {
-            if ( !ss.yourPlayer ) { return }; //injection fail
+        window[mainLoopFunction] = function (vars) {
+            ss=vars;
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
             updateLinesESP(ss);
@@ -1700,44 +1743,29 @@
                     highlightCrossHairReticleDot(ss, true);
                 };
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
-                    let x = currentlyTargeting.x - ss.yourPlayer.x;
-                    let y = currentlyTargeting.y - ss.yourPlayer.y;
-                    let z = currentlyTargeting.z - ss.yourPlayer.z;
-                    const bulletSpeed=ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
-                    const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
 
-                    if (extract("prediction")) {
-                        const timeToReachTarget = distanceBetweenPlayers/bulletSpeed;
-                        x += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        y += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                        z += (currentlyTargeting.dx - ss.yourPlayer.dx) * timeToReachTarget;
-                    };
-
-                    let finalYaw = calculateYaw({x: x,y: y,z: z});
-                    let finalPitch = calculatePitch({x: x,y: y,z: z});
-
-                    if (extract("antiBloom")) {
-                        // const predictAccuracy = Math.min(Math.max(accuracy+(2*accuracyDiff),ss.yourPlayer.weapon.accuracyMin),ss.yourPlayer.weapon.accuracyMax);
-                        const bloomValues=predictBloom(ss,finalYaw,finalPitch);
-                        finalYaw  =finalYaw  +(bloomValues[0]);
-                        finalPitch=finalPitch+(bloomValues[1]);
-                    };
-
-                    const antiSnap=(1-(extract("aimbotAntiSnap")||0));
-
-                    if (previousTarget!==currentlyTargeting) { targetingComplete=false };
-
-                    function lerp(start, end, alpha, player) {
-                        let value = (1 - alpha ) * start + alpha * end;
-                        if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
-                            value = end; targetingComplete=true;
+                    if (!extract("silentAimbot")) {
+                        const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
+    
+                        const aimbot=getAimbot(ss,currentlyTargeting);
+    
+                        const antiSnap=(1-(extract("aimbotAntiSnap")||0));
+    
+                        if (previousTarget!==currentlyTargeting) { targetingComplete=false };
+    
+                        function lerp(start, end, alpha) {
+                            let value = (1 - alpha ) * start + alpha * end;
+                            if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
+                                value = end; targetingComplete=true;
+                            };
+                            return value;
                         };
-                        return value
+    
+                        // Exponential lerp towards the target rotation
+                        ss.yourPlayer.yaw = setPrecision(lerp(ss.yourPlayer.yaw, aimbot.yaw, antiSnap));
+                        ss.yourPlayer.pitch = setPrecision(lerp(ss.yourPlayer.pitch, aimbot.pitch, antiSnap));
                     };
 
-                    // Exponential lerp towards the target rotation
-                    ss.yourPlayer.yaw = setPrecision(lerp(ss.yourPlayer.yaw, finalYaw, antiSnap));
-                    ss.yourPlayer.pitch = setPrecision(lerp(ss.yourPlayer.pitch, finalPitch, antiSnap));
                     if (extract("antiSneak")!==0) {
                         let acceptableDistance = extract("antiSneak");
                         if ( minimumDistance < acceptableDistance) {
