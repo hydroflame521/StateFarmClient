@@ -1,22 +1,24 @@
 # StateFarm Client for Shell Shockers
 
+![Discord Shield](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=shield)
+
 Hack Client for Shell Shockers (shellshock.io). The most feature rich and powerful client to exist for the game. 
 
 It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly Customisable Modules**, **Chat Mods** and much much more.
 
-![Discord Shield](https://discordapp.com/api/guilds/977271202924097586/widget.png?style=shield)
+> For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
+
+> Information accurate as of Statefarm Client v3.2.1.
 
 - _**Join the [Discord](https://discord.gg/6kzNpHFRSN) server for the latest news**_.
+
+# Download Sources:
 
 - _**Check out our [Github repository](https://github.com/Hydroflame522/StateFarmClient)**_.
 
 - _**Install on [GreasyFork](https://greasyfork.org/en/scripts/482982-statefarm-client-v3)**_.
 
 - _**Alternatively, you can use [OpenUserJS](https://openuserjs.org/scripts/onlypuppy7/StateFarm_Client_V3)**_.
-
->For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
-
->Information accurate as of Statefarm client v3.2.1.
 
 # Table of Contents
 
@@ -35,11 +37,12 @@ Before you can install the client, there are a few things you must set up to be 
 1.  Install the proper version of Tampermonkey from  [https://tampermonkey.net/](https://tampermonkey.net/) or any other userscript manager.
     
 2.  Make sure you are able to open the extension, and go to the dashboard.
-    
 
 Now you are ready to install StateFarm Client:
 
-3.  Go to the Github repository and download/copy [StateFarmClient.js](https://github.com/Hydroflame522/StateFarmClient/blob/main/StateFarmClient.js).
+3.  Go to the [GreasyFork](https://greasyfork.org/en/scripts/482982-statefarm-client-v3) page and press install.
+    - Alternatively, go to the Github repository and download/copy [StateFarmClient.js](https://github.com/Hydroflame522/StateFarmClient/blob/main/StateFarmClient.js)
+    - You can also use OpenUserJS.
     
 5.  Download the client and install it into your userscript manager of choice.
 
