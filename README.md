@@ -8,7 +8,8 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly 
 
 > For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
 
-> Information accurate as of Statefarm Client v3.2.1.
+> Information accurate as of StateFarm Client v3.2.1.
+> StateFarm client is based off [LibertyMutual Client](https://github.com/onlypuppy7/LibertyMutualShellShockers)
 
 - _**Join the [Discord](https://discord.gg/6kzNpHFRSN) server for the latest news**_.
 
