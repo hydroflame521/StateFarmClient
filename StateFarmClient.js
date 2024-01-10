@@ -1703,7 +1703,7 @@
             } else {
                 redCircle.style.display='none';
             };
-            let minimumDistance = Infinity;
+            let minimumDistance=9999;
             let nearestPlayer;
             let previousTarget=currentlyTargeting;
             // console.log(targetingComplete);
@@ -1719,7 +1719,7 @@
                             const passedLists=whitelisted&&(!blacklisted);
                             if (passedLists) {
                                 const distance = distancePlayers(ss.MYPLAYER,player);
-                                if (distance < minimumValue) {
+                                if (distance<minimumValue) { //for antisneak, not targeting
                                     minimumDistance = distance;
                                     nearestPlayer = player;
                                 };
@@ -1729,15 +1729,14 @@
                                         currentlyTargeting = player;
                                     };
                                 } else if (targetType=="pointingat") {
-                                    // Calculate the direction vector pointing to the player
-                                    const directionToPlayer = new ss.BABYLONJS.Vector3(
-                                        player.actor.mesh.position.x - ss.MYPLAYER.actor.mesh.position.x,
-                                        player.actor.mesh.position.y - ss.MYPLAYER.actor.mesh.position.y,
-                                        player.actor.mesh.position.z - ss.MYPLAYER.actor.mesh.position.z
-                                    );
+                                    const directionVector = {
+                                        x: player.actor.mesh.position.x - ss.MYPLAYER.actor.mesh.position.x,
+                                        y: player.actor.mesh.position.y - ss.MYPLAYER.actor.mesh.position.y,
+                                        z: player.actor.mesh.position.z - ss.MYPLAYER.actor.mesh.position.z,
+                                    };
                                     // Calculate the angles between the direction vector and the player vector
-                                    const angleYaw = calculateYaw(directionToPlayer);
-                                    const anglePitch = calculatePitch(directionToPlayer);
+                                    const angleYaw = calculateYaw(directionVector);
+                                    const anglePitch = calculatePitch(directionVector);
                                     // Calculate the absolute angular difference
                                     const angleDifference = Math.abs(ss.MYPLAYER.yaw - angleYaw) + Math.abs(ss.MYPLAYER.pitch - anglePitch);
                                     if (angleDifference < minimumValue) {
