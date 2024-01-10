@@ -10,6 +10,10 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly 
 
 - _**Check out our [Github repository](https://github.com/Hydroflame522/StateFarmClient)**_.
 
+- _**Install on [GreasyFork](https://greasyfork.org/en/scripts/482982-statefarm-client-v3)**_.
+
+- _**Alternatively, you can use [OpenUserJS](https://openuserjs.org/scripts/onlypuppy7/StateFarm_Client_V3)**_.
+
 >For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
 
 >Information accurate as of Statefarm client v3.2.1.
