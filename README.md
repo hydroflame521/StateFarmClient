@@ -6,8 +6,6 @@ Hack Client for Shell Shockers (shellshock.io). The most feature rich and powerf
 
 It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly Customisable Modules**, **Chat Mods** and much much more.
 
-> For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
-
 > StateFarm Client V3 is based off [LibertyMutual Client](https://github.com/onlypuppy7/LibertyMutualShellShockers)
 
 > Information accurate as of StateFarm Client v3.2.1.
@@ -21,6 +19,8 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly 
 - _**Install on [GreasyFork](https://greasyfork.org/en/scripts/482982-statefarm-client-v3)**_.
 
 - _**Alternatively, you can use [OpenUserJS](https://openuserjs.org/scripts/onlypuppy7/StateFarm_Client_V3)**_.
+
+> For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
 
 # Table of Contents
 
