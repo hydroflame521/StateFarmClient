@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.2.0
+// @version      3.2.1
 // @license      GPL-3.0
 // @description  Only public script with bloom cheats! Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
@@ -94,6 +94,8 @@
     let username = "";
     const allModules=[];
     const allFolders=[];
+    const F=[];
+    const functionNames=[];
     const isKeyToggled={};
     let ESPArray=[];
     let onlinePlayersArray=[];
@@ -101,7 +103,6 @@
     const tp={}; // <-- tp = tweakpane
     let ss,msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers;
-    const mainLoopFunction=Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     //menu interaction functions
@@ -783,8 +784,8 @@
         ];
         return resultRgb;
     };
-    const distancePlayers = function (yourPlayer,player) {
-        return Math.hypot(player.x-yourPlayer.x,player.y-yourPlayer.y,player.z-yourPlayer.z ); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
+    const distancePlayers = function (MYPLAYER,player) {
+        return ss.BABYLONJS.Vector3.Distance(MYPLAYER,player); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
@@ -799,23 +800,26 @@
     };
     const radianAngleDiff = function (angle1,angle2) {
         const fullCircle = 2 * Math.PI;
-
         // Normalize angles to be within [0, 2π)
         angle1 = (angle1 % fullCircle + fullCircle) % fullCircle;
         angle2 = (angle2 % fullCircle + fullCircle) % fullCircle;
-
         // Find the absolute angular difference
         let diff = Math.abs(angle1 - angle2);
-
         // Ensure the difference is within [0, π)
         diff = Math.min(diff, fullCircle - diff);
-
         // Determine the sign of the difference correctly
         if ((angle1 - angle2 + fullCircle) % fullCircle > Math.PI) {
             return -diff;
         } else {
             return diff;
-        }
+        };
+    };
+    const getScrambled=function(){return Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('')}
+    const createAnonFunction=function(name,func){
+        const funcName=getScrambled();
+        window[funcName]=func;
+        F[name]=window[funcName];
+        functionNames[name]=funcName
     };
     const processChatItem = function (ss,text,playerName,playerTeam,highlightColor) {
         let chatItem = document.createElement("div");
@@ -829,7 +833,7 @@
         playerNameSpan.classList.add("chat-player-name", "ss_marginright_xs");
         playerNameSpan.textContent = playerName + " ";
 
-        playerInfoContainer.style.color = ss.teamColors.text[playerTeam];
+        playerInfoContainer.style.color = ss.TEAMCOLORS.text[playerTeam];
         playerInfoContainer.appendChild(serverIcon);
         playerInfoContainer.appendChild(playerNameSpan);
 
@@ -861,12 +865,12 @@
         };
         if (!object.generatedESP) {
             //tracers
-            const tracerLines = ss.BabylonJS.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
-            tracerLines.color=new ss.BabylonJS.Color3(1, 1, 1);
+            const tracerLines = ss.BABYLONJS.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+            tracerLines.color=new ss.BABYLONJS.Color3(1, 1, 1);
             tracerLines.renderingGroupId=1;
             object.tracerLines = tracerLines;
             //ESP
-            //FUCK WIREFRAME BOXES! we making our own MANUALLY bitch! to hell with vertical lines
+            //FUCK WIREFRAME BOXES! LIBERTYMUTUAL dictates we making our own MANUALLY bitch! to hell with those diagonal lines
             const boxSize = {
                 playerESP: { width: 0.5, height: 0.75, depth: 0.5 },
                 ammoESP: { width: 0.25, height: 0.35, depth: 0.25 },
@@ -876,14 +880,14 @@
                 ammoESP: -0.05,
             };
             const vertices = [
-                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
-                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
-                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
-                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
-                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
-                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
-                new ss.BabylonJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
-                new ss.BabylonJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+                new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
             ];
             const lines = [];
             for (let i = 0; i < 4; i++) {
@@ -891,8 +895,8 @@
                 lines.push([vertices[i + 4], vertices[(i + 1) % 4 + 4]]);
                 lines.push([vertices[i], vertices[i + 4]]);
             };
-            const box = ss.BabylonJS.MeshBuilder.CreateLineSystem('boxLines', { lines }, newScene);
-            box.color = new ss.BabylonJS.Color3(1, 1, 1);
+            const box = ss.BABYLONJS.MeshBuilder.CreateLineSystem('boxLines', { lines }, newScene);
+            box.color = new ss.BABYLONJS.Color3(1, 1, 1);
             box.position.y=boxOffset[type];
             box.renderingGroupId = 1;
             box.parent=newParent;
@@ -901,9 +905,9 @@
             object.generatedESP=true;
             ESPArray.push([tracerLines,box,object]);
         };
-        object.tracerLines.setVerticesData(ss.BabylonJS.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-        object.tracerLines.color = new ss.BabylonJS.Color3(...color);
-        object.box.color = new ss.BabylonJS.Color3(...color);
+        object.tracerLines.setVerticesData(ss.BABYLONJS.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
+        object.tracerLines.color = new ss.BABYLONJS.Color3(...color);
+        object.box.color = new ss.BABYLONJS.Color3(...color);
     };
     const everySecond = function () {
         coordElement.style.display = 'none';
@@ -988,8 +992,8 @@
     };
     const highlightCurrentlyTargeting = function (ss, currentlyTargeting) {
         let playerArray = [];
-        ss.players.forEach(player=>{
-            if (player && (currentlyTargeting!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
+        ss.PLAYERS.forEach(player=>{
+            if (player && (currentlyTargeting!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
                 const hp = player.hp
@@ -1009,7 +1013,7 @@
         let dot = document.getElementById("reticleDot");
         let crosshair = document.getElementById("crosshairContainer");
         if (bool){
-            let isAmmoFull = ss.yourPlayer.weapon.ammo.rounds === ss.yourPlayer.weapon.ammo.capacity
+            let isAmmoFull = ss.MYPLAYER.weapon.ammo.rounds === ss.MYPLAYER.weapon.ammo.capacity
             dot.style.backgroundColor = isAmmoFull ? 'blue' : '';
             Array.from(crosshair.children).forEach(part=>{
                 part.style.backgroundColor = isAmmoFull ? 'blue' : '';
@@ -1169,18 +1173,18 @@
         };
     };
     const predictBloom = function(ss,yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
-        let seed = ss.yourPlayer.randomGen.seed;
+        let seed = ss.MYPLAYER.randomGen.seed;
         let numbers = [];
-        const accuracy=ss.yourPlayer.weapon.accuracy;
+        const accuracy=ss.MYPLAYER.weapon.accuracy;
         for (var i = 0; i < 3; i++) { //generate from seed the values used to scatter shot
             seed = (seed * 9301 + 49297) % 233280;
             numbers.push(((seed/233280)-0.5)*accuracy);
         };
-        const range = ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.range;
-        const playerYPRMatrixThing = ss.BabylonJS.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
-        const rangeMatrixThing = ss.BabylonJS.Matrix.Translation(0, 0, range);
+        const range = ss.WEAPONS.classes[ss.MYPLAYER.primaryWeaponItem.exclusive_for_class].weapon.range;
+        const playerYPRMatrixThing = ss.BABYLONJS.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
+        const rangeMatrixThing = ss.BABYLONJS.Matrix.Translation(0, 0, range);
         const playerAndRangeMatrix = rangeMatrixThing.multiply(playerYPRMatrixThing);
-        const bloomMatrix = ss.BabylonJS.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
+        const bloomMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
         const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
         const finalBulletTranslation = finalBulletMatrix.getTranslation();
         const bulletYaw = calculateYaw(finalBulletTranslation);
@@ -1198,17 +1202,17 @@
         return [yawBulletDiff,pitchBulletDiff];
     };
     const predictPosition = function(ss,player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
-        let velocityVector = new ss.BabylonJS.Vector3(player.dx, player.dy, player.dz);
-        const bulletSpeed=ss.weapons.classes[ss.yourPlayer.primaryWeaponItem.exclusive_for_class].weapon.velocity;
-        const timeDiff = ss.BabylonJS.Vector3.Distance(ss.yourPlayer,player) / bulletSpeed + 1;
-        let newPos = new ss.BabylonJS.Vector3(player.x,player.y,player.z).add(velocityVector.scale(timeDiff));
+        let velocityVector = new ss.BABYLONJS.Vector3(player.dx, player.dy, player.dz);
+        const bulletSpeed=ss.WEAPONS.classes[ss.MYPLAYER.primaryWeaponItem.exclusive_for_class].weapon.velocity;
+        const timeDiff = ss.BABYLONJS.Vector3.Distance(ss.MYPLAYER,player) / bulletSpeed + 1;
+        let newPos = new ss.BABYLONJS.Vector3(player.x,player.y,player.z).add(velocityVector.scale(timeDiff));
         newPos.y = player.y;
-        const cappedVector = new ss.BabylonJS.Vector3(velocityVector.x, 0.29, velocityVector.z);
+        const cappedVector = new ss.BABYLONJS.Vector3(velocityVector.x, 0.29, velocityVector.z);
         Math.capVector3(cappedVector);
         const terminalVelocity = -cappedVector.y;
         const timeAccelerating = Math.min(timeDiff, (terminalVelocity - velocityVector.y) / -0.012);
         const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
-        const rayToGround = ss.rays.rayCollidesWithMap(newPos, new ss.BabylonJS.Vector3(0, predictedY - 1 - newPos.y, 0), ss.rays.grenadeCollidesWithCell);
+        const rayToGround = ss.RAYS.rayCollidesWithMap(newPos, new ss.BABYLONJS.Vector3(0, predictedY - 1 - newPos.y, 0), ss.RAYS.grenadeCollidesWithCell);
         newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
         return newPos;
     };
@@ -1217,12 +1221,12 @@
         if (extract("prediction")) {
             aimAt=predictPosition(ss,currentlyTargeting);
         } else {
-            aimAt = new ss.BabylonJS.Vector3(player.x, player.y, player.z);
+            aimAt = new ss.BABYLONJS.Vector3(player.x, player.y, player.z);
         };
         let aimDir = {
-            x: aimAt.x - ss.yourPlayer.x,
-            y: aimAt.y - ss.yourPlayer.y,
-            z: aimAt.z - ss.yourPlayer.z,
+            x: aimAt.x - ss.MYPLAYER.x,
+            y: aimAt.y - ss.MYPLAYER.y,
+            z: aimAt.z - ss.MYPLAYER.z,
         };
 
         let finalYaw   = calculateYaw(aimDir);
@@ -1252,12 +1256,12 @@
         window.getSkinHack = function () {
             return extract("unlockSkins");
         };
-        window.beforeFiring = function (yourPlayer) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
-            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.yourPlayer.playing && currentlyTargeting && currentlyTargeting.playing) {
-                ss.yourPlayer=yourPlayer;
+        window.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
+            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
+                ss.MYPLAYER=MYPLAYER;
                 const aimbot = getAimbot(ss,currentlyTargeting);
-                ss.yourPlayer.yaw = setPrecision(aimbot.yaw);
-                ss.yourPlayer.pitch = setPrecision(aimbot.pitch);
+                ss.MYPLAYER.yaw = setPrecision(aimbot.yaw);
+                ss.MYPLAYER.pitch = setPrecision(aimbot.pitch);
             };
         };
         window.modifyChat = function(msg) {
@@ -1282,87 +1286,93 @@
         Object.defineProperty(XMLHttpRequest.prototype, 'response', {
             get: function() {
                 if (this===shellshockjs) {
-                    return modifyScript(originalXHRGetResponse.get.call(this));
+                    return applyStateFarm(originalXHRGetResponse.get.call(this));
                 };
                 return originalXHRGetResponse.get.call(this);
             }
         });
-        const modifyScript = function(script) {
+        const applyStateFarm = function(js) {
+            console.log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
             const allFuncName={};
+            let vars=[];
             let injectionString="";
             let match;
-            const getVarName = function (name, regexPattern) {
-                console.log(1, name, regexPattern);
-                const funcName = eval(new RegExp(regexPattern)+`.exec(script)[1]`);
-                allFuncName[name] = funcName;
-                console.log(2, allFuncName);
-                injectionString = injectionString + name + ": " + funcName + ",";
-                console.log(3, injectionString);
+            const getVar=function(name,regex){
+                const varName=eval(new RegExp(regex)+`.exec(js)[1]`);
+                vars[name]=varName;
+                injectionString=injectionString+name+": "+varName+",";
+                console.log('%cFound var! Saved '+varName+' as '+name, 'color: green; font-weight: bold;');
             };
+            console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             try {
-                getVarName("players", '=([a-zA-Z]+)\\[this\\.controlledBy\\]');
-                getVarName("yourPlayer", '&&([a-zA-Z]+)\\.grenadeCountdown<=0\\)this\\.cancelGrenade');
-                getVarName("weapons", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
-                getVarName("BabylonJS", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible');
-                getVarName("renderList", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
-                getVarName("gameMap", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
-                getVarName("teamColors", '\\{([a-zA-Z_$]+)\\.themClass\\[');
-                getVarName("camera", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"'); //todo
-                getVarName("rays", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
-                // getVarName("vs", '(vs)'); //todo
-                // getVarName("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
-                // getVarName("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
+                getVar("PLAYERS", '=([a-zA-Z]+)\\[this\\.controlledBy\\]');
+                getVar("MYPLAYER", '&&([a-zA-Z]+)\\.grenadeCountdown<=0\\)this\\.cancelGrenade');
+                getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
+                getVar("BABYLONJS", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible');
+                getVar("RENDERLIST", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
+                getVar("GAMEMAP", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
+                getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
+                getVar("CAMERA", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"'); //todo
+                getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
+                // getVar("vs", '(vs)'); //todo
+                // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
+                // getVar("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
 
-                showMsg("Script injected!","success")
+                showMsg("Script injected!","success");
+                console.log(injectionString,allFuncName);
             } catch (err) {
                 showMsg("Error! Scipt injection failed! See console.","error")
                 alert( 'Oh bollocks! Looks like the script is out of date. Report this data to the original developers and any errors in the console.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
                 console.log(err);
-                return script;
+                return js;
             };
-            console.log("Variable retrieval successful!")
+            console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
-            match=script.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
-            script = script.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${mainLoopFunction}"]({${injectionString}}`);
-            //hook for modifications just before firing
-            script = script.replace('fire(){var','fire(){window.beforeFiring(this.player);var');
-            //hook for fov mods
-            script = script.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.fixCamera()');
-            script = script.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.fixCamera()');
+            match=js.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
+            js = js.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${functionNames.retrieveFunctions}"]({${injectionString}}`);
+            console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
+            console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
-            match=script.match(/playing&&!([a-zA-Z]+)&&/);
-            script = script.replace(`if(${match[1]})`,`if(true)`);
+            match=js.match(/playing&&!([a-zA-Z]+)&&/);
+            js = js.replace(`if(${match[1]})`,`if(true)`);
+            console.log('%cSuccess! Cull inhibition hooked.', 'color: green; font-weight: bold;');
+            console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+            //hook for modifications just before firing
+            js = js.replace('fire(){var','fire(){window.beforeFiring(this.player);var');
+            //hook for fov mods
+            js = js.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.fixCamera()');
+            js = js.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.fixCamera()');
             //chat mods: disable chat culling
-            const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(script)[1];
-            script = script.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.getChatLimit()&&${somethingLength}[0].remove(),`);
+            const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(js)[1];
+            js = js.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.getChatLimit()&&${somethingLength}[0].remove(),`);
             //chat mods: disable filter (credit to A3+++ for this finding)
-            const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(script)[1];
-            const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(script)[1];
-            script = script.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.getDisableChatFilter())`);
+            const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(js)[1];
+            const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(js)[1];
+            js = js.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.getDisableChatFilter())`);
             //chat mods: make filtered text red
-            const [_, elm, str] = script.match(/.remove\(\),([a-zA-Z]+).innerHTML=([a-zA-Z]+)/);
-            script = script.replace(_, _ + `,${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red")`);
+            const [_, elm, str] = js.match(/.remove\(\),([a-zA-Z]+).innerHTML=([a-zA-Z]+)/);
+            js = js.replace(_, _ + `,${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red")`);
             //skins
-            match = script.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
-            if (match) script = script.replace(match[0], match[0] + `||window.getSkinHack()`);
+            match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
+            if (match) js = js.replace(match[0], match[0] + `||window.getSkinHack()`);
             //reset join/leave msgs
-            script = script.replace(',console.log("joinGame()',',window.newGame=true,console.log("value changed, also joinGame()');
+            js = js.replace(',console.log("joinGame()',',window.newGame=true,console.log("value changed, also joinGame()');
             //bypass chat filter
-            match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(script)[1];
-            script=script.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
+            match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
+            js=js.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
 
             //replace graveyard:
 
             //trajectories
             //bullet debugging
-            // script = script.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+            // js = js.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
             //     //console.log("##################################################");
             //     //console.log("______PLAYER FIRED FUNCTION");
             //     //console.log("Player Name: ",t.name);
             //     //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
             //     //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
             // `);
-            // script = script.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+            // js = js.replace('var s=n.getTranslation();',`var s=n.getTranslation();
             //     console.log("##################################################");
             //     console.log("______IN FIRE FUNCTION");
             //     console.log("Range Number: ",this.constructor.range);
@@ -1371,30 +1381,30 @@
             //     console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
             //     console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
             // `);
-            // script = script.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
-            // script = script.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
-            // script = script.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
-            // script = script.replace('let i=this.accuracy','let i=0');
-            // script = script.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
-            // script = script.replace('a=0;a<20;a++','a=0;a<200;a++');
-            // script = script.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
-            // script = script.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
+            // js = js.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
+            // js = js.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
+            // js = js.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
+            // js = js.replace('let i=this.accuracy','let i=0');
+            // js = js.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
+            // js = js.replace('a=0;a<20;a++','a=0;a<200;a++');
+            // js = js.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
+            // js = js.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
             //disable autopause
-            // script = script.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
+            // js = js.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
             //safe unfocus
-            // script = script.replace('document.onpointerlockchange', 'document.dopausingstuff');
-            // script = script.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // script = script.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // script = script.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // script = script.replace(',xc("down")', '');
+            // js = js.replace('document.onpointerlockchange', 'document.dopausingstuff');
+            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
+            // js = js.replace(',xc("down")', '');
             //adblock/vip spoof
-            // script = script.replace(/z\.isUpgraded\(\)/g,'true');
-            // script = script.replace(/aipAPItag\.sdkBlocked/g,'false');
-            // script = script.replace(/this\.adBlockerDetected\(\)/,'false');
+            // js = js.replace(/z\.isUpgraded\(\)/g,'true');
+            // js = js.replace(/aipAPItag\.sdkBlocked/g,'false');
+            // js = js.replace(/this\.adBlockerDetected\(\)/,'false');
 
-            console.log("Code replacements successful!")
-            console.log(script)
-            return script;
+            js=js.replace("Not playing in iframe", "STATEFARM ACTIVE!");
+            console.log(js)
+            return js;
         };
     };
 
@@ -1419,8 +1429,8 @@
 
     const mainLoop = function () {
         const oneTime = function (ss) {
-            crosshairsPosition=new ss.BabylonJS.Vector3();
-            Object.defineProperty(ss.yourPlayer.scene, 'forceWireframe',  {
+            crosshairsPosition=new ss.BABYLONJS.Vector3();
+            Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
                 get: () => {
                     return extract("wireframe");
                 }
@@ -1432,19 +1442,19 @@
                 onlinePlayersArray=[];
             };
             if (!loggedGameMap.logged) {
-                // console.log(ss.gameMap.width, ss.gameMap.height, ss.gameMap.data);
+                // console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
                 loggedGameMap.logged = true;
             };
-            username=ss.yourPlayer?.name;
+            username=ss.MYPLAYER?.name;
 
-            crosshairsPosition.copyFrom(ss.yourPlayer.actor.mesh.position);
-            const horizontalOffset = Math.sin(ss.yourPlayer.actor.mesh.rotation.y);
-            const verticalOffset = Math.sin(-ss.yourPlayer.pitch);
+            crosshairsPosition.copyFrom(ss.MYPLAYER.actor.mesh.position);
+            const horizontalOffset = Math.sin(ss.MYPLAYER.actor.mesh.rotation.y);
+            const verticalOffset = Math.sin(-ss.MYPLAYER.pitch);
             crosshairsPosition.x += horizontalOffset;
-            crosshairsPosition.z += Math.cos(ss.yourPlayer.actor.mesh.rotation.y);
+            crosshairsPosition.z += Math.cos(ss.MYPLAYER.actor.mesh.rotation.y);
             crosshairsPosition.y += verticalOffset + 0.4;
 
-            ammo=ss.yourPlayer.weapon.ammo;
+            ammo=ss.MYPLAYER.weapon.ammo;
 
             whitelistPlayers=extract("whitelist").split(',');
             blacklistPlayers=extract("blacklist").split(',');
@@ -1467,17 +1477,17 @@
                     chatItems[i].style.display = isInRange ? '' : 'none';
                 };
             };
-            // accuracyDiff=ss.yourPlayer.weapon.accuracy-accuracy;
-            yawDiff=radianAngleDiff(yawCache,ss.yourPlayer.yaw);
-            pitchDiff=radianAngleDiff(pitchCache,ss.yourPlayer.pitch);
+            // accuracyDiff=ss.MYPLAYER.weapon.accuracy-accuracy;
+            yawDiff=radianAngleDiff(yawCache,ss.MYPLAYER.yaw);
+            pitchDiff=radianAngleDiff(pitchCache,ss.MYPLAYER.pitch);
         };
         const updateLinesESP = function (ss) {
             const objExists=Date.now();
 
             //update playerESP boxes, tracer lines, colors
             if (extract("playerESP")||extract("tracers")||extract("chams")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
-                ss.players.forEach(player=>{
-                    if (player && (player!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
+                ss.PLAYERS.forEach(player=>{
+                    if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                         const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
                         const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
                         const passedLists=whitelisted&&(!blacklisted);
@@ -1489,7 +1499,7 @@
                         } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
                             color=hexToRgb(extract("blacklistColor"));
                         } else if ( tracersType=="proximity" ) {
-                            const distance = distancePlayers(ss.yourPlayer,player);
+                            const distance = distancePlayers(ss.MYPLAYER,player);
                             if (distance < extract("tracersColor1to2")) { //fade between first set
                                 progress=(distance/extract("tracersColor1to2"));
                                 color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
@@ -1521,10 +1531,10 @@
                         if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
                             player.actor.nameSprite._manager.renderingGroupId = 1;
                             player.actor.nameSprite.renderingGroupId = 1;
-                            var h = Math.length3(player.x - ss.yourPlayer.x, player.y - ss.yourPlayer.y, player.z - ss.yourPlayer.z),
+                            var h = Math.length3(player.x - ss.MYPLAYER.x, player.y - ss.MYPLAYER.y, player.z - ss.MYPLAYER.z),
                             d = Math.pow(h, 1.25)*2;
                             player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
-                            ss.yourPlayer.actor.scene.activeCamera.fov=0.75
+                            ss.MYPLAYER.actor.scene.activeCamera.fov=0.75
                         };
                         if (!player.logged) {
                             player.logged=true;
@@ -1557,7 +1567,7 @@
             };
             //update ammoESP boxes, tracer lines, colors
             if (extract("ammoESP")||extract("ammoTracers")||extract("grenadeESP")||extract("grenadeTracers")) {
-                ss.renderList.forEach(item=>{
+                ss.RENDERLIST.forEach(item=>{
                     if ( item._isEnabled && item.sourceMesh && item.sourceMesh.name && (item.sourceMesh.name=="grenadeItem" || item.sourceMesh.name=="ammo") ) { //this is what we want
                         const itemType=item.sourceMesh.name;
                         let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
@@ -1580,11 +1590,11 @@
                             };
                         } else { //grenades
                             const regime=extract("grenadeESPRegime");
-                            if (regime=="whendepleted" && ss.yourPlayer.grenadeCount==0) {
+                            if (regime=="whendepleted" && ss.MYPLAYER.grenadeCount==0) {
                                 willBeVisible=true;
-                            } else if (regime=="whenlow" && ss.yourPlayer.grenadeCount<=1) {
+                            } else if (regime=="whenlow" && ss.MYPLAYER.grenadeCount<=1) {
                                 willBeVisible=true;
-                            } else if (regime=="belowmax" && ss.yourPlayer.grenadeCount<ss.yourPlayer.grenadeCapacity) {
+                            } else if (regime=="belowmax" && ss.MYPLAYER.grenadeCount<ss.MYPLAYER.grenadeCapacity) {
                                 willBeVisible=true;
                             } else if (regime=="alwayson") {
                                 willBeVisible=true;
@@ -1614,13 +1624,13 @@
                 };
             }; window.newGame=false;
         };
-        window[mainLoopFunction] = function (vars) {
-            ss=vars;
+        createAnonFunction("retrieveFunctions",function(vars) { ss=vars ; F.STATEFARM() });
+        createAnonFunction("STATEFARM",function(){
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
             updateLinesESP(ss);
             if ( extract("freecam") ) {
-                ss.yourPlayer.actor.mesh.position.y = ss.yourPlayer.actor.mesh.position.y + 1;
+                ss.MYPLAYER.actor.mesh.position.y = ss.MYPLAYER.actor.mesh.position.y + 1;
             };
 
             if ( extract("spamChat") ) {
@@ -1631,9 +1641,9 @@
             };
 
             if (extract("autoEZ")||extract("cheatAccuse")) {
-                if (ss.yourPlayer.score !== yourPlayerKills) {
-                    yourPlayerKills = ss.yourPlayer.score;
-                    if (ss.yourPlayer?.playing && extract("autoEZ")) {
+                if (ss.MYPLAYER.score !== yourPlayerKills) {
+                    yourPlayerKills = ss.MYPLAYER.score;
+                    if (ss.MYPLAYER?.playing && extract("autoEZ")) {
                         sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
                     } else if (extract("cheatAccuse")) {
                         sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
@@ -1642,11 +1652,11 @@
             };
 
             if ( extract("showCoordinates") ) {
-                const fonx = Number((ss.yourPlayer.actor.mesh.position.x).toFixed(3));
-                const fony = Number((ss.yourPlayer.actor.mesh.position.y).toFixed(3));
-                const fonz = Number((ss.yourPlayer.actor.mesh.position.z).toFixed(3));
-                const yaw = Number((ss.yourPlayer.yaw).toFixed(3));
-                const pitch = Number((ss.yourPlayer.pitch).toFixed(3));
+                const fonx = Number((ss.MYPLAYER.actor.mesh.position.x).toFixed(3));
+                const fony = Number((ss.MYPLAYER.actor.mesh.position.y).toFixed(3));
+                const fonz = Number((ss.MYPLAYER.actor.mesh.position.z).toFixed(3));
+                const yaw = Number((ss.MYPLAYER.yaw).toFixed(3));
+                const pitch = Number((ss.MYPLAYER.pitch).toFixed(3));
                 const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
@@ -1654,8 +1664,8 @@
             };
             if (extract("playerStats")) {
                 let playerStates="";
-                ss.players.forEach(player=>{
-                    if (player && (player!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
+                ss.PLAYERS.forEach(player=>{
+                    if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                         playerStates=playerStates+player.name+": "+Math.round(player.hp)+" HP\n";
                     };
                 });
@@ -1673,16 +1683,16 @@
             };
             if ( extract("autoRefill") ) {
                 if (ammo.rounds==0) {
-                    ss.yourPlayer.reload();
+                    ss.MYPLAYER.reload();
                 };
             };
             if (extract("holdToFire") && isLeftButtonDown) {
-                ss.yourPlayer.pullTrigger();
+                ss.MYPLAYER.pullTrigger();
             };
             if (extract("revealBloom")) {
                 redCircle.style.display='';
-                const distCenterToOuter = 2 * (200 / ss.camera.fov);
-                const bloomValues=predictBloom(ss,ss.yourPlayer.yaw,ss.yourPlayer.pitch);
+                const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
+                const bloomValues=predictBloom(ss,ss.MYPLAYER.yaw,ss.MYPLAYER.pitch);
                 // Set the new position of the circle
                 const centerX = (window.innerWidth / 2);
                 const centerY = (window.innerHeight / 2);
@@ -1697,18 +1707,18 @@
             let nearestPlayer;
             let previousTarget=currentlyTargeting;
             // console.log(targetingComplete);
-            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.yourPlayer.playing) {
+            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
                 if (!extract("antiSwitch") || !currentlyTargeting) {
                     currentlyTargeting=false
                     const targetType=extract("aimbotTargeting");
                     let minimumValue = 9999;
-                    ss.players.forEach(player=>{
-                        if (player && (player!==ss.yourPlayer) && player.playing && (player.hp>0) && ((!ss.yourPlayer.team)||( player.team!==ss.yourPlayer.team))) {
+                    ss.PLAYERS.forEach(player=>{
+                        if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                             const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                             const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                             const passedLists=whitelisted&&(!blacklisted);
                             if (passedLists) {
-                                const distance = distancePlayers(ss.yourPlayer,player);
+                                const distance = distancePlayers(ss.MYPLAYER,player);
                                 if (distance < minimumValue) {
                                     minimumDistance = distance;
                                     nearestPlayer = player;
@@ -1720,16 +1730,16 @@
                                     };
                                 } else if (targetType=="pointingat") {
                                     // Calculate the direction vector pointing to the player
-                                    const directionToPlayer = new ss.BabylonJS.Vector3(
-                                        player.actor.mesh.position.x - ss.yourPlayer.actor.mesh.position.x,
-                                        player.actor.mesh.position.y - ss.yourPlayer.actor.mesh.position.y,
-                                        player.actor.mesh.position.z - ss.yourPlayer.actor.mesh.position.z
+                                    const directionToPlayer = new ss.BABYLONJS.Vector3(
+                                        player.actor.mesh.position.x - ss.MYPLAYER.actor.mesh.position.x,
+                                        player.actor.mesh.position.y - ss.MYPLAYER.actor.mesh.position.y,
+                                        player.actor.mesh.position.z - ss.MYPLAYER.actor.mesh.position.z
                                     );
                                     // Calculate the angles between the direction vector and the player vector
                                     const angleYaw = calculateYaw(directionToPlayer);
                                     const anglePitch = calculatePitch(directionToPlayer);
                                     // Calculate the absolute angular difference
-                                    const angleDifference = Math.abs(ss.yourPlayer.yaw - angleYaw) + Math.abs(ss.yourPlayer.pitch - anglePitch);
+                                    const angleDifference = Math.abs(ss.MYPLAYER.yaw - angleYaw) + Math.abs(ss.MYPLAYER.pitch - anglePitch);
                                     if (angleDifference < minimumValue) {
                                         minimumValue = angleDifference;
                                         currentlyTargeting = player;
@@ -1745,7 +1755,7 @@
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
 
                     if (!extract("silentAimbot")) {
-                        const distanceBetweenPlayers = distancePlayers(ss.yourPlayer,currentlyTargeting);
+                        const distanceBetweenPlayers = distancePlayers(ss.MYPLAYER,currentlyTargeting);
     
                         const aimbot=getAimbot(ss,currentlyTargeting);
     
@@ -1762,8 +1772,8 @@
                         };
     
                         // Exponential lerp towards the target rotation
-                        ss.yourPlayer.yaw = setPrecision(lerp(ss.yourPlayer.yaw, aimbot.yaw, antiSnap));
-                        ss.yourPlayer.pitch = setPrecision(lerp(ss.yourPlayer.pitch, aimbot.pitch, antiSnap));
+                        ss.MYPLAYER.yaw = setPrecision(lerp(ss.MYPLAYER.yaw, aimbot.yaw, antiSnap));
+                        ss.MYPLAYER.pitch = setPrecision(lerp(ss.MYPLAYER.pitch, aimbot.pitch, antiSnap));
                     };
 
                     if (extract("antiSneak")!==0) {
@@ -1771,25 +1781,25 @@
                         if ( minimumDistance < acceptableDistance) {
                             currentlyTargeting = nearestPlayer;
                             if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
-                                if (ss.yourPlayer.weaponIdx === 0){ss.yourPlayer.swapWeapon(1);}
-                                else {ss.yourPlayer.reload();}
+                                if (ss.MYPLAYER.weaponIdx === 0){ss.MYPLAYER.swapWeapon(1);}
+                                else {ss.MYPLAYER.reload();}
                             };
-                            ss.yourPlayer.pullTrigger();
+                            ss.MYPLAYER.pullTrigger();
                             // console.log("ANTISNEAK---->", nearestPlayer?.name, minimumDistance);
                         };
                     };
 
                     if (extract("tracers")) {
-                        currentlyTargeting.tracerLines.color = new ss.BabylonJS.Color3(...hexToRgb(extract("aimbotColor")));
+                        currentlyTargeting.tracerLines.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                     if (extract("playerESP")) {
-                        currentlyTargeting.box.color = new ss.BabylonJS.Color3(...hexToRgb(extract("aimbotColor")));
+                        currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                     if (extract("autoFire")) {
                         if (ammo.capacity>0) {
-                            ss.yourPlayer.pullTrigger();
+                            ss.MYPLAYER.pullTrigger();
                         } else {
-                            ss.yourPlayer.melee();
+                            ss.MYPLAYER.melee();
                         };
                     };
                 } else {
@@ -1806,20 +1816,20 @@
                     highlightCrossHairReticleDot(ss, false);
                 };
                 if (extract("enableSeizureX")) {
-                    ss.yourPlayer.yaw+=extract("amountSeizureX")
+                    ss.MYPLAYER.yaw+=extract("amountSeizureX")
                 };
                 if (extract("enableSeizureY")) {
-                    ss.yourPlayer.pitch+=extract("amountSeizureY")
+                    ss.MYPLAYER.pitch+=extract("amountSeizureY")
                 };
             };
-            yawCache=ss.yourPlayer.yaw;
-            pitchCache=ss.yourPlayer.pitch;
-            if (extract("upsideDown")) {
-                if (ss.yourPlayer.pitch<1.5 && ss.yourPlayer.pitch>-1.5) {
-                    ss.yourPlayer.pitch=Math.PI;
+            yawCache=ss.MYPLAYER.yaw;
+            pitchCache=ss.MYPLAYER.pitch;
+            if (extract("upsideDown")) { //sorta useless
+                if (ss.MYPLAYER.pitch<1.5 && ss.MYPLAYER.pitch>-1.5) {
+                    ss.MYPLAYER.pitch=Math.PI;
                 };
             };
-        };
+        });
     };
 
     var css = "text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(70.2, 100%, 50%), 25px 14px hsl(75.6, 100%, 50%), 27px 15px hsl(81, 100%, 50%), 28px 16px hsl(86.4, 100%, 50%), 30px 17px hsl(91.8, 100%, 50%), 32px 18px hsl(97.2, 100%, 50%), 33px 19px hsl(102.6, 100%, 50%), 35px 20px hsl(108, 100%, 50%), 36px 21px hsl(113.4, 100%, 50%), 38px 22px hsl(118.8, 100%, 50%), 39px 23px hsl(124.2, 100%, 50%), 41px 24px hsl(129.6, 100%, 50%), 42px 25px hsl(135, 100%, 50%), 43px 26px hsl(140.4, 100%, 50%), 45px 27px hsl(145.8, 100%, 50%), 46px 28px hsl(151.2, 100%, 50%), 47px 29px hsl(156.6, 100%, 50%), 48px 30px hsl(162, 100%, 50%), 49px 31px hsl(167.4, 100%, 50%), 50px 32px hsl(172.8, 100%, 50%), 51px 33px hsl(178.2, 100%, 50%), 52px 34px hsl(183.6, 100%, 50%), 53px 35px hsl(189, 100%, 50%), 54px 36px hsl(194.4, 100%, 50%), 55px 37px hsl(199.8, 100%, 50%), 55px 38px hsl(205.2, 100%, 50%), 56px 39px hsl(210.6, 100%, 50%), 57px 40px hsl(216, 100%, 50%), 57px 41px hsl(221.4, 100%, 50%), 58px 42px hsl(226.8, 100%, 50%), 58px 43px hsl(232.2, 100%, 50%), 58px 44px hsl(237.6, 100%, 50%), 59px 45px hsl(243, 100%, 50%), 59px 46px hsl(248.4, 100%, 50%), 59px 47px hsl(253.8, 100%, 50%), 59px 48px hsl(259.2, 100%, 50%), 59px 49px hsl(264.6, 100%, 50%), 60px 50px hsl(270, 100%, 50%), 59px 51px hsl(275.4, 100%, 50%), 59px 52px hsl(280.8, 100%, 50%), 59px 53px hsl(286.2, 100%, 50%), 59px 54px hsl(291.6, 100%, 50%), 59px 55px hsl(297, 100%, 50%), 58px 56px hsl(302.4, 100%, 50%), 58px 57px hsl(307.8, 100%, 50%), 58px 58px hsl(313.2, 100%, 50%), 57px 59px hsl(318.6, 100%, 50%), 57px 60px hsl(324, 100%, 50%), 56px 61px hsl(329.4, 100%, 50%), 55px 62px hsl(334.8, 100%, 50%), 55px 63px hsl(340.2, 100%, 50%), 54px 64px hsl(345.6, 100%, 50%), 53px 65px hsl(351, 100%, 50%), 52px 66px hsl(356.4, 100%, 50%), 51px 67px hsl(361.8, 100%, 50%), 50px 68px hsl(367.2, 100%, 50%), 49px 69px hsl(372.6, 100%, 50%), 48px 70px hsl(378, 100%, 50%), 47px 71px hsl(383.4, 100%, 50%), 46px 72px hsl(388.8, 100%, 50%), 45px 73px hsl(394.2, 100%, 50%), 43px 74px hsl(399.6, 100%, 50%), 42px 75px hsl(405, 100%, 50%), 41px 76px hsl(410.4, 100%, 50%), 39px 77px hsl(415.8, 100%, 50%), 38px 78px hsl(421.2, 100%, 50%), 36px 79px hsl(426.6, 100%, 50%), 35px 80px hsl(432, 100%, 50%), 33px 81px hsl(437.4, 100%, 50%), 32px 82px hsl(442.8, 100%, 50%), 30px 83px hsl(448.2, 100%, 50%), 28px 84px hsl(453.6, 100%, 50%), 27px 85px hsl(459, 100%, 50%), 25px 86px hsl(464.4, 100%, 50%), 23px 87px hsl(469.8, 100%, 50%), 22px 88px hsl(475.2, 100%, 50%), 20px 89px hsl(480.6, 100%, 50%), 18px 90px hsl(486, 100%, 50%), 16px 91px hsl(491.4, 100%, 50%), 14px 92px hsl(496.8, 100%, 50%), 13px 93px hsl(502.2, 100%, 50%), 11px 94px hsl(507.6, 100%, 50%), 9px 95px hsl(513, 100%, 50%), 7px 96px hsl(518.4, 100%, 50%), 5px 97px hsl(523.8, 100%, 50%), 3px 98px hsl(529.2, 100%, 50%), 1px 99px hsl(534.6, 100%, 50%), 7px 100px hsl(540, 100%, 50%), -1px 101px hsl(545.4, 100%, 50%), -3px 102px hsl(550.8, 100%, 50%), -5px 103px hsl(556.2, 100%, 50%), -7px 104px hsl(561.6, 100%, 50%), -9px 105px hsl(567, 100%, 50%), -11px 106px hsl(572.4, 100%, 50%), -13px 107px hsl(577.8, 100%, 50%), -14px 108px hsl(583.2, 100%, 50%), -16px 109px hsl(588.6, 100%, 50%), -18px 110px hsl(594, 100%, 50%), -20px 111px hsl(599.4, 100%, 50%), -22px 112px hsl(604.8, 100%, 50%), -23px 113px hsl(610.2, 100%, 50%), -25px 114px hsl(615.6, 100%, 50%), -27px 115px hsl(621, 100%, 50%), -28px 116px hsl(626.4, 100%, 50%), -30px 117px hsl(631.8, 100%, 50%), -32px 118px hsl(637.2, 100%, 50%), -33px 119px hsl(642.6, 100%, 50%), -35px 120px hsl(648, 100%, 50%), -36px 121px hsl(653.4, 100%, 50%), -38px 122px hsl(658.8, 100%, 50%), -39px 123px hsl(664.2, 100%, 50%), -41px 124px hsl(669.6, 100%, 50%), -42px 125px hsl(675, 100%, 50%), -43px 126px hsl(680.4, 100%, 50%), -45px 127px hsl(685.8, 100%, 50%), -46px 128px hsl(691.2, 100%, 50%), -47px 129px hsl(696.6, 100%, 50%), -48px 130px hsl(702, 100%, 50%), -49px 131px hsl(707.4, 100%, 50%), -50px 132px hsl(712.8, 100%, 50%), -51px 133px hsl(718.2, 100%, 50%), -52px 134px hsl(723.6, 100%, 50%), -53px 135px hsl(729, 100%, 50%), -54px 136px hsl(734.4, 100%, 50%), -55px 137px hsl(739.8, 100%, 50%), -55px 138px hsl(745.2, 100%, 50%), -56px 139px hsl(750.6, 100%, 50%), -57px 140px hsl(756, 100%, 50%), -57px 141px hsl(761.4, 100%, 50%), -58px 142px hsl(766.8, 100%, 50%), -58px 143px hsl(772.2, 100%, 50%), -58px 144px hsl(777.6, 100%, 50%), -59px 145px hsl(783, 100%, 50%), -59px 146px hsl(788.4, 100%, 50%), -59px 147px hsl(793.8, 100%, 50%), -59px 148px hsl(799.2, 100%, 50%), -59px 149px hsl(804.6, 100%, 50%), -60px 150px hsl(810, 100%, 50%), -59px 151px hsl(815.4, 100%, 50%), -59px 152px hsl(820.8, 100%, 50%), -59px 153px hsl(826.2, 100%, 50%), -59px 154px hsl(831.6, 100%, 50%), -59px 155px hsl(837, 100%, 50%), -58px 156px hsl(842.4, 100%, 50%), -58px 157px hsl(847.8, 100%, 50%), -58px 158px hsl(853.2, 100%, 50%), -57px 159px hsl(858.6, 100%, 50%), -57px 160px hsl(864, 100%, 50%), -56px 161px hsl(869.4, 100%, 50%), -55px 162px hsl(874.8, 100%, 50%), -55px 163px hsl(880.2, 100%, 50%), -54px 164px hsl(885.6, 100%, 50%), -53px 165px hsl(891, 100%, 50%), -52px 166px hsl(896.4, 100%, 50%), -51px 167px hsl(901.8, 100%, 50%), -50px 168px hsl(907.2, 100%, 50%), -49px 169px hsl(912.6, 100%, 50%), -48px 170px hsl(918, 100%, 50%), -47px 171px hsl(923.4, 100%, 50%), -46px 172px hsl(928.8, 100%, 50%), -45px 173px hsl(934.2, 100%, 50%), -43px 174px hsl(939.6, 100%, 50%), -42px 175px hsl(945, 100%, 50%), -41px 176px hsl(950.4, 100%, 50%), -39px 177px hsl(955.8, 100%, 50%), -38px 178px hsl(961.2, 100%, 50%), -36px 179px hsl(966.6, 100%, 50%), -35px 180px hsl(972, 100%, 50%), -33px 181px hsl(977.4, 100%, 50%), -32px 182px hsl(982.8, 100%, 50%), -30px 183px hsl(988.2, 100%, 50%), -28px 184px hsl(993.6, 100%, 50%), -27px 185px hsl(999, 100%, 50%), -25px 186px hsl(1004.4, 100%, 50%), -23px 187px hsl(1009.8, 100%, 50%), -22px 188px hsl(1015.2, 100%, 50%), -20px 189px hsl(1020.6, 100%, 50%), -18px 190px hsl(1026, 100%, 50%), -16px 191px hsl(1031.4, 100%, 50%), -14px 192px hsl(1036.8, 100%, 50%), -13px 193px hsl(1042.2, 100%, 50%), -11px 194px hsl(1047.6, 100%, 50%), -9px 195px hsl(1053, 100%, 50%), -7px 196px hsl(1058.4, 100%, 50%), -5px 197px hsl(1063.8, 100%, 50%), -3px 198px hsl(1069.2, 100%, 50%), -1px 199px hsl(1074.6, 100%, 50%), -1px 200px hsl(1080, 100%, 50%), 1px 201px hsl(1085.4, 100%, 50%), 3px 202px hsl(1090.8, 100%, 50%), 5px 203px hsl(1096.2, 100%, 50%), 7px 204px hsl(1101.6, 100%, 50%), 9px 205px hsl(1107, 100%, 50%), 11px 206px hsl(1112.4, 100%, 50%), 13px 207px hsl(1117.8, 100%, 50%), 14px 208px hsl(1123.2, 100%, 50%), 16px 209px hsl(1128.6, 100%, 50%), 18px 210px hsl(1134, 100%, 50%), 20px 211px hsl(1139.4, 100%, 50%), 22px 212px hsl(1144.8, 100%, 50%), 23px 213px hsl(1150.2, 100%, 50%), 25px 214px hsl(1155.6, 100%, 50%), 27px 215px hsl(1161, 100%, 50%), 28px 216px hsl(1166.4, 100%, 50%), 30px 217px hsl(1171.8, 100%, 50%), 32px 218px hsl(1177.2, 100%, 50%), 33px 219px hsl(1182.6, 100%, 50%), 35px 220px hsl(1188, 100%, 50%), 36px 221px hsl(1193.4, 100%, 50%), 38px 222px hsl(1198.8, 100%, 50%), 39px 223px hsl(1204.2, 100%, 50%), 41px 224px hsl(1209.6, 100%, 50%), 42px 225px hsl(1215, 100%, 50%), 43px 226px hsl(1220.4, 100%, 50%), 45px 227px hsl(1225.8, 100%, 50%), 46px 228px hsl(1231.2, 100%, 50%), 47px 229px hsl(1236.6, 100%, 50%), 48px 230px hsl(1242, 100%, 50%), 49px 231px hsl(1247.4, 100%, 50%), 50px 232px hsl(1252.8, 100%, 50%), 51px 233px hsl(1258.2, 100%, 50%), 52px 234px hsl(1263.6, 100%, 50%), 53px 235px hsl(1269, 100%, 50%), 54px 236px hsl(1274.4, 100%, 50%), 55px 237px hsl(1279.8, 100%, 50%), 55px 238px hsl(1285.2, 100%, 50%), 56px 239px hsl(1290.6, 100%, 50%), 57px 240px hsl(1296, 100%, 50%), 57px 241px hsl(1301.4, 100%, 50%), 58px 242px hsl(1306.8, 100%, 50%), 58px 243px hsl(1312.2, 100%, 50%), 58px 244px hsl(1317.6, 100%, 50%), 59px 245px hsl(1323, 100%, 50%), 59px 246px hsl(1328.4, 100%, 50%), 59px 247px hsl(1333.8, 100%, 50%), 59px 248px hsl(1339.2, 100%, 50%), 59px 249px hsl(1344.6, 100%, 50%), 60px 250px hsl(1350, 100%, 50%), 59px 251px hsl(1355.4, 100%, 50%), 59px 252px hsl(1360.8, 100%, 50%), 59px 253px hsl(1366.2, 100%, 50%), 59px 254px hsl(1371.6, 100%, 50%), 59px 255px hsl(1377, 100%, 50%), 58px 256px hsl(1382.4, 100%, 50%), 58px 257px hsl(1387.8, 100%, 50%), 58px 258px hsl(1393.2, 100%, 50%), 57px 259px hsl(1398.6, 100%, 50%), 57px 260px hsl(1404, 100%, 50%), 56px 261px hsl(1409.4, 100%, 50%), 55px 262px hsl(1414.8, 100%, 50%), 55px 263px hsl(1420.2, 100%, 50%), 54px 264px hsl(1425.6, 100%, 50%), 53px 265px hsl(1431, 100%, 50%), 52px 266px hsl(1436.4, 100%, 50%), 51px 267px hsl(1441.8, 100%, 50%), 50px 268px hsl(1447.2, 100%, 50%), 49px 269px hsl(1452.6, 100%, 50%), 48px 270px hsl(1458, 100%, 50%), 47px 271px hsl(1463.4, 100%, 50%), 46px 272px hsl(1468.8, 100%, 50%), 45px 273px hsl(1474.2, 100%, 50%), 43px 274px hsl(1479.6, 100%, 50%), 42px 275px hsl(1485, 100%, 50%), 41px 276px hsl(1490.4, 100%, 50%), 39px 277px hsl(1495.8, 100%, 50%), 38px 278px hsl(1501.2, 100%, 50%), 36px 279px hsl(1506.6, 100%, 50%), 35px 280px hsl(1512, 100%, 50%), 33px 281px hsl(1517.4, 100%, 50%), 32px 282px hsl(1522.8, 100%, 50%), 30px 283px hsl(1528.2, 100%, 50%), 28px 284px hsl(1533.6, 100%, 50%), 27px 285px hsl(1539, 100%, 50%), 25px 286px hsl(1544.4, 100%, 50%), 23px 287px hsl(1549.8, 100%, 50%), 22px 288px hsl(1555.2, 100%, 50%), 20px 289px hsl(1560.6, 100%, 50%), 18px 290px hsl(1566, 100%, 50%), 16px 291px hsl(1571.4, 100%, 50%), 14px 292px hsl(1576.8, 100%, 50%), 13px 293px hsl(1582.2, 100%, 50%), 11px 294px hsl(1587.6, 100%, 50%), 9px 295px hsl(1593, 100%, 50%), 7px 296px hsl(1598.4, 100%, 50%), 5px 297px hsl(1603.8, 100%, 50%), 3px 298px hsl(1609.2, 100%, 50%), 1px 299px hsl(1614.6, 100%, 50%), 2px 300px hsl(1620, 100%, 50%), -1px 301px hsl(1625.4, 100%, 50%), -3px 302px hsl(1630.8, 100%, 50%), -5px 303px hsl(1636.2, 100%, 50%), -7px 304px hsl(1641.6, 100%, 50%), -9px 305px hsl(1647, 100%, 50%), -11px 306px hsl(1652.4, 100%, 50%), -13px 307px hsl(1657.8, 100%, 50%), -14px 308px hsl(1663.2, 100%, 50%), -16px 309px hsl(1668.6, 100%, 50%), -18px 310px hsl(1674, 100%, 50%), -20px 311px hsl(1679.4, 100%, 50%), -22px 312px hsl(1684.8, 100%, 50%), -23px 313px hsl(1690.2, 100%, 50%), -25px 314px hsl(1695.6, 100%, 50%), -27px 315px hsl(1701, 100%, 50%), -28px 316px hsl(1706.4, 100%, 50%), -30px 317px hsl(1711.8, 100%, 50%), -32px 318px hsl(1717.2, 100%, 50%), -33px 319px hsl(1722.6, 100%, 50%), -35px 320px hsl(1728, 100%, 50%), -36px 321px hsl(1733.4, 100%, 50%), -38px 322px hsl(1738.8, 100%, 50%), -39px 323px hsl(1744.2, 100%, 50%), -41px 324px hsl(1749.6, 100%, 50%), -42px 325px hsl(1755, 100%, 50%), -43px 326px hsl(1760.4, 100%, 50%), -45px 327px hsl(1765.8, 100%, 50%), -46px 328px hsl(1771.2, 100%, 50%), -47px 329px hsl(1776.6, 100%, 50%), -48px 330px hsl(1782, 100%, 50%), -49px 331px hsl(1787.4, 100%, 50%), -50px 332px hsl(1792.8, 100%, 50%), -51px 333px hsl(1798.2, 100%, 50%), -52px 334px hsl(1803.6, 100%, 50%), -53px 335px hsl(1809, 100%, 50%), -54px 336px hsl(1814.4, 100%, 50%), -55px 337px hsl(1819.8, 100%, 50%), -55px 338px hsl(1825.2, 100%, 50%), -56px 339px hsl(1830.6, 100%, 50%), -57px 340px hsl(1836, 100%, 50%), -57px 341px hsl(1841.4, 100%, 50%), -58px 342px hsl(1846.8, 100%, 50%), -58px 343px hsl(1852.2, 100%, 50%), -58px 344px hsl(1857.6, 100%, 50%), -59px 345px hsl(1863, 100%, 50%), -59px 346px hsl(1868.4, 100%, 50%), -59px 347px hsl(1873.8, 100%, 50%), -59px 348px hsl(1879.2, 100%, 50%), -59px 349px hsl(1884.6, 100%, 50%), -60px 350px hsl(1890, 100%, 50%), -59px 351px hsl(1895.4, 100%, 50%), -59px 352px hsl(1900.8, 100%, 50%), -59px 353px hsl(1906.2, 100%, 50%), -59px 354px hsl(1911.6, 100%, 50%), -59px 355px hsl(1917, 100%, 50%), -58px 356px hsl(1922.4, 100%, 50%), -58px 357px hsl(1927.8, 100%, 50%), -58px 358px hsl(1933.2, 100%, 50%), -57px 359px hsl(1938.6, 100%, 50%), -57px 360px hsl(1944, 100%, 50%), -56px 361px hsl(1949.4, 100%, 50%), -55px 362px hsl(1954.8, 100%, 50%), -55px 363px hsl(1960.2, 100%, 50%), -54px 364px hsl(1965.6, 100%, 50%), -53px 365px hsl(1971, 100%, 50%), -52px 366px hsl(1976.4, 100%, 50%), -51px 367px hsl(1981.8, 100%, 50%), -50px 368px hsl(1987.2, 100%, 50%), -49px 369px hsl(1992.6, 100%, 50%), -48px 370px hsl(1998, 100%, 50%), -47px 371px hsl(2003.4, 100%, 50%), -46px 372px hsl(2008.8, 100%, 50%), -45px 373px hsl(2014.2, 100%, 50%), -43px 374px hsl(2019.6, 100%, 50%), -42px 375px hsl(2025, 100%, 50%), -41px 376px hsl(2030.4, 100%, 50%), -39px 377px hsl(2035.8, 100%, 50%), -38px 378px hsl(2041.2, 100%, 50%), -36px 379px hsl(2046.6, 100%, 50%), -35px 380px hsl(2052, 100%, 50%), -33px 381px hsl(2057.4, 100%, 50%), -32px 382px hsl(2062.8, 100%, 50%), -30px 383px hsl(2068.2, 100%, 50%), -28px 384px hsl(2073.6, 100%, 50%), -27px 385px hsl(2079, 100%, 50%), -25px 386px hsl(2084.4, 100%, 50%), -23px 387px hsl(2089.8, 100%, 50%), -22px 388px hsl(2095.2, 100%, 50%), -20px 389px hsl(2100.6, 100%, 50%), -18px 390px hsl(2106, 100%, 50%), -16px 391px hsl(2111.4, 100%, 50%), -14px 392px hsl(2116.8, 100%, 50%), -13px 393px hsl(2122.2, 100%, 50%), -11px 394px hsl(2127.6, 100%, 50%), -9px 395px hsl(2133, 100%, 50%), -7px 396px hsl(2138.4, 100%, 50%), -5px 397px hsl(2143.8, 100%, 50%), -3px 398px hsl(2149.2, 100%, 50%), -1px 399px hsl(2154.6, 100%, 50%); font-size: 40px;";
