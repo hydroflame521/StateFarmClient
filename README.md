@@ -250,7 +250,7 @@ _**Common detection Methods:**_
 
 - **susdung** for README additions.
 
-- **Zertalious**: for code that was copied in older versions. His code has been replaced and soon the core stuff that is in common will be replaced by LibertyMutual.
+- **Zertalious**: code that used to be present.
 
 
 ## Disclaimer:
