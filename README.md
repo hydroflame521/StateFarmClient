@@ -213,7 +213,10 @@ With the exception of the color pickers and some links, these should all be bind
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#ban-circumvention)Ban Circumvention:
 > BWD has appointed **Eggforcers** that will ban cheaters by **first-person spectating** them.
-> If you use a private window or clear cookies an cache for the site, then you don't have anything to worry about. However, if you don't, or you want to use an account, or you're just interested, we've compiled some info below.
+> 
+> If you use a private window or clear cookies and cache for the site, then you mostly don't have anything to worry about. Most bans usually just apply to your browser site data, so clearing works. If you want to be completely anonymous while using StateFarm Client, use a VPN in conjunction with a private window. BWD hasn't implemented anything more advanced than this to track users, likely as it would lead to many false positives, especially in schools. But they may do something like cross-browser tracking in the future at any time, so be aware.
+>
+> However, if you don't, you want to use an account, or you're just interested, we've compiled some info below.
 
 _**Common detection Methods:**_
 > Eggforcers (normal players too) will look for the following actions in your gameplay to detection cheating. Avoid overusing them to an extent.
@@ -244,10 +247,10 @@ _**Common detection Methods:**_
 **Real Ban Circumvention:**
 > As these are very rare, we have not been able to analyse one of these bans. However, it can be assumed it works like booting, but for the whole game. VPNs/proxies would most likely work just fine.
 
-# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#adblocking)AdBlocking
-> Advertisments are quite a nuisance in Shell Shockers, and BWD even added Adblock punishments. Luckly, there are multiple methods to remove ads in Shell Shockers reliably and quickly.
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#adblocking)Adblocking
+> Advertisments are quite a nuisance in Shell Shockers, and BWD even added Adblock punishments (5 seconds extra waiting time). Luckily, there are multiple methods to remove ads in Shell Shockers reliably and quickly.
  
-> This is unrelated to StateFarm Client but is here as a helpful tip for user experience improvement.
+> This is unspecific to StateFarm Client but is here as a helpful tip for user experience improvement.
 
 **Procedure:**
 1. Install [Ublock Orgin](https://ublockorigin.com/) -  the best blocker. (Note that you should install "[Ublock Origin](https://ublockorigin.com/)" and not "Ublock" they are different.)
