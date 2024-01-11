@@ -14,7 +14,7 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly 
 
 # Download Sources:
 
-- _**Check out our [Github repository](https://github.com/Hydroflame522/StateFarmClient)**_.
+- _**Check out our [GitHub repository](https://github.com/Hydroflame522/StateFarmClient)**_.
 
 - _**Install on [GreasyFork](https://greasyfork.org/en/scripts/482982-statefarm-client-v3)**_.
 
@@ -28,8 +28,9 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly 
 2. [Features](#features)
 3. [Gameplay Strategies](#gameplay-strategies)
 4. [Ban Circumvention](#ban-circumvention)
-5. [Issues and Troubleshooting](#issues-and-troubleshooting)
-6. [Credits and Disclaimer](#credits-and-disclaimer)
+5. [Adblocking](#adblocking)
+6. [Issues and Troubleshooting](#issues-and-troubleshooting)
+7. [Credits and Disclaimer](#credits-and-disclaimer)
 
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#installation-tutorial)Installation Tutorial:
@@ -152,10 +153,20 @@ You are done with installation!
 - ***Just Exclude***: changes the ESP to not display tracers or ESP of blacklisted players.
 - ***Highlight***: just changes the color of ESP boxes/tracers if the blacklist matches that player.
 - ***Blacklist Highlight Color***: self explanatory.
+
+![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1194992411693301831/image.png)
 ## Misc Tab:
 -   _**UnlockSkins**_: unlocks all skins in shellshockers locally, other players will not see them.
 -   _**ShowStream**_: Shows all shellshockers streams going on in game.
-![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1194217101662093392/image.png)
+-  **SEIZURE OPTIONS**: This is intended to cause visual effects similar to an epileptic seizure for other players.
+
+-   _**SeizureX**_: This adds the amount entered in the slider every frame to the yaw. Just enabling this is like helicopter hacks.
+-   _**SeizureY**_: This does the same but vertically by modifying pitch (vertical) angle. Enabling just this will make the player appear to be rolling. 
+> When both the X and Y options are enabled and high values are entered, the player's yaw/pitch will effectively be random every frame, causing them to look ridiculous.
+>
+> Sometimes a side effect of this is that the player model remains skewed even while returning to normal play.
+
+![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1194986273430065232/image.png)
 ## Client & About:
 -   _**Hide GUI**_: hides upon pressing the button or the keybind (default H).
 -   _**Theme**_: Allows the user to choose from a wide range of themes.
@@ -183,7 +194,7 @@ With the exception of the color pickers and some links, these should all be bind
 |Eggk47![eggk-47](https://cdn.discordapp.com/attachments/898816619344699436/1188361999319580673/latest.png)|Close-mid range fights      |Antibloom greatly enhances DPS|Jump around erratically while emptying magazine with aimbot locked on
 |Scrambler![scrambler](https://cdn.discordapp.com/attachments/898816619344699436/1188362258061992016/latest.png?)|Close quarter fights       |Just aimbot is best, with nearest targeting |Appoarch your target, reduce distance, quickly kill          |
 |RPEGG ![rpegg](https://cdn.discordapp.com/attachments/898816619344699436/1188362328446599268/latest.png) |Long range|Poor synergies with most modules | Use ESP to predict where they will go, shoot at the floor|
-|Free Ranger![free ranger](https://cdn.discordapp.com/attachments/898816619344699436/1188362387217203240/latest.png)   |Long-mid range|Strafe jumping while shooting or trickshots|lock on your target and quickly spam shots with prediction|
+|Free Ranger![free ranger](https://cdn.discordapp.com/attachments/898816619344699436/1188362387217203240/latest.png)   |Long-mid range|Use HoldToFire and Antibloom to quickly deal damage|Walk in a straight line approaching your target, taking advantage of the gun's high ammo count.|
 |Whipper![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1188362466292416633/latest.png)   |Close-mid range fights|Antibloom greatly enhances DPS|Empty magazine with aimbot locked on, jump around erratically or keep distance at mid range|
 |Crackshot  ![crackshot](https://cdn.discordapp.com/attachments/898816619344699436/1188362580067094608/latest.png)     |Sniping/All ranges|In closer ranges, antibloom makes this very powerful. Good for trickshotting|(with prediction) Shoot revealed opponents at long range, or defend yourself when attacked
 |Tri-Hard![tri-hard](https://cdn.discordapp.com/attachments/898816619344699436/1188362657040973905/latest.png)      |close-mid (sometimes long) range |Antibloom greatly enhances DPS|Jump around erratically while spamming shots at closer range, scope in and spam at longer range|
@@ -233,14 +244,32 @@ _**Common detection Methods:**_
 **Real Ban Circumvention:**
 > As these are very rare, we have not been able to analyse one of these bans. However, it can be assumed it works like booting, but for the whole game. VPNs/proxies would most likely work just fine.
 
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#adblocking)AdBlocking
+> Advertisments are quite a nuisance in Shell Shockers, and BWD even added Adblock punishments. Luckly, there are multiple methods to remove ads in Shell Shockers reliably and quickly.
+ 
+> This is unrelated to StateFarm Client but is here as a helpful tip for user experience improvement.
+
+**Procedure:**
+1. Install [Ublock Orgin](https://ublockorigin.com/) -  the best blocker. (Note that you should install "[Ublock Origin](https://ublockorigin.com/)" and not "Ublock" they are different.)
+
+2. Go to the Ublock Origin settings.![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1194989237431443466/image.png)
+3. Enter the "Filter lists" tab.
+![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1194989547159834634/image.png)
+4. Keep the default filter lists and enable "uBlock filters – Annoyances".
+![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1194990012488482876/image.png)
+5. Click the "Apply changes" button on the top.
+![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1194990278709358642/image.png)
+6. You are done! Go to Shell Shockers and enjoy Ad-free gameplay!
+
+> If Adblock is still detected, disable other extensions/userscripts that might interfere with uBlock Orgin's blocking. Also disable built in browser blocking.
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#issues-and-troubleshooting)Issues and Troubleshooting
 
 
 |       Know Issues         |  Solution                                                |
 |----------------|---------------------------------------------|
-|Stuck on Shellshockers loading screen|Press Crtl + F5(or fn + F5) until "Script Injected" in shown. This performs a 'hard reset', discarding any cached files which could be causing issues.
+|Stuck on Shellshockers loading screen|Press Crrl + F5 (or fn + F5) until "Script Injected" in shown. This performs a 'hard reset', discarding any cached files which could be causing issues.
 
-> If you have any issues, feel free to contact us in our [discord server](https://discord.gg/HJuZ24jG).
+> If you have any issues, feel free to contact us in our [Discord server](https://discord.gg/HJuZ24jG).
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#credits-and-disclaimer)Credits and Disclaimer
 
