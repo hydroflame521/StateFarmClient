@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.2.1
+// @version      3.2.2
 // @license      GPL-3.0
 // @description  Only public script with bloom cheats! Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
@@ -66,7 +66,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.2.1";
+    const version="3.2.2";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -185,26 +185,30 @@
                 tp[binding+"BindButton"].title=event;
                 bindsArray[binding]=event;
                 localStorage.setItem(binding+"Bind",JSON.stringify(event));
-                showMsg("Binded "+tp[binding+"Button"].label+" to key: "+event);
+                createPopup("Binded "+tp[binding+"Button"].label+" to key: "+event);
                 binding=false;
         } else {
             Object.keys(bindsArray).forEach(function (module) {
                 if ((bindsArray[module] == event) && module!="zoom") {
                     let state=change(module)
+                    let popupText=state
                     if (typeof state === "boolean") {
-                        state = (state ? 'ON' : 'OFF');
+                        state=(state?"ON":"OFF");
                     };
                     if (state!="NOMSG") {
-                        state="Set "+module+" to: "+state;
+                        popupText="Set "+module+" to: "+state;
+                        if (extract("announcer")) {
+                            sendChatMessage("I just set "+module+" to "+state+"!");
+                        };
                     } else {
                         switch (module) {
                             case ("hide"):
-                                state="Toggled GUI"; break;
+                                popupText="Toggled GUI"; break;
                             case ("panic"):
-                                state="Exiting to set URL..."; break;
+                                popupText="Exiting to set URL..."; break;
                         };
                     };
-                    showMsg(state);
+                    createPopup(popupText);
                 };
             });
         };
@@ -336,6 +340,7 @@
                 initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm On Top! ",});
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "AutoEZ", storeAs: "autoEZ", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "CheatAccuse", storeAs: "cheatAccuse", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Join/Leave Msgs Options", storeAs: "joinLeaveFolder",});
@@ -363,12 +368,13 @@
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "ShowStreams", storeAs: "showStreams", bindLocation: tp.miscTab.pages[1],});
+            initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
             // initModule({ location: tp.miscTab.pages[0], title: "Upside Down", storeAs: "upsideDown", bindLocation: tp.miscTab.pages[1],});
             initFolder({ location: tp.miscTab.pages[0], title: "Seizure Options", storeAs: "seizureFolder",});
                 initModule({ location: tp.seizureFolder, title: "SeizureX", storeAs: "enableSeizureX", bindLocation: tp.miscTab.pages[1],});
-                initModule({ location: tp.seizureFolder, title: "X Amount", storeAs: "amountSeizureX", slider: {min: -10, max: 10, step: 0.01}, defaultValue: 2,});
+                initModule({ location: tp.seizureFolder, title: "X Amount", storeAs: "amountSeizureX", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
                 initModule({ location: tp.seizureFolder, title: "SeizureY", storeAs: "enableSeizureY", bindLocation: tp.miscTab.pages[1],});
-                initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: {min: -10, max: 10, step: 0.01}, defaultValue: 2,});
+                initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
         //CLIENT MODULES
         initFolder({ location: tp.pane, title: "Client & About", storeAs: "clientFolder",});
         initTab({ location: tp.clientFolder, storeAs: "clientTab" })
@@ -406,7 +412,7 @@
         updateConfig();
     };
     //visual functions
-    const showMsg = function (text,type) {
+    const createPopup = function (text,type) {
         try {
             if (extract("popups")) {
                 const messageContainer = document.getElementById('message-container');
@@ -1318,10 +1324,10 @@
                 // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
                 // getVar("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
 
-                showMsg("Script injected!","success");
+                createPopup("Script injected!","success");
                 console.log(injectionString,allFuncName);
             } catch (err) {
-                showMsg("Error! Scipt injection failed! See console.","error")
+                createPopup("Error! Scipt injection failed! See console.","error")
                 alert( 'Oh bollocks! Looks like the script is out of date. Report this data to the original developers and any errors in the console.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
                 console.log(err);
                 return js;
@@ -1827,6 +1833,9 @@
                 if (ss.MYPLAYER.pitch<1.5 && ss.MYPLAYER.pitch>-1.5) {
                     ss.MYPLAYER.pitch=Math.PI;
                 };
+            };
+            if (extract("silentRoll")) {
+                ss.MYPLAYER.pitch+=2*Math.PI;
             };
         });
     };
