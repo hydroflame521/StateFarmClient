@@ -101,8 +101,8 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
-    let whitelistPlayers,blacklistPlayers;
+    let ss,msgElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let whitelistPlayers,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     //menu interaction functions
@@ -289,7 +289,7 @@
                 initModule({ location: tp.aimbotFolder, title: "Antisneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "HoldToFire", storeAs: "holdToFire", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "TurboFire", storeAs: "holdToFire", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "autoFire", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
@@ -298,6 +298,7 @@
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1],});
             initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder",});
                 initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}], defaultValue: "static",});
@@ -319,10 +320,12 @@
                     initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff",});
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 3}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
-            initModule({ location: tp.renderTab.pages[0], title: "ShowBloom", storeAs: "revealBloom", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "PlayerStats", storeAs: "playerStats", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: {min: 0, max: 10, step: 0.25}, defaultValue: 1,});
         //CHAT MODULES
@@ -459,7 +462,7 @@
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
             }
-            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats {
+            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats, .playerinfo {
                 font-family: 'Bahnschrift', sans-serif !important;
                 font-size: 16px;
             }
@@ -560,6 +563,24 @@
         `);
         document.body.appendChild(playerstatsElement);
         playerstatsElement.style.display = 'none';
+        //initiate hp div and css and shit
+        playerinfoElement = document.createElement('div'); // create the element directly
+        playerinfoElement.classList.add('playerinfo');
+        playerinfoElement.setAttribute('style', `
+            position: fixed;
+            right: 20px;
+            bottom: 180px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            font-weight: bolder;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            z-index: 999999;
+        `);
+        document.body.appendChild(playerinfoElement);
+        playerinfoElement.style.display = 'none';
         //initiate bloom indicator div and css and shit
         redCircle = document.createElement('div');
         redCircle.style.position = 'fixed';
@@ -800,6 +821,16 @@
     const calculatePitch = function (pos) {
         return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
     };
+    const getAngularDifference = function (obj1,obj2) {
+        return Math.abs(obj1.yaw-obj2.yaw)+Math.abs(obj1.pitch-obj2.pitch);
+    };
+    const getDirectionVectorPlayer = function (ss,player) {
+        return {
+            x: player.actor.mesh.position.x - ss.MYPLAYER.actor.mesh.position.x,
+            y: player.actor.mesh.position.y - ss.MYPLAYER.actor.mesh.position.y,
+            z: player.actor.mesh.position.z - ss.MYPLAYER.actor.mesh.position.z,
+        };
+    };
     const reverse_string = function (str) { return str.split("").reverse().join("") };
     const isPartialMatch = function (array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
@@ -907,9 +938,21 @@
             box.renderingGroupId = 1;
             box.parent=newParent;
             object.box=box;
+            //TARGETS
+            let target
+            if (type=="playerESP") {
+                target = ss.BABYLONJS.MeshBuilder.CreateSphere("sphere", { diameter: 0.05 }, newScene);
+                target.material = new ss.BABYLONJS.StandardMaterial("sphereMaterial", newScene);
+                target.material.diffuseColor = new ss.BABYLONJS.Color3(1, 0, 0);
+                target.material.alpha = 0.5;
+                target.position.y = 0.3;
+                target.renderingGroupId = 1;
+                target.parent=newParent;
+                object.target=target;
+            };
             //stuff
             object.generatedESP=true;
-            ESPArray.push([tracerLines,box,object]);
+            ESPArray.push([object,tracerLines,box,target]);
         };
         object.tracerLines.setVerticesData(ss.BABYLONJS.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
         object.tracerLines.color = new ss.BABYLONJS.Color3(...color);
@@ -918,6 +961,7 @@
     const everySecond = function () {
         coordElement.style.display = 'none';
         playerstatsElement.style.display = 'none';
+        playerinfoElement.style.display = 'none';
         redCircle.style.display = 'none';
         allFolders.forEach(function (name) {
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
@@ -996,7 +1040,7 @@
             };
         };
     };
-    const highlightCurrentlyTargeting = function (ss, currentlyTargeting) {
+    const highlightCurrentlyTargeting = function (ss, currentlyTargeting, aimbot) {
         let playerArray = [];
         ss.PLAYERS.forEach(player=>{
             if (player && (currentlyTargeting!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
@@ -1007,7 +1051,7 @@
             };
         });
         Array.from(document.getElementById("playerList").children).forEach(playerListItem=>{
-            if (currentlyTargeting?.playing && currentlyTargeting?.name === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
+            if (aimbot&&currentlyTargeting?.playing && currentlyTargeting?.name === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
                 playerListItem.style.backgroundColor = 'blue';
             } else {
                 playerListItem.style.backgroundColor = '';
@@ -1018,21 +1062,16 @@
     const highlightCrossHairReticleDot = function (ss, bool) {
         let dot = document.getElementById("reticleDot");
         let crosshair = document.getElementById("crosshairContainer");
-        if (bool){
-            let isAmmoFull = ss.MYPLAYER.weapon.ammo.rounds === ss.MYPLAYER.weapon.ammo.capacity
-            dot.style.backgroundColor = isAmmoFull ? 'blue' : '';
-            Array.from(crosshair.children).forEach(part=>{
-                part.style.backgroundColor = isAmmoFull ? 'blue' : '';
-                part.style.padding = isAmmoFull ? '2px' : '';
-            });
-        } else {
-            dot.style.backgroundColor = '';
-            dot.style.padding = '';
-            Array.from(crosshair.children).forEach(part=>{
-                part.style.backgroundColor = '';
-                part.style.padding = '';
-            });
+        let setTo='';
+        if (bool===true) {
+            setTo="green";
+        } else if (bool===false) {
+            setTo="red";
         };
+        dot.style.backgroundColor = setTo;
+        Array.from(crosshair.children).forEach(part=>{
+            part.style.backgroundColor = setTo;
+        });
     };
     const handleChat = function (textAfterLastColon) {
         const responses = {
@@ -1207,6 +1246,13 @@
 
         return [yawBulletDiff,pitchBulletDiff];
     };
+    const applyBloom = function(dir,multiplier) { //multiplier can be set to -1 to invert
+        const bloomValues=predictBloom(ss,dir.yaw,dir.pitch);
+        return {
+            yaw: dir.yaw+(bloomValues[0]*multiplier),
+            pitch: dir.pitch+(bloomValues[1]*multiplier),
+        };
+    };
     const predictPosition = function(ss,player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
         let velocityVector = new ss.BABYLONJS.Vector3(player.dx, player.dy, player.dz);
         const bulletSpeed=ss.WEAPONS.classes[ss.MYPLAYER.primaryWeaponItem.exclusive_for_class].weapon.velocity;
@@ -1218,9 +1264,29 @@
         const terminalVelocity = -cappedVector.y;
         const timeAccelerating = Math.min(timeDiff, (terminalVelocity - velocityVector.y) / -0.012);
         const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
-        const rayToGround = ss.RAYS.rayCollidesWithMap(newPos, new ss.BABYLONJS.Vector3(0, predictedY - 1 - newPos.y, 0), ss.RAYS.grenadeCollidesWithCell);
+        const rayToGround = ss.RAYS.rayCollidesWithMap(newPos,new ss.BABYLONJS.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
         newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
         return newPos;
+    };
+    const getLineOfSight = function(ss,pos) { //returns true if no wall collisions
+        let distance=distancePlayers(ss.MYPLAYER,pos);
+        let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
+        if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
+        
+        const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
+        let gunOffset = ss.BABYLONJS.Matrix.Translation(0, .1, 0);
+        gunOffset = gunOffset.multiply(playerRot)
+        gunOffset = gunOffset.add(ss.BABYLONJS.Matrix.Translation(ss.MYPLAYER.x, ss.MYPLAYER.y + .3, ss.MYPLAYER.z));
+        const gunPosition = gunOffset.getTranslation();
+
+        const myVector=new ss.BABYLONJS.Vector3(gunPosition.x, gunPosition.y, gunPosition.z);
+        const directionVector=new ss.BABYLONJS.Vector3(Math.sin(dir.yaw)*distance,Math.sin(-dir.pitch)*distance,Math.cos(dir.yaw)*distance);
+
+        const collisionWhereLooking=ss.RAYS.rayCollidesWithMap(myVector,directionVector,ss.RAYS.projectileCollidesWithCell);
+
+        // console.log(!(!collisionWhereLooking));
+
+        return (!collisionWhereLooking);
     };
     const getAimbot = function(ss,player) {
         let aimAt;
@@ -1229,25 +1295,23 @@
         } else {
             aimAt = new ss.BABYLONJS.Vector3(player.x, player.y, player.z);
         };
-        let aimDir = {
+
+        let aimDirectionVector = {
             x: aimAt.x - ss.MYPLAYER.x,
-            y: aimAt.y - ss.MYPLAYER.y,
+            y: aimAt.y - ss.MYPLAYER.y - 0.05,
             z: aimAt.z - ss.MYPLAYER.z,
         };
 
-        let finalYaw   = calculateYaw(aimDir);
-        let finalPitch = calculatePitch(aimDir);
+        let finalDir = {
+            yaw: calculateYaw(aimDirectionVector),
+            pitch: calculatePitch(aimDirectionVector),
+        };
 
         if (extract("antiBloom")) {
-            const bloomValues=predictBloom(ss,finalYaw,finalPitch);
-            finalYaw  =finalYaw  +(bloomValues[0]);
-            finalPitch=finalPitch+(bloomValues[1]);
+            finalDir=applyBloom(finalDir,1);
         };
         
-        return {
-            yaw: finalYaw,
-            pitch: finalPitch,
-        };
+        return finalDir;
     };
     const injectScript = function () {
         window.fixCamera = function () {
@@ -1491,7 +1555,7 @@
             const objExists=Date.now();
 
             //update playerESP boxes, tracer lines, colors
-            if (extract("playerESP")||extract("tracers")||extract("chams")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
+            if (extract("playerESP")||extract("tracers")||extract("chams")||extract("targets")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
                 ss.PLAYERS.forEach(player=>{
                     if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                         const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
@@ -1523,6 +1587,7 @@
 
                         player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
                         player.box.visibility = extract("playerESP") && passedLists;
+                        player.target.visibility = extract("targets") && passedLists;
 
                         if (player.actor) {
                             eggSize=extract("eggSize")
@@ -1615,17 +1680,18 @@
                 });
             };
             for ( let i=0;i<ESPArray.length;i++) {
-                if (ESPArray[i][2] && ESPArray[i][2].exists==objExists) { //obj still exists and still relevant
+                if (ESPArray[i][0] && ESPArray[i][0].exists==objExists) { //obj still exists and still relevant
                     //do nothing, lol
                 } else {
-                    if (ESPArray[i][2]) { //obj still exists but no longer relevant
+                    if (ESPArray[i][0]) { //obj still exists but no longer relevant
                         console.log( '%cRemoving tracer line due to irrelevant object', 'color: white; background: red' );
-                        ESPArray[i][2].generatedESP=false;
+                        ESPArray[i][0].generatedESP=false;
                     } else { //obj no longer exists
                         console.log( '%cRemoving tracer line due to no longer exists', 'color: white; background: red' );
                     };
-                    ESPArray[i][0].dispose();
-                    ESPArray[i][1].dispose();
+                    ESPArray[i][1].dispose(); //tracer
+                    ESPArray[i][2].dispose(); //esp box
+                    if (ESPArray[i][3]) {ESPArray[i][3].dispose()}; //target
                     ESPArray.splice(i,1);
                 };
             }; window.newGame=false;
@@ -1661,7 +1727,7 @@
                 const fonx = Number((ss.MYPLAYER.actor.mesh.position.x).toFixed(3));
                 const fony = Number((ss.MYPLAYER.actor.mesh.position.y).toFixed(3));
                 const fonz = Number((ss.MYPLAYER.actor.mesh.position.z).toFixed(3));
-                const yaw = Number((ss.MYPLAYER.yaw).toFixed(3));
+                const yaw = Number((ss.MYPLAYER.yaw).toFixed(3)); //could i function this? yea
                 const pitch = Number((ss.MYPLAYER.pitch).toFixed(3));
                 const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
                 coordElement.innerText = personalCoordinate;
@@ -1680,10 +1746,31 @@
                 void playerstatsElement.offsetWidth;
                 playerstatsElement.style.display = '';
             };
+            if (extract("playerInfo")) {
+                let playerInfoString="";
+                const player=currentlyTargeting||playerLookingAt||undefined
+                if (player && player.playing) {
+                    playerInfoString=playerInfoString+player.name+"\n"
+                    playerInfoString=playerInfoString+"HP: "+Math.round(player.hp)+"\n"
+                    playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
+                    playerInfoString=playerInfoString+"AngleDiff: "+player.angleDiff.toFixed(3)+"\n"
+                };
+                if (playerInfoString=="") {playerInfoString="Not Looking At Player"};
+                playerinfoElement.innerText = playerInfoString;
+                void playerinfoElement.offsetWidth;
+                playerinfoElement.style.display = '';
+            };
             if (extract("debug")) {
                 globalPlayer=ss;
             };
-
+            let reticle
+            if (extract("showLOS")) {
+                const player=currentlyTargeting||playerLookingAt||undefined
+                if (player) {
+                    reticle=getLineOfSight(ss,player)
+                };
+            }
+            highlightCrossHairReticleDot(ss,reticle);
             if ( extract("chatHighlight") ) {
                 document.getElementById("chatOut").style.userSelect="text"
             };
@@ -1709,56 +1796,60 @@
             } else {
                 redCircle.style.display='none';
             };
-            let minimumDistance=9999;
-            let nearestPlayer;
+            let enemyMinimumDistance=999999;
+            let playerLookingAtMinimum=999999;
+            playerNearest=undefined;
+            playerLookingAt=undefined;
+            enemyNearest=undefined;
+            enemyLookingAt=undefined;
             let previousTarget=currentlyTargeting;
+            let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
+            let didAimbot
             // console.log(targetingComplete);
-            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
-                if (!extract("antiSwitch") || !currentlyTargeting) {
-                    currentlyTargeting=false
-                    const targetType=extract("aimbotTargeting");
-                    let minimumValue = 9999;
-                    ss.PLAYERS.forEach(player=>{
-                        if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                            const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
-                            const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
-                            const passedLists=whitelisted&&(!blacklisted);
-                            if (passedLists) {
-                                const distance = distancePlayers(ss.MYPLAYER,player);
-                                if (distance<minimumValue) { //for antisneak, not targeting
-                                    minimumDistance = distance;
-                                    nearestPlayer = player;
+
+            const targetType=extract("aimbotTargeting");
+            let enemyMinimumValue = 9999;
+            ss.PLAYERS.forEach(player=>{
+                if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
+                    const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
+                    const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
+                    const passedLists=whitelisted&&(!blacklisted);
+                    player.distance = distancePlayers(ss.MYPLAYER,player);
+                    const directionVector=getDirectionVectorPlayer(ss,player);
+                    player.angleDiff=getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
+
+                    if (player.angleDiff < playerLookingAtMinimum) {
+                        playerLookingAtMinimum = player.angleDiff;
+                        playerLookingAt = player;
+                    };
+
+                    if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
+                        if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) { //is doing aimbot
+                            if (selectNewTarget) {
+                                if (player.distance<enemyMinimumValue) { //for antisneak, not targeting
+                                    enemyMinimumDistance = player.distance;
+                                    enemyNearest = player;
                                 };
                                 if (targetType=="nearest") {
-                                    if ( distance < minimumValue ) {
-                                        minimumValue = distance;
+                                    if ( player.distance < enemyMinimumValue ) {
+                                        enemyMinimumValue = player.distance;
                                         currentlyTargeting = player;
                                     };
                                 } else if (targetType=="pointingat") {
-                                    const directionVector = {
-                                        x: player.actor.mesh.position.x - ss.MYPLAYER.actor.mesh.position.x,
-                                        y: player.actor.mesh.position.y - ss.MYPLAYER.actor.mesh.position.y,
-                                        z: player.actor.mesh.position.z - ss.MYPLAYER.actor.mesh.position.z,
-                                    };
-                                    // Calculate the angles between the direction vector and the player vector
-                                    const angleYaw = calculateYaw(directionVector);
-                                    const anglePitch = calculatePitch(directionVector);
-                                    // Calculate the absolute angular difference
-                                    const angleDifference = Math.abs(ss.MYPLAYER.yaw - angleYaw) + Math.abs(ss.MYPLAYER.pitch - anglePitch);
-                                    if (angleDifference < minimumValue) {
-                                        minimumValue = angleDifference;
+                                    if (player.angleDiff < enemyMinimumValue) {
+                                        enemyMinimumValue = player.angleDiff;
                                         currentlyTargeting = player;
                                     };
                                 };
-                                currentlyTargetingName = currentlyTargeting?.name;
                             };
                         };
-                    });
-                    highlightCurrentlyTargeting(ss, currentlyTargeting);
-                    highlightCrossHairReticleDot(ss, true);
+                    };
                 };
+            });
+            currentlyTargetingName = currentlyTargeting?.name;
+            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
-
+                    didAimbot=true
                     if (!extract("silentAimbot")) {
                         const distanceBetweenPlayers = distancePlayers(ss.MYPLAYER,currentlyTargeting);
     
@@ -1783,14 +1874,14 @@
 
                     if (extract("antiSneak")!==0) {
                         let acceptableDistance = extract("antiSneak");
-                        if ( minimumDistance < acceptableDistance) {
-                            currentlyTargeting = nearestPlayer;
+                        if ( enemyMinimumDistance < acceptableDistance) {
+                            currentlyTargeting = enemyNearest;
                             if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
                                 if (ss.MYPLAYER.weaponIdx === 0){ss.MYPLAYER.swapWeapon(1);}
                                 else {ss.MYPLAYER.reload();}
                             };
                             ss.MYPLAYER.pullTrigger();
-                            // console.log("ANTISNEAK---->", nearestPlayer?.name, minimumDistance);
+                            // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
                         };
                     };
 
@@ -1817,9 +1908,6 @@
             } else {
                 currentlyTargeting=false;
                 targetingComplete=false;
-                if (!extract("aimbot")) {
-                    highlightCrossHairReticleDot(ss, false);
-                };
                 if (extract("enableSeizureX")) {
                     ss.MYPLAYER.yaw+=extract("amountSeizureX")
                 };
@@ -1827,6 +1915,7 @@
                     ss.MYPLAYER.pitch+=extract("amountSeizureY")
                 };
             };
+            highlightCurrentlyTargeting(ss, currentlyTargeting, didAimbot);
             yawCache=ss.MYPLAYER.yaw;
             pitchCache=ss.MYPLAYER.pitch;
             if (extract("upsideDown")) { //sorta useless
