@@ -283,7 +283,6 @@
                 initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "Line-of-sight", storeAs: "lineOfSight", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Antisnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 1.05, step: 0.01}, defaultValue: 0,});
@@ -1269,8 +1268,8 @@
         newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
         return newPos;
     };
-    const getLineOfSight = function(ss, pos) { //returns true if no wall collisions
-        let distance = distancePlayers(ss.MYPLAYER,pos);
+    const getLineOfSight = function(ss,pos) { //returns true if no wall collisions
+        let distance=distancePlayers(ss.MYPLAYER,pos);
         let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
         if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
         
@@ -1280,10 +1279,10 @@
         gunOffset = gunOffset.add(ss.BABYLONJS.Matrix.Translation(ss.MYPLAYER.x, ss.MYPLAYER.y + .3, ss.MYPLAYER.z));
         const gunPosition = gunOffset.getTranslation();
 
-        const myVector = new ss.BABYLONJS.Vector3(gunPosition.x, gunPosition.y, gunPosition.z);
-        const directionVector = new ss.BABYLONJS.Vector3(Math.sin(dir.yaw)*distance,Math.sin(-dir.pitch)*distance,Math.cos(dir.yaw)*distance);
+        const myVector=new ss.BABYLONJS.Vector3(gunPosition.x, gunPosition.y, gunPosition.z);
+        const directionVector=new ss.BABYLONJS.Vector3(Math.sin(dir.yaw)*distance,Math.sin(-dir.pitch)*distance,Math.cos(dir.yaw)*distance);
 
-        const collisionWhereLooking = ss.RAYS.rayCollidesWithMap(myVector,directionVector,ss.RAYS.projectileCollidesWithCell);
+        const collisionWhereLooking=ss.RAYS.rayCollidesWithMap(myVector,directionVector,ss.RAYS.projectileCollidesWithCell);
 
         // console.log(!(!collisionWhereLooking));
 
@@ -1431,9 +1430,19 @@
             //bypass chat filter
             match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
             js=js.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
+            //admin spoof lol
+            js=js.replace('isGameOwner(){return qr}','isGameOwner(){return true}')
+            js=js.replace('get adminRoles(){return O.adminRoles}','get adminRoles(){return 255}')
+            //sus
+            js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
+            js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
+
+
 
             //replace graveyard:
-
+            // js=js.replace('et.booted','et.noboot')
+            // js=js.replace('eu(t)','Bc(t)')
+            // js=js.replace('vueApp.showPlayerActionsPopup(i)','vueApp.showPlayerActionsPopup(i);console.log(i)')
             //trajectories
             //bullet debugging
             // js = js.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
@@ -1764,11 +1773,11 @@
             if (extract("debug")) {
                 globalPlayer=ss;
             };
-            let reticle;
+            let reticle
             if (extract("showLOS")) {
                 const player=currentlyTargeting||playerLookingAt||undefined
                 if (player) {
-                    reticle = getLineOfSight(ss,player)
+                    reticle=getLineOfSight(ss,player)
                 };
             }
             highlightCrossHairReticleDot(ss,reticle);
@@ -1810,67 +1819,6 @@
 
             const targetType=extract("aimbotTargeting");
             let enemyMinimumValue = 9999;
-
-            // do aimbot
-            function findBestPlayerAimTarget() {
-                if (extract("antiSneak") !== 0) { // returns from function if a player is found
-                    let acceptableDistance = extract("antiSneak");
-                    let minimumDistancePlayer = undefined;
-                    for (let player of ss.PLAYERS) {
-                        if (player === undefined) {continue};
-
-                        if (minimumDistancePlayer === undefined) {
-                            minimumDistancePlayer = player;
-                        }
-
-                        if (player.distance < minimumDistancePlayer.distance) {
-                            minimumDistancePlayer = player;
-                        };
-                    }
-
-                    if (minimumDistancePlayer.distance < acceptableDistance) {
-                        return minimumDistancePlayer;
-                    }
-                }
-
-                let candidates = [];
-
-                for (let player of ss.PLAYERS) {
-                    var is_whitelisted = (!extract("enableWhitelistAimbot") || extract("enableWhitelistAimbot") && isPartialMatch(whitelistPlayers, player.name));
-                    var is_blacklisted = (extract("enableBlacklistAimbot") && isPartialMatch(blacklistPlayers, player.name));
-
-                    if (is_whitelisted && !is_blacklisted && player !== undefined && player.playing && (player.hp > 0) && ((!ss.MYPLAYER.team) || (player.team !== ss.MYPLAYER.team)) && player !== ss.MYPLAYER) {
-                        candidates.push(player);
-                    }
-                }
-                if (extract("lineOfSight")) {
-                    candidates = candidates.filter(candidate => candidate !== undefined && getLineOfSight(ss, candidate));
-                }
-                let targetType = extract("aimbotTargeting");
-                if (targetType == "nearest") {
-                    candidates.sort((a, b) => a.distance - b.distance);
-                }
-                if (targetType == "pointingat") {
-                    for (let candidate of candidates) {
-                        const directionVector = getDirectionVectorPlayer(ss, candidate);
-                        candidate.angleDiff = getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
-                    }
-                    candidates.sort((a, b) => a.angleDiff - b.angleDiff);
-                }
-                if (candidates.length > 0) {
-                    return candidates[0];
-                } else {
-                    return undefined
-                }
-
-
-            }
-
-
-            /*if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
-            }
-
-
             ss.PLAYERS.forEach(player=>{
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
@@ -1892,50 +1840,23 @@
                                     enemyMinimumDistance = player.distance;
                                     enemyNearest = player;
                                 };
-                                let has_target = false;
                                 if (targetType=="nearest") {
-                                    found_target = false;
-                                    for (let check_player of ss.PLAYERS) {
-                                        if (check_player === undefined) {continue};
-                                        if ( check_player.distance < enemyMinimumValue ) {
-                                            if (extract("lineOfSight") && !getLineOfSight(ss,check_player)) { //line of sight check
-                                                console.log("line of sight check failed")
-                                                continue;
-                                            }
-                                            enemyMinimumValue = check_player.distance;
-                                            currentlyTargeting = check_player;
-                                            found_target = true;
-                                        };
-                                    }
+                                    if ( player.distance < enemyMinimumValue ) {
+                                        enemyMinimumValue = player.distance;
+                                        currentlyTargeting = player;
+                                    };
                                 } else if (targetType=="pointingat") {
-                                    for (let check_player of ss.PLAYERS) {
-                                        if (check_player === undefined) {continue};
-                                        if (player.angleDiff < enemyMinimumValue) {
-                                            if (extract("lineOfSight") && !getLineOfSight(ss,check_player)) { //line of sight check
-                                                console.log("line of sight check failed")
-                                                continue;
-                                            }
-                                            enemyMinimumValue = check_player.angleDiff;
-                                            currentlyTargeting = check_player;
-                                            found_target = true;
-                                        };
-                                    }
-                                };
-                                if (!found_target) {
-                                    currentlyTargeting = undefined;
+                                    if (player.angleDiff < enemyMinimumValue) {
+                                        enemyMinimumValue = player.angleDiff;
+                                        currentlyTargeting = player;
+                                    };
                                 };
                             };
-                            
                         };
                     };
                 };
-            });*/
-            if (selectNewTarget) {
-                currentlyTargeting = findBestPlayerAimTarget();
-            };
-
+            });
             currentlyTargetingName = currentlyTargeting?.name;
-
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     didAimbot=true
@@ -1974,10 +1895,10 @@
                         };
                     };
 
-                    if (extract("tracers") && currentlyTargeting.tracerLines) {
+                    if (extract("tracers")) {
                         currentlyTargeting.tracerLines.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
-                    if (extract("playerESP") && currentlyTargeting.box) {
+                    if (extract("playerESP")) {
                         currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                     if (extract("autoFire")) {
