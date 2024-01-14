@@ -283,6 +283,7 @@
                 initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "LineOfSight", storeAs: "lineOfSight", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Antisnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 1.05, step: 0.01}, defaultValue: 0,});
@@ -1328,9 +1329,9 @@
         if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
 
         const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
-        let gunOffset = ss.BABYLONJS.Matrix.Translation(0, .1, 0);
+        let gunOffset = ss.BABYLONJS.Matrix.Translation(0, 0.1, 0);
         gunOffset = gunOffset.multiply(playerRot)
-        gunOffset = gunOffset.add(ss.BABYLONJS.Matrix.Translation(ss.MYPLAYER.x, ss.MYPLAYER.y + .3, ss.MYPLAYER.z));
+        gunOffset = gunOffset.add(ss.BABYLONJS.Matrix.Translation(ss.MYPLAYER.x, ss.MYPLAYER.y + 0.3, ss.MYPLAYER.z));
         const gunPosition = gunOffset.getTranslation();
 
         const myVector=new ss.BABYLONJS.Vector3(gunPosition.x, gunPosition.y, gunPosition.z);
@@ -1904,12 +1905,13 @@
                                     enemyNearest = player;
                                 };
                                 if (targetType=="nearest") {
-                                    if ( player.distance < enemyMinimumValue ) {
+                                    if ( player.distance < enemyMinimumValue && (!extract("lineOfSight") || getLineOfSight(ss,player))) {
+                                        
                                         enemyMinimumValue = player.distance;
                                         currentlyTargeting = player;
                                     };
                                 } else if (targetType=="pointingat") {
-                                    if (player.angleDiff < enemyMinimumValue) {
+                                    if (player.angleDiff < enemyMinimumValue && (!extract("lineOfSight") || getLineOfSight(ss,player))) {
                                         enemyMinimumValue = player.angleDiff;
                                         currentlyTargeting = player;
                                     };
