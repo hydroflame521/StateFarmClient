@@ -418,6 +418,12 @@
         //MISC MODULES
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
+            initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", button: "UNBAN NOW", clickFunction: function(){
+                const userConfirmed=confirm("Unban works by switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
+                if (userConfirmed) {
+                    window.location.replace("https://"+proxyList[3]);
+                };
+            },});
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "ShowStreams", storeAs: "showStreams", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
@@ -1243,9 +1249,7 @@
             "esp ": "you think people can see thru walls? thats absurd",
             "shell": "thats what we're playing",
             "weird": "ur odd",
-            "lag": "get netter internet pooron lol",
-            "tf": "toasted fries",
-            "wtf": "watch your profanity",
+            "lag": "get better internet pooron lol",
             "wth": "watch your heckin profanity",
             "boy": "OH GOD YOU SAID BOY IM REPORTING YOU FOR SEXISM",
             "girl": "OH GOD YOU SAID GIRL IM REPORTING YOU FOR SEXISM",
@@ -1258,6 +1262,7 @@
             "sad": "imagine getting sad over an egg game",
             "happy": "imagine getting happy over an egg game",
             "cheater": "Ho Ho Ho! Santa's Here! And I'm gonna give you a present! A ban! <AdminSpoof enabled>",
+            "tf": "toasted fries",
         };
 
         const foundKeywords = Object.keys(responses).filter(keyword =>
