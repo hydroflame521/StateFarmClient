@@ -366,6 +366,13 @@
                 initModule({ location: tp.blacklistFolder, title: "BESP", storeAs: "enableBlacklistTracers", bindLocation: tp.listsTab.pages[1],});
                 initModule({ location: tp.blacklistFolder, title: "BESPType", storeAs: "blacklistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Just Exclude", value: "justexclude"},{text: "Highlight", value: "highlight"},], defaultValue: "justexclude",});
                 initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00",});
+        //AUTOMATION MODULES
+        initFolder({ location: tp.pane, title: "Automation", storeAs: "automationFolder",});
+        initTab({ location: tp.automationFolder, storeAs: "automationTab" })
+            initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
+                initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
+                initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
         //MISC MODULES
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -981,6 +988,9 @@
                 };
             };
         };
+        if (extract("autoJoin")) {
+            vueApp.externPlayObject(2,2,extract("usernameAutoJoin"),-1,extract("joinCode"));
+        };
         addStreamsToInGameUI();
         //block ads kek
         localStorage.timesPlayed = 0;
@@ -1079,14 +1089,14 @@
             "bot": "you're a booooT",
             "stop": "u stop",
             "aimbot": "what aimboot?",
-            "cheat": "sham bam bam banned who? not me",
+            "cheat": "oh youre gonna cheat accuse? keep yapping",
+            "hack": "oh youre gonna cheat accuse? keep yapping",
+            "hax": "oh youre gonna cheat accuse? keep yapping",
             "bro": "brooooo what",
             "spam": "me, spamming? im just chatting",
             "mute": "you dont want to listen to me talk? how weak hahaha",
             "ban": "ban me? no free speech these days",
-            "lmao": "heeheeheehaw",
             "lol": "lolzedong",
-            "bruh": "large BRUH",
             "dude": "dudeinator3000: what is your request",
             "what": "dude what",
             "tf": "toasted fries",
@@ -1104,6 +1114,39 @@
             "stfu": "just reported u for swearing",
             "loser": "ive been speccing u, cheater",
             "code": "A1BXDQ is the code",
+            "rip": "rest in small pieces",
+            "omg": "oh my GAWWWD!",
+            "npc": "literally you rn:",
+            "wth": "ur an npc",
+            "yes": "no, what do you mean? elaborate you npc",
+            "bruh": "did you just say bruh? that is a racist remark",
+            "noob": "1v1 me you bot",
+            "lmfao": "who is this LMFAO, and is he working with LMBAO?",
+            "?": "ask a better question",
+            "huh": "huh, are u bot?",
+            "your mom": "Yo mama's so poor, she can't even afford to pay attention",
+            "your mum": "Yo mama's so poor, she can't even afford to pay attention",
+            "shut": "you shaddup you lil' twerrrrrrp",
+            "dang": "ching chong bing bong wing wong",
+            "trash": "you good sir, are rubbish",
+            "damn": "damns are for the fishies",
+            "care": "yes you do you bot",
+            "go away": "no, you go away u bot",
+            "...": "an ellipsis wooow you're so fancy i bet youre sooo smart",
+            "leave": "i'll leave if you leave",
+            "oh": "ohhhhhh yeahh!!!",
+            "no": "ohhhhhh yeeesss",
+            "hey": "hey is for horses",
+            "client": "i am not using statefarm, definitely not on greasyfork",
+            "script": "i am not using statefarm, definitely not on greasyfork",
+            "troll": "yea i sometimes do trolling. but its not that funny",
+            "well done": "thanks g",
+            "that was": "was it though?",
+            "how": "i want to know too",
+            "esp ": "you think people can see thru walls? thats absurd",
+            "shell": "thats what we're playing",
+            "weird": "ur odd",
+            "lag": "get netter internet poor lol",
         };
 
         const foundKeywords = Object.keys(responses).filter(keyword =>
