@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         StateFarm Client V3
-// @namespace    http://github.com/
+// @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @version      3.3.0
 // @license      GPL-3.0
 // @description  Only public script with bloom cheats! Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
@@ -60,6 +60,8 @@
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @grant        none
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
+// @downloadURL  https://github.com/Hydroflame522/StateFarmClient/raw/main/StateFarmClient.js
+// @updateURL    https://github.com/Hydroflame522/StateFarmClient/raw/main/StateFarmClient.js
 // @run-at       document-start
 // ==/UserScript==
 (function () {
