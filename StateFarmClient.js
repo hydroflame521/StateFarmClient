@@ -1245,6 +1245,19 @@
             "weird": "ur odd",
             "lag": "get netter internet pooron lol",
             "tf": "toasted fries",
+            "wtf": "watch your profanity",
+            "wth": "watch your heckin profanity",
+            "boy": "OH GOD YOU SAID BOY IM REPORTING YOU FOR SEXISM",
+            "girl": "OH GOD YOU SAID GIRL IM REPORTING YOU FOR SEXISM",
+            "monkey": "get outta ur rainforest",
+            "trash": "nah ur father took the recycling with him when he left",
+            "father": "look in a mirror for a lack of father figure",
+            "dad": "look in a mirror for a lack of father figure",
+            "mad": "imagine getting mad over an egg game",
+            "angry": "imagine getting angry over an egg game",
+            "sad": "imagine getting sad over an egg game",
+            "happy": "imagine getting happy over an egg game",
+            "cheater": "Ho Ho Ho! Santa's Here! And I'm gonna give you a present! A ban! <AdminSpoof enabled>",
         };
 
         const foundKeywords = Object.keys(responses).filter(keyword =>
