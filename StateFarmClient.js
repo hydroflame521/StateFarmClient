@@ -336,6 +336,7 @@
             initModule({ location: tp.chatTab.pages[0], title: "ShowFiltered", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "BypassFilter", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});;
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "Tall Chat", storeAs: "tallChat", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
@@ -1394,6 +1395,9 @@
                     msg = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(msg).split(""))).join("");
                 };
             };
+            if (extract("tallChat") && !(msg.includes("᥊"))) {
+                msg = msg + "᥊";
+            };
             return msg
         };
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
@@ -1489,6 +1493,8 @@
             //sus
             js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
             js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
+            //motion blue
+            js=js.replace('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
 
 
 
@@ -1774,7 +1780,7 @@
 
             if ( extract("spamChat") ) {
                 if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
-                    sendChatMessage(extract("spamChatText")+(Date.now().toString()).substring((Date.now().toString()).length - 3));
+                    sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
                     lastSpamMessage=Date.now()
                 };
             };
