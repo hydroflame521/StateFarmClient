@@ -373,6 +373,7 @@
                 initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
                 initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
+                initModule({ location: tp.autoJoinFolder, title: "RandomName", storeAs: "randomName", bindLocation: tp.automationTab.pages[1],});
         //MISC MODULES
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -989,7 +990,10 @@
             };
         };
         if (extract("autoJoin")) {
-            vueApp.externPlayObject(2,2,extract("usernameAutoJoin"),-1,extract("joinCode"));
+            const playerSlots = document.querySelectorAll('.playerSlot--name');
+            const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
+            //console.log("adsknjf--->"mapNames);
+            vueApp.externPlayObject(2,2,extract("randomName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : extract("usernameAutoJoin"),-1,extract("joinCode"));
         };
         addStreamsToInGameUI();
         //block ads kek
@@ -1315,7 +1319,7 @@
         let distance=distancePlayers(ss.MYPLAYER,pos);
         let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
         if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
-        
+
         const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
         let gunOffset = ss.BABYLONJS.Matrix.Translation(0, .1, 0);
         gunOffset = gunOffset.multiply(playerRot)
@@ -1353,7 +1357,7 @@
         if (extract("antiBloom")) {
             finalDir=applyBloom(finalDir,1);
         };
-        
+
         return finalDir;
     };
     const injectScript = function () {
@@ -1905,13 +1909,13 @@
                     didAimbot=true
                     if (!extract("silentAimbot")) {
                         const distanceBetweenPlayers = distancePlayers(ss.MYPLAYER,currentlyTargeting);
-    
+
                         const aimbot=getAimbot(ss,currentlyTargeting);
-    
+
                         const antiSnap=(1-(extract("aimbotAntiSnap")||0));
-    
+
                         if (previousTarget!==currentlyTargeting) { targetingComplete=false };
-    
+
                         function lerp(start, end, alpha) {
                             let value = (1 - alpha ) * start + alpha * end;
                             if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
@@ -1919,7 +1923,7 @@
                             };
                             return value;
                         };
-    
+
                         // Exponential lerp towards the target rotation
                         ss.MYPLAYER.yaw = setPrecision(lerp(ss.MYPLAYER.yaw, aimbot.yaw, antiSnap));
                         ss.MYPLAYER.pitch = setPrecision(lerp(ss.MYPLAYER.pitch, aimbot.pitch, antiSnap));
