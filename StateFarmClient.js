@@ -1090,9 +1090,9 @@
     const handleChat = function (textAfterLastColon) {
         const responses = {
             "report": "report me? pffft. i'm not even human",
+            "aimbot": "what aimboot?",
             "bot": "you're a booooT",
             "stop": "u stop",
-            "aimbot": "what aimboot?",
             "cheat": "oh youre gonna cheat accuse? keep yapping",
             "hack": "oh youre gonna cheat accuse? keep yapping",
             "hax": "oh youre gonna cheat accuse? keep yapping",
@@ -1103,7 +1103,6 @@
             "lol": "lolzedong",
             "dude": "dudeinator3000: what is your request",
             "what": "dude what",
-            "tf": "toasted fries",
             "wtf": "watch your profanity",
             "i'm": "yes you are",
             "im": "yes you are",
@@ -1114,8 +1113,14 @@
             "imagine": "imagine who asked",
             "f u": "funny uncleburger",
             "gg": "good grief",
-            "shut up": "B͇͈͉͍͎̽̾̿̀́͂̓̈́͆͊͋͌͗ͅ͏͎͗͏͇͇̽̾̿̀́̽̿̀̀́̽̀͆̓̈́̓͋͌ͅ͏͌͏͎͉͗͗͌̓̓̓̓̓́̿",
+            "shut up": "",
             "stfu": "just reported u for swearing",
+            "look": "im looking but im not seeing",
+            "nigg": "WHOA we cant have racism on our egg game! tone it down yo",
+            "fuck": "pipe down with those swears boi",
+            "shit": "pipe down with those swears boi",
+            "piss": "pipe down with those swears boi",
+            "dick": "pipe down with those swears boi",
             "loser": "ive been speccing u, cheater",
             "code": "A1BXDQ is the code",
             "rip": "rest in small pieces",
@@ -1150,7 +1155,8 @@
             "esp ": "you think people can see thru walls? thats absurd",
             "shell": "thats what we're playing",
             "weird": "ur odd",
-            "lag": "get netter internet poor lol",
+            "lag": "get netter internet pooron lol",
+            "tf": "toasted fries",
         };
 
         const foundKeywords = Object.keys(responses).filter(keyword =>
@@ -1568,6 +1574,9 @@
             if (window.newGame) {
                 onlinePlayersArray=[];
             };
+            if (extract("debug")&&(typeof playerLogger === 'undefined')) {
+                playerLogger=[];
+            };
             if (!loggedGameMap.logged) {
                 // console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
                 loggedGameMap.logged = true;
@@ -1666,6 +1675,7 @@
                         };
                         if (!player.logged) {
                             player.logged=true;
+                            if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }
                             if (extract("joinMessages") && (!window.newGame)) {
                                 if (extract("publicBroadcast")) {
                                     sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
