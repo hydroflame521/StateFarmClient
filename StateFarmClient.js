@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client V3
 // @namespace    http://github.com/
-// @version      3.2.2
+// @version      3.3.0
 // @license      GPL-3.0
 // @description  Only public script with bloom cheats! Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
@@ -36,7 +36,6 @@
 // @match        *://mathlete.fun/*
 // @match        *://mathlete.pro/*
 // @match        *://overeasy.club/*
-// @match        *://scrambled.best/*
 // @match        *://scrambled.tech/*
 // @match        *://scrambled.today/*
 // @match        *://scrambled.us/*
@@ -66,7 +65,7 @@
 (function () {
     //script info
     const name="StateFarmClient";
-    const version="3.2.2";
+    const version="3.3.0";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -101,10 +100,21 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
-    let whitelistPlayers,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest;
+    let ss,msgElement,coordElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let whitelistPlayers,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
+    let proxyList = [
+        'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
+        'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
+        'hardshell.life', 'humanorganising.org', 'mathactivity.xyz', 'mathactivity.club', 'mathdrills.info', 'mathdrills.life', 'mathfun.rocks', 'mathgames.world', 'math.international',
+        'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.site',
+        'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
+        'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe'
+    ];
+    proxyList=[...proxyList].sort(() => Math.random() - 0.5);
+    let proxyListIndex=0;
+    
     //menu interaction functions
     const extract = function (variable,shouldUpdate) {
         if (shouldUpdate) {updateConfig()};
@@ -145,10 +155,17 @@
                 const dropdown = inputContainer.querySelector('.tp-lstv_s');
                 if (dropdown) {
                     if (newValue==undefined) { //if youre going to set a list to a certain value, use the int value of the list item
-                        newValue=(dropdown.selectedIndex + 1) % dropdown.options.length;
+                        newValue=(dropdown.selectedIndex+1) % dropdown.options.length;
                     };
                     dropdown.selectedIndex = newValue;
                     dropdown.dispatchEvent(new Event('change')); // trigger change event for dropdown
+                    return extract(module,true);
+                };
+                // check for dropdown
+                const textInput = inputContainer.querySelector('.tp-txtv_i');
+                if (textInput) {
+                    textInput.value = newValue;
+                    textInput.dispatchEvent(new Event('change')); // trigger change event for dropdown
                     return extract(module,true);
                 };
             };
@@ -286,12 +303,12 @@
                 initModule({ location: tp.aimbotFolder, title: "LineOfSight", storeAs: "lineOfSight", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "Antisnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 1.05, step: 0.01}, defaultValue: 0,});
+                initModule({ location: tp.aimbotFolder, title: "Antisnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "Antisneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "TurboFire", storeAs: "holdToFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "autoFire", bindLocation: tp.combatTab.pages[1],});
+            // initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "autoFire", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.pane, title: "Render", storeAs: "renderFolder",});
@@ -372,10 +389,32 @@
         initFolder({ location: tp.pane, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
+                initModule({ location: tp.autoJoinFolder, title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "Auto Shoot", storeAs: "autoShoot", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
                 initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
+                initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
                 initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
-                initModule({ location: tp.autoJoinFolder, title: "RandomName", storeAs: "randomName", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyNames", bindLocation: tp.automationTab.pages[1],});
+        //BOTTING MODULES
+        initFolder({ location: tp.pane, title: "Botting", storeAs: "bottingFolder",});
+        initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
+            initModule({ location: tp.bottingTab.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 15, step: 1}, defaultValue: 1,});
+            initFolder({ location: tp.bottingTab.pages[0], title: "Parameters", storeAs: "botParamsFolder",});
+                initModule({ location: tp.botParamsFolder, title: "Join Game", storeAs: "botAutoJoin", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer",});
+                initModule({ location: tp.botParamsFolder, title: "AntiDupe", storeAs: "botAntiDupe", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "CopyNames", storeAs: "botCopyName", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE",});
+                initModule({ location: tp.botParamsFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)},});
+                initModule({ location: tp.botParamsFolder, title: "EnableMock", storeAs: "botMock", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "EnablePlay", storeAs: "botRespawn", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoSeizure", storeAs: "botSeizure", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoShoot", storeAs: "botAutoShoot", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoAimbot", storeAs: "botAimbot", bindLocation: tp.bottingTab.pages[1],});
+            initModule({ location: tp.bottingTab.pages[0], title: "Deploy", storeAs: "deployBots", bindLocation: tp.bottingTab.pages[1], button: "START BOTS!", clickFunction: function(){deployBots()},});
+
         //MISC MODULES
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -472,7 +511,7 @@
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
             }
-            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats, .playerinfo {
+            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats, .playerinfo, .automated {
                 font-family: 'Bahnschrift', sans-serif !important;
                 font-size: 16px;
             }
@@ -555,6 +594,25 @@
         `);
         document.body.appendChild(coordElement);
         coordElement.style.display = 'none';
+        //initiate automated div and css and shit
+        automatedElement = document.createElement('div'); // create the element directly
+        automatedElement.classList.add('automated');
+        automatedElement.setAttribute('style', `
+            position: fixed;
+            top: -2px;
+            right: -2px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            font-weight: bolder;
+            padding: 2px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            z-index: 999999;
+        `);
+        document.body.appendChild(automatedElement);
+        automatedElement.style.display = 'none';
+        automatedElement.innerText = 'AUTOMATED WINDOW, KEEP THIS FOCUSED!';
         //initiate hp div and css and shit
         playerstatsElement = document.createElement('div'); // create the element directly
         playerstatsElement.classList.add('playerstats');
@@ -798,6 +856,10 @@
         document.head.appendChild(styleElement);
     };
     //1337 H4X
+    const getSearchParam = function(param) {
+        const queryParams = new URLSearchParams(window.location.search);
+        return queryParams.get(param);
+    }
     const hexToRgb = function (hex) {
         // Remove the hash sign, if present
         hex = hex.replace(/^#/, '');
@@ -973,31 +1035,52 @@
         playerstatsElement.style.display = 'none';
         playerinfoElement.style.display = 'none';
         redCircle.style.display = 'none';
+        if (!ranEverySecond) {
+            detectURLParams();
+        };
+        if (AUTOMATED) {
+            automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
+        } else {
+            automatedElement.style.display='none';
+        };
         allFolders.forEach(function (name) {
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
-        if (extract("mockMode")) {
-            let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
-            let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
-            // console.log("Chat Name:", chatName);
-            if (chatName && chatName!==username && textAfterLastColon!=="joined." && textAfterLastColon!=="left." && !handleChat(textAfterLastColon)) {
-                sendChatMessage(textAfterLastColon);
-            }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
-        };
-        if (extract("antiAFK")) {
-            if (Date.now()>(lastAntiAFKMessage+270000)) {
-                if (sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK")) {
-                    lastAntiAFKMessage=Date.now();
+        if (currentlyInGame) {
+            if (extract("mockMode")) {
+                let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
+                let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
+                // console.log("Chat Name:", chatName);
+                if (chatName && chatName!==username && textAfterLastColon!=="joined." && textAfterLastColon!=="left." && !handleChat(textAfterLastColon)) {
+                    sendChatMessage(textAfterLastColon);
+                }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
+            };
+            if (extract("antiAFK")) {
+                if (Date.now()>(lastAntiAFKMessage+270000)) {
+                    if (sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK")) {
+                        lastAntiAFKMessage=Date.now();
+                    };
+                };
+            };
+            if (extract("autoRespawn")&&(!ss.MYPLAYER.playing)) {
+                var button = document.querySelector('.ss_button.btn_big.btn-dark-bevel.btn-respawn.ss_button.btn_green.bevel_green');
+                if (button) {
+                    button.click();
+                };
+            };
+            addStreamsToInGameUI();
+        } else {
+            if (extract("autoJoin")) {
+                if ((!document.getElementById("progressBar"))) {
+                    const playerSlots = document.querySelectorAll('.playerSlot--name');
+                    const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
+                    //console.log("adsknjf--->"mapNames);
+                    vueApp.externPlayObject((extract("joinCode").length===6)?2:0,2,extract("copyNames") ? mapNames[Math.floor(Math.random() * mapNames.length)] : extract("usernameAutoJoin"),-1,extract("joinCode"));
                 };
             };
         };
-        if (extract("autoJoin")) {
-            const playerSlots = document.querySelectorAll('.playerSlot--name');
-            const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
-            //console.log("adsknjf--->"mapNames);
-            vueApp.externPlayObject(2,2,extract("randomName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : extract("usernameAutoJoin"),-1,extract("joinCode"));
-        };
-        addStreamsToInGameUI();
+        currentlyInGame = false;
+        ranEverySecond=true;
         //block ads kek
         localStorage.timesPlayed = 0;
     };
@@ -1105,6 +1188,8 @@
             "lol": "lolzedong",
             "dude": "dudeinator3000: what is your request",
             "what": "dude what",
+            "annoy": "im not that bad",
+            "mock": "im not doing anything wrong",
             "wtf": "watch your profanity",
             "i'm": "yes you are",
             "im": "yes you are",
@@ -1115,7 +1200,8 @@
             "imagine": "imagine who asked",
             "f u": "funny uncleburger",
             "gg": "good grief",
-            "shut up": "",
+            "shut up": "B͇͈͉͍͎̽̾̿̀́͂̓̈́͆͊͋͌͗ͅ͏͎͗͏͇͇̽̾̿̀́̽̿̀̀́̽̀͆̓̈́̓͋͌ͅ͏͌͏͎͉͗͗͌̓̓̓̓̓́̿",
+            "chill": "you think i can just CALM DOWN?!?",
             "stfu": "just reported u for swearing",
             "look": "im looking but im not seeing",
             "nigg": "WHOA we cant have racism on our egg game! tone it down yo",
@@ -1328,6 +1414,7 @@
         let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
         if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
 
+        
         const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
         let gunOffset = ss.BABYLONJS.Matrix.Translation(0, 0.1, 0);
         gunOffset = gunOffset.multiply(playerRot)
@@ -1399,7 +1486,7 @@
             if (extract("tallChat") && !(msg.includes("᥊"))) {
                 msg = msg + "᥊";
             };
-            return msg
+            return msg;
         };
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
@@ -1442,11 +1529,12 @@
                 getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
                 getVar("CAMERA", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"'); //todo
                 getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
+                getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
                 // getVar("vs", '(vs)'); //todo
                 // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
                 // getVar("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
 
-                createPopup("Script injected!","success");
+                createPopup("StateFarm Script injected!","success");
                 console.log(injectionString,allFuncName);
             } catch (err) {
                 createPopup("Error! Scipt injection failed! See console.","error")
@@ -1562,7 +1650,82 @@
         );
         cache = null;
         return retVal;
-      };
+    };
+
+    const deployBots = function() {
+        if (!JSON.parse(localStorage.getItem("firstTimeBots"))) {
+            localStorage.setItem("firstTimeBots",JSON.stringify(true));
+            window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#botting");
+        };
+        console.log("Deploying "+extract("numberBots")+" bots...");
+        for (let i = 0; i < extract("numberBots"); i++) {
+            let leftOffset=((i%15)*100);
+            // let topOffset=((i%3)*100);
+            let topOffset=0;
+            let proxyURL=proxyList[proxyListIndex];
+            proxyListIndex=(proxyListIndex+1)%proxyList.length;
+            let params="?AUTOMATED=true&StateFarm=";
+            let name=extract("botUsername");
+            if (extract("botCopyName")) {
+                if (!currentlyInGame) {
+                    alert("Cannot copy names if not in a game!")
+                    return;
+                } else {
+                    const playerSlots = document.querySelectorAll('.playerSlot--name');
+                    const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
+                    name = mapNames[Math.floor(Math.random() * mapNames.length)];
+                };
+            };
+            if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
+
+            params=params+"usernameAutoJoin%3E"+JSON.stringify(name)+","
+
+            params=params+"autoJoin%3E"+JSON.stringify(extract("botAutoJoin"))+","
+            params=params+"mockMode%3E"+JSON.stringify(extract("botMock"))+","
+            params=params+"autoRespawn%3E"+JSON.stringify(extract("botRespawn"))+","
+            params=params+"autoShoot%3E"+JSON.stringify(extract("botAutoShoot"))+","
+            params=params+"enableSeizureX%3E"+JSON.stringify(extract("botSeizure"))+","
+            params=params+"enableSeizureY%3E"+JSON.stringify(extract("botSeizure"))+","
+
+            if (extract("botAimbot")) {
+                params=params+"aimbotTargeting%3E"+JSON.stringify(1)+","
+                params=params+"prediction%3E"+JSON.stringify(true)+","
+                params=params+"aimbot%3E"+JSON.stringify(true)+","
+                params=params+"autoWeapon%3E"+JSON.stringify(5)+","
+                params=params+"antiBloom%3E"+JSON.stringify(true)+","
+                params=params+"grenadeMax%3E"+JSON.stringify(true)+","
+                params=params+"enableSeizureX%3E"+JSON.stringify(false)+","
+                params=params+"enableSeizureY%3E"+JSON.stringify(false)+","
+            };
+
+            params=params+"joinCode%3E%22"+extract("botJoinCode")+"%22";
+            window.open("https://"+proxyURL+"/"+params, '_blank', 'width=450,height=300,left='+leftOffset+',top='+topOffset);
+        };
+    };
+
+    const detectURLParams = function() {
+        if (getSearchParam("AUTOMATED")=="true") {
+            console.log("Automated Window!");
+            AUTOMATED=true;
+        };
+        let customSettings = getSearchParam("StateFarm")
+        if (customSettings!==null) {
+            console.log("StateFarm Custom Settings!");
+            createPopup("Custom StateFarm Settings Applying...")
+            customSettings=customSettings.split("|");
+            let setVars=[];
+            let setBinds=[];
+            if (customSettings[0]) {setVars=customSettings[0].split(",")};
+            if (customSettings[1]) {setVars=customSettings[0].split(",")};
+            console.log(setVars,setBinds);
+            setVars.forEach(element=>{
+                element=element.split(">");
+                change(element[0],JSON.parse(element[1]));
+            });
+            // setBinds.forEach(element=>{ //not yet done
+            // });
+        };
+    };
 
     function loggedGameMap() {}
     loggedGameMap.logged = false;
@@ -1772,6 +1935,7 @@
         };
         createAnonFunction("retrieveFunctions",function(vars) { ss=vars ; F.STATEFARM() });
         createAnonFunction("STATEFARM",function(){
+            currentlyInGame=true;
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
             updateLinesESP(ss);
@@ -1779,7 +1943,7 @@
                 ss.MYPLAYER.actor.mesh.position.y = ss.MYPLAYER.actor.mesh.position.y + 1;
             };
 
-            if ( extract("spamChat") ) {
+            if (extract("spamChat")) {
                 if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
                     sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
                     lastSpamMessage=Date.now()
@@ -1856,6 +2020,25 @@
             if (extract("holdToFire") && isLeftButtonDown) {
                 ss.MYPLAYER.pullTrigger();
             };
+            if (extract("autoShoot")) {
+                if (ammo.capacity>0) {
+                    ss.MYPLAYER.pullTrigger();
+                } else {
+                    ss.MYPLAYER.melee();
+                };
+            };
+            if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER.playing)) {
+                const weaponArray={ //this could be done differently but i cba
+                    eggk47: 0,
+                    scrambler: 1,
+                    freeranger: 2,
+                    rpegg: 3,
+                    whipper: 4,
+                    crackshot: 5,
+                    trihard: 6,
+                };
+                document.querySelectorAll('.weapon_img')[weaponArray[extract("autoWeapon")]].parentNode.click();
+            };
             if (extract("revealBloom")) {
                 redCircle.style.display='';
                 const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
@@ -1906,7 +2089,6 @@
                                 };
                                 if (targetType=="nearest") {
                                     if ( player.distance < enemyMinimumValue && (!extract("lineOfSight") || getLineOfSight(ss,player))) {
-                                        
                                         enemyMinimumValue = player.distance;
                                         currentlyTargeting = player;
                                     };
@@ -1965,13 +2147,6 @@
                     };
                     if (extract("playerESP")) {
                         currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
-                    };
-                    if (extract("autoFire")) {
-                        if (ammo.capacity>0) {
-                            ss.MYPLAYER.pullTrigger();
-                        } else {
-                            ss.MYPLAYER.melee();
-                        };
                     };
                 } else {
                     if (extract("oneKill")) {
