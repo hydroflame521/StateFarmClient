@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         StateFarm Client V3 - Mods for Combat, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
+// @name         StateFarm Client V3 - Mods for Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @version      3.3.0
 // @license      GPL-3.0
-// @description  Only public script with bloom cheats! Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @description  Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
