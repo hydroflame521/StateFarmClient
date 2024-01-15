@@ -10,7 +10,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.0-pre3
+// @version      3.3.0-pre4
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.0-pre3";
+    const version="3.3.0-pre4";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -1095,7 +1095,7 @@
                     const playerSlots = document.querySelectorAll('.playerSlot--name');
                     const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
                     //console.log("adsknjf--->"mapNames);
-                    vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyNames") ? mapNames[Math.floor(Math.random() * mapNames.length)] : extract("usernameAutoJoin"),-1,extract("joinCode"));
+                    vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyNames") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
         };
