@@ -1703,7 +1703,8 @@
             params=params+"autoJoin%3E"+JSON.stringify(extract("botAutoJoin"))+","
             params=params+"mockMode%3E"+JSON.stringify(extract("botMock"))+","
             params=params+"autoRespawn%3E"+JSON.stringify(extract("botRespawn"))+","
-            params=params+"autoShoot%3E"+JSON.stringify(extract("botAutoShoot"))+","
+            params=params+"enableAutoFire%3E"+JSON.stringify(extract("botAutoShoot"))+","
+            params=params+"autoFireType%3E"+JSON.stringify(2)+","
             params=params+"enableSeizureX%3E"+JSON.stringify(extract("botSeizure"))+","
             params=params+"enableSeizureY%3E"+JSON.stringify(extract("botSeizure"))+","
 
