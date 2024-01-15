@@ -27,10 +27,11 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Custom Binding**, **Highly 
 1. [Installation Tutorial](#installation-tutorial)
 2. [Features](#features)
 3. [Gameplay Strategies](#gameplay-strategies)
-4. [Ban Circumvention](#ban-circumvention)
-5. [Adblocking](#adblocking)
-6. [Issues and Troubleshooting](#issues-and-troubleshooting)
-7. [Credits and Disclaimer](#credits-and-disclaimer)
+4. [Botting](#botting)
+5. [Ban Circumvention](#ban-circumvention)
+6. [Adblocking](#adblocking)
+7. [Issues and Troubleshooting](#issues-and-troubleshooting)
+8. [Credits and Disclaimer](#credits-and-disclaimer)
 
 
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#installation-tutorial)Installation Tutorial:
@@ -183,6 +184,25 @@ You are done with installation!
 With the exception of the color pickers and some links, these should all be bindable to a key of your choice. Press the binds button in the tab, and click on the button next to the module you want to bind. Press a key to bind it, or alternatively press Delete to remove the bind. Use this flexibility to your advantage to be more stealthy, or secure more kills. Eg: switch to **Nearest**  targeting when being attacked, and then to  **Pointing At**  when sniping. 
 
 ![Binding](https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/images/readme/3-1-3/binding.png)
+
+# [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#botting)Botting:
+
+> If you're seeing this, it's possible StateFarm has shown you this as it's your first time using the feature. There are a few things you should know before proceeding.
+
+1. **Make sure you have pop-ups enabled for your website.** You can see an article for [Google Chrome here](https://support.google.com/chrome/answer/95472?hl=en-GB&co=GENIE.Platform%3DDesktop#zippy=%2Callow-pop-ups-and-redirects-from-a-site), and for [other browsers see here](https://letmegooglethat.com/?q=how+to+allow+pop-ups+in+firefox%3F).
+
+> See this diagram!
+<img src="https://github.com/Hydroflame522/StateFarmClient/blob/main/images/readme/3-3-0/Screenshot%202024-01-15%20175536.png?raw=true" alt="EnablePopups" width="30%">
+
+2. **Configure your settings and press the Deploy button.** For information on what you can configure, see the Botting section of the Modules guide.
+3. **Make sure your windows stay "focused".** See setup below that keeps the windows running. The windows must be partially visible to execute the needed javascript. I don't doubt that there's tools that can trick Windows to do this without having to use this kind of setup.
+
+> An example setup. Host player is on the bottom while the bots are above, stacked so that they are all counted as "active". StateFarm will automatically arrange bots into this formation.
+<img src="https://github.com/Hydroflame522/StateFarmClient/blob/main/images/readme/3-3-0/Screenshot%202024-01-15%20181034.png?raw=true" alt="SetUp" width="60%">
+
+
+
+
 # [](https://github.com/Hydroflame522/StateFarmClient/blob/main/README.md#gameplay-strategies)Gameplay Strategies:
 -   _**Choose your weapon wisely**_: StateFarm Client synergises with certain weapons better than others, use them to your advantage. 
 > Aimbot (especially with prediction enabled) is powerful with weapons that require high levels of aim, and weak with weapons that do not rely on aiming.
