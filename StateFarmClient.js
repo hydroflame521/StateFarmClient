@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         StateFarm Client V3
+// @name         StateFarm Client V3 - Mods for Combat, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @version      3.3.0
 // @license      GPL-3.0
@@ -60,8 +60,8 @@
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @grant        none
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
-// @downloadURL  https://github.com/Hydroflame522/StateFarmClient/raw/main/StateFarmClient.js
-// @updateURL    https://github.com/Hydroflame522/StateFarmClient/raw/main/StateFarmClient.js
+// @downloadURL  https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.user.js
+// @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
 // @run-at       document-start
 // ==/UserScript==
 (function () {
