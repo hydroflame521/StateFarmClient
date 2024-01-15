@@ -309,8 +309,8 @@
                 initModule({ location: tp.aimbotFolder, title: "Antisneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "TurboFire", storeAs: "holdToFire", bindLocation: tp.combatTab.pages[1],});
-            // initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "autoFire", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.pane, title: "Render", storeAs: "renderFolder",});
@@ -390,15 +390,15 @@
         //AUTOMATION MODULES
         initFolder({ location: tp.pane, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Shoot", storeAs: "autoShoot", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
-                initModule({ location: tp.autoJoinFolder, title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.autoJoinFolder, title: "Auto Shoot", storeAs: "autoShoot", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.autoJoinFolder, title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
                 initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
                 initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
                 initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
-                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyNames", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "Copy Names", storeAs: "copyNames", bindLocation: tp.automationTab.pages[1],});
         //BOTTING MODULES
         initFolder({ location: tp.pane, title: "Botting", storeAs: "bottingFolder",});
         initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
@@ -2037,16 +2037,6 @@
                     ss.MYPLAYER.reload();
                 };
             };
-            if (extract("holdToFire") && isLeftButtonDown) {
-                ss.MYPLAYER.pullTrigger();
-            };
-            if (extract("autoShoot")) {
-                if (ammo.capacity>0) {
-                    ss.MYPLAYER.pullTrigger();
-                } else {
-                    ss.MYPLAYER.melee();
-                };
-            };
             if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER.playing)) {
                 const weaponArray={ //this could be done differently but i cba
                     eggk47: 0,
@@ -2195,6 +2185,25 @@
             };
             if (extract("silentRoll")) {
                 ss.MYPLAYER.pitch+=2*Math.PI;
+            };
+            
+            if (extract("enableAutoFire")) {
+                let autoFireType=extract("autoFireType");
+                let doAutoFire=false
+                if (autoFireType=="always") {
+                    doAutoFire=true;
+                } else if (autoFireType=="leftMouse" && isLeftButtonDown) {
+                    doAutoFire=true;
+                } else if (autoFireType=="whileAimbot" && didAimbot) {
+                    doAutoFire=true;
+                };
+                if (doAutoFire) {
+                    if ((ammo.rounds>0)||(ammo.store>0)) {
+                        ss.MYPLAYER.pullTrigger();
+                    } else {
+                        ss.MYPLAYER.melee();
+                    };
+                };
             };
         });
     };
