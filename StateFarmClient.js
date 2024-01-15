@@ -1083,7 +1083,7 @@
                     const playerSlots = document.querySelectorAll('.playerSlot--name');
                     const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
                     //console.log("adsknjf--->"mapNames);
-                    vueApp.externPlayObject((extract("joinCode").length===6)?2:0,2,extract("copyNames") ? mapNames[Math.floor(Math.random() * mapNames.length)] : extract("usernameAutoJoin"),-1,extract("joinCode"));
+                    vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyNames") ? mapNames[Math.floor(Math.random() * mapNames.length)] : extract("usernameAutoJoin"),-1,extract("joinCode"));
                 };
             };
         };
