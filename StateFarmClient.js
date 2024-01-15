@@ -1,10 +1,17 @@
 // ==UserScript==
 // @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
-// @namespace    http://github.com/Hydroflame522/StateFarmClient/
-// @version      3.3.0
-// @license      GPL-3.0
 // @description  Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
+// @namespace    http://github.com/Hydroflame522/StateFarmClient/
+// @license      GPL-3.0
+
+// version naming: 
+    //3.#.#-pre[number] for development versions (not full release)
+    //3.#.#-release for release
+//this ensures that each version of the script is counted as different
+
+// @version      3.3.0-pre1
+
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
 // @match        *://algebra.vip/*
@@ -64,10 +71,11 @@
 // @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
 // @run-at       document-start
 // ==/UserScript==
+
 (function () {
     //script info
-    const name="StateFarmClient";
-    const version="3.3.0";
+    const name="StateFarm Client";
+    const version="3.3.0-pre1";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -390,7 +398,6 @@
         //AUTOMATION MODULES
         initFolder({ location: tp.pane, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Shoot", storeAs: "autoShoot", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
