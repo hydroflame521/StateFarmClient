@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         StateFarm Client V3 - Mods for Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
+// @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @version      3.3.0
 // @license      GPL-3.0
