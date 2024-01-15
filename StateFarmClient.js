@@ -10,7 +10,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.0-pre1
+// @version      3.3.0-pre2
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.0-pre1";
+    const version="3.3.0-pre2";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -91,6 +91,7 @@
     window.newGame=false
     let binding=false;
     let lastSpamMessage=0;
+    let lastAutoJump=0;
     let lastAntiAFKMessage=0;
     let lastSentMessage="";
     let yawCache=0;
@@ -400,6 +401,9 @@
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoWalk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoJump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0,});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
                 initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
@@ -417,13 +421,14 @@
                 initModule({ location: tp.botParamsFolder, title: "CopyNames", storeAs: "botCopyName", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE",});
                 initModule({ location: tp.botParamsFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)},});
-                initModule({ location: tp.botParamsFolder, title: "EnableMock", storeAs: "botMock", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "EnablePlay", storeAs: "botRespawn", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoMock", storeAs: "botMock", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoPlay", storeAs: "botRespawn", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoSeizure", storeAs: "botSeizure", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoShoot", storeAs: "botAutoShoot", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoAimbot", storeAs: "botAimbot", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoMove", storeAs: "botAutoMove", bindLocation: tp.bottingTab.pages[1],});
             initModule({ location: tp.bottingTab.pages[0], title: "Deploy", storeAs: "deployBots", bindLocation: tp.bottingTab.pages[1], button: "START BOTS!", clickFunction: function(){deployBots()},});
-
+            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#botting")},});
         //MISC MODULES
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -1483,6 +1488,7 @@
         return finalDir;
     };
     const injectScript = function () {
+        //TODO: replace with anon functions
         window.fixCamera = function () {
             return isKeyToggled[bindsArray.zoom] && (extract("zoom")*(Math.PI / 180)) || (extract("fov")*(Math.PI/180)) || 1.25;
         };
@@ -1514,6 +1520,16 @@
                 msg = msg + "᥊";
             };
             return msg;
+        };
+        window.modifyControls = function(CONTROLKEYS) {
+            if (extract("autoWalk")) { CONTROLKEYS|=1 };
+            if (extract("autoJump")) {
+                if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
+                    CONTROLKEYS|=16;
+                    lastAutoJump=Date.now();
+                };
+            };
+            return CONTROLKEYS;
         };
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
@@ -1554,7 +1570,7 @@
                 getVar("RENDERLIST", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
                 getVar("GAMEMAP", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
                 getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
-                getVar("CAMERA", ',([a-zA-Z_$]+)=new T\\.TargetCamera\\("camera"'); //todo
+                getVar("CAMERA", ',([a-zA-Z_$]+)=new '+vars.BABYLONJS+'\\.TargetCamera\\("camera"');
                 getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
                 getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
                 // getVar("vs", '(vs)'); //todo
@@ -1603,18 +1619,24 @@
             //bypass chat filter
             match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
             js=js.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
-            //admin spoof lol
-            js=js.replace('isGameOwner(){return qr}','isGameOwner(){return true}')
-            js=js.replace('get adminRoles(){return O.adminRoles}','get adminRoles(){return 255}')
-            //sus
-            js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
-            js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
-            //motion blue
-            js=js.replace('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
-
-
+            //hook for control interception
+            const PLAYERTHING=new RegExp('\\.weapon\\.actor\\.equip\\(\\)\};([a-zA-Z]+)\\.prototype\\.update').exec(js)[1];
+            const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
+            const CONTROLKEYS=new RegExp('\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(').exec(js)[1];
+            console.log("CONTROLKEYS:",CONTROLKEYS);
+            console.log("PLAYERTHING:",PLAYERTHING);
+            console.log("ARGTHING:",ARGTHING);
+            js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.modifyControls('+CONTROLKEYS+');');
 
             //replace graveyard:
+            // //admin spoof lol
+            // js=js.replace('isGameOwner(){return qr}','isGameOwner(){return true}')
+            // js=js.replace('get adminRoles(){return O.adminRoles}','get adminRoles(){return 255}')
+            // //sus
+            // js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
+            // js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
+            // //motion blur
+            // js=js.replace('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
             // js=js.replace('et.booted','et.noboot')
             // js=js.replace('eu(t)','Bc(t)')
             // js=js.replace('vueApp.showPlayerActionsPopup(i)','vueApp.showPlayerActionsPopup(i);console.log(i)')
@@ -1715,7 +1737,7 @@
             params=params+"enableSeizureX%3E"+JSON.stringify(extract("botSeizure"))+","
             params=params+"enableSeizureY%3E"+JSON.stringify(extract("botSeizure"))+","
 
-            if (extract("botAimbot")) {
+            if (extract("botAimbot")) { //add antisneak
                 params=params+"aimbotTargeting%3E"+JSON.stringify(1)+","
                 params=params+"prediction%3E"+JSON.stringify(true)+","
                 params=params+"aimbot%3E"+JSON.stringify(true)+","
@@ -1724,6 +1746,12 @@
                 params=params+"grenadeMax%3E"+JSON.stringify(true)+","
                 params=params+"enableSeizureX%3E"+JSON.stringify(false)+","
                 params=params+"enableSeizureY%3E"+JSON.stringify(false)+","
+            };
+
+            if (extract("botAutoMove")) {
+                params=params+"autoWalk%3E"+JSON.stringify(true)+","
+                params=params+"autoJump%3E"+JSON.stringify(true)+","
+                params=params+"autoJumpDelay%3E"+JSON.stringify(1500)+","
             };
 
             params=params+"joinCode%3E%22"+extract("botJoinCode")+"%22";
