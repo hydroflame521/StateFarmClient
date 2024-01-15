@@ -10,7 +10,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.0-pre2
+// @version      3.3.0-pre3
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.0-pre2";
+    const version="3.3.0-pre3";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -315,11 +315,11 @@
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "Antisnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
-                initModule({ location: tp.aimbotFolder, title: "Antisneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
+                initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
+            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "Line-Of-Sight", value: "lineOfSight"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.pane, title: "Render", storeAs: "renderFolder",});
@@ -1733,7 +1733,7 @@
             params=params+"mockMode%3E"+JSON.stringify(extract("botMock"))+","
             params=params+"autoRespawn%3E"+JSON.stringify(extract("botRespawn"))+","
             params=params+"enableAutoFire%3E"+JSON.stringify(extract("botAutoShoot"))+","
-            params=params+"autoFireType%3E"+JSON.stringify(2)+","
+            params=params+"autoFireType%3E"+JSON.stringify(1)+","
             params=params+"enableSeizureX%3E"+JSON.stringify(extract("botSeizure"))+","
             params=params+"enableSeizureY%3E"+JSON.stringify(extract("botSeizure"))+","
 
@@ -1746,6 +1746,8 @@
                 params=params+"grenadeMax%3E"+JSON.stringify(true)+","
                 params=params+"enableSeizureX%3E"+JSON.stringify(false)+","
                 params=params+"enableSeizureY%3E"+JSON.stringify(false)+","
+                params=params+"antiSneak%3E"+JSON.stringify(1.4)+","
+                params=params+"autoRefill%3E"+JSON.stringify(true)+","
             };
 
             if (extract("botAutoMove")) {
@@ -2057,14 +2059,14 @@
             if (extract("debug")) {
                 globalPlayer=ss;
             };
-            let reticle
+            let isLineOfSight=false;
             if (extract("showLOS")) {
                 const player=currentlyTargeting||playerLookingAt||undefined
                 if (player) {
-                    reticle=getLineOfSight(ss,player)
+                    isLineOfSight=getLineOfSight(ss,player);
                 };
-            }
-            highlightCrossHairReticleDot(ss,reticle);
+            };
+            highlightCrossHairReticleDot(ss,isLineOfSight);
             if ( extract("chatHighlight") ) {
                 document.getElementById("chatOut").style.userSelect="text"
             };
@@ -2231,6 +2233,8 @@
                 } else if (autoFireType=="leftMouse" && isLeftButtonDown) {
                     doAutoFire=true;
                 } else if (autoFireType=="whileAimbot" && didAimbot) {
+                    doAutoFire=true;
+                } else if (autoFireType=="lineOfSight" && isLineOfSight) {
                     doAutoFire=true;
                 };
                 if (doAutoFire) {
