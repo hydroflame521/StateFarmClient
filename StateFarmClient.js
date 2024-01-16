@@ -16,7 +16,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.0-release
+// @version      3.3.1-release
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.0";
+    const version="3.3.1";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -320,6 +320,7 @@
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "LineOfSight", storeAs: "lineOfSight", bindLocation: tp.combatTab.pages[1],});
                 tp.aimbotFolder.addSeparator();
+                initModule({ location: tp.aimbotFolder, title: "MaxAngle", storeAs: "aimbotMaxAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
                 tp.aimbotFolder.addSeparator();
@@ -364,6 +365,7 @@
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.renderTab.pages[1],});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.renderTab.pages[1],});
@@ -449,7 +451,11 @@
                 tp.botParamsFolder.addSeparator();
                 initModule({ location: tp.botParamsFolder, title: "DoPlay", storeAs: "botRespawn", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoSeizure", storeAs: "botSeizure", bindLocation: tp.bottingTab.pages[1],});
+                tp.botParamsFolder.addSeparator();
+                initModule({ location: tp.botParamsFolder, title: "DoTallChat", storeAs: "botTallChat", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoMock", storeAs: "botMock", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoAutoEZ", storeAs: "botAutoEZ", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoChAccuse", storeAs: "botCheatAccuse", bindLocation: tp.bottingTab.pages[1],});
                 tp.botParamsFolder.addSeparator();
                 initModule({ location: tp.botParamsFolder, title: "DoMove", storeAs: "botAutoMove", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoShoot", storeAs: "botAutoShoot", bindLocation: tp.bottingTab.pages[1],});
@@ -938,8 +944,10 @@
         ];
         return resultRgb;
     };
-    const distancePlayers = function (MYPLAYER,player) {
-        return ss.BABYLONJS.Vector3.Distance(MYPLAYER,player); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
+    const distancePlayers = function (ss,player,yMultiplier) {
+        yMultiplier=yMultiplier||1;
+        let vector = getDirectionVectorPlayer(ss,player);
+        return Math.hypot(vector.x,vector.y*yMultiplier,vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
@@ -1477,7 +1485,7 @@
         return newPos;
     };
     const getLineOfSight = function(ss,pos) { //returns true if no wall collisions
-        let distance=distancePlayers(ss.MYPLAYER,pos);
+        let distance=distancePlayers(ss,pos);
         let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
         if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
 
@@ -1790,6 +1798,9 @@
             addParam("autoFireType",1);
             addParam("enableSeizureX",extract("botSeizure"));
             addParam("enableSeizureY",extract("botSeizure"));
+            addParam("autoEZ",extract("botAutoEZ"));
+            addParam("cheatAccuse",extract("botCheatAccuse"));
+            addParam("tallChat",extract("botTallChat"));
 
             if (extract("botAimbot")) { //add antisneak
                 addParam("aimbotTargeting",1);
@@ -1921,7 +1932,7 @@
                         } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
                             color=hexToRgb(extract("blacklistColor"));
                         } else if ( tracersType=="proximity" ) {
-                            const distance = distancePlayers(ss.MYPLAYER,player);
+                            const distance = distancePlayers(ss,player);
                             if (distance < extract("tracersColor1to2")) { //fade between first set
                                 progress=(distance/extract("tracersColor1to2"));
                                 color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
@@ -2120,7 +2131,7 @@
             let isLineOfSight=false;
             if (extract("showLOS")) {
                 const player=currentlyTargeting||playerLookingAt||undefined
-                if (player) {
+                if (player && player.playing) {
                     isLineOfSight=getLineOfSight(ss,player);
                 };
             };
@@ -2180,7 +2191,8 @@
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                     const passedLists=whitelisted&&(!blacklisted);
-                    player.distance = distancePlayers(ss.MYPLAYER,player);
+                    player.distance=distancePlayers(ss,player);
+                    player.adjustedDistance=distancePlayers(ss,player,2);
                     const directionVector=getDirectionVectorPlayer(ss,player);
                     player.angleDiff=getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
 
@@ -2192,13 +2204,13 @@
                     if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
                         if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) { //is doing aimbot
                             if (selectNewTarget) {
-                                if (player.distance<enemyMinimumValue) { //for antisneak, not targeting
-                                    enemyMinimumDistance = player.distance;
+                                if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
+                                    enemyMinimumDistance = player.adjustedDistance;
                                     enemyNearest = player;
                                 };
                                 if (targetType=="nearest") {
-                                    if ( player.distance < enemyMinimumValue && (!extract("lineOfSight") || getLineOfSight(ss,player))) {
-                                        enemyMinimumValue = player.distance;
+                                    if ( player.adjustedDistance < enemyMinimumValue && (!extract("lineOfSight") || getLineOfSight(ss,player))) {
+                                        enemyMinimumValue = player.adjustedDistance;
                                         currentlyTargeting = player;
                                     };
                                 } else if (targetType=="pointingat") {
@@ -2216,8 +2228,8 @@
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     didAimbot=true
-                    if (!extract("silentAimbot")) {
-                        const distanceBetweenPlayers = distancePlayers(ss.MYPLAYER,currentlyTargeting);
+                    if ((!extract("silentAimbot")) && (targetingComplete||(extract("aimbotMaxAngle")>currentlyTargeting?.angleDiff))) {
+                        const distanceBetweenPlayers = distancePlayers(ss,currentlyTargeting);
 
                         const aimbot=getAimbot(ss,currentlyTargeting);
 
@@ -2274,7 +2286,7 @@
                     ss.MYPLAYER.pitch+=extract("amountSeizureY")
                 };
             };
-            highlightCurrentlyTargeting(ss, currentlyTargeting, didAimbot);
+            highlightCurrentlyTargeting(ss, currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
             if (extract("upsideDown")) { //sorta useless
                 if (ss.MYPLAYER.pitch<1.5 && ss.MYPLAYER.pitch>-1.5) {
                     ss.MYPLAYER.pitch=Math.PI;
