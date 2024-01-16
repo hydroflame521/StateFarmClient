@@ -16,7 +16,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.1-release
+// @version      3.3.2-pre1
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.1";
+    const version="3.3.2-pre1";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -112,7 +112,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,coordElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let ss,msgElement,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -370,7 +370,8 @@
             initModule({ location: tp.renderTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "ShowStreams", storeAs: "showStreams", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "GameInfo", storeAs: "gameInfo", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.renderTab.pages[1],});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
@@ -572,7 +573,7 @@
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
             }
-            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .playerstats, .playerinfo, .automated {
+            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .gameinfo, .playerstats, .playerinfo, .automated {
                 font-family: 'Bahnschrift', sans-serif !important;
                 font-size: 16px;
             }
@@ -655,6 +656,24 @@
         `);
         document.body.appendChild(coordElement);
         coordElement.style.display = 'none';
+        //initiate coord div and css and shit
+        gameInfoElement = document.createElement('div'); // create the element directly
+        gameInfoElement.classList.add('gameinfo');
+        gameInfoElement.setAttribute('style', `
+            position: fixed;
+            bottom: -2px;
+            left: -2px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            font-weight: bolder;
+            padding: 2px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            z-index: 999999;
+        `);
+        document.body.appendChild(gameInfoElement);
+        gameInfoElement.style.display = 'none';
         //initiate automated div and css and shit
         automatedElement = document.createElement('div'); // create the element directly
         automatedElement.classList.add('automated');
@@ -1095,6 +1114,7 @@
     };
     const everySecond = function () {
         coordElement.style.display = 'none';
+        gameInfoElement.style.display = 'none';
         playerstatsElement.style.display = 'none';
         playerinfoElement.style.display = 'none';
         redCircle.style.display = 'none';
@@ -2098,6 +2118,12 @@
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
                 coordElement.style.display = '';
+            };
+            if ( extract("gameInfo") ) {
+                let gameInfoText=ss.GAMECODE+" | "+ss.PLAYERS.length+"/18 | "+(18-ss.PLAYERS.length)+" slots remaining.";
+                gameInfoElement.innerText = gameInfoText;
+                void gameInfoElement.offsetWidth;
+                gameInfoElement.style.display = '';
             };
             if (extract("playerStats")) {
                 let playerStates="";
