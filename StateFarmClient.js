@@ -16,7 +16,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre2
+// @version      3.3.2-pre3
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.2-pre2";
+    const version="3.3.2-pre3";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -85,6 +85,9 @@
             applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
             const intervalId1 = setInterval(everySecond, 1000);
             const intervalId2 = setInterval(updateConfig, 100);
+            applyStateFarmLogo();
+            const observer = new MutationObserver(applyStateFarmLogo);
+            observer.observe(document.body, { subtree: true, childList: true });
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
@@ -92,6 +95,7 @@
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
     const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#features";
     const aimbottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#botting";
+    const replacementLogoURL = 'https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true';
     //INIT VARS
     window.newGame=false
     let binding=false;
@@ -174,7 +178,7 @@
                     dropdown.dispatchEvent(new Event('change')); // trigger change event for dropdown
                     return extract(module,true);
                 };
-                // check for dropdown
+                // check for text input
                 const textInput = inputContainer.querySelector('.tp-txtv_i');
                 if (textInput) {
                     textInput.value = newValue;
@@ -495,6 +499,7 @@
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.pane.hidden=!tp.pane.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
             tp.clientTab.pages[0].addSeparator();
+            initModule({ location: tp.clientTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.clientTab.pages[1],});
             initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "Default", value: "defaultTheme"},
                 {text: "Iceberg", value: "icebergTheme"},
@@ -939,6 +944,26 @@
             :root { ${rootTheme} }
         `;
         document.head.appendChild(styleElement);
+    };
+    const applyStateFarmLogo = function() {
+        if (extract("replaceLogo")) {
+            const images = document.getElementsByTagName('img');
+            for (let i = 0; i < images.length; i++) {
+                const src = images[i].getAttribute('src');
+                if (src && src.includes('img/logo.svg')) {
+                    images[i].setAttribute('src', replacementLogoURL);
+                };
+            };
+            const logoDiv = document.getElementById('logo');
+            if (logoDiv) {
+                const logoImg = logoDiv.querySelector('img');
+                if (logoImg) {
+                    logoImg.setAttribute('src', replacementLogoURL);
+                    logoImg.setAttribute('width', 300);
+                    logoImg.setAttribute('height', 104);
+                };
+            };
+        };
     };
     //1337 H4X
     const getSearchParam = function(param) {
