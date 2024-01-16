@@ -16,7 +16,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre1
+// @version      3.3.2-pre2
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.2-pre1";
+    const version="3.3.2-pre2";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -113,7 +113,7 @@
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
     let ss,msgElement,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
-    let whitelistPlayers,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
+    let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     let proxyList = [
@@ -376,6 +376,9 @@
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: {min: 0, max: 10, step: 0.25}, defaultValue: 1,});
+            tp.renderTab.pages[0].addSeparator();
+            initModule({ location: tp.renderTab.pages[0], title: "Set Detail", storeAs: "setDetail", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Auto Detail", value: "autodetail"}, {text: "No Details", value: "nodetails"}, {text: "Shadows", value: "shadows"}, {text: "High Res", value: "highres"}, {text: "Shadows+High Res", value: "shadowshighres"}], defaultValue: "disabled"});
+            initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true,});
         //CHAT MODULES
         initFolder({ location: tp.pane, title: "Chat", storeAs: "chatFolder",});
         initTab({ location: tp.chatFolder, storeAs: "chatTab" })
@@ -427,7 +430,7 @@
             initModule({ location: tp.automationTab.pages[0], title: "AutoJump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0,});
             tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
@@ -461,6 +464,8 @@
                 initModule({ location: tp.botParamsFolder, title: "DoMove", storeAs: "botAutoMove", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoShoot", storeAs: "botAutoShoot", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoAimbot", storeAs: "botAimbot", bindLocation: tp.bottingTab.pages[1],});
+                tp.botParamsFolder.addSeparator();
+                initModule({ location: tp.botParamsFolder, title: "LowRes", storeAs: "botLowRes", bindLocation: tp.bottingTab.pages[1],});
                 tp.botParamsFolder.addSeparator();
                 initModule({ location: tp.botParamsFolder, title: "Don'tKillMe", storeAs: "botNoKillMe", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "Don'tKillBot", storeAs: "botNoKillBots", bindLocation: tp.bottingTab.pages[1],});
@@ -1153,14 +1158,36 @@
             };
             addStreamsToInGameUI();
         } else {
-            if (extract("autoJoin")) {
-                if ((!document.getElementById("progressBar"))) {
+            if ((!document.getElementById("progressBar"))) {
+                if (extract("autoJoin")) {
                     const playerSlots = document.querySelectorAll('.playerSlot--name');
                     const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
                     //console.log("adsknjf--->"mapNames);
                     vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
+        };
+        if ((!document.getElementById("progressBar"))) {
+            if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
+                vueApp.settingsUi.togglers.misc[3].value=false;
+                if (extract("setDetail")=="autodetail") {
+                    vueApp.settingsUi.togglers.misc[3].value=true;
+                } else if (extract("setDetail")=="nodetails") {
+                    vueApp.settingsUi.togglers.misc[4].value=false;
+                    vueApp.settingsUi.togglers.misc[5].value=false;
+                } else if (extract("setDetail")=="shadows") {
+                    vueApp.settingsUi.togglers.misc[4].value=true;
+                    vueApp.settingsUi.togglers.misc[5].value=false;
+                } else if (extract("setDetail")=="highres") {
+                    vueApp.settingsUi.togglers.misc[4].value=false;
+                    vueApp.settingsUi.togglers.misc[5].value=true;
+                } else if (extract("setDetail")=="shadowshighres") {
+                    vueApp.settingsUi.togglers.misc[4].value=true;
+                    vueApp.settingsUi.togglers.misc[5].value=true;
+                };
+                extern.applyUiSettings(vueApp.settingsUi);
+            };
+            previousDetail=extract("setDetail");
         };
         currentlyInGame = false;
         ranEverySecond=true;
@@ -1636,6 +1663,7 @@
                 getVar("CAMERA", ',([a-zA-Z_$]+)=new '+vars.BABYLONJS+'\\.TargetCamera\\("camera"');
                 getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
                 getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
+                getVar("SETTINGS", '\\.mouseSpeed&&([a-zA-Z]+)\\.mouseSensitivity!==null');
                 // getVar("vs", '(vs)'); //todo
                 // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
                 // getVar("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
@@ -1842,6 +1870,11 @@
                 addParam("autoJumpDelay",1500);
             };
 
+            if (extract("botLowRes")) {
+                addParam("enableTextures",false);
+                addParam("setDetail",2);
+            };
+
             if (BLACKLIST!=="") {
                 addParam("blacklist",BLACKLIST);
                 addParam("enableBlacklistAimbot",true);
@@ -1933,6 +1966,8 @@
                     chatItems[i].style.display = isInRange ? '' : 'none';
                 };
             };
+
+            ss.MYPLAYER.actor.scene.texturesEnabled=extract("enableTextures");
         };
         const updateLinesESP = function (ss) {
             const objExists=Date.now();
