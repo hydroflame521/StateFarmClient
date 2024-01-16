@@ -4,13 +4,19 @@
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @license      GPL-3.0
+// @run-at       document-start
+// @grant        none
+// @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
+// @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
+// @downloadURL  https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.user.js
+// @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
 
 // version naming: 
-    //3.#.#-pre[number] for development versions (not full release)
+    //3.#.#-pre[number] for development versions, increment for every commit (not full release)
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.0-pre4
+// @version      3.3.0-release
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -64,18 +70,12 @@
 // @match        *://yolk.quest/*
 // @match        *://yolk.today/*
 // @match        *://zygote.cafe/*
-// @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
-// @grant        none
-// @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
-// @downloadURL  https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.user.js
-// @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
-// @run-at       document-start
 // ==/UserScript==
 
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.0-pre4";
+    const version="3.3.0";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -87,6 +87,11 @@
             const intervalId2 = setInterval(updateConfig, 100);
         });
     };
+    //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
+    const discordURL = "https://discord.gg/mPa95HB7Q6";
+    const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
+    const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#features";
+    const aimbottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#botting";
     //INIT VARS
     window.newGame=false
     let binding=false;
@@ -94,10 +99,6 @@
     let lastAutoJump=0;
     let lastAntiAFKMessage=0;
     let lastSentMessage="";
-    let yawCache=0;
-    let yawDiff=0;
-    let pitchCache=0;
-    let pitchDiff=0;
     let targetingComplete=false;
     let yourPlayerKills = 0;
     let currentlyTargetingName = "none";
@@ -123,6 +124,7 @@
         'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
         'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe'
     ];
+    proxyList=proxyList.filter(item=>item!==window.location.hostname);
     proxyList=[...proxyList].sort(() => Math.random() - 0.5);
     let proxyListIndex=0;
     
@@ -307,16 +309,22 @@
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
                 initModule({ location: tp.aimbotFolder, title: "Target", storeAs: "aimbotTargeting", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
+                tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "LineOfSight", storeAs: "lineOfSight", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
+                tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "Antisnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
+                initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
+                tp.aimbotFolder.addSeparator();
+                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "LineOfSight", storeAs: "lineOfSight", bindLocation: tp.combatTab.pages[1],});
+                tp.aimbotFolder.addSeparator();
+                initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
+                tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
+            tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "Line-Of-Sight", value: "lineOfSight"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
@@ -327,8 +335,9 @@
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
+            tp.renderTab.pages[0].addSeparator();
             initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder",});
                 initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}], defaultValue: "static",});
                 initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000",});
@@ -340,33 +349,42 @@
                 initFolder({ location: tp.tracersAmmoFolder, title: "Ammo", storeAs: "ammoFolder",});
                     initModule({ location: tp.ammoFolder, title: "AESP", storeAs: "ammoESP", bindLocation: tp.renderTab.pages[1],});
                     initModule({ location: tp.ammoFolder, title: "ATracers", storeAs: "ammoTracers", bindLocation: tp.renderTab.pages[1],});
+                    tp.ammoFolder.addSeparator();
                     initModule({ location: tp.ammoFolder, title: "ARegime", storeAs: "ammoESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted"});
                     initModule({ location: tp.ammoFolder, title: "AColor", storeAs: "ammoESPColor", defaultValue: "#ffff00",});
                 initFolder({ location: tp.tracersAmmoFolder, title: "Grenades", storeAs: "grenadesFolder",});
                     initModule({ location: tp.grenadesFolder, title: "GESP", storeAs: "grenadeESP", bindLocation: tp.renderTab.pages[1],});
                     initModule({ location: tp.grenadesFolder, title: "GTracers", storeAs: "grenadeTracers", bindLocation: tp.renderTab.pages[1],});
+                    tp.grenadesFolder.addSeparator();
                     initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted"});
                     initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff",});
+            tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 3}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
+            tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
+            tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "ShowStreams", storeAs: "showStreams", bindLocation: tp.renderTab.pages[1],});
+            tp.renderTab.pages[0].addSeparator();
+            initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: {min: 0, max: 10, step: 0.25}, defaultValue: 1,});
         //CHAT MODULES
         initFolder({ location: tp.pane, title: "Chat", storeAs: "chatFolder",});
         initTab({ location: tp.chatFolder, storeAs: "chatTab" })
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
+            initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
             initModule({ location: tp.chatTab.pages[0], title: "ShowFiltered", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "BypassFilter", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});;
-            initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
+            tp.chatTab.pages[0].addSeparator();
+            initModule({ location: tp.chatTab.pages[0], title: "BypassFilter", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Tall Chat", storeAs: "tallChat", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
+            tp.chatTab.pages[0].addSeparator();
+            initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
                 initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 0, max: 60000, step: 10}, defaultValue: 500,});
@@ -374,13 +392,15 @@
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
+                tp.trollingFolder.addSeparator();
                 initModule({ location: tp.trollingFolder, title: "AutoEZ", storeAs: "autoEZ", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "CheatAccuse", storeAs: "cheatAccuse", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Join/Leave Msgs Options", storeAs: "joinLeaveFolder",});
                 initModule({ location: tp.joinLeaveFolder, title: "Join Msgs", storeAs: "joinMessages", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.joinLeaveFolder, title: "Leave Msgs", storeAs: "leaveMessages", bindLocation: tp.chatTab.pages[1],});
+                tp.joinLeaveFolder.addSeparator();
                 initModule({ location: tp.joinLeaveFolder, title: "Send2Chat", storeAs: "publicBroadcast", bindLocation: tp.chatTab.pages[1],});
-                initModule({ location: tp.joinLeaveFolder, title: "Branded", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1],});
         //LISTS MODULES
         initFolder({ location: tp.pane, title: "Lists", storeAs: "listsFolder",});
         initTab({ location: tp.listsFolder, storeAs: "listsTab" })
@@ -390,6 +410,7 @@
                 initModule({ location: tp.whitelistFolder, title: "WESP", storeAs: "enableWhitelistTracers", bindLocation: tp.listsTab.pages[1],});
                 initModule({ location: tp.whitelistFolder, title: "WESPType", storeAs: "whitelistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Only Include", value: "onlyinclude"},{text: "Highlight", value: "highlight"},], defaultValue: "onlyinclude",});
                 initModule({ location: tp.whitelistFolder, title: "WHighlight", storeAs: "whitelistColor", defaultValue: "#e80aac",});
+            tp.listsTab.pages[0].addSeparator();
             initModule({ location: tp.listsTab.pages[0], title: "Blacklist", storeAs: "blacklist", defaultValue: "User-1, User-2",});
             initFolder({ location: tp.listsTab.pages[0], title: "Blacklist (Exclude) Options", storeAs: "blacklistFolder",});
                 initModule({ location: tp.blacklistFolder, title: "BAimbot", storeAs: "enableBlacklistAimbot", bindLocation: tp.listsTab.pages[1],});
@@ -399,49 +420,58 @@
         //AUTOMATION MODULES
         initFolder({ location: tp.pane, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
-            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
-            initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "AutoWalk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "AutoJump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0,});
+            tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "pointingat"});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
+            tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
-                initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
                 initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
                 initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
-                initModule({ location: tp.autoJoinFolder, title: "Copy Names", storeAs: "copyNames", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", bindLocation: tp.automationTab.pages[1],});
         //BOTTING MODULES
         initFolder({ location: tp.pane, title: "Botting", storeAs: "bottingFolder",});
         initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
             initModule({ location: tp.bottingTab.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 15, step: 1}, defaultValue: 1,});
             initFolder({ location: tp.bottingTab.pages[0], title: "Parameters", storeAs: "botParamsFolder",});
                 initModule({ location: tp.botParamsFolder, title: "Join Game", storeAs: "botAutoJoin", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE",});
+                initModule({ location: tp.botParamsFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)},});
+                tp.botParamsFolder.addSeparator();
                 initModule({ location: tp.botParamsFolder, title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer",});
                 initModule({ location: tp.botParamsFolder, title: "AntiDupe", storeAs: "botAntiDupe", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "CopyNames", storeAs: "botCopyName", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE",});
-                initModule({ location: tp.botParamsFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)},});
-                initModule({ location: tp.botParamsFolder, title: "DoMock", storeAs: "botMock", bindLocation: tp.bottingTab.pages[1],});
+                tp.botParamsFolder.addSeparator();
                 initModule({ location: tp.botParamsFolder, title: "DoPlay", storeAs: "botRespawn", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoSeizure", storeAs: "botSeizure", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "DoMock", storeAs: "botMock", bindLocation: tp.bottingTab.pages[1],});
+                tp.botParamsFolder.addSeparator();
+                initModule({ location: tp.botParamsFolder, title: "DoMove", storeAs: "botAutoMove", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoShoot", storeAs: "botAutoShoot", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "DoAimbot", storeAs: "botAimbot", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "DoMove", storeAs: "botAutoMove", bindLocation: tp.bottingTab.pages[1],});
+                tp.botParamsFolder.addSeparator();
+                initModule({ location: tp.botParamsFolder, title: "Don'tKillMe", storeAs: "botNoKillMe", bindLocation: tp.bottingTab.pages[1],});
+                initModule({ location: tp.botParamsFolder, title: "Don'tKillBot", storeAs: "botNoKillBots", bindLocation: tp.bottingTab.pages[1],});
             initModule({ location: tp.bottingTab.pages[0], title: "Deploy", storeAs: "deployBots", bindLocation: tp.bottingTab.pages[1], button: "START BOTS!", clickFunction: function(){deployBots()},});
-            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#botting")},});
+            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){window.open(aimbottingGuideURL)},});
         //MISC MODULES
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
+            initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
+            tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", button: "UNBAN NOW", clickFunction: function(){
                 const userConfirmed=confirm("Unban works by switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
                 if (userConfirmed) {
                     window.location.replace("https://"+proxyList[3]);
                 };
             },});
-            initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
-            initModule({ location: tp.miscTab.pages[0], title: "ShowStreams", storeAs: "showStreams", bindLocation: tp.miscTab.pages[1],});
+            tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
-            // initModule({ location: tp.miscTab.pages[0], title: "Upside Down", storeAs: "upsideDown", bindLocation: tp.miscTab.pages[1],});
             initFolder({ location: tp.miscTab.pages[0], title: "Seizure Options", storeAs: "seizureFolder",});
                 initModule({ location: tp.seizureFolder, title: "SeizureX", storeAs: "enableSeizureX", bindLocation: tp.miscTab.pages[1],});
                 initModule({ location: tp.seizureFolder, title: "X Amount", storeAs: "amountSeizureX", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
@@ -451,6 +481,8 @@
         initFolder({ location: tp.pane, title: "Client & About", storeAs: "clientFolder",});
         initTab({ location: tp.clientFolder, storeAs: "clientTab" })
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.pane.hidden=!tp.pane.hidden}, defaultBind:"H",});
+            initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
+            tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "Default", value: "defaultTheme"},
                 {text: "Iceberg", value: "icebergTheme"},
@@ -463,14 +495,16 @@
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
                 applyTheme(value.value);
             }});
-            initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
+            tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { window.location.replace(extract("panicURL")) }}, defaultBind:"X",});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
+            tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
-                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){window.open("https://discord.gg/mPa95HB7Q6")},});
-                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient")},});
+                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){window.open(discordURL)},});
+                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){window.open(githubURL)},});
+            tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored keybinds, but also some of the game's stuff too (username, and other stuff).");
                 if (userConfirmed) {
@@ -479,7 +513,8 @@
                 };
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
-        initModule({ location: tp.pane, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#features")},});
+        tp.pane.addSeparator();
+        initModule({ location: tp.pane, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open(featuresGuideURL)},});
 
         updateConfig();
     };
@@ -1095,7 +1130,7 @@
                     const playerSlots = document.querySelectorAll('.playerSlot--name');
                     const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
                     //console.log("adsknjf--->"mapNames);
-                    vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyNames") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
+                    vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
         };
@@ -1609,8 +1644,8 @@
             const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(js)[1];
             js = js.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.getDisableChatFilter())`);
             //chat mods: make filtered text red
-            const [_, elm, str] = js.match(/.remove\(\),([a-zA-Z]+).innerHTML=([a-zA-Z]+)/);
-            js = js.replace(_, _ + `,${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red")`);
+            const [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
+            js = js.replace(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
             match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
             if (match) js = js.replace(match[0], match[0] + `||window.getSkinHack()`);
@@ -1704,16 +1739,12 @@
     const deployBots = function() {
         if (!JSON.parse(localStorage.getItem("firstTimeBots"))) {
             localStorage.setItem("firstTimeBots",JSON.stringify(true));
-            window.open("https://github.com/Hydroflame522/StateFarmClient/tree/main#botting");
+            window.open(aimbottingGuideURL);
         };
         console.log("Deploying "+extract("numberBots")+" bots...");
+
+        let botNames=[];
         for (let i = 0; i < extract("numberBots"); i++) {
-            let leftOffset=((i%15)*100);
-            // let topOffset=((i%3)*100);
-            let topOffset=0;
-            let proxyURL=proxyList[proxyListIndex];
-            proxyListIndex=(proxyListIndex+1)%proxyList.length;
-            let params="?AUTOMATED=true&StateFarm=";
             let name=extract("botUsername");
             if (extract("botCopyName")) {
                 if (!currentlyInGame) {
@@ -1725,38 +1756,68 @@
                     name = mapNames[Math.floor(Math.random() * mapNames.length)];
                 };
             };
+            botNames.push(name);
+        };
+
+        let BLACKLIST="";
+        if (extract("botNoKillMe")) {
+            BLACKLIST=BLACKLIST+vueApp.playerName+","
+        };
+        if (extract("botNoKillBots")) {
+            BLACKLIST=BLACKLIST+botNames.join(",")+","
+        };
+        BLACKLIST=BLACKLIST.endsWith(',') ? BLACKLIST.slice(0, -1) : BLACKLIST;
+        console.log("blacklist:",BLACKLIST);
+
+        for (let i = 0; i < extract("numberBots"); i++) {
+            let leftOffset=((i%15)*100);
+            // let topOffset=((i%3)*100);
+            let topOffset=0;
+            let proxyURL=proxyList[proxyListIndex];
+            proxyListIndex=(proxyListIndex+1)%proxyList.length;
+            let params="?AUTOMATED=true&StateFarm=";
+            let name=botNames[i];
+
+            const addParam = function(module,setTo) {params=params+module+"%3E"+JSON.stringify(setTo)+"<"};
+
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
 
-            params=params+"usernameAutoJoin%3E"+JSON.stringify(name)+","
-
-            params=params+"autoJoin%3E"+JSON.stringify(extract("botAutoJoin"))+","
-            params=params+"mockMode%3E"+JSON.stringify(extract("botMock"))+","
-            params=params+"autoRespawn%3E"+JSON.stringify(extract("botRespawn"))+","
-            params=params+"enableAutoFire%3E"+JSON.stringify(extract("botAutoShoot"))+","
-            params=params+"autoFireType%3E"+JSON.stringify(1)+","
-            params=params+"enableSeizureX%3E"+JSON.stringify(extract("botSeizure"))+","
-            params=params+"enableSeizureY%3E"+JSON.stringify(extract("botSeizure"))+","
+            addParam("usernameAutoJoin",name);
+            addParam("autoJoin",extract("botAutoJoin"));
+            addParam("mockMode",extract("botMock"));
+            addParam("autoRespawn",extract("botRespawn"));
+            addParam("enableAutoFire",extract("botAutoShoot"));
+            addParam("autoFireType",1);
+            addParam("enableSeizureX",extract("botSeizure"));
+            addParam("enableSeizureY",extract("botSeizure"));
 
             if (extract("botAimbot")) { //add antisneak
-                params=params+"aimbotTargeting%3E"+JSON.stringify(1)+","
-                params=params+"prediction%3E"+JSON.stringify(true)+","
-                params=params+"aimbot%3E"+JSON.stringify(true)+","
-                params=params+"autoWeapon%3E"+JSON.stringify(5)+","
-                params=params+"antiBloom%3E"+JSON.stringify(true)+","
-                params=params+"grenadeMax%3E"+JSON.stringify(true)+","
-                params=params+"enableSeizureX%3E"+JSON.stringify(false)+","
-                params=params+"enableSeizureY%3E"+JSON.stringify(false)+","
-                params=params+"antiSneak%3E"+JSON.stringify(1.4)+","
-                params=params+"autoRefill%3E"+JSON.stringify(true)+","
+                addParam("aimbotTargeting",1);
+                addParam("prediction",true);
+                addParam("aimbot",true);
+                addParam("autoWeapon",5); //whipper lol
+                addParam("antiBloom",true);
+                addParam("grenadeMax",true);
+                addParam("enableSeizureX",false);
+                addParam("enableSeizureY",false);
+                addParam("antiSneak",1.4);
+                addParam("autoRefill",true);
+                addParam("autoGrenade",true);
             };
 
             if (extract("botAutoMove")) {
-                params=params+"autoWalk%3E"+JSON.stringify(true)+","
-                params=params+"autoJump%3E"+JSON.stringify(true)+","
-                params=params+"autoJumpDelay%3E"+JSON.stringify(1500)+","
+                addParam("autoWalk",true);
+                addParam("autoJump",true);
+                addParam("autoJumpDelay",1500);
+            };
+
+            if (BLACKLIST!=="") {
+                addParam("blacklist",BLACKLIST);
+                addParam("enableBlacklistAimbot",true);
             };
 
             params=params+"joinCode%3E%22"+extract("botJoinCode")+"%22";
+            console.log("PARAMS:",params)
             window.open("https://"+proxyURL+"/"+params, '_blank', 'width=450,height=300,left='+leftOffset+',top='+topOffset);
         };
     };
@@ -1773,8 +1834,8 @@
             customSettings=customSettings.split("|");
             let setVars=[];
             let setBinds=[];
-            if (customSettings[0]) {setVars=customSettings[0].split(",")};
-            if (customSettings[1]) {setVars=customSettings[0].split(",")};
+            if (customSettings[0]) {setVars=customSettings[0].split("<")};
+            if (customSettings[1]) {setVars=customSettings[0].split("<")};
             console.log(setVars,setBinds);
             setVars.forEach(element=>{
                 element=element.split(">");
@@ -1841,9 +1902,6 @@
                     chatItems[i].style.display = isInRange ? '' : 'none';
                 };
             };
-            // accuracyDiff=ss.MYPLAYER.weapon.accuracy-accuracy;
-            yawDiff=radianAngleDiff(yawCache,ss.MYPLAYER.yaw);
-            pitchDiff=radianAngleDiff(pitchCache,ss.MYPLAYER.pitch);
         };
         const updateLinesESP = function (ss) {
             const objExists=Date.now();
@@ -2075,6 +2133,9 @@
                     ss.MYPLAYER.reload();
                 };
             };
+            if (extract("autoGrenade") && isLineOfSight && (ss.MYPLAYER.grenadeCount>0)) {
+                ss.MYPLAYER.throwGrenade();
+            };
             if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER.playing)) {
                 const weaponArray={ //this could be done differently but i cba
                     eggk47: 0,
@@ -2214,8 +2275,6 @@
                 };
             };
             highlightCurrentlyTargeting(ss, currentlyTargeting, didAimbot);
-            yawCache=ss.MYPLAYER.yaw;
-            pitchCache=ss.MYPLAYER.pitch;
             if (extract("upsideDown")) { //sorta useless
                 if (ss.MYPLAYER.pitch<1.5 && ss.MYPLAYER.pitch>-1.5) {
                     ss.MYPLAYER.pitch=Math.PI;
