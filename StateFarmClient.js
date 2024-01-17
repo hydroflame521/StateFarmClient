@@ -16,7 +16,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre4
+// @version      3.3.2-pre5
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.2-pre4";
+    const version="3.3.2-pre5";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -107,6 +107,7 @@
     let yourPlayerKills = 0;
     let currentlyTargetingName = "none";
     let username = "";
+    let autoStrafeValue=[0,0,"left"];
     const allModules=[];
     const allFolders=[];
     const F=[];
@@ -430,8 +431,9 @@
         //AUTOMATION MODULES
         initFolder({ location: tp.pane, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
-            initModule({ location: tp.automationTab.pages[0], title: "AutoWalk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "AutoJump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0,});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "disabled"});
@@ -1020,6 +1022,9 @@
     const isPartialMatch = function (array, searchString) {
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
     };
+    const randomInt = function(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
     const radianAngleDiff = function (angle1,angle2) {
         const fullCircle = 2 * Math.PI;
         // Normalize angles to be within [0, 2π)
@@ -1558,25 +1563,38 @@
         return newPos;
     };
     const getLineOfSight = function(ss,pos) { //returns true if no wall collisions
-        let distance=distancePlayers(ss,pos);
-        let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
-        if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
+        // let distance=distancePlayers(ss,pos);
+        // let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
+        // if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
 
         
-        const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
-        let gunOffset = ss.BABYLONJS.Matrix.Translation(0, 0.1, 0);
-        gunOffset = gunOffset.multiply(playerRot)
-        gunOffset = gunOffset.add(ss.BABYLONJS.Matrix.Translation(ss.MYPLAYER.x, ss.MYPLAYER.y + 0.3, ss.MYPLAYER.z));
-        const gunPosition = gunOffset.getTranslation();
+        // const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
+        // let gunOffset = ss.BABYLONJS.Matrix.Translation(0, 0.1, 0);
+        // gunOffset = gunOffset.multiply(playerRot)
+        // gunOffset = gunOffset.add(ss.BABYLONJS.Matrix.Translation(ss.MYPLAYER.x, ss.MYPLAYER.y + 0.4, ss.MYPLAYER.z));
+        // const gunPosition = gunOffset.getTranslation();
 
-        const myVector=new ss.BABYLONJS.Vector3(gunPosition.x, gunPosition.y, gunPosition.z);
-        const directionVector=new ss.BABYLONJS.Vector3(Math.sin(dir.yaw)*distance,Math.sin(-dir.pitch)*distance,Math.cos(dir.yaw)*distance);
+        // const myVector=new ss.BABYLONJS.Vector3(gunPosition.x, gunPosition.y, gunPosition.z);
+        // const directionVector=new ss.BABYLONJS.Vector3(Math.sin(dir.yaw)*distance,Math.sin(-dir.pitch)*distance,Math.cos(dir.yaw)*distance);
 
-        const collisionWhereLooking=ss.RAYS.rayCollidesWithMap(myVector,directionVector,ss.RAYS.projectileCollidesWithCell);
+        // const collisionWhereLooking=ss.RAYS.rayCollidesWithMap(myVector,directionVector,ss.RAYS.projectileCollidesWithCell);
 
-        // console.log(!(!collisionWhereLooking));
+        // // console.log(!(!collisionWhereLooking));
 
-        return (!collisionWhereLooking);
+        const distance=distancePlayers(ss,pos);
+        let result=true;
+
+        let forwardRay=ss.MYPLAYER.actor.scene.cameras[0].getForwardRay();
+        forwardRay.origin = ss.MYPLAYER.actor.eye.getAbsolutePosition();
+        forwardRay.direction.scaleInPlace(1e3);
+        var collisionWhereLooking = ss.RAYS.rayCollidesWithMap(forwardRay.origin, forwardRay.direction, ss.RAYS.projectileCollidesWithCell);
+        if (collisionWhereLooking!==undefined) { //if undefined it probably means youre looking at the sky
+            var distanceOfCollision = ss.BABYLONJS.Vector3.Distance(forwardRay.origin, collisionWhereLooking.pick.pickedPoint);
+            result=(!collisionWhereLooking)||(distanceOfCollision>distance);
+        };
+
+
+        return (result);
     };
     const getAimbot = function(ss,player) {
         let aimAt;
@@ -1641,11 +1659,30 @@
             return msg;
         };
         window.modifyControls = function(CONTROLKEYS) {
-            if (extract("autoWalk")) { CONTROLKEYS|=1 };
+            // if (AUTOMATED) { CONTROLKEYS=0 };
+            if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up };
             if (extract("autoJump")) {
                 if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
-                    CONTROLKEYS|=16;
+                    CONTROLKEYS|=ss.CONTROLVALUES.jump;
                     lastAutoJump=Date.now();
+                };
+            };
+            if (extract("autoStrafe")) {
+                if (Date.now()>(autoStrafeValue[0])) {
+                    if (autoStrafeValue[1]==0) { //decide new strafe delay
+                        autoStrafeValue[0]=Date.now() + randomInt(500,3000);
+                        autoStrafeValue[2]=(Math.random()>0.5) ? "left" : "right";
+                        autoStrafeValue[1]=1;
+                    } else if (autoStrafeValue[1]==1) { //time to start strafe
+                        autoStrafeValue[3]=Date.now() + randomInt(500,2000);
+                        autoStrafeValue[1]=2;
+                    } else if (autoStrafeValue[1]==2 && Date.now()<autoStrafeValue[3]) { //do strafe
+                        CONTROLKEYS|=ss.CONTROLVALUES[autoStrafeValue[2]];
+                    } else if (autoStrafeValue[1]==2) { //stop strafe
+                        CONTROLKEYS&=~ss.CONTROLVALUES.left;
+                        CONTROLKEYS&=~ss.CONTROLVALUES.right;
+                        autoStrafeValue[1]=0;
+                    };
                 };
             };
             return CONTROLKEYS;
@@ -1693,6 +1730,7 @@
                 getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
                 getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
                 getVar("SETTINGS", '\\.mouseSpeed&&([a-zA-Z]+)\\.mouseSensitivity!==null');
+                getVar("CONTROLVALUES", 'this\\.controlKeys&([a-zA-Z]+)\\.jump,this\\.actor');
                 // getVar("vs", '(vs)'); //todo
                 // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
                 // getVar("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
@@ -1895,6 +1933,7 @@
 
             if (extract("botAutoMove")) {
                 addParam("autoWalk",true);
+                addParam("autoStrafe",true);
                 addParam("autoJump",true);
                 addParam("autoJumpDelay",1500);
             };
@@ -2220,13 +2259,11 @@
                 globalPlayer=ss;
             };
             let isLineOfSight;
-            if (extract("showLOS")) {
-                const player=currentlyTargeting||playerLookingAt||undefined
-                if (player && player.playing) {
-                    isLineOfSight=getLineOfSight(ss,player);
-                };
+            const player=currentlyTargeting||playerLookingAt||undefined
+            if (player && player.playing) {
+                isLineOfSight=getLineOfSight(ss,player);
             };
-            highlightCrossHairReticleDot(ss,isLineOfSight);
+            highlightCrossHairReticleDot(ss,extract("showLOS")?isLineOfSight:null);
             if ( extract("chatHighlight") ) {
                 document.getElementById("chatOut").style.userSelect="text"
             };
