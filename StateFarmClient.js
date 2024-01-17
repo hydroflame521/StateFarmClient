@@ -16,7 +16,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre3
+// @version      3.3.2-pre4
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.2-pre3";
+    const version="3.3.2-pre4";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -116,7 +116,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let ss,msgElement,playersInGame,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
     let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -447,7 +447,7 @@
         //BOTTING MODULES
         initFolder({ location: tp.pane, title: "Botting", storeAs: "bottingFolder",});
         initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
-            initModule({ location: tp.bottingTab.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 15, step: 1}, defaultValue: 1,});
+            initModule({ location: tp.bottingTab.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
             initFolder({ location: tp.bottingTab.pages[0], title: "Parameters", storeAs: "botParamsFolder",});
                 initModule({ location: tp.botParamsFolder, title: "Join Game", storeAs: "botAutoJoin", bindLocation: tp.bottingTab.pages[1],});
                 initModule({ location: tp.botParamsFolder, title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE",});
@@ -479,6 +479,7 @@
         initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
+            initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", button: "UNBAN NOW", clickFunction: function(){
                 const userConfirmed=confirm("Unban works by switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
@@ -1616,6 +1617,9 @@
         window.getSkinHack = function () {
             return extract("unlockSkins");
         };
+        window.getAdminSpoof = function () {
+            return extract("adminSpoof");
+        };
         window.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
                 ss.MYPLAYER=MYPLAYER;
@@ -1743,11 +1747,11 @@
             console.log("PLAYERTHING:",PLAYERTHING);
             console.log("ARGTHING:",ARGTHING);
             js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.modifyControls('+CONTROLKEYS+');');
+            // //admin spoof lol
+            js=js.replace('isGameOwner(){return ','isGameOwner(){return window.getAdminSpoof()?true:')
+            js=js.replace('adminRoles(){return ','adminRoles(){return window.getAdminSpoof()?255:')
 
             //replace graveyard:
-            // //admin spoof lol
-            // js=js.replace('isGameOwner(){return qr}','isGameOwner(){return true}')
-            // js=js.replace('get adminRoles(){return O.adminRoles}','get adminRoles(){return 255}')
             // //sus
             // js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
             // js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
@@ -2065,6 +2069,7 @@
                         player.isOnline=objExists;
                     };
                 });
+                playersInGame=onlinePlayersArray.length;
                 for ( let i=0;i<onlinePlayersArray.length;i++) {
                     if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
                         onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
@@ -2180,7 +2185,7 @@
                 coordElement.style.display = '';
             };
             if ( extract("gameInfo") ) {
-                let gameInfoText=ss.GAMECODE+" | "+ss.PLAYERS.length+"/18 | "+(18-ss.PLAYERS.length)+" slots remaining.";
+                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining.";
                 gameInfoElement.innerText = gameInfoText;
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
@@ -2214,7 +2219,7 @@
             if (extract("debug")) {
                 globalPlayer=ss;
             };
-            let isLineOfSight=false;
+            let isLineOfSight;
             if (extract("showLOS")) {
                 const player=currentlyTargeting||playerLookingAt||undefined
                 if (player && player.playing) {
