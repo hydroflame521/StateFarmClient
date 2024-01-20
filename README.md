@@ -4,7 +4,7 @@
 Hack Client for Shell Shockers (shellshock.io). The most feature rich and powerful client to exist for the game. 
 It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Botting**, **Custom Binding**, **Highly Customisable Modules**, **Chat Mods** and much much more.
 > StateFarm Client V3 is based off [LibertyMutual Client](https://github.com/onlypuppy7/LibertyMutualShellShockers)
-> Information accurate as of StateFarm Client v3.3.2-pre5
+- Information accurate as of StateFarm Client v3.3.2-pre5
 - _**Join the [Discord](https://discord.gg/6kzNpHFRSN) server for the latest news**_.
 # Table of Contents
 1. [Download Sources](#download-sources)
