@@ -16,7 +16,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre5
+// @version      3.3.2-pre6
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +75,7 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.2-pre5";
+    const version="3.3.2-pre6";
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -304,12 +304,12 @@
     };
     const initMenu = function () {
         //INIT MENU
-        //init tp.pane
+        //init tp.mainPanel
 
-        tp.pane = new Tweakpane.Pane();
-        tp.pane.title = name + " v" + version;
+        tp.mainPanel = new Tweakpane.Pane();
+        tp.mainPanel.title = name + " v" + version;
         //COMBAT MODULES
-        initFolder({ location: tp.pane, title: "Combat", storeAs: "combatFolder",});
+        initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder",});
         initTab({ location: tp.combatFolder, storeAs: "combatTab" })
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
@@ -336,8 +336,8 @@
             initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "Line-Of-Sight", value: "lineOfSight"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
-        initFolder({ location: tp.pane, title: "Render", storeAs: "renderFolder",});
-        initTab({ location: tp.renderFolder, storeAs: "renderTab" })
+        initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder",});
+        initTab({ location: tp.renderFolder, storeAs: "renderTab" });
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
@@ -368,25 +368,27 @@
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 3}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
             tp.renderTab.pages[0].addSeparator();
-            initModule({ location: tp.renderTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.renderTab.pages[1],});
-            tp.renderTab.pages[0].addSeparator();
-            initModule({ location: tp.renderTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "GameInfo", storeAs: "gameInfo", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.renderTab.pages[1],});
-            tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: {min: 0, max: 10, step: 0.25}, defaultValue: 1,});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "Set Detail", storeAs: "setDetail", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Auto Detail", value: "autodetail"}, {text: "No Details", value: "nodetails"}, {text: "Shadows", value: "shadows"}, {text: "High Res", value: "highres"}, {text: "Shadows+High Res", value: "shadowshighres"}], defaultValue: "disabled"});
             initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true,});
+        //HUD MODULES
+        initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder",});
+        initTab({ location: tp.hudFolder, storeAs: "hudTab" });
+            initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1],});
+            tp.hudTab.pages[0].addSeparator();
+            initModule({ location: tp.hudTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "GameInfo", storeAs: "gameInfo", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.hudTab.pages[1],});
         //CHAT MODULES
-        initFolder({ location: tp.pane, title: "Chat", storeAs: "chatFolder",});
-        initTab({ location: tp.chatFolder, storeAs: "chatTab" })
+        initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder",});
+        initTab({ location: tp.chatFolder, storeAs: "chatTab" });
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
@@ -413,7 +415,7 @@
                 initModule({ location: tp.joinLeaveFolder, title: "Send2Chat", storeAs: "publicBroadcast", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1],});
         //LISTS MODULES
-        initFolder({ location: tp.pane, title: "Lists", storeAs: "listsFolder",});
+        initFolder({ location: tp.mainPanel, title: "Lists", storeAs: "listsFolder",});
         initTab({ location: tp.listsFolder, storeAs: "listsTab" })
             initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2",});
             initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder",});
@@ -429,7 +431,7 @@
                 initModule({ location: tp.blacklistFolder, title: "BESPType", storeAs: "blacklistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Just Exclude", value: "justexclude"},{text: "Highlight", value: "highlight"},], defaultValue: "justexclude",});
                 initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00",});
         //AUTOMATION MODULES
-        initFolder({ location: tp.pane, title: "Automation", storeAs: "automationFolder",});
+        initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
             initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
@@ -439,15 +441,16 @@
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
                 initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
                 initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
                 initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
         //BOTTING MODULES
-        initFolder({ location: tp.pane, title: "Botting", storeAs: "bottingFolder",});
+        initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder",});
         initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
             initModule({ location: tp.bottingTab.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
             initFolder({ location: tp.bottingTab.pages[0], title: "Parameters", storeAs: "botParamsFolder",});
@@ -478,7 +481,7 @@
             initModule({ location: tp.bottingTab.pages[0], title: "Deploy", storeAs: "deployBots", bindLocation: tp.bottingTab.pages[1], button: "START BOTS!", clickFunction: function(){deployBots()},});
             initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){window.open(aimbottingGuideURL)},});
         //MISC MODULES
-        initFolder({ location: tp.pane, title: "Misc", storeAs: "miscFolder",});
+        initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
@@ -497,9 +500,9 @@
                 initModule({ location: tp.seizureFolder, title: "SeizureY", storeAs: "enableSeizureY", bindLocation: tp.miscTab.pages[1],});
                 initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
         //CLIENT MODULES
-        initFolder({ location: tp.pane, title: "Client & About", storeAs: "clientFolder",});
+        initFolder({ location: tp.mainPanel, title: "Client & About", storeAs: "clientFolder",});
         initTab({ location: tp.clientFolder, storeAs: "clientTab" })
-            initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.pane.hidden=!tp.pane.hidden}, defaultBind:"H",});
+            initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.mainPanel.hidden=!tp.mainPanel.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.clientTab.pages[1],});
@@ -533,10 +536,11 @@
                 };
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
-        tp.pane.addSeparator();
-        initModule({ location: tp.pane, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open(featuresGuideURL)},});
+        tp.mainPanel.addSeparator();
+        initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open(featuresGuideURL)},});
 
         updateConfig();
+        makeDraggable(document.querySelector('.tp-dfwv'));
     };
     //visual functions
     const createPopup = function (text,type) {
@@ -592,6 +596,10 @@
             }
             .tp-rotv_m, .tp-fldv_m {
                 display: none;
+            }
+            .tp-rotv_t {
+                cursor: move;
+                user-select: none;
             }
             .tp-lblv_v, .tp-lstv, .tp-btnv_b, .tp-btnv_t {
                 font-family: 'Bahnschrift';
@@ -742,6 +750,7 @@
         `);
         document.body.appendChild(playerinfoElement);
         playerinfoElement.style.display = 'none';
+        // makeDraggable(playerinfoElement,true); //cba
         //initiate bloom indicator div and css and shit
         redCircle = document.createElement('div');
         redCircle.style.position = 'fixed';
@@ -751,6 +760,30 @@
         redCircle.style.backgroundColor = 'red';
         redCircle.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(redCircle);
+    };
+    const makeDraggable = function(element,notMenu) {
+        if (element) {
+            let offsetX, offsetY;
+            element.addEventListener('mousedown', function(e) {
+                const dragElement = function(e) {
+                    const x = e.clientX - offsetX;
+                    const y = e.clientY - offsetY;
+                    const maxX = window.innerWidth - element.offsetWidth;
+                    const maxY = window.innerHeight - element.offsetHeight;
+                    element.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
+                    element.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+                };
+                if (notMenu||e.target.classList.contains('tp-rotv_t')) {
+                    offsetX = e.clientX - element.getBoundingClientRect().left;
+                    offsetY = e.clientY - element.getBoundingClientRect().top;
+                    document.addEventListener('mousemove', dragElement);
+                    document.addEventListener('mouseup', function() {
+                        document.removeEventListener('mousemove', dragElement);
+                    });
+                    e.preventDefault(); // Prevent text selection during drag
+                };
+            });
+        };
     };
     const applyTheme = function(setTheme) {
         setTheme = (setTheme||extract("themeType")||"defaultTheme");
@@ -1020,6 +1053,7 @@
     };
     const reverse_string = function (str) { return str.split("").reverse().join("") };
     const isPartialMatch = function (array, searchString) {
+        if (searchString=="") { return false };
         return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
     };
     const randomInt = function(min, max) {
@@ -1181,10 +1215,20 @@
                     };
                 };
             };
-            if (extract("autoRespawn")&&(!ss.MYPLAYER.playing)) {
-                var button = document.querySelector('.ss_button.btn_big.btn-dark-bevel.btn-respawn.ss_button.btn_green.bevel_green');
-                if (button) {
-                    button.click();
+            if (!ss.MYPLAYER.playing) {
+                if (extract("autoRespawn")) {
+                    var button = document.querySelector('.ss_button.btn_big.btn-dark-bevel.btn-respawn.ss_button.btn_green.bevel_green');
+                    if (button) {
+                        button.click();
+                    };
+                };
+                //credits: @2lars and @macintosh2 in the discord :)
+                if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
+                    if ((extract("autoTeam")=="random") ||
+                        (extract("autoTeam")=="red")&&(ss.MYPLAYER.team==1) ||
+                        (extract("autoTeam")=="blue")&&(ss.MYPLAYER.team==2)) {
+                        extern.switchTeam();
+                    };
                 };
             };
             addStreamsToInGameUI();
@@ -1226,7 +1270,7 @@
         localStorage.timesPlayed = 0;
     };
     const updateConfig = function () {
-        config=tp.pane.exportPreset();
+        config=tp.mainPanel.exportPreset();
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         try {
@@ -2352,7 +2396,7 @@
                     };
                 };
             });
-            currentlyTargetingName = currentlyTargeting?.name;
+            currentlyTargetingName=(currentlyTargeting?.name==undefined) ? currentlyTargetingName : currentlyTargeting?.name;
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     didAimbot=true
