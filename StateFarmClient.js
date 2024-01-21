@@ -3,20 +3,23 @@
 // @description  Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
+// @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
 // @license      GPL-3.0
 // @run-at       document-start
-// @grant        none
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_info
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
 // @downloadURL  https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.user.js
 // @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
 
-// version naming: 
+// version naming:
     //3.#.#-pre[number] for development versions, increment for every commit (not full release)
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre6
+// @version      3.3.2-pre7
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -75,7 +78,8 @@
 (function () {
     //script info
     const name="StateFarm Client";
-    const version="3.3.2-pre6";
+    const version=GM_info.script.version;
+    const menuTitle=name + " v" + version;
     //startup sequence
     const startUp=function () {
         mainLoop()
@@ -84,7 +88,7 @@
             initMenu();
             applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
             const intervalId1 = setInterval(everySecond, 1000);
-            const intervalId2 = setInterval(updateConfig, 100);
+            const intervalId2 = setInterval(everyDecisecond, 100);
             applyStateFarmLogo();
             const observer = new MutationObserver(applyStateFarmLogo);
             observer.observe(document.body, { subtree: true, childList: true });
@@ -97,7 +101,7 @@
     const aimbottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#botting";
     const replacementLogoURL = 'https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true';
     //INIT VARS
-    window.newGame=false
+    unsafeWindow.newGame=false
     let binding=false;
     let lastSpamMessage=0;
     let lastAutoJump=0;
@@ -107,6 +111,7 @@
     let yourPlayerKills = 0;
     let currentlyTargetingName = "none";
     let username = "";
+    let previousParams = "";
     let autoStrafeValue=[0,0,"left"];
     const allModules=[];
     const allFolders=[];
@@ -117,7 +122,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,playersInGame,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,config;
+    let ss,msgElement,playersInGame,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -129,14 +134,15 @@
         'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
         'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe'
     ];
-    proxyList=proxyList.filter(item=>item!==window.location.hostname);
+    proxyList=proxyList.filter(item=>item!==unsafeWindow.location.hostname);
     proxyList=[...proxyList].sort(() => Math.random() - 0.5);
     let proxyListIndex=0;
-    
+    const monitorObjects = {};
+
     //menu interaction functions
     const extract = function (variable,shouldUpdate) {
         if (shouldUpdate) {updateConfig()};
-        return config[variable];
+        return configMain[variable]||configBots[variable];
     };
     const beginBinding = function (value) {
         if (binding == false) {
@@ -155,10 +161,11 @@
                 // check for checkbox
                 const checkbox = inputContainer.querySelector('.tp-ckbv_i');
                 if (checkbox) {
+                    console.log(module,newValue,currentValue)
                     if (newValue==undefined) {
                         newValue=(!currentValue);
                     };
-                    if (newValue!=currentValue) {
+                    if (newValue!==!(!currentValue)) {
                         checkbox.click(); // Toggle checkbox
                     };
                     return extract(module,true);
@@ -227,10 +234,8 @@
                 if ((bindsArray[module] == event) && module!="zoom") {
                     let state=change(module)
                     let popupText=state
-                    if (typeof state === "boolean") {
-                        state=(state?"ON":"OFF");
-                    };
                     if (state!="NOMSG") {
+                        state=(state?"ON":"OFF");
                         popupText="Set "+module+" to: "+state;
                         if (extract("announcer")) {
                             sendChatMessage("I just set "+module+" to "+state+"!");
@@ -238,7 +243,9 @@
                     } else {
                         switch (module) {
                             case ("hide"):
-                                popupText="Toggled GUI"; break;
+                                popupText="Toggled StateFarm Panel"; break;
+                            case ("showBotPanel"):
+                                popupText="Toggled Bot Panel"; break;
                             case ("panic"):
                                 popupText="Exiting to set URL..."; break;
                         };
@@ -251,8 +258,8 @@
     const initTab = function(tab) {
         tp[tab.storeAs]=tab.location.addTab({
             pages: [
-            {title: 'Modules'},
-            {title: 'Binds'},
+                {title: 'Modules'},
+                {title: 'Binds'},
             ],
         });
     };
@@ -275,18 +282,31 @@
             step: module.slider.step,
             title: module.button,
         };
-        if (!module.button) {
-            tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config
-            ).on("change", (value) => {
-                localStorage.setItem(module.storeAs,JSON.stringify(value.value));
-                if (module.changeFunction!==undefined) {module.changeFunction(value)};
-            });
-        } else {
+        if (module.button) {
             tp[(module.storeAs+"Button")]=module.location.addButton({
                 label: module.title,
                 title: module.button,
             }).on("click", (value) => {
                 if (module.clickFunction!==undefined) {module.clickFunction(value)};
+                if (module.botParam!==undefined) {updateBotParams(module.botParam)};
+            });
+        } else if (module.monitor) {
+            monitorObjects[module.storeAs]="Text Goes Here";
+            tp[(module.storeAs+"Button")]=module.location.addMonitor(monitorObjects,module.storeAs,{
+                label: '',
+                expanded: true,
+                multiline: true,
+                lineCount: module.monitor,
+            });
+            setInterval(() => {
+                tp[(module.storeAs+"Button")].refresh();
+            }, 1000);
+        } else {
+            tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config
+            ).on("change", (value) => {
+                localStorage.setItem(module.storeAs,JSON.stringify(value.value));
+                if (module.changeFunction!==undefined) {module.changeFunction(value)};
+                if (module.botParam!==undefined) {updateBotParams(module.botParam)};
             });
         };
         allModules.push(name.replace("Button",""));
@@ -307,7 +327,7 @@
         //init tp.mainPanel
 
         tp.mainPanel = new Tweakpane.Pane();
-        tp.mainPanel.title = name + " v" + version;
+        tp.mainPanel.title = menuTitle;
         //COMBAT MODULES
         initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder",});
         initTab({ location: tp.combatFolder, storeAs: "combatTab" })
@@ -449,37 +469,13 @@
                 initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
+            initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
         //BOTTING MODULES
         initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder",});
         initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
-            initModule({ location: tp.bottingTab.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
-            initFolder({ location: tp.bottingTab.pages[0], title: "Parameters", storeAs: "botParamsFolder",});
-                initModule({ location: tp.botParamsFolder, title: "Join Game", storeAs: "botAutoJoin", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE",});
-                initModule({ location: tp.botParamsFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)},});
-                tp.botParamsFolder.addSeparator();
-                initModule({ location: tp.botParamsFolder, title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer",});
-                initModule({ location: tp.botParamsFolder, title: "AntiDupe", storeAs: "botAntiDupe", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "CopyNames", storeAs: "botCopyName", bindLocation: tp.bottingTab.pages[1],});
-                tp.botParamsFolder.addSeparator();
-                initModule({ location: tp.botParamsFolder, title: "DoPlay", storeAs: "botRespawn", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "DoSeizure", storeAs: "botSeizure", bindLocation: tp.bottingTab.pages[1],});
-                tp.botParamsFolder.addSeparator();
-                initModule({ location: tp.botParamsFolder, title: "DoTallChat", storeAs: "botTallChat", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "DoMock", storeAs: "botMock", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "DoAutoEZ", storeAs: "botAutoEZ", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "DoChAccuse", storeAs: "botCheatAccuse", bindLocation: tp.bottingTab.pages[1],});
-                tp.botParamsFolder.addSeparator();
-                initModule({ location: tp.botParamsFolder, title: "DoMove", storeAs: "botAutoMove", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "DoShoot", storeAs: "botAutoShoot", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "DoAimbot", storeAs: "botAimbot", bindLocation: tp.bottingTab.pages[1],});
-                tp.botParamsFolder.addSeparator();
-                initModule({ location: tp.botParamsFolder, title: "LowRes", storeAs: "botLowRes", bindLocation: tp.bottingTab.pages[1],});
-                tp.botParamsFolder.addSeparator();
-                initModule({ location: tp.botParamsFolder, title: "Don'tKillMe", storeAs: "botNoKillMe", bindLocation: tp.bottingTab.pages[1],});
-                initModule({ location: tp.botParamsFolder, title: "Don'tKillBot", storeAs: "botNoKillBots", bindLocation: tp.bottingTab.pages[1],});
-            initModule({ location: tp.bottingTab.pages[0], title: "Deploy", storeAs: "deployBots", bindLocation: tp.bottingTab.pages[1], button: "START BOTS!", clickFunction: function(){deployBots()},});
-            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){window.open(aimbottingGuideURL)},});
+            initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function(){tp.botPanel.hidden=!tp.botPanel.hidden}, defaultBind:"J",});
+            tp.bottingTab.pages[0].addSeparator();
+            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(aimbottingGuideURL)},});
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTab({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -489,7 +485,7 @@
             initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", button: "UNBAN NOW", clickFunction: function(){
                 const userConfirmed=confirm("Unban works by switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
                 if (userConfirmed) {
-                    window.location.replace("https://"+proxyList[3]);
+                    unsafeWindow.location.replace("https://"+proxyList[3]);
                 };
             },});
             tp.miscTab.pages[0].addSeparator();
@@ -509,24 +505,34 @@
             initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "Default", value: "defaultTheme"},
                 {text: "Iceberg", value: "icebergTheme"},
-                {text: "Jetblack", value: "jetblackTheme"},
+                {text: "Jet Black", value: "jetblackTheme"},
                 {text: "Light", value: "lightTheme"},
                 {text: "Retro", value: "retroTheme"},
                 {text: "Translucent", value: "translucentTheme"},
-                {text: "Statefarmer", value: "statefarmerTheme"},
+                {text: "StateFarmer", value: "statefarmerTheme"},
                 {text: "Blurple", value: "blurpleTheme"}
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
                 applyTheme(value.value);
             }});
             tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { window.location.replace(extract("panicURL")) }}, defaultBind:"X",});
+            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X",});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             tp.clientTab.pages[0].addSeparator();
+            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presets", bindLocation: tp.clientTab.pages[1], dropdown: [
+                {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<lineOfSight>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
+            ]});
+            initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
+                const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
+                if (userConfirmed) {
+                    applySettings(extract("presets"));
+                };
+            },});
+            tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
-                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){window.open(discordURL)},});
-                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){window.open(githubURL)},});
+                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){unsafeWindow.open(discordURL)},});
+                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){unsafeWindow.open(githubURL)},});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored keybinds, but also some of the game's stuff too (username, and other stuff).");
@@ -537,10 +543,73 @@
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
         tp.mainPanel.addSeparator();
-        initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){window.open(featuresGuideURL)},});
+        initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){unsafeWindow.open(featuresGuideURL)},});
+
+
+        tp.botPanel = new Tweakpane.Pane();
+        tp.botPanel.title = "StateFarm Bot Control Panel";
+        tp.botPanel.containerElem_.style.left = "15%";
+        tp.botPanel.containerElem_.style.top = "25%";
+        tp.botPanel.hidden=true;
+
+        tp["botTabs"]=tp.botPanel.addTab({
+            pages: [
+                {title: 'Deploy'},
+                {title: 'Manage'},
+                {title: 'Params'},
+                {title: 'Info'},
+            ],
+        });
+
+        //DEPLOY STUFF
+        initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
+        initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()},});
+        tp.botTabs.pages[0].addSeparator();
+        initModule({ location: tp.botTabs.pages[0], title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", botParam: true,});
+        //MANAGE STUFF
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){
+            GM_setValue("StateFarm_LeaveBots",true);
+            setTimeout(function() {
+                GM_setValue("StateFarm_LeaveBots",false);
+            }, 2000);
+        }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){
+            GM_setValue("StateFarm_KillBots",true);
+            setTimeout(function() {
+                GM_setValue("StateFarm_KillBots",false);
+            }, 2000);
+        }, botParam: true,});
+        tp.botTabs.pages[1].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
+        //PARAMS STUFF
+        // initFolder({ location: tp.botPanel, title: "Parameters", storeAs: "botTabs.pages[2]",});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "DoTallChat", storeAs: "botTallChat", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoMock", storeAs: "botMock", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoAutoEZ", storeAs: "botAutoEZ", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
+        //INFO STUFF
+        initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true,});
 
         updateConfig();
-        makeDraggable(document.querySelector('.tp-dfwv'));
+        makeDraggable(tp.mainPanel.containerElem_);
+        makeDraggable(tp.botPanel.containerElem_);
     };
     //visual functions
     const createPopup = function (text,type) {
@@ -590,9 +659,10 @@
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
             }
-            .tp-dfwv, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-lblv_l, .tp-tabv_i, .msg, .coords, .gameinfo, .playerstats, .playerinfo, .automated {
+            .tp-dfwv, .tp-sglv_i, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-txtv_i, .tp-lblv_l, .tp-tbiv_t, .msg, .coords, .gameinfo, .playerstats, .playerinfo, .automated {
                 font-family: 'Bahnschrift', sans-serif !important;
                 font-size: 16px;
+                z-index: 9999 !important;
             }
             .tp-rotv_m, .tp-fldv_m {
                 display: none;
@@ -601,9 +671,27 @@
                 cursor: move;
                 user-select: none;
             }
+            .tp-tbiv_t {
+                font-family: 'Bahnschrift';
+                font-size: 13px;
+            }
             .tp-lblv_v, .tp-lstv, .tp-btnv_b, .tp-btnv_t {
                 font-family: 'Bahnschrift';
                 font-size: 12px;
+            }
+            .tp-mllv {
+                font-family: 'Bahnschrift';
+                font-size: 12px;
+                letter-spacing: -1px;
+                width: 246px;
+                margin-left: -86px !important;
+            }
+            .tp-mllv_i::-webkit-scrollbar-thumb {
+                background-color: #888; /* Adjust the color as needed */
+                border: 2px solid #555; /* Change the color of the border and adjust the width as needed */
+            }
+            .tp-mllv_i::-webkit-scrollbar-track {
+                background-color: #000; /* Change the color as needed */
             }
             .tp-lblv_l {
                 font-size: 14px;
@@ -617,7 +705,7 @@
                 margin-left: 4px !important;
             }
             .tp-dfwv, .tp-rotv, .tp-rotv_c, .tp-fldv, .tp-fldv_c, .tp-lblv, .tp-lstv, .tp-btnv, .tp-sldv {
-                z-index: 9999 !important;
+                z-index: 99999 !important;
                 white-space: nowrap !important;
             }
             @keyframes msg {
@@ -677,7 +765,7 @@
         `);
         document.body.appendChild(coordElement);
         coordElement.style.display = 'none';
-        //initiate coord div and css and shit
+        //initiate game info div and css and shit
         gameInfoElement = document.createElement('div'); // create the element directly
         gameInfoElement.classList.add('gameinfo');
         gameInfoElement.setAttribute('style', `
@@ -732,7 +820,7 @@
         `);
         document.body.appendChild(playerstatsElement);
         playerstatsElement.style.display = 'none';
-        //initiate hp div and css and shit
+        //initiate player info div and css and shit
         playerinfoElement = document.createElement('div'); // create the element directly
         playerinfoElement.classList.add('playerinfo');
         playerinfoElement.setAttribute('style', `
@@ -766,12 +854,12 @@
             let offsetX, offsetY;
             element.addEventListener('mousedown', function(e) {
                 const dragElement = function(e) {
-                    const x = e.clientX - offsetX;
-                    const y = e.clientY - offsetY;
-                    const maxX = window.innerWidth - element.offsetWidth;
-                    const maxY = window.innerHeight - element.offsetHeight;
-                    element.style.left = Math.max(0, Math.min(x, maxX)) + 'px';
-                    element.style.top = Math.max(0, Math.min(y, maxY)) + 'px';
+                    const x = (e.clientX - offsetX) / unsafeWindow.innerWidth * 100;
+                    const y = (e.clientY - offsetY) / unsafeWindow.innerHeight * 100;
+                    const maxX = 100 - (element.offsetWidth / unsafeWindow.innerWidth * 100);
+                    const maxY = 100 - (element.offsetHeight / unsafeWindow.innerHeight * 100);
+                    element.style.left = `${Math.max(0, Math.min(x, maxX))}%`;
+                    element.style.top = `${Math.max(0, Math.min(y, maxY))}%`;
                 };
                 if (notMenu||e.target.classList.contains('tp-rotv_t')) {
                     offsetX = e.clientX - element.getBoundingClientRect().left;
@@ -1003,7 +1091,7 @@
     };
     //1337 H4X
     const getSearchParam = function(param) {
-        const queryParams = new URLSearchParams(window.location.search);
+        const queryParams = new URLSearchParams(unsafeWindow.location.search);
         return queryParams.get(param);
     }
     const hexToRgb = function (hex) {
@@ -1078,8 +1166,8 @@
     const getScrambled=function(){return Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('')}
     const createAnonFunction=function(name,func){
         const funcName=getScrambled();
-        window[funcName]=func;
-        F[name]=window[funcName];
+        unsafeWindow[funcName]=func;
+        F[name]=unsafeWindow[funcName];
         functionNames[name]=funcName
     };
     const processChatItem = function (ss,text,playerName,playerTeam,highlightColor) {
@@ -1183,16 +1271,12 @@
         object.box.color = new ss.BABYLONJS.Color3(...color);
     };
     const everySecond = function () {
-        coordElement.style.display = 'none';
-        gameInfoElement.style.display = 'none';
-        playerstatsElement.style.display = 'none';
-        playerinfoElement.style.display = 'none';
-        redCircle.style.display = 'none';
         if (!ranEverySecond) {
             detectURLParams();
         };
         if (AUTOMATED) {
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
+
         } else {
             automatedElement.style.display='none';
         };
@@ -1215,6 +1299,14 @@
                     };
                 };
             };
+            //credits: @2lars and @macintosh2 in the discord :)
+            if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
+                if ((extract("autoTeam")=="random") ||
+                    (extract("autoTeam")=="red")&&(ss.MYPLAYER.team==1) ||
+                    (extract("autoTeam")=="blue")&&(ss.MYPLAYER.team==2)) {
+                    unsafeWindow.extern.switchTeam();
+                };
+            };
             if (!ss.MYPLAYER.playing) {
                 if (extract("autoRespawn")) {
                     var button = document.querySelector('.ss_button.btn_big.btn-dark-bevel.btn-respawn.ss_button.btn_green.bevel_green');
@@ -1222,62 +1314,129 @@
                         button.click();
                     };
                 };
-                //credits: @2lars and @macintosh2 in the discord :)
-                if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
-                    if ((extract("autoTeam")=="random") ||
-                        (extract("autoTeam")=="red")&&(ss.MYPLAYER.team==1) ||
-                        (extract("autoTeam")=="blue")&&(ss.MYPLAYER.team==2)) {
-                        extern.switchTeam();
-                    };
-                };
             };
             addStreamsToInGameUI();
         } else {
+            coordElement.style.display = 'none';
+            gameInfoElement.style.display = 'none';
+            playerstatsElement.style.display = 'none';
+            playerinfoElement.style.display = 'none';
+            redCircle.style.display = 'none';
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
                     const playerSlots = document.querySelectorAll('.playerSlot--name');
                     const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
                     //console.log("adsknjf--->"mapNames);
-                    vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
         };
         if ((!document.getElementById("progressBar"))) {
             if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
-                vueApp.settingsUi.togglers.misc[3].value=false;
+                unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=false;
                 if (extract("setDetail")=="autodetail") {
-                    vueApp.settingsUi.togglers.misc[3].value=true;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=true;
                 } else if (extract("setDetail")=="nodetails") {
-                    vueApp.settingsUi.togglers.misc[4].value=false;
-                    vueApp.settingsUi.togglers.misc[5].value=false;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=false;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=false;
                 } else if (extract("setDetail")=="shadows") {
-                    vueApp.settingsUi.togglers.misc[4].value=true;
-                    vueApp.settingsUi.togglers.misc[5].value=false;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=true;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=false;
                 } else if (extract("setDetail")=="highres") {
-                    vueApp.settingsUi.togglers.misc[4].value=false;
-                    vueApp.settingsUi.togglers.misc[5].value=true;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=false;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=true;
                 } else if (extract("setDetail")=="shadowshighres") {
-                    vueApp.settingsUi.togglers.misc[4].value=true;
-                    vueApp.settingsUi.togglers.misc[5].value=true;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=true;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=true;
                 };
-                extern.applyUiSettings(vueApp.settingsUi);
+                unsafeWindow.extern.applyUiSettings(unsafeWindow.vueApp.settingsUi);
             };
             previousDetail=extract("setDetail");
         };
+        if (extract("autoEZ")||extract("cheatAccuse")) {
+            if (ss.MYPLAYER.score !== yourPlayerKills) {
+                yourPlayerKills = ss.MYPLAYER.score;
+                if (ss.MYPLAYER?.playing && extract("autoEZ")) {
+                    sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
+                } else if (extract("cheatAccuse")) {
+                    sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
+                };
+            }; //chatOnKill
+        };
+        if (extract("gameInfo")) {
+            let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining.";
+            gameInfoElement.innerText = gameInfoText;
+            void gameInfoElement.offsetWidth;
+            gameInfoElement.style.display = '';
+        };
+
         currentlyInGame = false;
         ranEverySecond=true;
         //block ads kek
         localStorage.timesPlayed = 0;
     };
+    const everyDecisecond = function () {
+        updateConfig();
+
+        if (currentlyInGame) {
+            //innertext stuff, fairly resource intensive. disable these for performance
+            if (extract("playerStats")) {
+                let playerStates="";
+                ss.PLAYERS.forEach(player=>{
+                    if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+                        playerStates=playerStates+player.name+": "+Math.round(player.hp)+" HP\n";
+                    };
+                });
+                if (playerStates=="") {playerStates="No Enemy Players"};
+                playerstatsElement.innerText = playerStates;
+                void playerstatsElement.offsetWidth;
+                playerstatsElement.style.display = '';
+            };
+            if (extract("playerInfo")) {
+                let playerInfoString="";
+                const player=currentlyTargeting||playerLookingAt||undefined
+                if (player && player.playing) {
+                    playerInfoString=playerInfoString+player.name+"\n"
+                    playerInfoString=playerInfoString+"HP: "+Math.round(player.hp)+"\n"
+                    playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
+                    playerInfoString=playerInfoString+"AngleDiff: "+player.angleDiff.toFixed(3)+"\n"
+                };
+                if (playerInfoString=="") {playerInfoString="Not Looking At Player"};
+                playerinfoElement.innerText = playerInfoString;
+                void playerinfoElement.offsetWidth;
+                playerinfoElement.style.display = '';
+            };
+            if (extract("showCoordinates")) {
+                const fonx = Number((ss.MYPLAYER.actor.mesh.position.x).toFixed(3));
+                const fony = Number((ss.MYPLAYER.actor.mesh.position.y).toFixed(3));
+                const fonz = Number((ss.MYPLAYER.actor.mesh.position.z).toFixed(3));
+                const yaw = Number((ss.MYPLAYER.yaw).toFixed(3)); //could i function this? yea
+                const pitch = Number((ss.MYPLAYER.pitch).toFixed(3));
+                const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
+                coordElement.innerText = personalCoordinate;
+                void coordElement.offsetWidth;
+                coordElement.style.display = '';
+            };
+        };
+        if (AUTOMATED) {
+            if (GM_getValue("StateFarm_KillBots")) {
+                unsafeWindow.close();
+            };
+            if (GM_getValue("StateFarm_LeaveBots")) {
+                change("leaveGame");
+            };
+        };
+    };
     const updateConfig = function () {
-        config=tp.mainPanel.exportPreset();
+        configMain=tp.mainPanel.exportPreset();
+        configBots=tp.botPanel.exportPreset();
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         try {
             lastSentMessage=text;
             chatThing=document.getElementById('chatIn');
-            if (chatThing && extern.startChat) {
-                extern.startChat();
+            if (chatThing && unsafeWindow.extern.startChat) {
+                unsafeWindow.extern.startChat();
                 chatThing.value=text;
                 chatThing.dispatchEvent(new KeyboardEvent('keydown', {
                     key: 'Enter',
@@ -1313,7 +1472,7 @@
                     nameDiv.style.textDecoration = 'none';
                     nameDiv.addEventListener('mouseover', function() { nameDiv.style.textDecoration = 'underline'; nameDiv.style.color = 'blue' });
                     nameDiv.addEventListener('mouseout', function() { nameDiv.style.textDecoration = 'none'; nameDiv.style.color = 'white' });
-                    nameDiv.addEventListener('click', function() { window.open(hrefValue, '_blank'); });
+                    nameDiv.addEventListener('click', function() { unsafeWindow.open(hrefValue, '_blank'); });
                     containerDiv.setAttribute('data-name', nameValue);
                     containerDiv.appendChild(nameDiv);
                     containerDiv.appendChild(nameDiv);
@@ -1611,7 +1770,7 @@
         // let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
         // if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
 
-        
+
         // const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
         // let gunOffset = ss.BABYLONJS.Matrix.Translation(0, 0.1, 0);
         // gunOffset = gunOffset.multiply(playerRot)
@@ -1667,22 +1826,22 @@
     };
     const injectScript = function () {
         //TODO: replace with anon functions
-        window.fixCamera = function () {
+        unsafeWindow.fixCamera = function () {
             return isKeyToggled[bindsArray.zoom] && (extract("zoom")*(Math.PI / 180)) || (extract("fov")*(Math.PI/180)) || 1.25;
         };
-        window.getChatLimit = function () {
+        unsafeWindow.getChatLimit = function () {
             return (extract("chatExtend")&&999999)||4;
         };
-        window.getDisableChatFilter = function () {
+        unsafeWindow.getDisableChatFilter = function () {
             return extract("disableChatFilter");
         };
-        window.getSkinHack = function () {
+        unsafeWindow.getSkinHack = function () {
             return extract("unlockSkins");
         };
-        window.getAdminSpoof = function () {
+        unsafeWindow.getAdminSpoof = function () {
             return extract("adminSpoof");
         };
-        window.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
+        unsafeWindow.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
                 ss.MYPLAYER=MYPLAYER;
                 const aimbot = getAimbot(ss,currentlyTargeting);
@@ -1690,7 +1849,7 @@
                 ss.MYPLAYER.pitch = setPrecision(aimbot.pitch);
             };
         };
-        window.modifyChat = function(msg) {
+        unsafeWindow.modifyChat = function(msg) {
             if (msg!==lastSentMessage) { //not spammed or afked
                 if (extract("chatFilterBypass")) {
                     const UNICODE_RTL_OVERRIDE = '\u202e'
@@ -1702,7 +1861,7 @@
             };
             return msg;
         };
-        window.modifyControls = function(CONTROLKEYS) {
+        unsafeWindow.modifyControls = function(CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
             if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up };
             if (extract("autoJump")) {
@@ -1906,7 +2065,7 @@
     const deployBots = function() {
         if (!JSON.parse(localStorage.getItem("firstTimeBots"))) {
             localStorage.setItem("firstTimeBots",JSON.stringify(true));
-            window.open(aimbottingGuideURL);
+            unsafeWindow.open(aimbottingGuideURL);
         };
         console.log("Deploying "+extract("numberBots")+" bots...");
 
@@ -1928,7 +2087,7 @@
 
         let BLACKLIST="";
         if (extract("botNoKillMe")) {
-            BLACKLIST=BLACKLIST+vueApp.playerName+","
+            BLACKLIST=BLACKLIST+unsafeWindow.vueApp.playerName+","
         };
         if (extract("botNoKillBots")) {
             BLACKLIST=BLACKLIST+botNames.join(",")+","
@@ -1942,51 +2101,12 @@
             let topOffset=0;
             let proxyURL=proxyList[proxyListIndex];
             proxyListIndex=(proxyListIndex+1)%proxyList.length;
-            let params="?AUTOMATED=true&StateFarm=";
+            let params="?AUTOMATED=true&StateFarm="+constructBotParams();
             let name=botNames[i];
-
-            const addParam = function(module,setTo) {params=params+module+"%3E"+JSON.stringify(setTo)+"<"};
-
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
 
-            addParam("usernameAutoJoin",name);
-            addParam("autoJoin",extract("botAutoJoin"));
-            addParam("mockMode",extract("botMock"));
-            addParam("autoRespawn",extract("botRespawn"));
-            addParam("enableAutoFire",extract("botAutoShoot"));
-            addParam("autoFireType",1);
-            addParam("enableSeizureX",extract("botSeizure"));
-            addParam("enableSeizureY",extract("botSeizure"));
-            addParam("autoEZ",extract("botAutoEZ"));
-            addParam("cheatAccuse",extract("botCheatAccuse"));
-            addParam("tallChat",extract("botTallChat"));
-
-            if (extract("botAimbot")) { //add antisneak
-                addParam("aimbotTargeting",1);
-                addParam("prediction",true);
-                addParam("aimbot",true);
-                addParam("autoWeapon",5); //whipper lol
-                addParam("antiBloom",true);
-                addParam("grenadeMax",true);
-                addParam("enableSeizureX",false);
-                addParam("enableSeizureY",false);
-                addParam("antiSneak",1.4);
-                addParam("autoRefill",true);
-                addParam("autoGrenade",true);
-            };
-
-            if (extract("botAutoMove")) {
-                addParam("autoWalk",true);
-                addParam("autoStrafe",true);
-                addParam("autoJump",true);
-                addParam("autoJumpDelay",1500);
-            };
-
-            if (extract("botLowRes")) {
-                addParam("enableTextures",false);
-                addParam("setDetail",2);
-            };
-
+            const addParam = function(module,setTo) {params=params+module+"%3E"+JSON.stringify(setTo)+"<"};
+    
             if (BLACKLIST!=="") {
                 addParam("blacklist",BLACKLIST);
                 addParam("enableBlacklistAimbot",true);
@@ -1994,8 +2114,53 @@
 
             params=params+"joinCode%3E%22"+extract("botJoinCode")+"%22";
             console.log("PARAMS:",params)
-            window.open("https://"+proxyURL+"/"+params, '_blank', 'width=450,height=300,left='+leftOffset+',top='+topOffset);
+            unsafeWindow.open("https://"+proxyURL+"/"+params, '_blank', 'width=450,height=300,left='+leftOffset+',top='+topOffset);
         };
+    };
+
+    const constructBotParams = function() {
+        const addParam = function(module,setTo) {params=params+module+"%3E"+JSON.stringify(setTo)+"<"};
+        let params="";
+
+        addParam("usernameAutoJoin",name);
+        addParam("autoJoin",extract("botAutoJoin"));
+        addParam("mockMode",extract("botMock"));
+        addParam("autoRespawn",extract("botRespawn"));
+        addParam("enableAutoFire",extract("botAutoShoot"));
+        addParam("autoFireType",1);
+        addParam("enableSeizureX",extract("botSeizure"));
+        addParam("enableSeizureY",extract("botSeizure"));
+        addParam("autoEZ",extract("botAutoEZ"));
+        addParam("cheatAccuse",extract("botCheatAccuse"));
+        addParam("tallChat",extract("botTallChat"));
+
+        if (extract("botAimbot")) { //add antisneak
+            addParam("aimbotTargeting",1);
+            addParam("prediction",true);
+            addParam("aimbot",true);
+            addParam("autoWeapon",5); //whipper lol
+            addParam("antiBloom",true);
+            addParam("grenadeMax",true);
+            addParam("enableSeizureX",false);
+            addParam("enableSeizureY",false);
+            addParam("antiSneak",1.4);
+            addParam("autoRefill",true);
+            addParam("autoGrenade",true);
+        };
+
+        if (extract("botAutoMove")) {
+            addParam("autoWalk",true);
+            addParam("autoStrafe",true);
+            addParam("autoJump",true);
+            addParam("autoJumpDelay",1500);
+        };
+
+        if (extract("botLowRes")) {
+            addParam("enableTextures",false);
+            addParam("setDetail",2);
+        };
+
+        return params;
     };
 
     const detectURLParams = function() {
@@ -2010,16 +2175,25 @@
             customSettings=customSettings.split("|");
             let setVars=[];
             let setBinds=[];
-            if (customSettings[0]) {setVars=customSettings[0].split("<")};
-            if (customSettings[1]) {setVars=customSettings[0].split("<")};
-            console.log(setVars,setBinds);
-            setVars.forEach(element=>{
-                element=element.split(">");
-                change(element[0],JSON.parse(element[1]));
-            });
+            // if (customSettings[0]) {setVars=customSettings[0].split("<")};
+            // if (customSettings[1]) {setVars=customSettings[0].split("<")};
+            // console.log(setVars,setBinds);
+            applySettings(customSettings[0]);
             // setBinds.forEach(element=>{ //not yet done
             // });
         };
+    };
+
+    const applySettings = function(settings) {
+        settings=settings.split("<")
+        settings.forEach(element=>{
+            element=element.split(">");
+            change(element[0],JSON.parse(element[1]));
+        });
+    };
+
+    const updateBotParams = function() {
+        console.log("real",Math.random());
     };
 
     function loggedGameMap() {}
@@ -2036,7 +2210,7 @@
             ranOneTime=true;
         };
         const initVars = function (ss) {
-            if (window.newGame) {
+            if (unsafeWindow.newGame) {
                 onlinePlayersArray=[];
             };
             if (extract("debug")&&(typeof playerLogger === 'undefined')) {
@@ -2140,7 +2314,7 @@
                         if (!player.logged) {
                             player.logged=true;
                             if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }
-                            if (extract("joinMessages") && (!window.newGame)) {
+                            if (extract("joinMessages") && (!unsafeWindow.newGame)) {
                                 if (extract("publicBroadcast")) {
                                     sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
                                 } else {
@@ -2157,7 +2331,7 @@
                     if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
                         onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
                     } else {
-                        if (extract("leaveMessages") && (!window.newGame)) {
+                        if (extract("leaveMessages") && (!unsafeWindow.newGame)) {
                             if (extract("publicBroadcast")) {
                                 sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
                             } else {
@@ -2226,82 +2400,29 @@
                     if (ESPArray[i][3]) {ESPArray[i][3].dispose()}; //target
                     ESPArray.splice(i,1);
                 };
-            }; window.newGame=false;
+            }; unsafeWindow.newGame=false;
         };
         createAnonFunction("retrieveFunctions",function(vars) { ss=vars ; F.STATEFARM() });
         createAnonFunction("STATEFARM",function(){
             currentlyInGame=true;
+
             if ( !ranOneTime ) { oneTime(ss) };
             initVars(ss);
             updateLinesESP(ss);
+
             if ( extract("freecam") ) {
                 ss.MYPLAYER.actor.mesh.position.y = ss.MYPLAYER.actor.mesh.position.y + 1;
             };
-
             if (extract("spamChat")) {
                 if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
                     sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
                     lastSpamMessage=Date.now()
                 };
             };
-
-            if (extract("autoEZ")||extract("cheatAccuse")) {
-                if (ss.MYPLAYER.score !== yourPlayerKills) {
-                    yourPlayerKills = ss.MYPLAYER.score;
-                    if (ss.MYPLAYER?.playing && extract("autoEZ")) {
-                        sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
-                    } else if (extract("cheatAccuse")) {
-                        sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
-                    };
-                }; //chatOnKill
-            };
-
-            if ( extract("showCoordinates") ) {
-                const fonx = Number((ss.MYPLAYER.actor.mesh.position.x).toFixed(3));
-                const fony = Number((ss.MYPLAYER.actor.mesh.position.y).toFixed(3));
-                const fonz = Number((ss.MYPLAYER.actor.mesh.position.z).toFixed(3));
-                const yaw = Number((ss.MYPLAYER.yaw).toFixed(3)); //could i function this? yea
-                const pitch = Number((ss.MYPLAYER.pitch).toFixed(3));
-                const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
-                coordElement.innerText = personalCoordinate;
-                void coordElement.offsetWidth;
-                coordElement.style.display = '';
-            };
-            if ( extract("gameInfo") ) {
-                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining.";
-                gameInfoElement.innerText = gameInfoText;
-                void gameInfoElement.offsetWidth;
-                gameInfoElement.style.display = '';
-            };
-            if (extract("playerStats")) {
-                let playerStates="";
-                ss.PLAYERS.forEach(player=>{
-                    if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                        playerStates=playerStates+player.name+": "+Math.round(player.hp)+" HP\n";
-                    };
-                });
-                if (playerStates=="") {playerStates="No Enemy Players"};
-                playerstatsElement.innerText = playerStates;
-                void playerstatsElement.offsetWidth;
-                playerstatsElement.style.display = '';
-            };
-            if (extract("playerInfo")) {
-                let playerInfoString="";
-                const player=currentlyTargeting||playerLookingAt||undefined
-                if (player && player.playing) {
-                    playerInfoString=playerInfoString+player.name+"\n"
-                    playerInfoString=playerInfoString+"HP: "+Math.round(player.hp)+"\n"
-                    playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
-                    playerInfoString=playerInfoString+"AngleDiff: "+player.angleDiff.toFixed(3)+"\n"
-                };
-                if (playerInfoString=="") {playerInfoString="Not Looking At Player"};
-                playerinfoElement.innerText = playerInfoString;
-                void playerinfoElement.offsetWidth;
-                playerinfoElement.style.display = '';
-            };
             if (extract("debug")) {
                 globalPlayer=ss;
             };
+
             let isLineOfSight;
             const player=currentlyTargeting||playerLookingAt||undefined
             if (player && player.playing) {
@@ -2336,8 +2457,8 @@
                 const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
                 const bloomValues=predictBloom(ss,ss.MYPLAYER.yaw,ss.MYPLAYER.pitch);
                 // Set the new position of the circle
-                const centerX = (window.innerWidth / 2);
-                const centerY = (window.innerHeight / 2);
+                const centerX = (unsafeWindow.innerWidth / 2);
+                const centerY = (unsafeWindow.innerHeight / 2);
                 const offsettedX = centerX + (2 * distCenterToOuter * bloomValues[0]);
                 const offsettedY = centerY + (2 * distCenterToOuter * bloomValues[1]);
                 redCircle.style.bottom = offsettedY + 'px';
@@ -2467,7 +2588,7 @@
             if (extract("silentRoll")) {
                 ss.MYPLAYER.pitch+=2*Math.PI;
             };
-            
+
             if (extract("enableAutoFire")) {
                 let autoFireType=extract("autoFireType");
                 let doAutoFire=false
