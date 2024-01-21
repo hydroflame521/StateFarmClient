@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre7
+// @version      3.3.2-pre8
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -453,6 +453,29 @@
         //AUTOMATION MODULES
         initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
+            initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", button: "Spam Now!", clickFunction: async function(){
+                alert("Thank you for your efforts comrade! o7");
+                const sleep = function(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                };
+                playerList = document.getElementById("playerList").children;
+                for (let i = 0; i < playerList.length; i++){
+                    playerList[i].click();
+                    await sleep(400);
+                
+                    document.getElementsByClassName("ss_button btn_medium btn_red bevel_red")[0].click();
+                    await sleep(400);
+                
+                    document.getElementsByClassName("ss_checkbox label")[randomInt(0,3)].click();
+                    await sleep(400);
+                
+                    document.getElementsByClassName("ss_button btn_medium btn_green bevel_green")[0].click();
+                    await sleep(400);
+                
+                    document.getElementById("genericPopup").children[2].children[1].click();
+                };
+            },});
+            tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
@@ -1299,6 +1322,22 @@
                     };
                 };
             };
+            if (extract("autoEZ")||extract("cheatAccuse")) {
+                if (ss.MYPLAYER.score !== yourPlayerKills) {
+                    yourPlayerKills = ss.MYPLAYER.score;
+                    if (ss.MYPLAYER?.playing && extract("autoEZ")) {
+                        sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
+                    } else if (extract("cheatAccuse")) {
+                        sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
+                    };
+                }; //chatOnKill
+            };
+            if (extract("gameInfo")) {
+                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining.";
+                gameInfoElement.innerText = gameInfoText;
+                void gameInfoElement.offsetWidth;
+                gameInfoElement.style.display = '';
+            };
             //credits: @2lars and @macintosh2 in the discord :)
             if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
                 if ((extract("autoTeam")=="random") ||
@@ -1352,22 +1391,6 @@
                 unsafeWindow.extern.applyUiSettings(unsafeWindow.vueApp.settingsUi);
             };
             previousDetail=extract("setDetail");
-        };
-        if (extract("autoEZ")||extract("cheatAccuse")) {
-            if (ss.MYPLAYER.score !== yourPlayerKills) {
-                yourPlayerKills = ss.MYPLAYER.score;
-                if (ss.MYPLAYER?.playing && extract("autoEZ")) {
-                    sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
-                } else if (extract("cheatAccuse")) {
-                    sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
-                };
-            }; //chatOnKill
-        };
-        if (extract("gameInfo")) {
-            let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining.";
-            gameInfoElement.innerText = gameInfoText;
-            void gameInfoElement.offsetWidth;
-            gameInfoElement.style.display = '';
         };
 
         currentlyInGame = false;
