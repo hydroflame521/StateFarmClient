@@ -4,8 +4,10 @@
 Hack Client for Shell Shockers (shellshock.io). The most feature rich and powerful client to exist for the game. 
 It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Botting**, **Custom Binding**, **Highly Customisable Modules**, **Chat Mods** and much much more.
 > StateFarm Client V3 is based off [LibertyMutual Client](https://github.com/onlypuppy7/LibertyMutualShellShockers)
+
 - Information accurate as of StateFarm Client v3.3.2-pre5
 - _**Join the [Discord](https://discord.gg/6kzNpHFRSN) server for the latest news**_.
+
 # Table of Contents
 1. [Download Sources](#download-sources)
 2. [Installation Tutorial](#installation-tutorial)
@@ -23,11 +25,14 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Botting**, **Custom Binding
 7. [Adblocking](#adblocking)
 8. [Issues and Troubleshooting](#issues-and-troubleshooting)
 9. [Credits and Disclaimer](#credits-and-disclaimer)
+   
 # [](#download-sources)Download Sources:
 - _**Check out our [GitHub repository](https://github.com/Hydroflame522/StateFarmClient)**_.
 - _**Install on [GreasyFork](https://greasyfork.org/en/scripts/482982-statefarm-client-v3)**_.
 - _**Alternatively, you can use [OpenUserJS](https://openuserjs.org/scripts/onlypuppy7/StateFarm_Client_V3)**_.
+  
 > For older versions of this client, see: https://github.com/Hydroflame521/StateFarmClient
+
 # [](#installation-tutorial)Installation Tutorial:
 Before you can install the client, there are a few things you must set up to be able to run userscripts.
 1.  Install the proper version of Tampermonkey from  [https://tampermonkey.net/](https://tampermonkey.net/) or any other userscript manager.
@@ -42,6 +47,7 @@ You are done with installation!
 6.  Our list of proxies can be found as a file in the "others" folder in this github repository. Have fun!
 # [](#notable-features)Notable Features:
 > Here are a few important features you  should use to maximise performance.
+
 ### Aimbot
  Aimbot is one of the key features of Statefarm, it is the most powerful combat module. Set it to a key bind you can easily disable/enable as it makes movement difficult.
 - All aimbot & releated features are in the ***Combat Tab***.
@@ -49,16 +55,19 @@ You are done with installation!
 - (Use ***ToggleRM*** if preferred)
 - After they are vulnerable, enable aimbot and shoot.
 - Disable aimbot and approach the player you wish to kill.
+  
 ### ESP
 - Also called wall hacks, allows you to see players locations though walls. A great informative advantage.
 - If you wish to use it enable ***PlayerESP*** and ***Tracers*** in the ***Render Tab***.
 - You can find a lot of other ESP related features in the ***Render Tab*** such as Chams.
+  
 ### Bloom Hacks
 - Bloom is Shell Shocker's tendency of making the crosshairs bigger and more random if you move/jump etc.
 - Statefarm Bloom hacks can predict where the bloom of the bullet will go.
 - Bloom hacks drastically improves aim and makes trickshotting easier.
 - Enable ***AntiBloom*** in the ***Combat tab*** to make the aimbot lock the predicted bloom point instead of crosshair center on targeted players.
 - Enable ***ShowBloom*** in the ***Render tab*** to show the predicted location of shot.
+  
 # [](#features) Features:
 ### [](#combat-tab) Combat Tab:
 -   _**Aimbot**_: locks onto targeted player. The player it locks onto is decided by the targeting type, see below.
