@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre8
+// @version      3.3.2-pre9
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -199,16 +199,14 @@
     document.addEventListener('mousedown', function (event) {
         if (event.button === 2) {
             isRightButtonDown = true;
-        };
-        if (event.button === 0) {
+        } else if (event.button === 0) {
             isLeftButtonDown = true;
         };
     });
     document.addEventListener('mouseup', function (event) {
         if (event.button === 2) {
             isRightButtonDown = false;
-        };
-        if (event.button === 0) {
+        } else if (event.button === 0) {
             isLeftButtonDown = false;
         };
     });
@@ -306,7 +304,11 @@
             ).on("change", (value) => {
                 localStorage.setItem(module.storeAs,JSON.stringify(value.value));
                 if (module.changeFunction!==undefined) {module.changeFunction(value)};
-                if (module.botParam!==undefined) {updateBotParams(module.botParam)};
+                if (module.botParam!==undefined) {
+                    setInterval(() => {
+                        updateBotParams(module.botParam);
+                    }, 100);
+                };
             });
         };
         allModules.push(name.replace("Button",""));
@@ -333,7 +335,7 @@
         initTab({ location: tp.combatFolder, storeAs: "combatTab" })
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
-                initModule({ location: tp.aimbotFolder, title: "Target", storeAs: "aimbotTargeting", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
+                initModule({ location: tp.aimbotFolder, title: "Target Mode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
@@ -343,7 +345,7 @@
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "LineOfSight", storeAs: "lineOfSight", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "Only Visible", storeAs: "onlyVisible", bindLocation: tp.combatTab.pages[1],});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
@@ -353,7 +355,7 @@
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "Line-Of-Sight", value: "lineOfSight"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
+            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder",});
@@ -365,12 +367,14 @@
             initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
             tp.renderTab.pages[0].addSeparator();
             initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder",});
-                initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}], defaultValue: "static",});
+                initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}, {text: "Visibility", value: "visibility"}], defaultValue: "static",});
                 initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000",});
-                initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 5,});
                 initModule({ location: tp.tracersFolder, title: "Color 2", storeAs: "tracersColor2", defaultValue: "#00ff00",});
-                initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 15,});
                 initModule({ location: tp.tracersFolder, title: "Color 3", storeAs: "tracersColor3", defaultValue: "#ffffff",});
+                tp.tracersFolder.addSeparator();
+                initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 5,});
+                initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 15,});
+            tp.renderTab.pages[0].addSeparator();
             initFolder({ location: tp.renderTab.pages[0], title: "Ammo ESP/Tracers Options", storeAs: "tracersAmmoFolder",});
                 initFolder({ location: tp.tracersAmmoFolder, title: "Ammo", storeAs: "ammoFolder",});
                     initModule({ location: tp.ammoFolder, title: "AESP", storeAs: "ammoESP", bindLocation: tp.renderTab.pages[1],});
@@ -544,7 +548,7 @@
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presets", bindLocation: tp.clientTab.pages[1], dropdown: [
-                {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<lineOfSight>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
+                {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<onlyVisible>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
             ]});
             initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
@@ -585,8 +589,8 @@
         });
 
         //DEPLOY STUFF
-        initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
-        initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()},});
+        initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1, botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()}, botParam: true,});
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", botParam: true,});
@@ -608,6 +612,9 @@
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
         //PARAMS STUFF
         // initFolder({ location: tp.botPanel, title: "Parameters", storeAs: "botTabs.pages[2]",});
         tp.botTabs.pages[2].addSeparator();
@@ -624,13 +631,11 @@
         initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,});
-        tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
         //INFO STUFF
         initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true,});
 
         updateConfig();
+
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
     };
@@ -900,190 +905,190 @@
         setTheme = (setTheme||extract("themeType")||"defaultTheme");
         switch (setTheme) {
             case ("defaultTheme"):
-            rootTheme = `
---tp-base-background-color: hsla(230, 7%, 17%, 1.00);
---tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
---tp-button-background-color: hsla(230, 7%, 70%, 1.00);
---tp-button-background-color-active: hsla(230, 7%, 85%, 1.00);
---tp-button-background-color-focus: hsla(230, 7%, 80%, 1.00);
---tp-button-background-color-hover: hsla(230, 7%, 75%, 1.00);
---tp-button-foreground-color: hsla(230, 7%, 17%, 1.00);
---tp-container-background-color: hsla(230, 7%, 75%, 0.10);
---tp-container-background-color-active: hsla(230, 7%, 75%, 0.25);
---tp-container-background-color-focus: hsla(230, 7%, 75%, 0.20);
---tp-container-background-color-hover: hsla(230, 7%, 75%, 0.15);
---tp-container-foreground-color: hsla(230, 7%, 75%, 1.00);
---tp-groove-foreground-color: hsla(230, 7%, 75%, 0.10);
---tp-input-background-color: hsla(230, 7%, 75%, 0.10);
---tp-input-background-color-active: hsla(230, 7%, 75%, 0.25);
---tp-input-background-color-focus: hsla(230, 7%, 75%, 0.20);
---tp-input-background-color-hover: hsla(230, 7%, 75%, 0.15);
---tp-input-foreground-color: hsla(230, 7%, 75%, 1.00);
---tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
---tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
---tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`; break;
-        case ( "icebergTheme" ):
-            rootTheme = `
---tp-base-background-color: hsla(230, 20%, 11%, 1.00);
---tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
---tp-button-background-color: hsla(230, 10%, 80%, 1.00);
---tp-button-background-color-active: hsla(230, 10%, 95%, 1.00);
---tp-button-background-color-focus: hsla(230, 10%, 90%, 1.00);
---tp-button-background-color-hover: hsla(230, 10%, 85%, 1.00);
---tp-button-foreground-color: hsla(230, 20%, 11%, 1);
---tp-container-background-color: hsla(230, 25%, 16%, 1.00);
---tp-container-background-color-active: hsla(230, 25%, 31%, 1.00);
---tp-container-background-color-focus: hsla(230, 25%, 26%, 1.00);
---tp-container-background-color-hover: hsla(230, 25%, 21%, 1.00);
---tp-container-foreground-color: hsla(230, 10%, 80%, 1.00);
---tp-groove-foreground-color: hsla(230, 20%, 8%, 1.00);
---tp-input-background-color: hsla(230, 20%, 8%, 1.00);
---tp-input-background-color-active: hsla(230, 28%, 23%, 1.00);
---tp-input-background-color-focus: hsla(230, 28%, 18%, 1.00);
---tp-input-background-color-hover: hsla(230, 20%, 13%, 1.00);
---tp-input-foreground-color: hsla(230, 10%, 80%, 1.00);
---tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
---tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
---tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`; break;
-        case ( "jetblackTheme" ):
-            rootTheme = `
---tp-base-background-color: hsla(0, 0%, 0%, 1.00);
---tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
---tp-button-background-color: hsla(0, 0%, 70%, 1.00);
---tp-button-background-color-active: hsla(0, 0%, 85%, 1);
---tp-button-background-color-focus: hsla(0, 0%, 80%, 1.00);
---tp-button-background-color-hover: hsla(0, 0%, 75%, 1.00);
---tp-button-foreground-color: hsla(0, 0%, 0%, 1.00);
---tp-container-background-color: hsla(0, 0%, 10%, 1.00);
---tp-container-background-color-active: hsla(0, 0%, 25%, 1.00);
---tp-container-background-color-focus: hsla(0, 0%, 20%, 1.00);
---tp-container-background-color-hover: hsla(0, 0%, 15%, 1.00);
---tp-container-foreground-color: hsla(0, 0%, 50%, 1.00);
---tp-groove-foreground-color: hsla(0, 0%, 10%, 1.00);
---tp-input-background-color: hsla(0, 0%, 10%, 1.00);
---tp-input-background-color-active: hsla(0, 0%, 25%, 1.00);
---tp-input-background-color-focus: hsla(0, 0%, 20%, 1.00);
---tp-input-background-color-hover: hsla(0, 0%, 15%, 1.00);
---tp-input-foreground-color: hsla(0, 0%, 70%, 1.00);
---tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
---tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
---tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`; break;
-        case ( "lightTheme" ):
-            rootTheme = `
---tp-base-background-color: hsla(230, 5%, 90%, 1.00);
---tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
---tp-button-background-color: hsla(230, 7%, 75%, 1.00);
---tp-button-background-color-active: hsla(230, 7%, 60%, 1.00);
---tp-button-background-color-focus: hsla(230, 7%, 65%, 1.00);
---tp-button-background-color-hover: hsla(230, 7%, 70%, 1.00);
---tp-button-foreground-color: hsla(230, 10%, 30%, 1.00);
---tp-container-background-color: hsla(230, 15%, 30%, 0.20);
---tp-container-background-color-active: hsla(230, 15%, 30%, 0.32);
---tp-container-background-color-focus: hsla(230, 15%, 30%, 0.28);
---tp-container-background-color-hover: hsla(230, 15%, 30%, 0.24);
---tp-container-foreground-color: hsla(230, 10%, 30%, 1.00);
---tp-groove-foreground-color: hsla(230, 15%, 30%, 0.10);
---tp-input-background-color: hsla(230, 15%, 30%, 0.10);
---tp-input-background-color-active: hsla(230, 15%, 30%, 0.22);
---tp-input-background-color-focus: hsla(230, 15%, 30%, 0.18);
---tp-input-background-color-hover: hsla(230, 15%, 30%, 0.14);
---tp-input-foreground-color: hsla(230, 10%, 30%, 1.00);
---tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
---tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
---tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`; break;
-        case ( "retroTheme" ):
-            rootTheme = `
---tp-base-background-color: hsla(40, 3%, 90%, 1.00);
---tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
---tp-button-background-color: hsla(40, 3%, 70%, 1.00);
---tp-button-background-color-active: hsla(40, 3%, 55%, 1.00);
---tp-button-background-color-focus: hsla(40, 3%, 60%, 1.00);
---tp-button-background-color-hover: hsla(40, 3%, 65%, 1.00);
---tp-button-foreground-color: hsla(40, 3%, 20%, 1.00);
---tp-container-background-color: hsla(40, 3%, 70%, 1.00);
---tp-container-background-color-active: hsla(40, 3%, 55%, 1.00);
---tp-container-background-color-focus: hsla(40, 3%, 60%, 1.00);
---tp-container-background-color-hover: hsla(40, 3%, 65%, 1.00);
---tp-container-foreground-color: hsla(40, 3%, 20%, 1.00);
---tp-groove-foreground-color: hsla(40, 3%, 40%, 1.00);
---tp-input-background-color: hsla(120, 3%, 20%, 1.00);
---tp-input-background-color-active: hsla(120, 3%, 35%, 1.00);
---tp-input-background-color-focus: hsla(120, 3%, 30%, 1.00);
---tp-input-background-color-hover: hsla(120, 3%, 25%, 1.00);
---tp-input-foreground-color: hsla(120, 40%, 60%, 1.00);
---tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
---tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
---tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`; break;
-        case ( "translucentTheme" ):
-            rootTheme = `
---tp-base-background-color: hsla(0, 0%, 10%, 0.80);
---tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
---tp-button-background-color: hsla(0, 0%, 80%, 1.00);
---tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
---tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
---tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
---tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
---tp-container-background-color: hsla(0, 0%, 0%, 0.30);
---tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
---tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
---tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
---tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
---tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
---tp-input-background-color: hsla(0, 0%, 0%, 0.30);
---tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
---tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
---tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
---tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
---tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
---tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
---tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`; break;
-        case ( "statefarmerTheme" ):
-            rootTheme = `
---tp-base-background-color: hsla(0, 80%, 40%, 1.00);
---tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
---tp-button-background-color: hsla(0, 0%, 100%, 1.00);
---tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
---tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
---tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
---tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
---tp-container-background-color: hsla(0, 0%, 0%, 0.20);
---tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
---tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
---tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
---tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
---tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
---tp-input-background-color: hsla(0, 0%, 0%, 0.50);
---tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
---tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
---tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
---tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
---tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
---tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
---tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
+                rootTheme = `
+                --tp-base-background-color: hsla(230, 7%, 17%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+                --tp-button-background-color: hsla(230, 7%, 70%, 1.00);
+                --tp-button-background-color-active: hsla(230, 7%, 85%, 1.00);
+                --tp-button-background-color-focus: hsla(230, 7%, 80%, 1.00);
+                --tp-button-background-color-hover: hsla(230, 7%, 75%, 1.00);
+                --tp-button-foreground-color: hsla(230, 7%, 17%, 1.00);
+                --tp-container-background-color: hsla(230, 7%, 75%, 0.10);
+                --tp-container-background-color-active: hsla(230, 7%, 75%, 0.25);
+                --tp-container-background-color-focus: hsla(230, 7%, 75%, 0.20);
+                --tp-container-background-color-hover: hsla(230, 7%, 75%, 0.15);
+                --tp-container-foreground-color: hsla(230, 7%, 75%, 1.00);
+                --tp-groove-foreground-color: hsla(230, 7%, 75%, 0.10);
+                --tp-input-background-color: hsla(230, 7%, 75%, 0.10);
+                --tp-input-background-color-active: hsla(230, 7%, 75%, 0.25);
+                --tp-input-background-color-focus: hsla(230, 7%, 75%, 0.20);
+                --tp-input-background-color-hover: hsla(230, 7%, 75%, 0.15);
+                --tp-input-foreground-color: hsla(230, 7%, 75%, 1.00);
+                --tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
+                --tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
+                --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`; break;
+            case ( "icebergTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(230, 20%, 11%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+                --tp-button-background-color: hsla(230, 10%, 80%, 1.00);
+                --tp-button-background-color-active: hsla(230, 10%, 95%, 1.00);
+                --tp-button-background-color-focus: hsla(230, 10%, 90%, 1.00);
+                --tp-button-background-color-hover: hsla(230, 10%, 85%, 1.00);
+                --tp-button-foreground-color: hsla(230, 20%, 11%, 1);
+                --tp-container-background-color: hsla(230, 25%, 16%, 1.00);
+                --tp-container-background-color-active: hsla(230, 25%, 31%, 1.00);
+                --tp-container-background-color-focus: hsla(230, 25%, 26%, 1.00);
+                --tp-container-background-color-hover: hsla(230, 25%, 21%, 1.00);
+                --tp-container-foreground-color: hsla(230, 10%, 80%, 1.00);
+                --tp-groove-foreground-color: hsla(230, 20%, 8%, 1.00);
+                --tp-input-background-color: hsla(230, 20%, 8%, 1.00);
+                --tp-input-background-color-active: hsla(230, 28%, 23%, 1.00);
+                --tp-input-background-color-focus: hsla(230, 28%, 18%, 1.00);
+                --tp-input-background-color-hover: hsla(230, 20%, 13%, 1.00);
+                --tp-input-foreground-color: hsla(230, 10%, 80%, 1.00);
+                --tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
+                --tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
+                --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`; break;
+            case ( "jetblackTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(0, 0%, 0%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+                --tp-button-background-color: hsla(0, 0%, 70%, 1.00);
+                --tp-button-background-color-active: hsla(0, 0%, 85%, 1);
+                --tp-button-background-color-focus: hsla(0, 0%, 80%, 1.00);
+                --tp-button-background-color-hover: hsla(0, 0%, 75%, 1.00);
+                --tp-button-foreground-color: hsla(0, 0%, 0%, 1.00);
+                --tp-container-background-color: hsla(0, 0%, 10%, 1.00);
+                --tp-container-background-color-active: hsla(0, 0%, 25%, 1.00);
+                --tp-container-background-color-focus: hsla(0, 0%, 20%, 1.00);
+                --tp-container-background-color-hover: hsla(0, 0%, 15%, 1.00);
+                --tp-container-foreground-color: hsla(0, 0%, 50%, 1.00);
+                --tp-groove-foreground-color: hsla(0, 0%, 10%, 1.00);
+                --tp-input-background-color: hsla(0, 0%, 10%, 1.00);
+                --tp-input-background-color-active: hsla(0, 0%, 25%, 1.00);
+                --tp-input-background-color-focus: hsla(0, 0%, 20%, 1.00);
+                --tp-input-background-color-hover: hsla(0, 0%, 15%, 1.00);
+                --tp-input-foreground-color: hsla(0, 0%, 70%, 1.00);
+                --tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
+                --tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
+                --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`; break;
+            case ( "lightTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(230, 5%, 90%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
+                --tp-button-background-color: hsla(230, 7%, 75%, 1.00);
+                --tp-button-background-color-active: hsla(230, 7%, 60%, 1.00);
+                --tp-button-background-color-focus: hsla(230, 7%, 65%, 1.00);
+                --tp-button-background-color-hover: hsla(230, 7%, 70%, 1.00);
+                --tp-button-foreground-color: hsla(230, 10%, 30%, 1.00);
+                --tp-container-background-color: hsla(230, 15%, 30%, 0.20);
+                --tp-container-background-color-active: hsla(230, 15%, 30%, 0.32);
+                --tp-container-background-color-focus: hsla(230, 15%, 30%, 0.28);
+                --tp-container-background-color-hover: hsla(230, 15%, 30%, 0.24);
+                --tp-container-foreground-color: hsla(230, 10%, 30%, 1.00);
+                --tp-groove-foreground-color: hsla(230, 15%, 30%, 0.10);
+                --tp-input-background-color: hsla(230, 15%, 30%, 0.10);
+                --tp-input-background-color-active: hsla(230, 15%, 30%, 0.22);
+                --tp-input-background-color-focus: hsla(230, 15%, 30%, 0.18);
+                --tp-input-background-color-hover: hsla(230, 15%, 30%, 0.14);
+                --tp-input-foreground-color: hsla(230, 10%, 30%, 1.00);
+                --tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
+                --tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
+                --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`; break;
+            case ( "retroTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(40, 3%, 90%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
+                --tp-button-background-color: hsla(40, 3%, 70%, 1.00);
+                --tp-button-background-color-active: hsla(40, 3%, 55%, 1.00);
+                --tp-button-background-color-focus: hsla(40, 3%, 60%, 1.00);
+                --tp-button-background-color-hover: hsla(40, 3%, 65%, 1.00);
+                --tp-button-foreground-color: hsla(40, 3%, 20%, 1.00);
+                --tp-container-background-color: hsla(40, 3%, 70%, 1.00);
+                --tp-container-background-color-active: hsla(40, 3%, 55%, 1.00);
+                --tp-container-background-color-focus: hsla(40, 3%, 60%, 1.00);
+                --tp-container-background-color-hover: hsla(40, 3%, 65%, 1.00);
+                --tp-container-foreground-color: hsla(40, 3%, 20%, 1.00);
+                --tp-groove-foreground-color: hsla(40, 3%, 40%, 1.00);
+                --tp-input-background-color: hsla(120, 3%, 20%, 1.00);
+                --tp-input-background-color-active: hsla(120, 3%, 35%, 1.00);
+                --tp-input-background-color-focus: hsla(120, 3%, 30%, 1.00);
+                --tp-input-background-color-hover: hsla(120, 3%, 25%, 1.00);
+                --tp-input-foreground-color: hsla(120, 40%, 60%, 1.00);
+                --tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
+                --tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
+                --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`; break;
+            case ( "translucentTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
+                --tp-button-background-color: hsla(0, 0%, 80%, 1.00);
+                --tp-button-background-color-active: hsla(0, 0%, 100%, 1.00);
+                --tp-button-background-color-focus: hsla(0, 0%, 95%, 1.00);
+                --tp-button-background-color-hover: hsla(0, 0%, 85%, 1.00);
+                --tp-button-foreground-color: hsla(0, 0%, 0%, 0.80);
+                --tp-container-background-color: hsla(0, 0%, 0%, 0.30);
+                --tp-container-background-color-active: hsla(0, 0%, 0%, 0.60);
+                --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.50);
+                --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.40);
+                --tp-container-foreground-color: hsla(0, 0%, 100%, 0.50);
+                --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.20);
+                --tp-input-background-color: hsla(0, 0%, 0%, 0.30);
+                --tp-input-background-color-active: hsla(0, 0%, 0%, 0.60);
+                --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.40);
+                --tp-input-foreground-color: hsla(0, 0%, 100%, 0.50);
+                --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
+                --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
+                --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`; break;
+            case ( "statefarmerTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+                --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+                --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+                --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+                --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+                --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+                --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+                --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+                --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+                --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+                --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+                --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+                --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+                --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
             case ( "blurpleTheme" ):
                 rootTheme = `
-  --tp-base-background-color: hsla(255, 68%, 39%, 1.00);
-  --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
-  --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
-  --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
-  --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
-  --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
-  --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
-  --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
-  --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
-  --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
-  --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
-  --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
-  --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
-  --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
-  --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
-  --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
-  --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
-  --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
-  --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
-        }
+                --tp-base-background-color: hsla(255, 68%, 39%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+                --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+                --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+                --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+                --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+                --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+                --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+                --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+                --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+                --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+                --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+                --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+                --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+                --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
+        };
 
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
         const styleElement = document.createElement('style');
@@ -1140,9 +1145,9 @@
         ];
         return resultRgb;
     };
-    const distancePlayers = function (ss,player,yMultiplier) {
+    const distancePlayers = function (player,yMultiplier) {
         yMultiplier=yMultiplier||1;
-        let vector = getDirectionVectorPlayer(ss,player);
+        let vector = getDirectionVectorFacingTarget(player);
         return Math.hypot(vector.x,vector.y*yMultiplier,vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
@@ -1155,11 +1160,13 @@
     const getAngularDifference = function (obj1,obj2) {
         return Math.abs(obj1.yaw-obj2.yaw)+Math.abs(obj1.pitch-obj2.pitch);
     };
-    const getDirectionVectorPlayer = function (ss,player) {
+    const getDirectionVectorFacingTarget = function (target,vectorPassed,offsetY) {
+        target = vectorPassed ? target : target.actor.mesh.position;
+        offsetY=offsetY||0;
         return {
-            x: player.actor.mesh.position.x - ss.MYPLAYER.actor.mesh.position.x,
-            y: player.actor.mesh.position.y - ss.MYPLAYER.actor.mesh.position.y,
-            z: player.actor.mesh.position.z - ss.MYPLAYER.actor.mesh.position.z,
+            x: target.x - ss.MYPLAYER.actor.mesh.position.x,
+            y: target.y - ss.MYPLAYER.actor.mesh.position.y+offsetY,
+            z: target.z - ss.MYPLAYER.actor.mesh.position.z,
         };
     };
     const reverse_string = function (str) { return str.split("").reverse().join("") };
@@ -1224,7 +1231,7 @@
             document.querySelector(".chat-container").scrollTop = document.querySelector(".chat-container").scrollHeight;
         };
     };
-    const updateOrCreateLinesESP = function (ss,object,type,color) {
+    const updateOrCreateLinesESP = function (object,type,color) {
         let newPosition,newScene,newParent
         if (type=="playerESP") {
             newPosition = object.actor.mesh.position;
@@ -1299,7 +1306,11 @@
         };
         if (AUTOMATED) {
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
-
+            const extractedParams=GM_getValue("StateFarm_BotParams");
+            if (extractedParams!==previousParams) {
+                applySettings(extractedParams);
+                previousParams=extractedParams;
+            };
         } else {
             automatedElement.style.display='none';
         };
@@ -1506,10 +1517,10 @@
             };
         };
     };
-    const highlightCurrentlyTargeting = function (ss, currentlyTargeting, aimbot) {
+    const highlightTargetOnLeaderboard = function (target, aimbot) {
         let playerArray = [];
         ss.PLAYERS.forEach(player=>{
-            if (player && (currentlyTargeting!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+            if (player && (target!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
                 const hp = player.hp
@@ -1517,7 +1528,7 @@
             };
         });
         Array.from(document.getElementById("playerList").children).forEach(playerListItem=>{
-            if (aimbot&&currentlyTargeting?.playing && currentlyTargeting?.name === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
+            if (aimbot&&target?.playing && target?.name === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
                 playerListItem.style.backgroundColor = 'blue';
             } else {
                 playerListItem.style.backgroundColor = '';
@@ -1525,7 +1536,7 @@
             // console.log(playerArray.find(player => player.name === playerListItem.textContent.slice(0, -3))?.hp);
         });
     };
-    const highlightCrossHairReticleDot = function (ss, bool) {
+    const highlightCrossHairReticleDot = function (bool) {
         let dot = document.getElementById("reticleDot");
         let crosshair = document.getElementById("crosshairContainer");
         let setTo='';
@@ -1627,15 +1638,15 @@
         };
 
         const foundKeywords = Object.keys(responses).filter(keyword =>
-                                                            textAfterLastColon.toLowerCase().includes(keyword.toLowerCase())
-                                                           );
+            textAfterLastColon.toLowerCase().includes(keyword.toLowerCase())
+        );
 
         if (foundKeywords.length > 0) {
             const firstKeyword = foundKeywords[0];
             sendChatMessage(responses[firstKeyword]);
             // console.log(firstKeyword);
             return true;
-        }
+        };
         return false;
     };
     const constructChatPacket = function (str) {
@@ -1737,7 +1748,7 @@
             };
         };
     };
-    const predictBloom = function(ss,yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
+    const predictBloom = function(yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
         let seed = ss.MYPLAYER.randomGen.seed;
         let numbers = [];
         const accuracy=ss.MYPLAYER.weapon.accuracy;
@@ -1745,29 +1756,29 @@
             seed = (seed * 9301 + 49297) % 233280;
             numbers.push(((seed/233280)-0.5)*accuracy);
         };
-        const range = ss.WEAPONS.classes[ss.MYPLAYER.primaryWeaponItem.exclusive_for_class].weapon.range;
-        const playerYPRMatrixThing = ss.BABYLONJS.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
-        const rangeMatrixThing = ss.BABYLONJS.Matrix.Translation(0, 0, range);
-        const playerAndRangeMatrix = rangeMatrixThing.multiply(playerYPRMatrixThing);
+        const range = ss.MYPLAYER.weapon.constructor.range;
+        const playerRotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
+        const rangeMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, range);
+        const playerAndRangeMatrix = rangeMatrix.multiply(playerRotationMatrix);
         const bloomMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
         const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
         const finalBulletTranslation = finalBulletMatrix.getTranslation();
         const bulletYaw = calculateYaw(finalBulletTranslation);
         const bulletPitch = calculatePitch(finalBulletTranslation);
-        const yawBulletDiff = radianAngleDiff(yaw,bulletYaw)
-        const pitchBulletDiff = radianAngleDiff(pitch,bulletPitch)
+        const bulletYawDiff = radianAngleDiff(yaw,bulletYaw)
+        const bulletPitchDiff = radianAngleDiff(pitch,bulletPitch)
         //console.log("current accuracy: ",accuracy)
         //console.log("input yaw: ",yaw)
         //console.log("input pitch: ",pitch)
         //console.log("calculated bullet yaw: ",bulletYaw)
         //console.log("calculated bullet pitch: ",bulletPitch)
-        //console.log("therefore yaw diff: ",yawBulletDiff)
-        //console.log("therefore pitch diff: ",pitchBulletDiff)
+        //console.log("therefore yaw diff: ",bulletYawDiff)
+        //console.log("therefore pitch diff: ",bulletPitchDiff)
 
-        return [yawBulletDiff,pitchBulletDiff];
+        return [bulletYawDiff,bulletPitchDiff];
     };
     const applyBloom = function(dir,multiplier) { //multiplier can be set to -1 to invert
-        const bloomValues=predictBloom(ss,dir.yaw,dir.pitch);
+        const bloomValues=predictBloom(dir.yaw,dir.pitch);
         return {
             yaw: dir.yaw+(bloomValues[0]*multiplier),
             pitch: dir.pitch+(bloomValues[1]*multiplier),
@@ -1775,7 +1786,7 @@
     };
     const predictPosition = function(ss,player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
         let velocityVector = new ss.BABYLONJS.Vector3(player.dx, player.dy, player.dz);
-        const bulletSpeed=ss.WEAPONS.classes[ss.MYPLAYER.primaryWeaponItem.exclusive_for_class].weapon.velocity;
+        const bulletSpeed=ss.MYPLAYER.weapon.constructor.velocity;
         const timeDiff = ss.BABYLONJS.Vector3.Distance(ss.MYPLAYER,player) / bulletSpeed + 1;
         let newPos = new ss.BABYLONJS.Vector3(player.x,player.y,player.z).add(velocityVector.scale(timeDiff));
         newPos.y = player.y;
@@ -1788,39 +1799,36 @@
         newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
         return newPos;
     };
-    const getLineOfSight = function(ss,pos) { //returns true if no wall collisions
-        // let distance=distancePlayers(ss,pos);
-        // let dir = { yaw: ss.MYPLAYER.yaw, pitch: ss.MYPLAYER.pitch };
-        // if (extract("antiBloom")) { dir=applyBloom(dir,-1) };
+    const getLineOfSight = function(target,usePrediction,useBloom) { //returns true if no wall collisions
+        // const distance=distancePlayers(pos);
+        // let result=true;
 
+        // let forwardRay=ss.MYPLAYER.actor.scene.cameras[0].getForwardRay();
+        // forwardRay.origin = ss.MYPLAYER.actor.eye.getAbsolutePosition();
+        // forwardRay.direction.scaleInPlace(1e3);
+        // var collisionWhereLooking = ss.RAYS.rayCollidesWithMap(forwardRay.origin, forwardRay.direction, ss.RAYS.projectileCollidesWithCell);
+        // if (collisionWhereLooking!==undefined) { //if undefined it probably means youre looking at the sky
+        //     var distanceOfCollision = ss.BABYLONJS.Vector3.Distance(forwardRay.origin, collisionWhereLooking.pick.pickedPoint);
+        //     result=(!collisionWhereLooking)||(distanceOfCollision>distance);
+        // };
 
-        // const playerRot = ss.BABYLONJS.Matrix.RotationYawPitchRoll(dir.yaw, dir.pitch, 0);
-        // let gunOffset = ss.BABYLONJS.Matrix.Translation(0, 0.1, 0);
-        // gunOffset = gunOffset.multiply(playerRot)
-        // gunOffset = gunOffset.add(ss.BABYLONJS.Matrix.Translation(ss.MYPLAYER.x, ss.MYPLAYER.y + 0.4, ss.MYPLAYER.z));
-        // const gunPosition = gunOffset.getTranslation();
-
-        // const myVector=new ss.BABYLONJS.Vector3(gunPosition.x, gunPosition.y, gunPosition.z);
-        // const directionVector=new ss.BABYLONJS.Vector3(Math.sin(dir.yaw)*distance,Math.sin(-dir.pitch)*distance,Math.cos(dir.yaw)*distance);
-
-        // const collisionWhereLooking=ss.RAYS.rayCollidesWithMap(myVector,directionVector,ss.RAYS.projectileCollidesWithCell);
-
-        // // console.log(!(!collisionWhereLooking));
-
-        const distance=distancePlayers(ss,pos);
-        let result=true;
-
-        let forwardRay=ss.MYPLAYER.actor.scene.cameras[0].getForwardRay();
-        forwardRay.origin = ss.MYPLAYER.actor.eye.getAbsolutePosition();
-        forwardRay.direction.scaleInPlace(1e3);
-        var collisionWhereLooking = ss.RAYS.rayCollidesWithMap(forwardRay.origin, forwardRay.direction, ss.RAYS.projectileCollidesWithCell);
-        if (collisionWhereLooking!==undefined) { //if undefined it probably means youre looking at the sky
-            var distanceOfCollision = ss.BABYLONJS.Vector3.Distance(forwardRay.origin, collisionWhereLooking.pick.pickedPoint);
-            result=(!collisionWhereLooking)||(distanceOfCollision>distance);
-        };
-
-
-        return (result);
+        // return (result);
+    
+        let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
+        let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
+        targetPosition = useBloom ? applyBloom(targetPosition,-1) : targetPosition;
+    
+        let directionVector = getDirectionVectorFacingTarget(target);
+        let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
+        let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
+        directionVector = directionMatrix.getTranslation();
+        let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
+    
+        let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
+        let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
+        let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
+    
+        return distanceToTarget < distanceToMap
     };
     const getAimbot = function(ss,player) {
         let aimAt;
@@ -1830,11 +1838,7 @@
             aimAt = new ss.BABYLONJS.Vector3(player.x, player.y, player.z);
         };
 
-        let aimDirectionVector = {
-            x: aimAt.x - ss.MYPLAYER.x,
-            y: aimAt.y - ss.MYPLAYER.y - 0.05,
-            z: aimAt.z - ss.MYPLAYER.z,
-        };
+        let aimDirectionVector = getDirectionVectorFacingTarget(aimAt,true,-0.05);
 
         let finalDir = {
             yaw: calculateYaw(aimDirectionVector),
@@ -1973,12 +1977,12 @@
             //hook for main loop function in render loop
             match=js.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
             js = js.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${functionNames.retrieveFunctions}"]({${injectionString}}`);
-            console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
+            console.log('%cSuccess! Variable retrieval and main loop ss.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
             match=js.match(/playing&&!([a-zA-Z]+)&&/);
             js = js.replace(`if(${match[1]})`,`if(true)`);
-            console.log('%cSuccess! Cull inhibition hooked.', 'color: green; font-weight: bold;');
+            console.log('%cSuccess! Cull inhibition ss.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
             js = js.replace('fire(){var','fire(){window.beforeFiring(this.player);var');
@@ -2075,11 +2079,11 @@
           obj,
           (key, value) =>
             typeof value === "object" && value !== null
-              ? cache.includes(value)
-                ? undefined // Duplicate reference found, discard key
-                : cache.push(value) && value // Store value in our collection
-              : value,
-          indent
+                ? cache.includes(value)
+                    ? undefined // Duplicate reference found, discard key
+                    : cache.push(value) && value // Store value in our collection
+            : value,
+            indent
         );
         cache = null;
         return retVal;
@@ -2124,41 +2128,33 @@
             let topOffset=0;
             let proxyURL=proxyList[proxyListIndex];
             proxyListIndex=(proxyListIndex+1)%proxyList.length;
-            let params="?AUTOMATED=true&StateFarm="+constructBotParams();
+            let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
+            
+            const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
 
-            const addParam = function(module,setTo) {params=params+module+"%3E"+JSON.stringify(setTo)+"<"};
-    
             if (BLACKLIST!=="") {
                 addParam("blacklist",BLACKLIST);
                 addParam("enableBlacklistAimbot",true);
             };
 
-            params=params+"joinCode%3E%22"+extract("botJoinCode")+"%22";
+            addParam("usernameAutoJoin",name,true);
+
             console.log("PARAMS:",params)
             unsafeWindow.open("https://"+proxyURL+"/"+params, '_blank', 'width=450,height=300,left='+leftOffset+',top='+topOffset);
         };
     };
 
     const constructBotParams = function() {
-        const addParam = function(module,setTo) {params=params+module+"%3E"+JSON.stringify(setTo)+"<"};
+        const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
         let params="";
 
-        addParam("usernameAutoJoin",name);
-        addParam("autoJoin",extract("botAutoJoin"));
-        addParam("mockMode",extract("botMock"));
-        addParam("autoRespawn",extract("botRespawn"));
-        addParam("enableAutoFire",extract("botAutoShoot"));
-        addParam("autoFireType",1);
         addParam("enableSeizureX",extract("botSeizure"));
         addParam("enableSeizureY",extract("botSeizure"));
-        addParam("autoEZ",extract("botAutoEZ"));
-        addParam("cheatAccuse",extract("botCheatAccuse"));
-        addParam("tallChat",extract("botTallChat"));
 
         if (extract("botAimbot")) { //add antisneak
-            addParam("aimbotTargeting",1);
+            addParam("aimbotTargetMode",1);
             addParam("prediction",true);
             addParam("aimbot",true);
             addParam("autoWeapon",5); //whipper lol
@@ -2183,6 +2179,16 @@
             addParam("setDetail",2);
         };
 
+        addParam("autoJoin",extract("botAutoJoin"));
+        addParam("mockMode",extract("botMock"));
+        addParam("autoRespawn",extract("botRespawn"));
+        addParam("enableAutoFire",extract("botAutoShoot"));
+        addParam("autoFireType",1);
+        addParam("autoEZ",extract("botAutoEZ"));
+        addParam("cheatAccuse",extract("botCheatAccuse"));
+        addParam("joinCode",extract("botJoinCode"));
+        addParam("tallChat",extract("botTallChat"),true);
+
         return params;
     };
 
@@ -2194,7 +2200,6 @@
         let customSettings = getSearchParam("StateFarm")
         if (customSettings!==null) {
             console.log("StateFarm Custom Settings!");
-            createPopup("Custom StateFarm Settings Applying...")
             customSettings=customSettings.split("|");
             let setVars=[];
             let setBinds=[];
@@ -2208,6 +2213,8 @@
     };
 
     const applySettings = function(settings) {
+        createPopup("Custom StateFarm Settings Applying...");
+        console.log(settings);
         settings=settings.split("<")
         settings.forEach(element=>{
             element=element.split(">");
@@ -2216,7 +2223,8 @@
     };
 
     const updateBotParams = function() {
-        console.log("real",Math.random());
+        console.log(constructBotParams());
+        GM_setValue("StateFarm_BotParams",constructBotParams());
     };
 
     function loggedGameMap() {}
@@ -2296,7 +2304,7 @@
                         } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
                             color=hexToRgb(extract("blacklistColor"));
                         } else if ( tracersType=="proximity" ) {
-                            const distance = distancePlayers(ss,player);
+                            const distance = distancePlayers(player);
                             if (distance < extract("tracersColor1to2")) { //fade between first set
                                 progress=(distance/extract("tracersColor1to2"));
                                 color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
@@ -2308,9 +2316,11 @@
                             };
                         } else if (tracersType=="static") {
                             color=hexToRgb(extract("tracersColor1"));
+                        } else if (tracersType == "visibility") {
+                            color = getLineOfSight(player) ? hexToRgb(extract("tracersColor2")) : hexToRgb(extract("tracersColor1"))
                         };
 
-                        updateOrCreateLinesESP(ss,player,"playerESP",color);
+                        updateOrCreateLinesESP(player,"playerESP",color);
 
                         player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
                         player.box.visibility = extract("playerESP") && passedLists;
@@ -2373,7 +2383,7 @@
                         let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
                         color = hexToRgb(color);
 
-                        updateOrCreateLinesESP(ss,item,"ammoESP",color)
+                        updateOrCreateLinesESP(item,"ammoESP",color)
 
                         let willBeVisible=false;
 
@@ -2443,15 +2453,15 @@
                 };
             };
             if (extract("debug")) {
-                globalPlayer=ss;
+                globalSS=ss;
             };
 
-            let isLineOfSight;
-            const player=currentlyTargeting||playerLookingAt||undefined
+            let isVisible;
+            const player=currentlyTargeting||playerLookingAt||undefined;
             if (player && player.playing) {
-                isLineOfSight=getLineOfSight(ss,player);
+                isVisible=getLineOfSight(player);
             };
-            highlightCrossHairReticleDot(ss,extract("showLOS")?isLineOfSight:null);
+            highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
             if ( extract("chatHighlight") ) {
                 document.getElementById("chatOut").style.userSelect="text"
             };
@@ -2460,7 +2470,7 @@
                     ss.MYPLAYER.reload();
                 };
             };
-            if (extract("autoGrenade") && isLineOfSight && (ss.MYPLAYER.grenadeCount>0)) {
+            if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount>0)) {
                 ss.MYPLAYER.throwGrenade();
             };
             if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER.playing)) {
@@ -2478,7 +2488,7 @@
             if (extract("revealBloom")) {
                 redCircle.style.display='';
                 const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
-                const bloomValues=predictBloom(ss,ss.MYPLAYER.yaw,ss.MYPLAYER.pitch);
+                const bloomValues=predictBloom(ss.MYPLAYER.yaw,ss.MYPLAYER.pitch);
                 // Set the new position of the circle
                 const centerX = (unsafeWindow.innerWidth / 2);
                 const centerY = (unsafeWindow.innerHeight / 2);
@@ -2500,16 +2510,16 @@
             let didAimbot
             // console.log(targetingComplete);
 
-            const targetType=extract("aimbotTargeting");
+            const targetType=extract("aimbotTargetMode");
             let enemyMinimumValue = 9999;
             ss.PLAYERS.forEach(player=>{
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                     const passedLists=whitelisted&&(!blacklisted);
-                    player.distance=distancePlayers(ss,player);
-                    player.adjustedDistance=distancePlayers(ss,player,2);
-                    const directionVector=getDirectionVectorPlayer(ss,player);
+                    player.distance=distancePlayers(player);
+                    player.adjustedDistance=distancePlayers(player,2);
+                    const directionVector=getDirectionVectorFacingTarget(player);
                     player.angleDiff=getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
 
                     if (player.angleDiff < playerLookingAtMinimum) {
@@ -2519,21 +2529,14 @@
 
                     if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
                         if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) { //is doing aimbot
-                            if (selectNewTarget) {
+                            if (selectNewTarget && (!extract("onlyVisible") || getLineOfSight(player,true,true))) {
                                 if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
                                     enemyMinimumDistance = player.adjustedDistance;
                                     enemyNearest = player;
                                 };
-                                if (targetType=="nearest") {
-                                    if ( player.adjustedDistance < enemyMinimumValue && (!extract("lineOfSight") || getLineOfSight(ss,player))) {
-                                        enemyMinimumValue = player.adjustedDistance;
-                                        currentlyTargeting = player;
-                                    };
-                                } else if (targetType=="pointingat") {
-                                    if (player.angleDiff < enemyMinimumValue && (!extract("lineOfSight") || getLineOfSight(ss,player))) {
-                                        enemyMinimumValue = player.angleDiff;
-                                        currentlyTargeting = player;
-                                    };
+                                if (((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.adjustedDistance)) < enemyMinimumValue ) {
+                                    enemyMinimumValue = player.adjustedDistance;
+                                    currentlyTargeting = player;
                                 };
                             };
                         };
@@ -2545,7 +2548,7 @@
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     didAimbot=true
                     if ((!extract("silentAimbot")) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
-                        const distanceBetweenPlayers = distancePlayers(ss,currentlyTargeting);
+                        const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
 
                         const aimbot=getAimbot(ss,currentlyTargeting);
 
@@ -2566,17 +2569,14 @@
                         ss.MYPLAYER.pitch = setPrecision(lerp(ss.MYPLAYER.pitch, aimbot.pitch, antiSnap));
                     };
 
-                    if (extract("antiSneak")!==0) {
-                        let acceptableDistance = extract("antiSneak");
-                        if ( enemyMinimumDistance < acceptableDistance) {
-                            currentlyTargeting = enemyNearest;
-                            if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
-                                if (ss.MYPLAYER.weaponIdx === 0){ss.MYPLAYER.swapWeapon(1);}
-                                else {ss.MYPLAYER.reload();}
-                            };
-                            ss.MYPLAYER.pullTrigger();
-                            // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
+                    if ( enemyMinimumDistance < extract("antiSneak")) {
+                        currentlyTargeting = enemyNearest;
+                        if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
+                            if (ss.MYPLAYER.weaponIdx === 0){ss.MYPLAYER.swapWeapon(1);}
+                            else {ss.MYPLAYER.reload();}
                         };
+                        ss.MYPLAYER.pullTrigger();
+                        // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
                     };
 
                     if (extract("tracers")) {
@@ -2602,7 +2602,7 @@
                     ss.MYPLAYER.pitch+=extract("amountSeizureY")
                 };
             };
-            highlightCurrentlyTargeting(ss, currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
+            highlightTargetOnLeaderboard(currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
             if (extract("upsideDown")) { //sorta useless
                 if (ss.MYPLAYER.pitch<1.5 && ss.MYPLAYER.pitch>-1.5) {
                     ss.MYPLAYER.pitch=Math.PI;
@@ -2621,7 +2621,7 @@
                     doAutoFire=true;
                 } else if (autoFireType=="whileAimbot" && didAimbot) {
                     doAutoFire=true;
-                } else if (autoFireType=="lineOfSight" && isLineOfSight) {
+                } else if (autoFireType=="whileVisible" && isVisible) {
                     doAutoFire=true;
                 };
                 if (doAutoFire) {
