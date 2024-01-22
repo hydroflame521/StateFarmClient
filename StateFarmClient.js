@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre9
+// @version      3.3.2-pre10
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -161,19 +161,20 @@
                 // check for checkbox
                 const checkbox = inputContainer.querySelector('.tp-ckbv_i');
                 if (checkbox) {
-                    console.log(module,newValue,currentValue)
                     if (newValue==undefined) {
                         newValue=(!currentValue);
                     };
                     if (newValue!==!(!currentValue)) {
                         checkbox.click(); // Toggle checkbox
                     };
+                    console.log("checkbox",currentValue,newValue);
                     return extract(module,true);
                 };
                 // check for button
                 const button = inputContainer.querySelector('.tp-btnv_b');
                 if (button) {
                     button.click(); // Trigger button click
+                    console.log("button",currentValue,newValue);
                     return ("NOMSG"); //no change of state, dont show pop up message
                 };
                 // check for dropdown
@@ -184,6 +185,7 @@
                     };
                     dropdown.selectedIndex = newValue;
                     dropdown.dispatchEvent(new Event('change')); // trigger change event for dropdown
+                    console.log("dropdown",currentValue,newValue);
                     return extract(module,true);
                 };
                 // check for text input
@@ -233,7 +235,7 @@
                     let state=change(module)
                     let popupText=state
                     if (state!="NOMSG") {
-                        state=(state?"ON":"OFF");
+                        if (state===true||state===false||state===undefined) {state=(state?"ON":"OFF")};
                         popupText="Set "+module+" to: "+state;
                         if (extract("announcer")) {
                             sendChatMessage("I just set "+module+" to "+state+"!");
@@ -335,7 +337,7 @@
         initTab({ location: tp.combatFolder, storeAs: "combatTab" })
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
-                initModule({ location: tp.aimbotFolder, title: "Target Mode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
+                initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
@@ -457,7 +459,7 @@
         //AUTOMATION MODULES
         initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
-            initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", button: "Spam Now!", clickFunction: async function(){
+            initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: async function(){
                 alert("Thank you for your efforts comrade! o7");
                 const sleep = function(ms) {
                     return new Promise(resolve => setTimeout(resolve, ms));
@@ -1784,7 +1786,7 @@
             pitch: dir.pitch+(bloomValues[1]*multiplier),
         };
     };
-    const predictPosition = function(ss,player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
+    const predictPosition = function(player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
         let velocityVector = new ss.BABYLONJS.Vector3(player.dx, player.dy, player.dz);
         const bulletSpeed=ss.MYPLAYER.weapon.constructor.velocity;
         const timeDiff = ss.BABYLONJS.Vector3.Distance(ss.MYPLAYER,player) / bulletSpeed + 1;
@@ -1816,7 +1818,7 @@
     
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-        targetPosition = useBloom ? applyBloom(targetPosition,-1) : targetPosition;
+        // targetPosition = useBloom ? applyBloom(targetPosition,-1) : targetPosition;
     
         let directionVector = getDirectionVectorFacingTarget(target);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
@@ -1833,7 +1835,7 @@
     const getAimbot = function(ss,player) {
         let aimAt;
         if (extract("prediction")) {
-            aimAt=predictPosition(ss,currentlyTargeting);
+            aimAt=predictPosition(currentlyTargeting);
         } else {
             aimAt = new ss.BABYLONJS.Vector3(player.x, player.y, player.z);
         };
@@ -2521,6 +2523,7 @@
                     player.adjustedDistance=distancePlayers(player,2);
                     const directionVector=getDirectionVectorFacingTarget(player);
                     player.angleDiff=getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
+                    const valueToUse=((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.angleDiff));
 
                     if (player.angleDiff < playerLookingAtMinimum) {
                         playerLookingAtMinimum = player.angleDiff;
@@ -2529,13 +2532,13 @@
 
                     if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
                         if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) { //is doing aimbot
-                            if (selectNewTarget && (!extract("onlyVisible") || getLineOfSight(player,true,true))) {
+                            if (selectNewTarget && (!extract("onlyVisible") || getLineOfSight(player,true))) {
                                 if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
                                     enemyMinimumDistance = player.adjustedDistance;
                                     enemyNearest = player;
                                 };
-                                if (((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.adjustedDistance)) < enemyMinimumValue ) {
-                                    enemyMinimumValue = player.adjustedDistance;
+                                if (valueToUse < enemyMinimumValue ) {
+                                    enemyMinimumValue = valueToUse;
                                     currentlyTargeting = player;
                                 };
                             };
