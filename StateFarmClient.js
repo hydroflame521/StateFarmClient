@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre10
+// @version      3.3.2-pre11
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -214,7 +214,7 @@
     });
     //menu
     document.addEventListener("keydown", function (event) {
-        event=(event.code.substring(3));
+        event=(event.code.replace("Key",""));
         isKeyToggled[event]=true;
     });
     document.addEventListener("keyup", function (event) {
@@ -468,20 +468,17 @@
                 for (let i = 0; i < playerList.length; i++){
                     playerList[i].click();
                     await sleep(400);
-                
                     document.getElementsByClassName("ss_button btn_medium btn_red bevel_red")[0].click();
                     await sleep(400);
-                
                     document.getElementsByClassName("ss_checkbox label")[randomInt(0,3)].click();
                     await sleep(400);
-                
                     document.getElementsByClassName("ss_button btn_medium btn_green bevel_green")[0].click();
                     await sleep(400);
-                
                     document.getElementById("genericPopup").children[2].children[1].click();
                 };
             },});
             tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "Bunnyhop", storeAs: "bunnyhop", bindLocation: tp.automationTab.pages[1], });
             initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
@@ -1173,8 +1170,7 @@
     };
     const reverse_string = function (str) { return str.split("").reverse().join("") };
     const isPartialMatch = function (array, searchString) {
-        if (searchString=="") { return false };
-        return array.some(item => searchString.toLowerCase().includes(item.toLowerCase()));
+        return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
     const randomInt = function(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -1202,7 +1198,7 @@
         F[name]=unsafeWindow[funcName];
         functionNames[name]=funcName
     };
-    const processChatItem = function (ss,text,playerName,playerTeam,highlightColor) {
+    const processChatItem = function (text,playerName,playerTeam,highlightColor) {
         let chatItem = document.createElement("div");
         let playerNameSpan = document.createElement("span");
         let playerInfoContainer = document.createElement("div");
@@ -1801,26 +1797,12 @@
         newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
         return newPos;
     };
-    const getLineOfSight = function(target,usePrediction,useBloom) { //returns true if no wall collisions
-        // const distance=distancePlayers(pos);
-        // let result=true;
-
-        // let forwardRay=ss.MYPLAYER.actor.scene.cameras[0].getForwardRay();
-        // forwardRay.origin = ss.MYPLAYER.actor.eye.getAbsolutePosition();
-        // forwardRay.direction.scaleInPlace(1e3);
-        // var collisionWhereLooking = ss.RAYS.rayCollidesWithMap(forwardRay.origin, forwardRay.direction, ss.RAYS.projectileCollidesWithCell);
-        // if (collisionWhereLooking!==undefined) { //if undefined it probably means youre looking at the sky
-        //     var distanceOfCollision = ss.BABYLONJS.Vector3.Distance(forwardRay.origin, collisionWhereLooking.pick.pickedPoint);
-        //     result=(!collisionWhereLooking)||(distanceOfCollision>distance);
-        // };
-
-        // return (result);
-    
+    const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
+        // credit for code: de_neuublue
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-        // targetPosition = useBloom ? applyBloom(targetPosition,-1) : targetPosition;
     
-        let directionVector = getDirectionVectorFacingTarget(target);
+        let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
@@ -1832,26 +1814,20 @@
     
         return distanceToTarget < distanceToMap
     };
-    const getAimbot = function(ss,player) {
-        let aimAt;
-        if (extract("prediction")) {
-            aimAt=predictPosition(currentlyTargeting);
-        } else {
-            aimAt = new ss.BABYLONJS.Vector3(player.x, player.y, player.z);
-        };
-
-        let aimDirectionVector = getDirectionVectorFacingTarget(aimAt,true,-0.05);
-
-        let finalDir = {
-            yaw: calculateYaw(aimDirectionVector),
-            pitch: calculatePitch(aimDirectionVector),
+    const getAimbot = function(target) {
+        let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
+        let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
+        
+        let direction = {
+            yaw: calculateYaw(directionVector),
+            pitch: calculatePitch(directionVector),
         };
 
         if (extract("antiBloom")) {
-            finalDir=applyBloom(finalDir,1);
+            direction = applyBloom(direction, 1);
         };
 
-        return finalDir;
+        return direction;
     };
     const injectScript = function () {
         //TODO: replace with anon functions
@@ -1873,9 +1849,12 @@
         unsafeWindow.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
                 ss.MYPLAYER=MYPLAYER;
-                const aimbot = getAimbot(ss,currentlyTargeting);
-                ss.MYPLAYER.yaw = setPrecision(aimbot.yaw);
-                ss.MYPLAYER.pitch = setPrecision(aimbot.pitch);
+                const aimbot = getAimbot(currentlyTargeting);
+                // credit for code: de_neuublue
+                for (let i = 0; i < 3; i++) {
+                    ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)].yaw = setPrecision(aimbot.yaw);
+                    ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)].pitch = setPrecision(aimbot.pitch);
+                };
             };
         };
         unsafeWindow.modifyChat = function(msg) {
@@ -1893,6 +1872,10 @@
         unsafeWindow.modifyControls = function(CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
             if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up };
+            // credit for code: de_neuublue
+            if (extract("bunnyhop") && isKeyToggled["Space"]) {
+                CONTROLKEYS |= ss.CONTROLVALUES.jump;
+            };
             if (extract("autoJump")) {
                 if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
                     CONTROLKEYS|=ss.CONTROLVALUES.jump;
@@ -2233,7 +2216,7 @@
     loggedGameMap.logged = false;
 
     const mainLoop = function () {
-        const oneTime = function (ss) {
+        const oneTime = function () {
             crosshairsPosition=new ss.BABYLONJS.Vector3();
             Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
                 get: () => {
@@ -2242,7 +2225,7 @@
             });
             ranOneTime=true;
         };
-        const initVars = function (ss) {
+        const initVars = function () {
             if (unsafeWindow.newGame) {
                 onlinePlayersArray=[];
             };
@@ -2288,7 +2271,7 @@
 
             ss.MYPLAYER.actor.scene.texturesEnabled=extract("enableTextures");
         };
-        const updateLinesESP = function (ss) {
+        const updateLinesESP = function () {
             const objExists=Date.now();
 
             //update playerESP boxes, tracer lines, colors
@@ -2353,7 +2336,7 @@
                                 if (extract("publicBroadcast")) {
                                     sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
                                 } else {
-                                    processChatItem(ss,"joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
+                                    processChatItem("joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
                                 };
                             };
                             onlinePlayersArray.push([player,player.name,player.team]);
@@ -2370,7 +2353,7 @@
                             if (extract("publicBroadcast")) {
                                 sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
                             } else {
-                                processChatItem(ss,"left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
+                                processChatItem("left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
                             };
                         };
                         onlinePlayersArray.splice(i,1);
@@ -2441,9 +2424,9 @@
         createAnonFunction("STATEFARM",function(){
             currentlyInGame=true;
 
-            if ( !ranOneTime ) { oneTime(ss) };
-            initVars(ss);
-            updateLinesESP(ss);
+            if ( !ranOneTime ) { oneTime() };
+            initVars();
+            updateLinesESP();
 
             if ( extract("freecam") ) {
                 ss.MYPLAYER.actor.mesh.position.y = ss.MYPLAYER.actor.mesh.position.y + 1;
@@ -2532,7 +2515,7 @@
 
                     if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
                         if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) { //is doing aimbot
-                            if (selectNewTarget && (!extract("onlyVisible") || getLineOfSight(player,true))) {
+                            if (selectNewTarget && (!extract("onlyVisible") || getLineOfSight(player,extract("prediction")))) {
                                 if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
                                     enemyMinimumDistance = player.adjustedDistance;
                                     enemyNearest = player;
@@ -2550,10 +2533,10 @@
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     didAimbot=true
-                    if ((!extract("silentAimbot")) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
+                    if ((!extract("silentAimbot")) && (!extract("onlyVisible") || getLineOfSight(player,true)) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
 
-                        const aimbot=getAimbot(ss,currentlyTargeting);
+                        const aimbot=getAimbot(currentlyTargeting);
 
                         const antiSnap=(1-(extract("aimbotAntiSnap")||0));
 
