@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre11
+// @version      3.3.2-pre12
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -126,6 +126,16 @@
     let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
+    const weaponArray={ //this could be done differently but i cba
+        eggk47: 0,
+        scrambler: 1,
+        freeranger: 2,
+        rpegg: 3,
+        whipper: 4,
+        crackshot: 5,
+        trihard: 6,
+        random: 3, // :trol_fancy:
+    };
     let proxyList = [
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
         'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
@@ -338,16 +348,17 @@
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
+                initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Prioritise Visible", value: "prioritise"}, {text: "Only Visible", value: "onlyvisible"}], defaultValue: "disabled"});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1],});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "Only Visible", storeAs: "onlyVisible", bindLocation: tp.combatTab.pages[1],});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
@@ -484,7 +495,7 @@
             initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0,});
             tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}], defaultValue: "disabled"});
+            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
@@ -1798,9 +1809,12 @@
         return newPos;
     };
     const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
-        // credit for code: de_neuublue
+        // credit for code: de_neuublue/crackware
+        if (target.actor.bodyMesh.renderOverlay && target.actor.bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
+
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
-        let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
+        let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
+        // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
     
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
@@ -2423,10 +2437,20 @@
         createAnonFunction("retrieveFunctions",function(vars) { ss=vars ; F.STATEFARM() });
         createAnonFunction("STATEFARM",function(){
             currentlyInGame=true;
+            if (extract("debug")) {
+                globalSS=ss;
+            };
 
             if ( !ranOneTime ) { oneTime() };
             initVars();
             updateLinesESP();
+
+            let isVisible;
+            const player=currentlyTargeting||playerLookingAt||undefined;
+            if (player && player.playing) {
+                isVisible=getLineOfSight(player);
+            };
+            highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
 
             if ( extract("freecam") ) {
                 ss.MYPLAYER.actor.mesh.position.y = ss.MYPLAYER.actor.mesh.position.y + 1;
@@ -2437,16 +2461,6 @@
                     lastSpamMessage=Date.now()
                 };
             };
-            if (extract("debug")) {
-                globalSS=ss;
-            };
-
-            let isVisible;
-            const player=currentlyTargeting||playerLookingAt||undefined;
-            if (player && player.playing) {
-                isVisible=getLineOfSight(player);
-            };
-            highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
             if ( extract("chatHighlight") ) {
                 document.getElementById("chatOut").style.userSelect="text"
             };
@@ -2459,15 +2473,7 @@
                 ss.MYPLAYER.throwGrenade();
             };
             if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER.playing)) {
-                const weaponArray={ //this could be done differently but i cba
-                    eggk47: 0,
-                    scrambler: 1,
-                    freeranger: 2,
-                    rpegg: 3,
-                    whipper: 4,
-                    crackshot: 5,
-                    trihard: 6,
-                };
+                weaponArray.random = randomInt(0,6);
                 document.querySelectorAll('.weapon_img')[weaponArray[extract("autoWeapon")]].parentNode.click();
             };
             if (extract("revealBloom")) {
@@ -2484,20 +2490,31 @@
             } else {
                 redCircle.style.display='none';
             };
-            let enemyMinimumDistance=999999;
-            let playerLookingAtMinimum=999999;
-            playerNearest=undefined;
-            playerLookingAt=undefined;
-            enemyNearest=undefined;
-            enemyLookingAt=undefined;
+
+            // playerNearest=undefined; //currently unused and not defined
+            // enemyLookingAt=undefined; //currently unused and not defined
+
+            let playerLookingAtMinimum = 999999;
+            playerLookingAt=undefined; //used for player info
+
+            let enemyMinimumDistance = 999999;
+            enemyNearest=undefined; //used for antisneak
+            
+            let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
+
             let previousTarget=currentlyTargeting;
             let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
-            let didAimbot
+            let isDoingAimbot=(extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing);
             // console.log(targetingComplete);
 
-            const targetType=extract("aimbotTargetMode");
-            let enemyMinimumValue = 9999;
-            ss.PLAYERS.forEach(player=>{
+            const targetType = extract("aimbotTargetMode");
+            const visibilityMode = extract("aimbotVisibilityMode");
+
+            let didAimbot
+            const candidates=[];
+            let amountVisible=0;
+
+            ss.PLAYERS.forEach(player=>{ //iterate over all players to 
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
@@ -2506,7 +2523,7 @@
                     player.adjustedDistance=distancePlayers(player,2);
                     const directionVector=getDirectionVectorFacingTarget(player);
                     player.angleDiff=getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
-                    const valueToUse=((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.angleDiff));
+                    player.isVisible=getLineOfSight(player,extract("prediction"));
 
                     if (player.angleDiff < playerLookingAtMinimum) {
                         playerLookingAtMinimum = player.angleDiff;
@@ -2514,26 +2531,43 @@
                     };
 
                     if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
-                        if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) { //is doing aimbot
-                            if (selectNewTarget && (!extract("onlyVisible") || getLineOfSight(player,extract("prediction")))) {
-                                if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
-                                    enemyMinimumDistance = player.adjustedDistance;
-                                    enemyNearest = player;
-                                };
-                                if (valueToUse < enemyMinimumValue ) {
-                                    enemyMinimumValue = valueToUse;
-                                    currentlyTargeting = player;
-                                };
+                        if (isDoingAimbot) { //is doing aimbot and we care about getting a new target
+                            if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
+                                enemyMinimumDistance = player.adjustedDistance;
+                                enemyNearest = player;
+                            };
+                            if (selectNewTarget) {
+                                candidates.push(player);
+                                if (player.isVisible) { amountVisible+=1 };
                             };
                         };
                     };
                 };
             });
+
+            candidates.forEach(player=>{
+                const valueToUse=((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.angleDiff));
+                let visibleValue;
+                if (visibilityMode=="disabled") { //we dont care about that shit
+                    visibleValue = true; //go ahead
+                } else if (amountVisible<1) { //none of candidates are visible
+                    visibleValue = (visibilityMode=="onlyvisible" ? false : true); //there are no visible candidates, so either select none if "onlyvisible" or ignore this altogether
+                } else { //some are visible
+                    visibleValue = player.isVisible; //assuming now that either "prioritise" or "onlyvisible" are enabled, as "onlyvisible"'s use case fulfilled in previous statement
+                };
+                if (visibleValue) {
+                    if (valueToUse < enemyMinimumValue ) {
+                        enemyMinimumValue = valueToUse;
+                        currentlyTargeting = player;
+                    };
+                };
+            });
+
             currentlyTargetingName=(currentlyTargeting?.name==undefined) ? currentlyTargetingName : currentlyTargeting?.name;
-            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing) {
+            if (isDoingAimbot) {
                 if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
                     didAimbot=true
-                    if ((!extract("silentAimbot")) && (!extract("onlyVisible") || getLineOfSight(player,true)) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
+                    if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
 
                         const aimbot=getAimbot(currentlyTargeting);
