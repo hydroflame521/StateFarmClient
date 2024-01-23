@@ -21,10 +21,9 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Botting**, **Custom Binding
 	6. [Miscellaneous](#miscellaneous)
 	7.  [Client & About](#client&about)
 5. [Gameplay Strategies](#gameplay-strategies)
-6. [Ban Circumvention](#ban-circumvention)
-7. [Adblocking](#adblocking)
-8. [Issues and Troubleshooting](#issues-and-troubleshooting)
-9. [Credits and Disclaimer](#credits-and-disclaimer)
+6. [Adblocking](#adblocking)
+7. [Issues and Troubleshooting](#issues-and-troubleshooting)
+8. [Credits and Disclaimer](#credits-and-disclaimer)
    
 # [](#download-sources)Download Sources:
 - _**Check out our [GitHub repository](https://github.com/Hydroflame522/StateFarmClient)**_.
@@ -282,43 +281,6 @@ With the exception of the color pickers and some links, these should all be bind
 - _**Prediction**_: Use prediction to greatly enhance aimbot accuracy. If you're using aimbot, there's never a good reason to not use this.
 - _**Antibloom**_: Easiest way to do more damage is to enable this. Automatic guns get the biggest advantage, while crackshot and free ranger can be used at close range.
 - _**Lock On**_: Use this feature to prevent aimbot from switching targets.
-
-
-# [](#ban-circumvention)Ban Circumvention:
-> BWD has appointed **Eggforcers** that will ban cheaters by **first-person spectating** them.
-> 
-> If you use a private window or clear cookies and cache for the site, then you mostly don't have anything to worry about. Most bans usually just apply to your browser site data, so clearing works. If you want to be completely anonymous while using StateFarm Client, use a VPN in conjunction with a private window. BWD hasn't implemented anything more advanced than this to track users, likely as it would lead to many false positives, especially in schools. But they may do something like cross-browser tracking in the future at any time, so be aware.
->
-> However, if you don't, you want to use an account, or you're just interested, we've compiled some info below.
-
-_**Common detection Methods:**_
-> Eggforcers (normal players too) will look for the following actions in your gameplay to detection cheating. Avoid overusing them to an extent.
-- _**Snapping**_: Immediately locking on to another player after a kill/distance change (use AntiSnap, or only lock on when you have moved the reticle close to the player, or both).
-- _**Wall locking**_: Locking on to player though walls.
-- _**Unbelievably good aim**_: Inhuman and robotic aiming.
-
-**Booting:**
-> This is one of the tools Shell Shockers gives to private game hosters. Booting immediately IP bans every user in a private game sharing an IP, and will not allow them to rejoin that particular game unless they use a VPN/proxy.
-
-**Boot Circumvention:**
-> This is circumvented only by using a new IP, or waiting for the host to create a new game.
-
-**"Banning":**
-
-![ban](https://cdn.discordapp.com/attachments/977271202924097588/1186465326192402614/image.png)
-
-> This is the "ban" interface. It allows "banning" of 5, 15, and 60 minutes. Can only be used by Developers/Eggforcers.
-> This is mainly in place to make people feel like they have power, when in fact this is the most useless measure against cheaters.
-
-**"Ban" Circumvention:**
-> It is advised to not use an account while using Statefarm, as this method of punishment will apply to your account/browser session.
-> If you are "banned", simply deleted cookies and cache of the site and go back (and change account, if you use one).
-
-**Real Bans:**
-> These are only given by the actual developers of the game, who can see the logs and IPs of players. Their tools are more advanced than those of Eggforcer "bans" and can permanently IP ban a user.
-
-**Real Ban Circumvention:**
-> As these are very rare, we have not been able to analyse one of these bans. However, it can be assumed it works like booting, but for the whole game. VPNs/proxies would most likely work just fine.
 
 # [](#adblocking)Adblocking
 > Advertisments are quite a nuisance in Shell Shockers, and BWD even added Adblock punishments (5 seconds extra waiting time). Luckily, there are multiple methods to remove ads in Shell Shockers reliably and quickly.
