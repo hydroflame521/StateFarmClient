@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre13
+// @version      3.3.2-pre14
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -1401,6 +1401,12 @@
                     };
                 };
             };
+            if (document.getElementById("bannedPopup")?.style.display!=='none')
+            {
+                console.log("STATEFARM UNBANNING...");
+                unsafeWindow.extern.signOut();
+                document.getElementById("bannedPopup").textContent='PLEASE RELOAD FOR THE NEXT 20s to 1min for new database id for unban. Enjoy! :)';
+            };
             addStreamsToInGameUI();
         } else {
             coordElement.style.display = 'none';
@@ -1860,23 +1866,23 @@
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
         // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-    
+
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
         let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
-    
+
         let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
         let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
         let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
-    
+
         return distanceToTarget < distanceToMap
     };
     const getAimbot = function(target) {
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
-        
+
         let direction = {
             yaw: calculateYaw(directionVector),
             pitch: calculatePitch(directionVector),
@@ -2175,7 +2181,7 @@
             let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
-            
+
             const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
 
             if (BLACKLIST!=="") {
@@ -2548,7 +2554,7 @@
 
             let enemyMinimumDistance = 999999;
             enemyNearest=undefined; //used for antisneak
-            
+
             let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
 
             let previousTarget=currentlyTargeting;
@@ -2563,7 +2569,7 @@
             const candidates=[];
             let amountVisible=0;
 
-            ss.PLAYERS.forEach(player=>{ //iterate over all players to 
+            ss.PLAYERS.forEach(player=>{ //iterate over all players to
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
