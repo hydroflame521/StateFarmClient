@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre12
+// @version      3.3.2-pre13
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -106,6 +106,10 @@
     let lastSpamMessage=0;
     let lastAutoJump=0;
     let lastAntiAFKMessage=0;
+    let lastBotReload=0;
+    let lastBotUnban=0;
+    let lastBotLeave=0;
+    let lastBotSpamReport=0;
     let lastSentMessage="";
     let targetingComplete=false;
     let yourPlayerKills = 0;
@@ -317,7 +321,7 @@
                 localStorage.setItem(module.storeAs,JSON.stringify(value.value));
                 if (module.changeFunction!==undefined) {module.changeFunction(value)};
                 if (module.botParam!==undefined) {
-                    setInterval(() => {
+                    setTimeout(() => {
                         updateBotParams(module.botParam);
                     }, 100);
                 };
@@ -470,23 +474,9 @@
         //AUTOMATION MODULES
         initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
         initTab({ location: tp.automationFolder, storeAs: "automationTab" })
-            initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: async function(){
+            initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: function(){
                 alert("Thank you for your efforts comrade! o7");
-                const sleep = function(ms) {
-                    return new Promise(resolve => setTimeout(resolve, ms));
-                };
-                playerList = document.getElementById("playerList").children;
-                for (let i = 0; i < playerList.length; i++){
-                    playerList[i].click();
-                    await sleep(400);
-                    document.getElementsByClassName("ss_button btn_medium btn_red bevel_red")[0].click();
-                    await sleep(400);
-                    document.getElementsByClassName("ss_checkbox label")[randomInt(0,3)].click();
-                    await sleep(400);
-                    document.getElementsByClassName("ss_button btn_medium btn_green bevel_green")[0].click();
-                    await sleep(400);
-                    document.getElementById("genericPopup").children[2].children[1].click();
-                };
+                spamReport();
             },});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Bunnyhop", storeAs: "bunnyhop", bindLocation: tp.automationTab.pages[1], });
@@ -522,8 +512,11 @@
             initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", button: "UNBAN NOW", clickFunction: function(){
                 const userConfirmed=confirm("Unban works by switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
                 if (userConfirmed) {
-                    unsafeWindow.location.replace("https://"+proxyList[3]);
+                    unban();
                 };
+            },});
+            initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", button: "RELOAD NOW", clickFunction: function(){
+                reloadPage();
             },});
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
@@ -605,29 +598,21 @@
         initModule({ location: tp.botTabs.pages[0], title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", botParam: true,});
+        tp.botTabs.pages[0].addSeparator();
+        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
         //MANAGE STUFF
-        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){
-            GM_setValue("StateFarm_LeaveBots",true);
-            setTimeout(function() {
-                GM_setValue("StateFarm_LeaveBots",false);
-            }, 2000);
-        }, botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){
-            GM_setValue("StateFarm_KillBots",true);
-            setTimeout(function() {
-                GM_setValue("StateFarm_KillBots",false);
-            }, 2000);
-        }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("StateFarm_LeaveBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("StateFarm_RefreshBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("StateFarm_KillBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("StateFarm_UnbanBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("StateFarm_SpamReportBots") }, botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
-        tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
         //PARAMS STUFF
-        // initFolder({ location: tp.botPanel, title: "Parameters", storeAs: "botTabs.pages[2]",});
-        tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
@@ -636,6 +621,7 @@
         initModule({ location: tp.botTabs.pages[2], title: "DoAutoEZ", storeAs: "botAutoEZ", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "whipper"});
         initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});
@@ -1131,7 +1117,48 @@
     const getSearchParam = function(param) {
         const queryParams = new URLSearchParams(unsafeWindow.location.search);
         return queryParams.get(param);
-    }
+    };
+    const findKeyByValue = function(obj, value) {
+        for (const key in obj) {
+            if (obj[key] === value) {
+                return key;
+            };
+        };
+        return null; // Return null if the value is not found
+    };
+    const unban = function() {
+        unsafeWindow.location.replace(unsafeWindow.location.href.replace(unsafeWindow.location.hostname,proxyList[3]));
+    };
+    const reloadPage = function() {
+        unsafeWindow.location.reload(true);
+    };
+    const spamReport = function() {
+        (async function(){
+            const sleep = function(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            };
+            playerList = document.getElementById("playerList").children;
+            for (let i = 0; i < playerList.length; i++){
+                playerList[i].click();
+                await sleep(400);
+                document.getElementsByClassName("ss_button btn_medium btn_red bevel_red")[0].click();
+                await sleep(400);
+                document.getElementsByClassName("ss_checkbox label")[randomInt(0,3)].click();
+                await sleep(400);
+                document.getElementsByClassName("ss_button btn_medium btn_green bevel_green")[0].click();
+                await sleep(400);
+                document.getElementById("genericPopup").children[2].children[1].click();
+            };
+        })();
+    };
+    const broadcastToBots = function(message) {
+        GM_setValue(message,true);
+        console.log("Setting",message,"to true (broadcast invoked). Proof?",GM_getValue(message));
+        setTimeout(function() {
+            GM_setValue(message,false);
+            console.log("Setting",message,"to false (timeout). Proof?",GM_getValue(message));
+        }, 2000);
+    };
     const hexToRgb = function (hex) {
         // Remove the hash sign, if present
         hex = hex.replace(/^#/, '');
@@ -1461,12 +1488,33 @@
                 coordElement.style.display = '';
             };
         };
-        if (AUTOMATED) {
+        if (AUTOMATED) { //i know what youre saying looking at this. i am the greatest programmer to have ever lived
             if (GM_getValue("StateFarm_KillBots")) {
                 unsafeWindow.close();
             };
             if (GM_getValue("StateFarm_LeaveBots")) {
-                change("leaveGame");
+                if (Date.now()>lastBotLeave) {
+                    change("leaveGame");
+                    lastBotLeave=Date.now()+3000; //these are necessary cos you'll queue a bajillion reloads lmao
+                };
+            };
+            if (GM_getValue("StateFarm_UnbanBots")) {
+                if (Date.now()>lastBotUnban) {
+                    unban();
+                    lastBotUnban=Date.now()+3000;
+                };
+            };
+            if (GM_getValue("StateFarm_RefreshBots")) {
+                if (Date.now()>lastBotReload) {
+                    reloadPage();
+                    lastBotReload=Date.now()+3000;
+                };
+            };
+            if (GM_getValue("StateFarm_SpamReportBots")) {
+                if (Date.now()>lastBotSpamReport) {
+                    spamReport();
+                    lastBotSpamReport=Date.now()+3000;
+                };
             };
         };
     };
@@ -1675,7 +1723,6 @@
         //console.log(arr);
         return arr.buffer;
     };
-
     const extractChatPacket = function (packet) {
         if (!(packet instanceof ArrayBuffer)) {
             var pack_arr = new Uint8Array(packet);
@@ -1688,7 +1735,6 @@
         };
         return str;
     };
-
     const chatPacketHandler = function (packet) {
         return packet; //icl idk how this stuff works lol
         // if (extract("chatFilterBypass")) {
@@ -1702,7 +1748,6 @@
         //     return constructed;
         // };
     };
-
     const modifyPacket = function (data) {
         if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
             return data;
@@ -1810,7 +1855,7 @@
     };
     const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
         // credit for code: de_neuublue/crackware
-        if (target.actor.bodyMesh.renderOverlay && target.actor.bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
+        if (target.actor && target.actor.bodyMesh && target.actor.bodyMesh.renderOverlay && target.actor.bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
 
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
@@ -2156,7 +2201,6 @@
             addParam("aimbotTargetMode",1);
             addParam("prediction",true);
             addParam("aimbot",true);
-            addParam("autoWeapon",5); //whipper lol
             addParam("antiBloom",true);
             addParam("grenadeMax",true);
             addParam("enableSeizureX",false);
@@ -2186,6 +2230,9 @@
         addParam("autoEZ",extract("botAutoEZ"));
         addParam("cheatAccuse",extract("botCheatAccuse"));
         addParam("joinCode",extract("botJoinCode"));
+        addParam("autoWeapon",((extract("botWeapon")=="random"&&8)||(1+weaponArray[extract("botWeapon")])));
+        const teamReverse={disabled: 0, red: 1, blue: 2, random: 3};
+        addParam("autoTeam",teamReverse[extract("botTeam")]);
         addParam("tallChat",extract("botTallChat"),true);
 
         return params;
@@ -2222,6 +2269,7 @@
     };
 
     const updateBotParams = function() {
+        console.log("update lmao")
         console.log(constructBotParams());
         GM_setValue("StateFarm_BotParams",constructBotParams());
     };
@@ -2439,6 +2487,7 @@
             currentlyInGame=true;
             if (extract("debug")) {
                 globalSS=ss;
+                globalSS.tp=tp;
             };
 
             if ( !ranOneTime ) { oneTime() };
