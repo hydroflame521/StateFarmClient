@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre14
+// @version      3.3.2-pre15
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -57,6 +57,7 @@
 // @match        *://scrambled.us/*
 // @match        *://scrambled.world/*
 // @match        *://shellshockers.club/*
+// @match        *://shellshockers.life/*
 // @match        *://shellshockers.site/*
 // @match        *://shellshockers.us/*
 // @match        *://shellshockers.world/*
@@ -108,6 +109,7 @@
     let lastAntiAFKMessage=0;
     let lastBotReload=0;
     let lastBotUnban=0;
+    let lastBotNewProxy=0;
     let lastBotLeave=0;
     let lastBotSpamReport=0;
     let lastSentMessage="";
@@ -126,7 +128,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,playersInGame,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,amountOnline,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -140,11 +142,12 @@
         trihard: 6,
         random: 3, // :trol_fancy:
     };
+    const gameTypes = [ "ffa", "teams", "captula", "kotc", ];
     let proxyList = [
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
         'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
         'hardshell.life', 'humanorganising.org', 'mathactivity.xyz', 'mathactivity.club', 'mathdrills.info', 'mathdrills.life', 'mathfun.rocks', 'mathgames.world', 'math.international',
-        'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.site',
+        'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.life', 'shellshockers.site',
         'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
         'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe'
     ];
@@ -323,7 +326,7 @@
                 if (module.botParam!==undefined) {
                     setTimeout(() => {
                         updateBotParams(module.botParam);
-                    }, 100);
+                    }, 500);
                 };
             });
         };
@@ -509,13 +512,20 @@
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", button: "UNBAN NOW", clickFunction: function(){
-                const userConfirmed=confirm("Unban works by switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
+            initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", bindLocation: tp.miscTab.pages[1], button: "UNBAN NOW", clickFunction: function(){
+                const userConfirmed=confirm("By proceeding, you will be signed out. If you don't have an account, your stats will be lost.");
                 if (userConfirmed) {
                     unban();
                 };
             },});
-            initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", button: "RELOAD NOW", clickFunction: function(){
+            initModule({ location: tp.miscTab.pages[0], title: "Auto Unban", storeAs: "autoUnban", bindLocation: tp.miscTab.pages[1],});
+            initModule({ location: tp.miscTab.pages[0], title: "New Proxy", storeAs: "newProxy", bindLocation: tp.miscTab.pages[1], button: "NEW PROXY", clickFunction: function(){
+                const userConfirmed=confirm("Switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
+                if (userConfirmed) {
+                    newProxy();
+                };
+            },});
+            initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", bindLocation: tp.miscTab.pages[1], button: "RELOAD NOW", clickFunction: function(){
                 reloadPage();
             },});
             tp.miscTab.pages[0].addSeparator();
@@ -551,7 +561,7 @@
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presets", bindLocation: tp.clientTab.pages[1], dropdown: [
-                {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<onlyVisible>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
+                {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
             ]});
             initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
@@ -602,10 +612,14 @@
         initModule({ location: tp.botTabs.pages[0], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
         //MANAGE STUFF
-        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("StateFarm_LeaveBots") }, botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("StateFarm_RefreshBots") }, botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("StateFarm_KillBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("StateFarm_RefreshBots") }, botParam: true,});
+        tp.botTabs.pages[1].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function(){ broadcastToBots("StateFarm_NewProxyBots") }, botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("StateFarm_UnbanBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true,});
+        tp.botTabs.pages[1].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("StateFarm_LeaveBots") }, botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("StateFarm_SpamReportBots") }, botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
@@ -614,6 +628,8 @@
         initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
         //PARAMS STUFF
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,})
+        tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoTallChat", storeAs: "botTallChat", botParam: true,});
@@ -624,9 +640,7 @@
         initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "whipper"});
         initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});
-        tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});;
         //INFO STUFF
         initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true,});
 
@@ -1126,8 +1140,16 @@
         };
         return null; // Return null if the value is not found
     };
-    const unban = function() {
+    const newProxy = function() {
         unsafeWindow.location.replace(unsafeWindow.location.href.replace(unsafeWindow.location.hostname,proxyList[3]));
+    };
+    const unban = function() {
+        console.log("STATEFARM UNBANNING...");
+        unsafeWindow.extern.signOut();
+        setTimeout(() => {
+            const banPopup=document.getElementById("bannedPopup");
+            if (banPopup) { banPopup.style.display='none' }; //hide it
+        }, 10000);
     };
     const reloadPage = function() {
         unsafeWindow.location.reload(true);
@@ -1230,6 +1252,7 @@
         };
     };
     const getScrambled=function(){return Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('')}
+    clientID=(getScrambled()+"noID");
     const createAnonFunction=function(name,func){
         const funcName=getScrambled();
         unsafeWindow[funcName]=func;
@@ -1340,18 +1363,48 @@
         if (!ranEverySecond) {
             detectURLParams();
         };
+        const botsArray = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
+            if (!ranEverySecond) {
+                change("hide");
+            };
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
-            const extractedParams=GM_getValue("StateFarm_BotParams");
-            if (extractedParams!==previousParams) {
-                applySettings(extractedParams);
-                previousParams=extractedParams;
+
+            if (unsafeWindow.vueData.firebaseId) {clientID=unsafeWindow.vueData.firebaseId};
+            if (clientID) {
+                const extractedParams=GM_getValue("StateFarm_BotParams");
+                if (extractedParams!==previousParams) {
+                    applySettings(extractedParams);
+                    previousParams=extractedParams;
+                };
+
+                botsArray[clientID] = {
+                    username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
+                    timecode: Date.now(),
+                    status: ((isBanned&&"banned")||
+                        (currentlyInGame&&((ss.MYPLAYER.playing ? "playing " : "in game ") + ss.GAMECODE + " (" + gameTypes[unsafeWindow.vueData.currentGameType] + ", " + vueData.currentRegionId + ")"))||
+                        (errorString||"idle")),
+                };
             };
         } else {
             automatedElement.style.display='none';
+            monitorObjects.botOnline="";
+            amountOnline = 0;
+            for (const botID in botsArray) {
+                const data=botsArray[botID];
+                if ((data.timecode+5000)<Date.now()) { //give up on this bot lmao
+                    delete botsArray[botID];
+                } else if ((data.timecode+2000)<Date.now()) { //maybe it will come back
+                    botsArray[botID].status="not responding " + (Date.now()-data.timecode) + "ms elapsed";
+                }; //bot is doing fine... hopefully
+                amountOnline+=1;
+                monitorObjects.botOnline = monitorObjects.botOnline + "\n" + data.username + " [" + "..." + botID.slice(-4) + "]: " + data.status;
+            };
+            monitorObjects.botOnline = ((amountOnline) + " bots online.")+monitorObjects.botOnline;
         };
+        GM_setValue("StateFarm_BotStatus",botsArray);
         allFolders.forEach(function (name) {
-            localStorage.setItem(name,JSON.stringify(tp[name].expanded));
+        localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
         if (currentlyInGame) {
             if (extract("mockMode")) {
@@ -1401,12 +1454,6 @@
                     };
                 };
             };
-            if (document.getElementById("bannedPopup")?.style.display!=='none')
-            {
-                console.log("STATEFARM UNBANNING...");
-                unsafeWindow.extern.signOut();
-                document.getElementById("bannedPopup").textContent='PLEASE RELOAD FOR THE NEXT 20s to 1min for new database id for unban. Enjoy! :)';
-            };
             addStreamsToInGameUI();
         } else {
             coordElement.style.display = 'none';
@@ -1419,7 +1466,7 @@
                     const playerSlots = document.querySelectorAll('.playerSlot--name');
                     const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
                     //console.log("adsknjf--->"mapNames);
-                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,2,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
         };
@@ -1445,10 +1492,24 @@
             };
             previousDetail=extract("setDetail");
         };
+        const banPopup = document.getElementById("bannedPopup");
+        if (banPopup?.style.display!=='none') {
+            isBanned=true;
+        };
+        if (isBanned && extract("autoUnban") && (!attemptedAutoUnban)) {
+            banPopup.textContent='StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
+            unban();
+            attemptedAutoUnban=true;
+            createPopup("AutoUnban: Attempting to Unban...");
+            setTimeout(() => {
+                createPopup("AutoUnban: Removed ban message.");
+                banPopup.style.display = "none";
+            }, 15000);
+        };
 
         currentlyInGame = false;
-        ranEverySecond=true;
-        //block ads kek
+        ranEverySecond = true;
+        //block ads or something kek
         localStorage.timesPlayed = 0;
     };
     const everyDecisecond = function () {
@@ -1507,6 +1568,12 @@
             if (GM_getValue("StateFarm_UnbanBots")) {
                 if (Date.now()>lastBotUnban) {
                     unban();
+                    lastBotUnban=Date.now()+3000;
+                };
+            };
+            if (GM_getValue("StateFarm_NewProxyBots")) {
+                if (Date.now()>lastBotNewProxy) {
+                    newProxy();
                     lastBotUnban=Date.now()+3000;
                 };
             };
@@ -1861,28 +1928,27 @@
     };
     const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
         // credit for code: de_neuublue/crackware
-        if (target.actor && target.actor.bodyMesh && target.actor.bodyMesh.renderOverlay && target.actor.bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
+        if (target && target.actor && target.actor.bodyMesh && target.actor.bodyMesh.renderOverlay && target.actor.bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
 
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
         // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-
+    
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
         let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
-
+    
         let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
         let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
         let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
-
         return distanceToTarget < distanceToMap
     };
     const getAimbot = function(target) {
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
-
+        
         let direction = {
             yaw: calculateYaw(directionVector),
             pitch: calculatePitch(directionVector),
@@ -1920,6 +1986,23 @@
                     ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)].yaw = setPrecision(aimbot.yaw);
                     ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)].pitch = setPrecision(aimbot.pitch);
                 };
+            };
+        };
+        unsafeWindow.onConnectFail = function (ERRORCODE,ERRORARRAY) {
+            errorString = findKeyByValue(ERRORARRAY,ERRORCODE);
+            console.log("StateFarm has detected a connection error...",errorString,ERRORCODE,ERRORARRAY);
+            if ((!attemptedAutoUnban) && extract("autoUnban")&&(errorString=="sessionNotFound")) {
+                console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
+                createPopup("AutoUnban: Reloading page in 5 seconds...");
+                attemptedAutoUnban = true;
+                setTimeout(() => {
+                    if (extract("autoUnban")) { //you get a bit of time to stop it
+                        createPopup("AutoUnban: Reloading page now.");
+                        reloadPage(); attemptedAutoUnban = false;
+                    } else {
+                        createPopup("AutoUnban: Reload page cancelled.");
+                    };
+                }, 5000);
             };
         };
         unsafeWindow.modifyChat = function(msg) {
@@ -2065,9 +2148,19 @@
             console.log("PLAYERTHING:",PLAYERTHING);
             console.log("ARGTHING:",ARGTHING);
             js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.modifyControls('+CONTROLKEYS+');');
-            // //admin spoof lol
+            //admin spoof lol
             js=js.replace('isGameOwner(){return ','isGameOwner(){return window.getAdminSpoof()?true:')
             js=js.replace('adminRoles(){return ','adminRoles(){return window.getAdminSpoof()?255:')
+            //grab reason for connect fail
+            const CONNECTFAILFUNCTION = new RegExp(',1e3\\)\\):([a-zA-Z]+)\\(').exec(js)[1];
+            const FUNCTIONPARAM = new RegExp('function '+CONNECTFAILFUNCTION+'\\(([a-zA-Z]+)\\)').exec(js)[1];
+            const ERRORARRAY = new RegExp('\\.code===([a-zA-Z]+)\\.sessionNotFound\\?\\(console\\.log\\(`').exec(js)[1];
+            console.log("CONNECTFAILFUNCTION:",CONNECTFAILFUNCTION);
+            console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
+            console.log("ERRORARRAY:",ERRORARRAY);
+            js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.onConnectFail('+FUNCTIONPARAM+','+ERRORARRAY+');')
+            //get rid of tutorial popup as its a stupid piece of shit
+            js=js.replace(',vueApp.onTutorialPopupClick()','');
 
             //replace graveyard:
             // //sus
@@ -2144,6 +2237,9 @@
             localStorage.setItem("firstTimeBots",JSON.stringify(true));
             unsafeWindow.open(aimbottingGuideURL);
         };
+
+        GM_setValue("StateFarm_BotStatus",{});
+
         console.log("Deploying "+extract("numberBots")+" bots...");
 
         let botNames=[];
@@ -2181,7 +2277,7 @@
             let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
-
+            
             const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
 
             if (BLACKLIST!=="") {
@@ -2200,45 +2296,39 @@
         const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
         let params="";
 
-        addParam("enableSeizureX",extract("botSeizure"));
-        addParam("enableSeizureY",extract("botSeizure"));
-
-        if (extract("botAimbot")) { //add antisneak
-            addParam("aimbotTargetMode",1);
-            addParam("prediction",true);
-            addParam("aimbot",true);
-            addParam("antiBloom",true);
-            addParam("grenadeMax",true);
-            addParam("enableSeizureX",false);
-            addParam("enableSeizureY",false);
-            addParam("antiSneak",1.4);
-            addParam("autoRefill",true);
-            addParam("autoGrenade",true);
-        };
-
-        if (extract("botAutoMove")) {
-            addParam("autoWalk",true);
-            addParam("autoStrafe",true);
-            addParam("autoJump",true);
-            addParam("autoJumpDelay",1500);
-        };
-
-        if (extract("botLowRes")) {
-            addParam("enableTextures",false);
-            addParam("setDetail",2);
-        };
+        //do aimbot
+        addParam("aimbotTargetMode",1);
+        addParam("aimbotVisibilityMode",1);
+        addParam("prediction",extract("botAimbot"));
+        addParam("aimbot",extract("botAimbot"));
+        addParam("antiBloom",extract("botAimbot"));
+        addParam("grenadeMax",extract("botAimbot"));
+        addParam("antiSneak",extract("botAimbot")?1.4:0);
+        addParam("autoRefill",extract("botAimbot"));
+        addParam("autoGrenade",extract("botAimbot"));
+        //automove
+        addParam("autoWalk",extract("botAutoMove"));
+        addParam("autoStrafe",extract("botAutoMove"));
+        addParam("autoJump",extract("botAutoMove"));
+        addParam("autoJumpDelay",1500);
+        //low res
+        addParam("enableTextures",extract("botLowRes"));
+        addParam("setDetail",extract("botLowRes")?2:0);
 
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
         addParam("enableAutoFire",extract("botAutoShoot"));
-        addParam("autoFireType",1);
+        addParam("autoFireType",1); //while visible
         addParam("autoEZ",extract("botAutoEZ"));
         addParam("cheatAccuse",extract("botCheatAccuse"));
         addParam("joinCode",extract("botJoinCode"));
         addParam("autoWeapon",((extract("botWeapon")=="random"&&8)||(1+weaponArray[extract("botWeapon")])));
-        const teamReverse={disabled: 0, red: 1, blue: 2, random: 3};
+        const teamReverse={disabled: 0, red: 1, blue: 2, random: 3}; //laziness
         addParam("autoTeam",teamReverse[extract("botTeam")]);
+        addParam("enableSeizureX",extract("botSeizure"));
+        addParam("enableSeizureY",extract("botSeizure"));
+        addParam("autoUnban",extract("botAutoUnban"));
         addParam("tallChat",extract("botTallChat"),true);
 
         return params;
@@ -2275,7 +2365,6 @@
     };
 
     const updateBotParams = function() {
-        console.log("update lmao")
         console.log(constructBotParams());
         GM_setValue("StateFarm_BotParams",constructBotParams());
     };
@@ -2491,6 +2580,8 @@
         createAnonFunction("retrieveFunctions",function(vars) { ss=vars ; F.STATEFARM() });
         createAnonFunction("STATEFARM",function(){
             currentlyInGame=true;
+            isBanned=false; //cant be banned if in a game /shrug
+            errorString=undefined; //no error if ur playing
             if (extract("debug")) {
                 globalSS=ss;
                 globalSS.tp=tp;
@@ -2554,7 +2645,7 @@
 
             let enemyMinimumDistance = 999999;
             enemyNearest=undefined; //used for antisneak
-
+            
             let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
 
             let previousTarget=currentlyTargeting;
@@ -2569,7 +2660,7 @@
             const candidates=[];
             let amountVisible=0;
 
-            ss.PLAYERS.forEach(player=>{ //iterate over all players to
+            ss.PLAYERS.forEach(player=>{ //iterate over all players to 
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
