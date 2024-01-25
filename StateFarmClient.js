@@ -2515,6 +2515,97 @@
     function loggedGameMap() {}
     loggedGameMap.logged = false;
 
+    // begin pathfinding
+
+    function isNodeAir(item) {
+        return item.mesh === undefined;
+    }
+
+    class Position {
+        constructor(x, y, z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    var GLOBAL_NODE_LIST = [];
+
+    class MapNode {
+        constructor(position, linked, map) {
+            this.position = position;
+            this.linked = linked;
+            GLOBAL_NODE_LIST.push(this);
+            this.add_children_from_map_data(map);
+        }
+        add_link(node) {
+            this.linked.push(node);
+        }
+        remove_link(node) {
+            this.linked = this.linked.filter(item => item !== node);
+        }
+        can_move(node) {
+            return this.linked.includes(node);
+        }
+        add_children_from_map_data(map_data) {
+            // for each thing around us in a 3x3x3 cube, add a link if it's air and it's not above us
+            for (var x = -1; x <= 1; x++) {
+                for (var y = -1; y <= 0; y++) {
+                    for (var z = -1; z <= 1; z++) {
+                        if (x == 0 && y == 0 && z == 0) {
+                            continue;
+                        }
+                        var map_data_x = Math.floor(this.position.x + x);
+                        var map_data_y = Math.floor(this.position.y + y);
+                        var map_data_z = Math.floor(this.position.z + z);
+                        if (map_data_x < 0 || map_data_y < 0 || map_data_z < 0) {
+                            continue;
+                        }
+                        if (map_data_x >= map_data.length || map_data_y >= map_data[0].length || map_data_z >= map_data[0][0].length) {
+                            continue;
+                        }
+                        if (!isNodeAir(map_data[map_data_x][map_data_y][map_data_z])) {
+                            continue;
+                        }
+                        // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
+                        if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) {
+                            this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z));
+                        } else {
+                            this.add_link(new MapNode(new Position(map_data_x, map_data_y, map_data_z), [], map_data));
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    function get_node_at(position) {
+        return GLOBAL_NODE_LIST.find(item => item.position.x == position.x && item.position.y == position.y && item.position.z == position.z);
+    }
+
+    function get_player_position(player) {
+        var x = Math.floor(player.actor.mesh.position.x);
+        var y = Math.floor(player.actor.mesh.position.y);
+        var z = Math.floor(player.actor.mesh.position.z);
+        return new Position(x, y, z);
+    }
+
+    function get_player_linked_nodes(player) {
+        var position = get_player_position(player);
+        var node = get_node_at(position);
+        if (node) {
+            return node.linked;
+        } else {
+            return [];
+        }
+    }
+
+    var map_data_created = false;
+
+
+    // end pathfinding
+
     const mainLoop = function () {
         const oneTime = function () {
             crosshairsPosition=new ss.BABYLONJS.Vector3();
@@ -2737,6 +2828,14 @@
         };
         createAnonFunction("retrieveFunctions",function(vars) { ss=vars ; F.STATEFARM() });
         createAnonFunction("STATEFARM",function(){
+
+            if (!map_data_created) {
+                new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
+                map_data_created = true;
+            }
+
+            linked_nodes = get_player_linked_nodes(ss.MYPLAYER);
+
             currentlyInGame=true;
             isBanned=false; //cant be banned if in a game /shrug
             errorString=undefined; //no error if ur playing
