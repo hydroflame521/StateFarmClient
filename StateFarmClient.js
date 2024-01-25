@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre15
+// @version      3.3.2-pre16
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -382,6 +382,7 @@
         initTab({ location: tp.renderFolder, storeAs: "renderTab" });
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
+            initModule({ location: tp.renderTab.pages[0], title: "MiniMap", storeAs: "MiniMap", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
@@ -1107,6 +1108,148 @@
         `;
         document.head.appendChild(styleElement);
     };
+    const temp = document.createElement( 'div' );
+    temp.innerHTML = `
+<style>
+.msg {
+	position: absolute;
+	left: 10px;
+	bottom: 10px;
+	color: #0E7697;
+	font-weight: bolder;
+	padding: 15px;
+	animation: msg 0.5s forwards, msg 0.5s reverse forwards 3s;
+	z-index: 999999;
+    opacity: 0.5;
+	pointer-events: none;
+}
+.notif {
+    position: absolute;
+    border: 5px solid lightblue;
+    left: 70%;
+    top: 85%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.6);
+    font-weight: bolder;
+    padding: 15px;
+    z-index: 999999;
+    border-radius: 2vw;
+    overflow: auto;
+    resize: both;
+    backdrop-filter: blur(4px);
+    overflow: hidden;
+    min-width: 10vw;
+    min-height: 4vh;
+    pointer-events: none;
+}
+.MiniMap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 1000px;
+    height:1000px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    background: rgba(0, 0, 0, 0);
+    font-weight: bolder;
+    padding: 15px;
+    z-index: 999999;
+    border-radius: 2vw;
+    overflow: auto;
+    overflow: hidden;
+    pointer-events: none;
+}
+.playerDot {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 20px solid green;
+  color: white;
+  transform: translate(-50%, -50%);
+  z-index: 999999;
+}
+
+@keyframes msg {
+	from {
+		transform: translate(-120%, 0);
+	}
+	to {
+		transform: none;
+	}
+}
+</style>
+<div id = "minimap" class="MiniMap"></div>
+<div id = "playerDot" class="playerDot">playerdot</div>
+`;
+    const mapEl = temp.querySelector('.MiniMap');
+    let myPlayerDot = temp.querySelector('.playerDot');
+    const playerDotsMap = new Map();
+    window.addEventListener( 'DOMContentLoaded', async function () {
+        while ( temp.children.length > 0 ) {
+            document.body.appendChild( temp.children[ 0 ] );
+        }
+    } );
+    function updateMiniMap(player, myPlayer) {
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        // Check if a player dot with the unique ID already exists, then do flow of control
+        let xPosition = (player.x / 100) * windowWidth;xPosition += (windowWidth + xPosition)/2;
+        let yPosition = (player.z / 100) * windowHeight;yPosition += (windowHeight + yPosition)/2;
+        if (!player.playing || !player)
+        {
+            if (playerDotsMap.has(player.uniqueId)) {
+                const playerDotToRemove = playerDotsMap.get(player.uniqueId);
+                mapEl.removeChild(playerDotToRemove); // Remove the dot from the DOM
+                playerDotsMap.delete(player.uniqueId); // Remove the dot from the map
+            }
+        }
+        else if (player === myPlayer)
+        {
+            myPlayerDot.style.left = `${xPosition}px`;
+            myPlayerDot.style.top = `${yPosition}px`;
+            myPlayerDot.textContent = myPlayer.name;
+            myPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player.yaw) + 'deg)';
+        }
+        else if (playerDotsMap.has(player.uniqueId)) {
+            // If it exists, update its position
+            const existingPlayerDot = playerDotsMap.get(player.uniqueId);
+            existingPlayerDot.style.left = `${xPosition}px`;
+            existingPlayerDot.style.top = `${yPosition}px`;
+            //existingPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player.yaw) + 'deg)'; // could uncomment but then names unreadable,
+        } else {
+            // If it doesn't exist, create a new player dot element
+            const newPlayerDot = document.createElement('div');
+            newPlayerDot.className = 'playerDot';
+            newPlayerDot.style.border = player.team === 1 ? '5px solid blue' : '5px solid red';
+
+            newPlayerDot.style.left = `${xPosition}px`;
+            newPlayerDot.style.top = `${yPosition}px`;
+            newPlayerDot.textContent = player.name;
+            // append to the MiniMap element, for later purposes once we can set inside the element instead
+            mapEl.appendChild(newPlayerDot);
+
+            // Store in the Map
+            playerDotsMap.set(player.uniqueId, newPlayerDot);
+        }
+
+    }
+    function yawToDeg(yaw)
+    {
+        let yaw_degrees = yaw * 180.0 / Math.PI; // conversion to degrees
+        if( yaw_degrees < 0 ) yaw_degrees += 360.0; // convert negative to positive angles
+        return yaw_degrees;
+    }
     const applyStateFarmLogo = function() {
         if (extract("replaceLogo")) {
             const images = document.getElementsByTagName('img');
@@ -1933,13 +2076,13 @@
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
         // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-    
+
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
         let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
-    
+
         let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
         let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
         let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
@@ -1948,7 +2091,7 @@
     const getAimbot = function(target) {
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
-        
+
         let direction = {
             yaw: calculateYaw(directionVector),
             pitch: calculatePitch(directionVector),
@@ -2277,7 +2420,7 @@
             let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
-            
+
             const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
 
             if (BLACKLIST!=="") {
@@ -2383,6 +2526,19 @@
             ranOneTime=true;
         };
         const initVars = function () {
+            if (extract("MiniMap")){
+                ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
+            }
+            else{
+                ss.PLAYERS.forEach(player=>{
+                    if (playerDotsMap.has(player.uniqueId)) {
+                        const playerDotToRemove = playerDotsMap.get(player.uniqueId);
+                        mapEl.removeChild(playerDotToRemove);
+                        playerDotsMap.delete(player.uniqueId);
+                    }
+                });
+
+            }
             if (unsafeWindow.newGame) {
                 onlinePlayersArray=[];
             };
@@ -2645,7 +2801,7 @@
 
             let enemyMinimumDistance = 999999;
             enemyNearest=undefined; //used for antisneak
-            
+
             let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
 
             let previousTarget=currentlyTargeting;
@@ -2660,7 +2816,7 @@
             const candidates=[];
             let amountVisible=0;
 
-            ss.PLAYERS.forEach(player=>{ //iterate over all players to 
+            ss.PLAYERS.forEach(player=>{ //iterate over all players to
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
