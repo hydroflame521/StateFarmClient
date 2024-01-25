@@ -2548,7 +2548,7 @@
                 playerLogger=[];
             };
             if (!loggedGameMap.logged) {
-                // console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
+                console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
                 loggedGameMap.logged = true;
             };
             username=ss.MYPLAYER?.name;
