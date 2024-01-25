@@ -2527,6 +2527,7 @@
         };
         const initVars = function () {
             if (extract("MiniMap")){
+                myPlayerDot.style.display = 'block';
                 ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
             }
             else{
@@ -2537,6 +2538,7 @@
                         playerDotsMap.delete(player.uniqueId);
                     }
                 });
+                myPlayerDot.style.display = 'none';
 
             }
             if (unsafeWindow.newGame) {
