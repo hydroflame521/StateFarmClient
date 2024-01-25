@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre16
+// @version      3.3.2-pre17
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -128,8 +128,8 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,amountOnline,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond,currentlyInGame;
+    let ss,msgElement,clientID,amountOnline,resetModules,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     const weaponArray={ //this could be done differently but i cba
@@ -184,14 +184,14 @@
                     if (newValue!==!(!currentValue)) {
                         checkbox.click(); // Toggle checkbox
                     };
-                    console.log("checkbox",currentValue,newValue);
+                    console.log(module,"checkbox",currentValue,newValue);
                     return extract(module,true);
                 };
                 // check for button
                 const button = inputContainer.querySelector('.tp-btnv_b');
                 if (button) {
                     button.click(); // Trigger button click
-                    console.log("button",currentValue,newValue);
+                    console.log(module,"button",currentValue,newValue);
                     return ("NOMSG"); //no change of state, dont show pop up message
                 };
                 // check for dropdown
@@ -202,7 +202,7 @@
                     };
                     dropdown.selectedIndex = newValue;
                     dropdown.dispatchEvent(new Event('change')); // trigger change event for dropdown
-                    console.log("dropdown",currentValue,newValue);
+                    console.log(module,"dropdown",currentValue,newValue);
                     return extract(module,true);
                 };
                 // check for text input
@@ -281,6 +281,7 @@
         });
     };
     const initFolder = function(folder) {
+        if (resetModules) { localStorage.removeItem(folder.storeAs) };
         tp[folder.storeAs]=folder.location.addFolder({
             title: folder.title,
             expanded: JSON.parse(localStorage.getItem(folder.storeAs)) !== null ? JSON.parse(localStorage.getItem(folder.storeAs)) : false
@@ -288,8 +289,10 @@
         allFolders.push(folder.storeAs);
     };
     const initModule = function (module) {
-        const value={}
+        const value={};
+        if (resetModules) { localStorage.removeItem(module.storeAs) };
         value[module.storeAs]=(JSON.parse(localStorage.getItem(module.storeAs)) || (module.defaultValue !== undefined ? module.defaultValue : false));
+
         if (!(module.slider&&module.slider.step)) {module.slider={}};
         const config={
             label: module.title,
@@ -329,11 +332,13 @@
                     }, 500);
                 };
             });
+            if (resetModules) { change(module.storeAs,value[module.storeAs]) };
         };
         allModules.push(name.replace("Button",""));
         if (module.bindLocation) {initBind(module)};
     };
     const initBind = function (module) {
+        if (resetModules) { localStorage.removeItem(module.storeAs+"Bind") };
         const theBind=(JSON.parse(localStorage.getItem(module.storeAs+"Bind")) || module.defaultBind || "Set Bind");
         tp[(module.storeAs+"BindButton")]=module.bindLocation.addButton({
             label: module.title,
@@ -343,9 +348,13 @@
         });
         bindsArray[module.storeAs]=theBind;
     };
-    const initMenu = function () {
+    const initMenu = function (reset) {
         //INIT MENU
         //init tp.mainPanel
+        resetModules=reset;
+
+        if (tp.mainPanel) { tp.mainPanel.dispose() };
+        if (tp.botPanel) { tp.botPanel.dispose() };
 
         tp.mainPanel = new Tweakpane.Pane();
         tp.mainPanel.title = menuTitle;
@@ -382,7 +391,6 @@
         initTab({ location: tp.renderFolder, storeAs: "renderTab" });
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "MiniMap", storeAs: "MiniMap", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
@@ -427,6 +435,7 @@
             initModule({ location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1],});
             tp.hudTab.pages[0].addSeparator();
             initModule({ location: tp.hudTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "RadarWIP", storeAs: "radar", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "GameInfo", storeAs: "gameInfo", bindLocation: tp.hudTab.pages[1],});
@@ -576,10 +585,10 @@
                 initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){unsafeWindow.open(githubURL)},});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function(){
-                const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored keybinds, but also some of the game's stuff too (username, and other stuff).");
+                const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored module states and keybinds.");
                 if (userConfirmed) {
-                    localStorage.clear();
-                    userConfirmed=alert("Reload to reset to defaults.");
+                    initMenu(true);
+                    userConfirmed=alert("Reset to defaults.");
                 };
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
@@ -645,13 +654,27 @@
         //INFO STUFF
         initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true,});
 
+
         updateConfig();
+
+        if (AUTOMATED) {
+            setTimeout(() => {
+                tp.mainPanel.hidden=true;
+            }, 500);
+        };
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
+
+        if (resetModules) { //easy fix, no one will know
+            initMenu();
+        };
+
+        resetModules=false;
     };
     //visual functions
     const createPopup = function (text,type) {
+        console.log("Creating Popup Type:",type,"With Text:",text);
         try {
             if (extract("popups")) {
                 const messageContainer = document.getElementById('message-container');
@@ -1241,15 +1264,13 @@
 
             // Store in the Map
             playerDotsMap.set(player.uniqueId, newPlayerDot);
-        }
-
-    }
-    function yawToDeg(yaw)
-    {
+        };
+    };
+    function yawToDeg(yaw) {
         let yaw_degrees = yaw * 180.0 / Math.PI; // conversion to degrees
         if( yaw_degrees < 0 ) yaw_degrees += 360.0; // convert negative to positive angles
         return yaw_degrees;
-    }
+    };
     const applyStateFarmLogo = function() {
         if (extract("replaceLogo")) {
             const images = document.getElementsByTagName('img');
@@ -1508,9 +1529,6 @@
         };
         const botsArray = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
-            if (!ranEverySecond) {
-                change("hide");
-            };
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
 
             if (unsafeWindow.vueData.firebaseId) {clientID=unsafeWindow.vueData.firebaseId};
@@ -1525,7 +1543,7 @@
                     username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
-                        (currentlyInGame&&((ss.MYPLAYER.playing ? "playing " : "in game ") + ss.GAMECODE + " (" + gameTypes[unsafeWindow.vueData.currentGameType] + ", " + vueData.currentRegionId + ")"))||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : "in game ") + ss.GAMECODE + " (" + gameTypes[unsafeWindow.vueData.currentGameType] + ", " + vueData.currentRegionId + ")"))||
                         (errorString||"idle")),
                 };
             };
@@ -1547,9 +1565,9 @@
         };
         GM_setValue("StateFarm_BotStatus",botsArray);
         allFolders.forEach(function (name) {
-        localStorage.setItem(name,JSON.stringify(tp[name].expanded));
+            localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
-        if (currentlyInGame) {
+        if (unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
                 let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
@@ -1649,8 +1667,13 @@
                 banPopup.style.display = "none";
             }, 15000);
         };
+        if (extract("debug")) {
+            globalSS={};
+            globalSS.ss=ss;
+            globalSS.tp=tp;
+            globalSS.initMenu=initMenu;
+        };
 
-        currentlyInGame = false;
         ranEverySecond = true;
         //block ads or something kek
         localStorage.timesPlayed = 0;
@@ -1658,7 +1681,7 @@
     const everyDecisecond = function () {
         updateConfig();
 
-        if (currentlyInGame) {
+        if (unsafeWindow.extern.inGame) {
             //innertext stuff, fairly resource intensive. disable these for performance
             if (extract("playerStats")) {
                 let playerStates="";
@@ -2076,13 +2099,13 @@
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
         // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-
+    
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
         let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
-
+    
         let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
         let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
         let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
@@ -2091,7 +2114,7 @@
     const getAimbot = function(target) {
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
-
+        
         let direction = {
             yaw: calculateYaw(directionVector),
             pitch: calculatePitch(directionVector),
@@ -2220,7 +2243,7 @@
             const getVar=function(name,regex){
                 const varName=eval(new RegExp(regex)+`.exec(js)[1]`);
                 vars[name]=varName;
-                injectionString=injectionString+name+": "+varName+",";
+                injectionString=injectionString+name+": ("+varName+")||undefined,";
                 console.log('%cFound var! Saved '+varName+' as '+name, 'color: green; font-weight: bold;');
             };
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
@@ -2229,7 +2252,7 @@
                 getVar("MYPLAYER", '&&([a-zA-Z]+)\\.grenadeCountdown<=0\\)this\\.cancelGrenade');
                 getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                 getVar("BABYLONJS", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible');
-                getVar("RENDERLIST", '&&([a-zA-Z]+\\.getShadowMap\\(\\)\\.renderList)');
+                getVar("OBJECTSVAR", '&&([a-zA-Z]+)\\.getShadowMap\\(\\)\\.renderList');
                 getVar("GAMEMAP", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
                 getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
                 getVar("CAMERA", ',([a-zA-Z_$]+)=new '+vars.BABYLONJS+'\\.TargetCamera\\("camera"');
@@ -2237,6 +2260,7 @@
                 getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
                 getVar("SETTINGS", '\\.mouseSpeed&&([a-zA-Z]+)\\.mouseSensitivity!==null');
                 getVar("CONTROLVALUES", 'this\\.controlKeys&([a-zA-Z]+)\\.jump,this\\.actor');
+                getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
                 // getVar("vs", '(vs)'); //todo
                 // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
                 // getVar("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
@@ -2252,7 +2276,8 @@
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
             match=js.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
-            js = js.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${functionNames.retrieveFunctions}"]({${injectionString}}`);
+            js = js.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${functionNames.retrieveFunctions}"]({${injectionString}},true`);
+            js = js.replace('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop ss.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
@@ -2302,7 +2327,7 @@
             console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
             console.log("ERRORARRAY:",ERRORARRAY);
             js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.onConnectFail('+FUNCTIONPARAM+','+ERRORARRAY+');')
-            //get rid of tutorial popup as its a stupid piece of shit
+            //get rid of tutorial popup because its a stupid piece of shit
             js=js.replace(',vueApp.onTutorialPopupClick()','');
 
             //replace graveyard:
@@ -2353,8 +2378,8 @@
             // js = js.replace(/aipAPItag\.sdkBlocked/g,'false');
             // js = js.replace(/this\.adBlockerDetected\(\)/,'false');
 
-            js=js.replace("Not playing in iframe", "STATEFARM ACTIVE!");
-            console.log(js)
+            js=js.replace('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
+            console.log(js);
             return js;
         };
     };
@@ -2389,7 +2414,7 @@
         for (let i = 0; i < extract("numberBots"); i++) {
             let name=extract("botUsername");
             if (extract("botCopyName")) {
-                if (!currentlyInGame) {
+                if (!unsafeWindow.extern.inGame) {
                     alert("Cannot copy names if not in a game!")
                     return;
                 } else {
@@ -2420,7 +2445,7 @@
             let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
-
+            
             const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
 
             if (BLACKLIST!=="") {
@@ -2486,25 +2511,26 @@
         if (customSettings!==null) {
             console.log("StateFarm Custom Settings!");
             customSettings=customSettings.split("|");
-            let setVars=[];
-            let setBinds=[];
+            applySettings(customSettings[0]);
+            // let setVars=[];
+            // let setBinds=[];
             // if (customSettings[0]) {setVars=customSettings[0].split("<")};
             // if (customSettings[1]) {setVars=customSettings[0].split("<")};
             // console.log(setVars,setBinds);
-            applySettings(customSettings[0]);
             // setBinds.forEach(element=>{ //not yet done
             // });
         };
     };
 
     const applySettings = function(settings) {
-        createPopup("Custom StateFarm Settings Applying...");
         console.log(settings);
-        settings=settings.split("<")
+        settings=settings.split("<");
+        initMenu(true);
         settings.forEach(element=>{
             element=element.split(">");
             change(element[0],JSON.parse(element[1]));
         });
+        createPopup("Custom StateFarm Settings Applying...");
     };
 
     const updateBotParams = function() {
@@ -2617,21 +2643,6 @@
             ranOneTime=true;
         };
         const initVars = function () {
-            if (extract("MiniMap")){
-                myPlayerDot.style.display = 'block';
-                ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
-            }
-            else{
-                ss.PLAYERS.forEach(player=>{
-                    if (playerDotsMap.has(player.uniqueId)) {
-                        const playerDotToRemove = playerDotsMap.get(player.uniqueId);
-                        mapEl.removeChild(playerDotToRemove);
-                        playerDotsMap.delete(player.uniqueId);
-                    }
-                });
-                myPlayerDot.style.display = 'none';
-
-            }
             if (unsafeWindow.newGame) {
                 onlinePlayersArray=[];
             };
@@ -2768,7 +2779,7 @@
             };
             //update ammoESP boxes, tracer lines, colors
             if (extract("ammoESP")||extract("ammoTracers")||extract("grenadeESP")||extract("grenadeTracers")) {
-                ss.RENDERLIST.forEach(item=>{
+                ss.OBJECTSVAR.getShadowMap().renderList.forEach(item=>{
                     if ( item._isEnabled && item.sourceMesh && item.sourceMesh.name && (item.sourceMesh.name=="grenadeItem" || item.sourceMesh.name=="ammo") ) { //this is what we want
                         const itemType=item.sourceMesh.name;
                         let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
@@ -2826,7 +2837,7 @@
                 };
             }; unsafeWindow.newGame=false;
         };
-        createAnonFunction("retrieveFunctions",function(vars) { ss=vars ; F.STATEFARM() });
+        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {F.STATEFARM()} });
         createAnonFunction("STATEFARM",function(){
 
             if (!map_data_created) {
@@ -2839,10 +2850,6 @@
             currentlyInGame=true;
             isBanned=false; //cant be banned if in a game /shrug
             errorString=undefined; //no error if ur playing
-            if (extract("debug")) {
-                globalSS=ss;
-                globalSS.tp=tp;
-            };
 
             if ( !ranOneTime ) { oneTime() };
             initVars();
@@ -2854,6 +2861,21 @@
                 isVisible=getLineOfSight(player);
             };
             highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
+            
+            if (extract("radar")){
+                myPlayerDot.style.display = 'block';
+                ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
+            }
+            else{
+                ss.PLAYERS.forEach(player=>{
+                    if (playerDotsMap.has(player.uniqueId)) {
+                        const playerDotToRemove = playerDotsMap.get(player.uniqueId);
+                        mapEl.removeChild(playerDotToRemove);
+                        playerDotsMap.delete(player.uniqueId);
+                    }
+                });
+                myPlayerDot.style.display = 'none';
+            }
 
             if ( extract("freecam") ) {
                 ss.MYPLAYER.actor.mesh.position.y = ss.MYPLAYER.actor.mesh.position.y + 1;
@@ -2902,7 +2924,7 @@
 
             let enemyMinimumDistance = 999999;
             enemyNearest=undefined; //used for antisneak
-
+            
             let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
 
             let previousTarget=currentlyTargeting;
@@ -2917,7 +2939,7 @@
             const candidates=[];
             let amountVisible=0;
 
-            ss.PLAYERS.forEach(player=>{ //iterate over all players to
+            ss.PLAYERS.forEach(player=>{ //iterate over all players to 
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
