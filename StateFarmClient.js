@@ -2543,6 +2543,123 @@
 
     // begin pathfinding
 
+    function BinaryHeap(scoreFunction){
+        this.content = [];
+        this.scoreFunction = scoreFunction;
+      }
+      
+      BinaryHeap.prototype = {
+        push: function(element) {
+          // Add the new element to the end of the array.
+          this.content.push(element);
+          // Allow it to bubble up.
+          this.bubbleUp(this.content.length - 1);
+        },
+      
+        pop: function() {
+          // Store the first element so we can return it later.
+          var result = this.content[0];
+          // Get the element at the end of the array.
+          var end = this.content.pop();
+          // If there are any elements left, put the end element at the
+          // start, and let it sink down.
+          if (this.content.length > 0) {
+            this.content[0] = end;
+            this.sinkDown(0);
+          }
+          return result;
+        },
+      
+        remove: function(node) {
+          var length = this.content.length;
+          // To remove a value, we must search through the array to find
+          // it.
+          for (var i = 0; i < length; i++) {
+            if (this.content[i] != node) continue;
+            // When it is found, the process seen in 'pop' is repeated
+            // to fill up the hole.
+            var end = this.content.pop();
+            // If the element we popped was the one we needed to remove,
+            // we're done.
+            if (i == length - 1) break;
+            // Otherwise, we replace the removed element with the popped
+            // one, and allow it to float up or sink down as appropriate.
+            this.content[i] = end;
+            this.bubbleUp(i);
+            this.sinkDown(i);
+            break;
+          }
+        },
+      
+        size: function() {
+          return this.content.length;
+        },
+      
+        bubbleUp: function(n) {
+          // Fetch the element that has to be moved.
+          var element = this.content[n], score = this.scoreFunction(element);
+          // When at 0, an element can not go up any further.
+          while (n > 0) {
+            // Compute the parent element's index, and fetch it.
+            var parentN = Math.floor((n + 1) / 2) - 1,
+            parent = this.content[parentN];
+            // If the parent has a lesser score, things are in order and we
+            // are done.
+            if (score >= this.scoreFunction(parent))
+              break;
+      
+            // Otherwise, swap the parent with the current element and
+            // continue.
+            this.content[parentN] = element;
+            this.content[n] = parent;
+            n = parentN;
+          }
+        },
+
+        includes: function(n) {
+            return this.content.includes(n);
+        },
+      
+        sinkDown: function(n) {
+          // Look up the target element and its score.
+          var length = this.content.length,
+          element = this.content[n],
+          elemScore = this.scoreFunction(element);
+      
+          while(true) {
+            // Compute the indices of the child elements.
+            var child2N = (n + 1) * 2, child1N = child2N - 1;
+            // This is used to store the new position of the element,
+            // if any.
+            var swap = null;
+            // If the first child exists (is inside the array)...
+            if (child1N < length) {
+              // Look it up and compute its score.
+              var child1 = this.content[child1N],
+              child1Score = this.scoreFunction(child1);
+              // If the score is less than our element's, we need to swap.
+              if (child1Score < elemScore)
+                swap = child1N;
+            }
+            // Do the same checks for the other child.
+            if (child2N < length) {
+              var child2 = this.content[child2N],
+              child2Score = this.scoreFunction(child2);
+              if (child2Score < (swap == null ? elemScore : child1Score))
+                swap = child2N;
+            }
+      
+            // No need to swap further, we are done.
+            if (swap == null) break;
+      
+            // Otherwise, swap and continue.
+            this.content[n] = this.content[swap];
+            this.content[swap] = element;
+            n = swap;
+          }
+        }
+      };
+
     function isNodeAir(item) {
         return item.mesh === undefined;
     }
@@ -2563,6 +2680,9 @@
             this.linked = linked;
             GLOBAL_NODE_LIST.push(this);
             this.add_children_from_map_data(map);
+            this.f = undefined;
+            this.g = undefined;
+            this.h = undefined;
         }
         add_link(node) {
             this.linked.push(node);
@@ -2628,7 +2748,97 @@
     }
 
     var map_data_created = false;
+    var found_example_path = false;
 
+    // kazowie
+
+    function TaxicabDist3D(pos1, pos2) {
+        return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y) + Math.abs(pos1.z - pos2.z);
+    };
+
+    function pathTo(node) {
+        var current = node;
+        var path = [];
+        while (current.parent) {
+            path.unshift(current);
+            current = current.parent;
+        }
+        return path;
+    }
+
+    function getHeap() {
+        return new BinaryHeap(function(node) {
+            return node.f;
+        });
+    }
+
+
+
+
+    function AStar(start, goal) {
+        // start and goal are map nodes
+        // map data is the list of all the nodes
+        // each node has a .linked indicating which nodes can be traveled to from it
+        // returns a list of nodes to travel through, ordered from start to goal
+        // if no path is found, returns null
+
+        let closed_set = [];
+
+        var heuristic = TaxicabDist3D;
+        var open_heap = getHeap();
+
+        start.h = heuristic(start.position, goal.position);
+
+        open_heap.push(start);
+
+
+        while (open_heap.size() != 0) {
+            var current = open_heap.pop();
+
+            if (current === goal) {
+                return pathTo(current);
+            }
+
+            closed_set.push(current);
+            var neighbors = current.linked;
+            
+            for (var i = 0; i < neighbors.length; i++) {
+                var neighbor = neighbors[i];
+                if (closed_set.includes(neighbor)) {
+                    continue;
+                }
+                var tentative_g_score = current.g + heuristic(current.position, neighbor.position);
+                if (!open_heap.includes(neighbor)) {
+                    open_heap.push(neighbor);
+                } else if (tentative_g_score >= neighbor.g) {
+                    continue;
+                }
+                neighbor.parent = current;
+                neighbor.g = tentative_g_score;
+                neighbor.f = neighbor.g + heuristic(neighbor.position, goal.position);
+                if (!open_heap.includes(neighbor)) {
+                    open_heap.push(neighbor);
+                }
+            }
+            
+        }
+
+        if (open_heap.size() == 0) {
+            return null;
+        } else {
+            return pathTo(current);
+        }
+
+
+    }
+
+    function print_node_list(list) {
+        var output = "";
+        for (var i = 0; i < list.length; i++) {
+            output += list[i].position.x + ", " + list[i].position.y + ", " + list[i].position.z + "\n";
+        }
+        console.log(output);
+    }
 
     // end pathfinding
 
@@ -2843,6 +3053,19 @@
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
+            }
+
+            if (!found_example_path) {
+                let player_pos = get_player_position(ss.MYPLAYER);
+                let player_node = get_node_at(player_pos);
+                if (player_node) {
+                    random_node = GLOBAL_NODE_LIST[Math.floor(Math.random() * GLOBAL_NODE_LIST.length)];
+                }
+                path = AStar(player_node, random_node);
+                if (path) {
+                    print_node_list(path);
+                    found_example_path = true;
+                }
             }
 
             linked_nodes = get_player_linked_nodes(ss.MYPLAYER);
