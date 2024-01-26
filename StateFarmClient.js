@@ -19,61 +19,61 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre21
+// @version      3.3.2-pre22
 
-// @match        *://shellshock.io/*
-// @match        *://algebra.best/*
-// @match        *://algebra.vip/*
-// @match        *://biologyclass.club/*
-// @match        *://deadlyegg.com/*
-// @match        *://deathegg.world/*
-// @match        *://eggboy.club/*
-// @match        *://eggboy.xyz/*
-// @match        *://eggcombat.com/*
-// @match        *://egg.dance/*
-// @match        *://eggfacts.fun/*
-// @match        *://egghead.institute/*
-// @match        *://eggisthenewblack.com/*
-// @match        *://eggsarecool.com/*
-// @match        *://geometry.best/*
-// @match        *://geometry.monster/*
-// @match        *://geometry.pw/*
-// @match        *://geometry.report/*
-// @match        *://hardboiled.life/*
-// @match        *://hardshell.life/*
-// @match        *://humanorganising.org/*
-// @match        *://mathactivity.xyz/*
-// @match        *://mathactivity.club/*
-// @match        *://mathdrills.info/*
-// @match        *://mathdrills.life/*
-// @match        *://mathfun.rocks/*
-// @match        *://mathgames.world/*
-// @match        *://math.international/*
-// @match        *://mathlete.fun/*
-// @match        *://mathlete.pro/*
-// @match        *://overeasy.club/*
-// @match        *://scrambled.tech/*
-// @match        *://scrambled.today/*
-// @match        *://scrambled.us/*
-// @match        *://scrambled.world/*
-// @match        *://shellshockers.club/*
-// @match        *://shellshockers.life/*
-// @match        *://shellshockers.site/*
-// @match        *://shellshockers.us/*
-// @match        *://shellshockers.world/*
-// @match        *://shellshockers.xyz/*
-// @match        *://shellsocks.com/*
-// @match        *://softboiled.club/*
-// @match        *://urbanegger.com/*
-// @match        *://violentegg.club/*
-// @match        *://violentegg.fun/*
-// @match        *://yolk.best/*
-// @match        *://yolk.life/*
-// @match        *://yolk.rocks/*
-// @match        *://yolk.tech/*
-// @match        *://yolk.quest/*
-// @match        *://yolk.today/*
-// @match        *://zygote.cafe/*
+// @match        *://*.shellshock.io/*
+// @match        *://*.algebra.best/*
+// @match        *://*.algebra.vip/*
+// @match        *://*.biologyclass.club/*
+// @match        *://*.deadlyegg.com/*
+// @match        *://*.deathegg.world/*
+// @match        *://*.eggboy.club/*
+// @match        *://*.eggboy.xyz/*
+// @match        *://*.eggcombat.com/*
+// @match        *://*.egg.dance/*
+// @match        *://*.eggfacts.fun/*
+// @match        *://*.egghead.institute/*
+// @match        *://*.eggisthenewblack.com/*
+// @match        *://*.eggsarecool.com/*
+// @match        *://*.geometry.best/*
+// @match        *://*.geometry.monster/*
+// @match        *://*.geometry.pw/*
+// @match        *://*.geometry.report/*
+// @match        *://*.hardboiled.life/*
+// @match        *://*.hardshell.life/*
+// @match        *://*.humanorganising.org/*
+// @match        *://*.mathactivity.xyz/*
+// @match        *://*.mathactivity.club/*
+// @match        *://*.mathdrills.info/*
+// @match        *://*.mathdrills.life/*
+// @match        *://*.mathfun.rocks/*
+// @match        *://*.mathgames.world/*
+// @match        *://*.math.international/*
+// @match        *://*.mathlete.fun/*
+// @match        *://*.mathlete.pro/*
+// @match        *://*.overeasy.club/*
+// @match        *://*.scrambled.tech/*
+// @match        *://*.scrambled.today/*
+// @match        *://*.scrambled.us/*
+// @match        *://*.scrambled.world/*
+// @match        *://*.shellshockers.club/*
+// @match        *://*.shellshockers.life/*
+// @match        *://*.shellshockers.site/*
+// @match        *://*.shellshockers.us/*
+// @match        *://*.shellshockers.world/*
+// @match        *://*.shellshockers.xyz/*
+// @match        *://*.shellsocks.com/*
+// @match        *://*.softboiled.club/*
+// @match        *://*.urbanegger.com/*
+// @match        *://*.violentegg.club/*
+// @match        *://*.violentegg.fun/*
+// @match        *://*.yolk.best/*
+// @match        *://*.yolk.life/*
+// @match        *://*.yolk.rocks/*
+// @match        *://*.yolk.tech/*
+// @match        *://*.yolk.quest/*
+// @match        *://*.yolk.today/*
+// @match        *://*.zygote.cafe/*
 // ==/UserScript==
 
 (function () {
@@ -102,6 +102,9 @@
     const aimbottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#botting";
     const replacementLogoURL = 'https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true';
     //INIT VARS
+    const presets = {
+        onlypuppy7: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true",
+    };
     unsafeWindow.newGame=false
     let binding=false;
     let lastSpamMessage=0;
@@ -584,12 +587,12 @@
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", bindLocation: tp.clientTab.pages[1], dropdown: [
-                {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
+                {text: "onlypuppy7's Config", value: "onlypuppy7"},
             ]});
             initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
                 if (userConfirmed) {
-                    applySettings(extract("selectedPreset"));
+                    applySettings(presets[extract("selectedPreset")]);
                 };
             },});
             tp.clientTab.pages[0].addSeparator();
@@ -2280,7 +2283,7 @@
                 getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
                 getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
                 getVar("SETTINGS", '\\.mouseSpeed&&([a-zA-Z]+)\\.mouseSensitivity!==null');
-                getVar("CONTROLVALUES", 'this\\.controlKeys&([a-zA-Z]+)\\.jump,this\\.actor');
+                getVar("CONTROLVALUES", '\\.controlKeys&([a-zA-Z]+)\\.jump');
                 getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
                 // getVar("vs", '(vs)'); //todo
                 // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
