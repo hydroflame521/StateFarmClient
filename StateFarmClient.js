@@ -10,7 +10,7 @@
 // @grant        GM_getValue
 // @grant        GM_info
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
-// @require      https://cdn.jsdelivr.net/npm/tweakpane@3.0.7/dist/tweakpane.min.js
+// @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
 // @downloadURL  https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.user.js
 // @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
 
@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre17
+// @version      3.3.2-pre18
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -160,6 +160,15 @@
     const extract = function (variable,shouldUpdate) {
         if (shouldUpdate) {updateConfig()};
         return configMain[variable]||configBots[variable];
+    };
+    const extractAsDropdownInt = function (variable) {
+        const options = tp[variable+"Button"].controller_.binding.value.constraint_.constraints[0].options;
+        const state = extract(variable);
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].value === state) {
+                return i;
+            };
+        };
     };
     const beginBinding = function (value) {
         if (binding == false) {
@@ -1134,18 +1143,6 @@
     const temp = document.createElement( 'div' );
     temp.innerHTML = `
 <style>
-.msg {
-	position: absolute;
-	left: 10px;
-	bottom: 10px;
-	color: #0E7697;
-	font-weight: bolder;
-	padding: 15px;
-	animation: msg 0.5s forwards, msg 0.5s reverse forwards 3s;
-	z-index: 999999;
-    opacity: 0.5;
-	pointer-events: none;
-}
 .notif {
     position: absolute;
     border: 5px solid lightblue;
@@ -1201,15 +1198,6 @@
   color: white;
   transform: translate(-50%, -50%);
   z-index: 999999;
-}
-
-@keyframes msg {
-	from {
-		transform: translate(-120%, 0);
-	}
-	to {
-		transform: none;
-	}
 }
 </style>
 <div id = "minimap" class="MiniMap"></div>
@@ -1758,8 +1746,8 @@
         };
     };
     const updateConfig = function () {
-        configMain=tp.mainPanel.exportPreset();
-        configBots=tp.botPanel.exportPreset();
+        configMain = tp.mainPanel.exportPreset();
+        configBots = tp.botPanel.exportPreset();
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         try {
@@ -2464,6 +2452,8 @@
         const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
         let params="";
 
+        addParam("autoFireType",1); //while visible
+
         //do aimbot
         addParam("aimbotTargetMode",1);
         addParam("aimbotVisibilityMode",1);
@@ -2482,20 +2472,19 @@
         //low res
         addParam("enableTextures",extract("botLowRes"));
         addParam("setDetail",extract("botLowRes")?2:0);
+        //seizure
+        addParam("enableSeizureX",extract("botSeizure"));
+        addParam("enableSeizureY",extract("botSeizure"));
 
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
         addParam("enableAutoFire",extract("botAutoShoot"));
-        addParam("autoFireType",1); //while visible
         addParam("autoEZ",extract("botAutoEZ"));
         addParam("cheatAccuse",extract("botCheatAccuse"));
         addParam("joinCode",extract("botJoinCode"));
-        addParam("autoWeapon",((extract("botWeapon")=="random"&&8)||(1+weaponArray[extract("botWeapon")])));
-        const teamReverse={disabled: 0, red: 1, blue: 2, random: 3}; //laziness
-        addParam("autoTeam",teamReverse[extract("botTeam")]);
-        addParam("enableSeizureX",extract("botSeizure"));
-        addParam("enableSeizureY",extract("botSeizure"));
+        addParam("autoWeapon",extractAsDropdownInt("botWeapon")+1);
+        addParam("autoTeam",extractAsDropdownInt("botTeam"));
         addParam("autoUnban",extract("botAutoUnban"));
         addParam("tallChat",extract("botTallChat"),true);
 
