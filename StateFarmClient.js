@@ -505,7 +505,6 @@
             },});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Bunnyhop", storeAs: "bunnyhop", bindLocation: tp.automationTab.pages[1], });
-            initModule({ location: tp.automationTab.pages[0], title: "Full Auto", storeAs: "fullAuto", bindLocation: tp.automationTab.pages[1], });
             initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
