@@ -1580,7 +1580,7 @@
         allFolders.forEach(function (name) {
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
-        if (unsafeWindow.extern.inGame) {
+        if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
             if (extract("mockMode")) {
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
                 let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
@@ -3069,6 +3069,7 @@
         createAnonFunction("STATEFARM",function(){
 
             //this is crashing rn
+            /*
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
@@ -3087,6 +3088,7 @@
                 }
             }
             linked_nodes = get_player_linked_nodes(ss.MYPLAYER);
+            */
 
             isBanned=false; //cant be banned if in a game /shrug
             errorString=undefined; //no error if ur playing
