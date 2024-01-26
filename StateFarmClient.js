@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre20
+// @version      3.3.2-pre21
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -392,8 +392,11 @@
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1],});
+            tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
+            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
+            tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder",});
@@ -502,6 +505,7 @@
             },});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Bunnyhop", storeAs: "bunnyhop", bindLocation: tp.automationTab.pages[1], });
+            initModule({ location: tp.automationTab.pages[0], title: "Full Auto", storeAs: "fullAuto", bindLocation: tp.automationTab.pages[1], });
             initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
@@ -580,13 +584,13 @@
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presets", bindLocation: tp.clientTab.pages[1], dropdown: [
+            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
             ]});
             initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
                 if (userConfirmed) {
-                    applySettings(extract("presets"));
+                    applySettings(extract("selectedPreset"));
                 };
             },});
             tp.clientTab.pages[0].addSeparator();
@@ -1132,7 +1136,7 @@
                 --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
                 --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
                 --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
-                --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break; 
+                --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
             case ( "shellFarmTheme" ):
                 rootTheme = `
                 --tp-base-background-color: hsla(198, 100%, 50%, 1.00);
@@ -1685,6 +1689,7 @@
             globalSS.ss=ss;
             globalSS.tp=tp;
             globalSS.initMenu=initMenu;
+            globalSS.extract=extract;
         };
 
         ranEverySecond = true;
@@ -2116,13 +2121,13 @@
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
         // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-    
+
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
         let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
-    
+
         let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
         let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
         let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
@@ -2131,7 +2136,7 @@
     const getAimbot = function(target) {
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
-        
+
         let direction = {
             yaw: calculateYaw(directionVector),
             pitch: calculatePitch(directionVector),
@@ -2462,7 +2467,7 @@
             let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
-            
+
             const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
 
             if (BLACKLIST!=="") {
@@ -2565,7 +2570,7 @@
         this.content = [];
         this.scoreFunction = scoreFunction;
       }
-      
+
       BinaryHeap.prototype = {
         push: function(element) {
           // Add the new element to the end of the array.
@@ -2573,7 +2578,7 @@
           // Allow it to bubble up.
           this.bubbleUp(this.content.length - 1);
         },
-      
+
         pop: function() {
           // Store the first element so we can return it later.
           var result = this.content[0];
@@ -2587,7 +2592,7 @@
           }
           return result;
         },
-      
+
         remove: function(node) {
           var length = this.content.length;
           // To remove a value, we must search through the array to find
@@ -2608,11 +2613,11 @@
             break;
           }
         },
-      
+
         size: function() {
           return this.content.length;
         },
-      
+
         bubbleUp: function(n) {
           // Fetch the element that has to be moved.
           var element = this.content[n], score = this.scoreFunction(element);
@@ -2625,7 +2630,7 @@
             // are done.
             if (score >= this.scoreFunction(parent))
               break;
-      
+
             // Otherwise, swap the parent with the current element and
             // continue.
             this.content[parentN] = element;
@@ -2637,13 +2642,13 @@
         includes: function(n) {
             return this.content.includes(n);
         },
-      
+
         sinkDown: function(n) {
           // Look up the target element and its score.
           var length = this.content.length,
           element = this.content[n],
           elemScore = this.scoreFunction(element);
-      
+
           while(true) {
             // Compute the indices of the child elements.
             var child2N = (n + 1) * 2, child1N = child2N - 1;
@@ -2666,10 +2671,10 @@
               if (child2Score < (swap == null ? elemScore : child1Score))
                 swap = child2N;
             }
-      
+
             // No need to swap further, we are done.
             if (swap == null) break;
-      
+
             // Otherwise, swap and continue.
             this.content[n] = this.content[swap];
             this.content[swap] = element;
@@ -2819,7 +2824,7 @@
 
             closed_set.push(current);
             var neighbors = current.linked;
-            
+
             for (var i = 0; i < neighbors.length; i++) {
                 var neighbor = neighbors[i];
                 if (closed_set.includes(neighbor)) {
@@ -2838,7 +2843,7 @@
                     open_heap.push(neighbor);
                 }
             }
-            
+
         }
 
         if (open_heap.size() == 0) {
@@ -3103,7 +3108,7 @@
                 isVisible=getLineOfSight(player);
             };
             highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
-            
+
             if (extract("radar")){
                 myPlayerDot.style.display = 'block';
                 ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
@@ -3132,8 +3137,23 @@
                 document.getElementById("chatOut").style.userSelect="text"
             };
             if ( extract("autoRefill") ) {
+                //console.log(ss.MYPLAYER.weapon);
                 if (ammo.rounds==0) {
                     ss.MYPLAYER.reload();
+                } else if (extract("smartRefill")) {
+                    let smartRefillMinAmmo = {
+                        eggk47:1,
+                        dozenGauge:0,
+                        csg1:1,
+                        rpegg:0,
+                        smg:1,
+                        m24:0,
+                        aug:3,
+                        cluck9mm:1
+                    };
+                    if (ammo.rounds <= smartRefillMinAmmo[ss.MYPLAYER.weapon.constructor.standardMeshName]) {
+                        ss.MYPLAYER.reload();
+                    };
                 };
             };
             if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount>0)) {
@@ -3166,7 +3186,7 @@
 
             let enemyMinimumDistance = 999999;
             enemyNearest=undefined; //used for antisneak
-            
+
             let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
 
             let previousTarget=currentlyTargeting;
@@ -3181,7 +3201,7 @@
             const candidates=[];
             let amountVisible=0;
 
-            ss.PLAYERS.forEach(player=>{ //iterate over all players to 
+            ss.PLAYERS.forEach(player=>{ //iterate over all players to
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
@@ -3299,12 +3319,10 @@
                 ss.MYPLAYER.pitch+=2*Math.PI;
             };
 
+            let autoFireType=extract("autoFireType");
             if (extract("enableAutoFire")) {
-                let autoFireType=extract("autoFireType");
                 let doAutoFire=false
                 if (autoFireType=="always") {
-                    doAutoFire=true;
-                } else if (autoFireType=="leftMouse" && isLeftButtonDown) {
                     doAutoFire=true;
                 } else if (autoFireType=="whileAimbot" && didAimbot) {
                     doAutoFire=true;
@@ -3319,6 +3337,16 @@
                     };
                 };
             };
+            //method by de_Neuublue
+            if ( autoFireType=="forceAutomatic" ) {
+                if (ss.MYPLAYER.weapon.constructor.originallySemi == null) {
+                    ss.MYPLAYER.weapon.constructor.originallySemi = !ss.MYPLAYER.weapon.constructor.automatic;
+                };
+                ss.MYPLAYER.weapon.constructor.automatic = true;
+            } else if (ss.MYPLAYER.weapon.constructor.originallySemi) {
+                ss.MYPLAYER.weapon.constructor.originallySemi = null;
+                ss.MYPLAYER.weapon.constructor.automatic = false;
+            };
         });
     };
 
@@ -3327,7 +3355,3 @@
     //start init thingamajigs
     startUp();
 })();
-
-// display: none !important;
-// console.log(aimbotBindButton.title);
-// console.log(bindsArray);
