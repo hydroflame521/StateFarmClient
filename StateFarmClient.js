@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre18
+// @version      3.3.2-pre19
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -128,7 +128,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,amountOnline,resetModules,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,resetModules,amountOnline,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -290,7 +290,6 @@
         });
     };
     const initFolder = function(folder) {
-        if (resetModules) { localStorage.removeItem(folder.storeAs) };
         tp[folder.storeAs]=folder.location.addFolder({
             title: folder.title,
             expanded: JSON.parse(localStorage.getItem(folder.storeAs)) !== null ? JSON.parse(localStorage.getItem(folder.storeAs)) : false
@@ -299,8 +298,7 @@
     };
     const initModule = function (module) {
         const value={};
-        if (resetModules) { localStorage.removeItem(module.storeAs) };
-        value[module.storeAs]=(JSON.parse(localStorage.getItem(module.storeAs)) || (module.defaultValue !== undefined ? module.defaultValue : false));
+        value[module.storeAs]=(module.defaultValue !== undefined ? module.defaultValue : false);
 
         if (!(module.slider&&module.slider.step)) {module.slider={}};
         const config={
@@ -333,15 +331,16 @@
         } else {
             tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config
             ).on("change", (value) => {
-                localStorage.setItem(module.storeAs,JSON.stringify(value.value));
                 if (module.changeFunction!==undefined) {module.changeFunction(value)};
                 if (module.botParam!==undefined) {
                     setTimeout(() => {
                         updateBotParams(module.botParam);
                     }, 500);
                 };
+                setTimeout(() => {
+                    saveConfig();
+                }, 500);
             });
-            if (resetModules) { change(module.storeAs,value[module.storeAs]) };
         };
         allModules.push(name.replace("Button",""));
         if (module.bindLocation) {initBind(module)};
@@ -360,7 +359,8 @@
     const initMenu = function (reset) {
         //INIT MENU
         //init tp.mainPanel
-        resetModules=reset;
+
+        resetModules = reset;
 
         if (tp.mainPanel) { tp.mainPanel.dispose() };
         if (tp.botPanel) { tp.botPanel.dispose() };
@@ -663,6 +663,13 @@
         //INFO STUFF
         initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true,});
 
+        if ((!localStorage.getItem("StateFarmConfigMainPanel")) || reset) {
+            saveConfig();
+        } else {
+            console.log("##############################################")
+            tp.mainPanel.importPreset(JSON.parse(localStorage.getItem("StateFarmConfigMainPanel")));
+            tp.botPanel.importPreset(JSON.parse(localStorage.getItem("StateFarmConfigBotPanel")));
+        };
 
         updateConfig();
 
@@ -674,12 +681,6 @@
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
-
-        if (resetModules) { //easy fix, no one will know
-            initMenu();
-        };
-
-        resetModules=false;
     };
     //visual functions
     const createPopup = function (text,type) {
@@ -1748,6 +1749,10 @@
     const updateConfig = function () {
         configMain = tp.mainPanel.exportPreset();
         configBots = tp.botPanel.exportPreset();
+    };
+    const saveConfig = function () {
+        localStorage.setItem("StateFarmConfigMainPanel",JSON.stringify(tp.mainPanel.exportPreset()));
+        localStorage.setItem("StateFarmConfigBotPanel",JSON.stringify(tp.botPanel.exportPreset()));
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         try {
@@ -3039,6 +3044,8 @@
         createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {F.STATEFARM()} });
         createAnonFunction("STATEFARM",function(){
 
+            //this is crashing rn
+            /*
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
@@ -3056,10 +3063,10 @@
                     found_example_path = true;
                 }
             }
+            */
 
             linked_nodes = get_player_linked_nodes(ss.MYPLAYER);
 
-            currentlyInGame=true;
             isBanned=false; //cant be banned if in a game /shrug
             errorString=undefined; //no error if ur playing
 
