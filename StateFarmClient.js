@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre19
+// @version      3.3.2-pre20
 
 // @match        *://shellshock.io/*
 // @match        *://algebra.best/*
@@ -569,7 +569,8 @@
                 {text: "Retro", value: "retroTheme"},
                 {text: "Translucent", value: "translucentTheme"},
                 {text: "StateFarmer", value: "statefarmerTheme"},
-                {text: "Blurple", value: "blurpleTheme"}
+                {text: "Blurple", value: "blurpleTheme"},
+                {text: "ShellFarm", value: "shellFarmTheme"},
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
                 applyTheme(value.value);
             }});
@@ -714,7 +715,7 @@
         } catch (error) {
             // Handle the error and display an error message onscreen
             console.error("An error occurred:", error);
-            alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the moderators.");
+            alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the developers.");
         }
     };
     const applyStylesAddElements = function (themeToApply = "null") {
@@ -1112,6 +1113,29 @@
             case ( "blurpleTheme" ):
                 rootTheme = `
                 --tp-base-background-color: hsla(255, 68%, 39%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+                --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+                --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+                --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+                --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+                --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+                --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+                --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+                --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+                --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+                --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+                --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+                --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+                --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break; 
+            case ( "shellFarmTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(198, 100%, 50%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
                 --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
                 --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
@@ -3045,7 +3069,6 @@
         createAnonFunction("STATEFARM",function(){
 
             //this is crashing rn
-            /*
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
@@ -3063,8 +3086,6 @@
                     found_example_path = true;
                 }
             }
-            */
-
             linked_nodes = get_player_linked_nodes(ss.MYPLAYER);
 
             isBanned=false; //cant be banned if in a game /shrug
