@@ -2671,7 +2671,7 @@
     const applySettings = function(settings) {
         console.log(settings);
         settings=settings.split("<");
-        initMenu(true);
+        if (!AUTOMATED) { initMenu(true) };
         settings.forEach(element=>{
             element=element.split(">");
             change(element[0],JSON.parse(element[1]));
