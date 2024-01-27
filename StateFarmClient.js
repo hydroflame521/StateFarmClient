@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre22
+// @version      3.3.2-pre23
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -115,6 +115,8 @@
     let lastBotNewProxy=0;
     let lastBotLeave=0;
     let lastBotSpamReport=0;
+    let currentFrameIndex = 0;
+    let deciSecondsPassed = 0;
     let lastSentMessage="";
     let targetingComplete=false;
     let yourPlayerKills = 0;
@@ -158,6 +160,73 @@
     proxyList=[...proxyList].sort(() => Math.random() - 0.5);
     let proxyListIndex=0;
     const monitorObjects = {};
+    //title animation
+    const titleAnimationFrames = [
+        '︻デ═一',
+        '︻デ═一',
+        'デ═一　-',
+        '═一　　　-',
+        '一　　　　-',
+        '.　　　　　-',
+        '.　　　　-',
+        '.　　　-',
+        '.　　　　-　　0',
+        '.　　　　　-0',
+        '.　　　　\\/',
+        '.　　　_-_',
+        '.　___',
+        '__',
+        '.',
+        'STATEFARMCLIEN',
+        'TATEFARMCLIENT',
+        'ATEFARMCLIENTV',
+        'TEFARMCLIENTV3',
+        'EFARMCLIENTV3 ',
+        'FARMCLIENTV3 S',
+        'ARMCLIENTV3 ST',
+        'RMCLIENTV3 STA',
+        'MCLIENTV3 STAT',
+        'CLIENTV3 STATE',
+        'LIENTV3 STATEF',
+        'IENTV3 STATEFA',
+        'ENTV3 STATEFAR',
+        'NTV3 STATEFARM',
+        'TV3 STATEFARMC',
+        'V3 STATEFARMCL',
+        '3 STATEFARMCLI',
+        'STATEFARMCLIEN',
+        'TATEFARMCLIENT',
+        'STATEFARM',
+        'CLIENT V3',
+        'STATEFARM',
+        'CLIENT V3',
+        'STATEFARM',
+        'CLIENT V3',
+        'STATEFARM',
+        'CLIENT V3',
+        ':)',
+        ';)',
+        ':)',
+        '⠝⠓⠗⠅ ஃ ⠟⠑⠙⠟',
+        '⠑⠑⠟⠟ ஃ ⠙⠛⠟⠕',
+        '⠛⠟⠍⠑ ஃ ⠅⠑⠍⠃',
+        '⠅⠟⠇⠝ ஃ ⠟⠕⠗⠕',
+        '⠝⠓⠗⠅ ஃ ⠟⠑⠙⠟',
+        '⠑⠑⠟⠟ ஃ ⠙⠛⠟⠕',
+        '⠛⠟⠍⠑ ஃ ⠅⠑⠍⠃',
+        '⠅⠟⠇⠝ ஃ ⠟⠕⠗⠕',
+        '( ͡° ͜ʖ ͡°)',
+        '( ͠° ͟ʖ ͡°)',
+        '( ͡° ͟ʖ ͡°)',
+        '( ͡° ͟ʖ ͠°)一',
+        '( ͡° ͟ʖ ͠°)═一',
+        '( ͡° ͟ʖ ͠°)デ═一',
+        '( ͡° ͟ʖ ͠°)︻デ═一',
+        ' ͡° ͟ʖ ͠°)︻デ═一',
+        ' ͟ʖ ͠°)︻デ═一',
+        ' ͠°)︻デ═一',
+        ')︻デ═一',
+    ];
 
     //menu interaction functions
     const extract = function (variable,shouldUpdate) {
@@ -567,6 +636,7 @@
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.clientTab.pages[1],});
+            initModule({ location: tp.clientTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.clientTab.pages[1],});
             initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "Default", value: "defaultTheme"},
                 {text: "Iceberg", value: "icebergTheme"},
@@ -1699,7 +1769,16 @@
         localStorage.timesPlayed = 0;
     };
     const everyDecisecond = function () {
-        updateConfig();
+        updateConfig(); deciSecondsPassed+=1;
+
+        if (extract("titleAnimation")) {
+            if (deciSecondsPassed%4==0) {
+                unsafeWindow.document.title = titleAnimationFrames[currentFrameIndex];
+                currentFrameIndex = (currentFrameIndex + 1) % titleAnimationFrames.length;
+            };
+        } else {
+            unsafeWindow.document.title = "";
+        };
 
         if (unsafeWindow.extern.inGame) {
             //innertext stuff, fairly resource intensive. disable these for performance
@@ -3189,8 +3268,6 @@
             let enemyMinimumDistance = 999999;
             enemyNearest=undefined; //used for antisneak
 
-            let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
-
             let previousTarget=currentlyTargeting;
             let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
             let isDoingAimbot=(extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing);
@@ -3198,6 +3275,8 @@
 
             const targetType = extract("aimbotTargetMode");
             const visibilityMode = extract("aimbotVisibilityMode");
+
+            let enemyMinimumValue = (targetType == "pointingat") ? extract("aimbotMinAngle") : 10000; //used for selecting target (either pointingat or nearest)
 
             let didAimbot
             const candidates=[];
