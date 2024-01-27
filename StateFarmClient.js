@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre24
+// @version      3.3.2-pre25
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -229,12 +229,16 @@
     ];
 
     //menu interaction functions
+    //menu extraction
     const extract = function (variable,shouldUpdate) {
         if (shouldUpdate) {updateConfig()};
         return configMain[variable]||configBots[variable];
     };
+    const extractDropdownList = function (variable) {
+        return tp[variable+"Button"].controller_.binding.value.constraint_.constraints[0].options;
+    };
     const extractAsDropdownInt = function (variable) {
-        const options = tp[variable+"Button"].controller_.binding.value.constraint_.constraints[0].options;
+        const options = extractDropdownList(variable);
         const state = extract(variable);
         for (let i = 0; i < options.length; i++) {
             if (options[i].value === state) {
@@ -242,13 +246,19 @@
             };
         };
     };
+
     const beginBinding = function (value) {
         if (binding == false) {
             binding=value;
             tp[binding+"BindButton"].title="PRESS KEY";
         };
     };
-    const change = function (module,newValue) { //its important to note that every module must have a unique name
+    //one day i should make this unshit. dom is not the correct way to go about this.
+    //unfortunately tweakpane is a pain in the ass and has barely anything for actually extracting/changing vars
+    //a way it could be done is export preset => change value => import preset
+    //but doesnt account for it being a button... and dropdowns wouldnt switch properly too. laziness. the problem is that this works fine.
+    //suppose i could always just log the type of module and refer to it later. you can also get the parent object from the tp object, that would save iterating over everything.
+    const change = function (module,newValue) { //its important to note that every module must have a unique name (the title of the module, NOT the storeAs)
         const labels = document.querySelectorAll('.tp-lblv_l');
         const moduleButton=module+"Button";
         const moduleLabel=tp[moduleButton].label;
@@ -595,6 +605,8 @@
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
             tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Region", storeAs: "autoRegion", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
+            tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Egg Colour", storeAs: "eggColour", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, /*{text: "Randomised", value: "random"}*/], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Stamp", storeAs: "autoStamp", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Hat", storeAs: "autoHat", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}], defaultValue: "disabled"});
@@ -728,7 +740,10 @@
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCodeBots", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "AutoRegion", storeAs: "autoRegionBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
         //PARAMS STUFF
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
@@ -741,7 +756,7 @@
         initModule({ location: tp.botTabs.pages[2], title: "DoAutoEZ", storeAs: "botAutoEZ", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "whipper"});
+        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47"});
         initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});;
@@ -758,7 +773,7 @@
 
         updateConfig();
 
-        if (AUTOMATED) {
+        if (AUTOMATED) { //why after 500ms? perhaps we'll never know. maybe because it gives a visual indication that statefarm is statefarming.
             setTimeout(() => {
                 tp.mainPanel.hidden=true;
             }, 500);
@@ -1621,14 +1636,15 @@
         object.box.color = new ss.BABYLONJS.Color3(...color);
     };
     const everySecond = function () {
-        if (!ranEverySecond) {
+        const startUpComplete = (!document.getElementById("progressBar"));
+        if ((!ranEverySecond) && startUpComplete) {
             detectURLParams();
+            ranEverySecond = true;
         };
         const botsArray = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
 
-            if (unsafeWindow.vueData.firebaseId) {clientID=unsafeWindow.vueData.firebaseId};
             if (clientID) {
                 const extractedParams=GM_getValue("StateFarm_BotParams");
                 if (extractedParams!==previousParams) {
@@ -1636,11 +1652,15 @@
                     previousParams=extractedParams;
                 };
 
+                delete botsArray[clientID];
+
+                clientID = (unsafeWindow.vueData.firebaseId||clientID);
+
                 botsArray[clientID] = {
                     username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : "in game ") + ss.GAMECODE + " (" + gameTypes[unsafeWindow.vueData.currentGameType] + ", " + vueData.currentRegionId + ")"))||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + ss.GAMECODE + " (" + gameTypes[unsafeWindow.vueApp.game.gameType] + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
                         (errorString||"idle")),
                 };
             };
@@ -1693,7 +1713,7 @@
                 }; //chatOnKill
             };
             if (extract("gameInfo")) {
-                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining.";
+                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+gameTypes[unsafeWindow.vueApp.game.gameType+" | Map: "+unsafeWindow.vueApp.game.mapName];
                 gameInfoElement.innerText = gameInfoText;
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
@@ -1729,9 +1749,13 @@
                     unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
+            if (extract("autoRegion")!=="disabled") {
+                const region = (extract("autoRegion")=="random" ? extractDropdownList("autoRegion")[randomInt(1,7)].value : extract("autoRegion"));
+                unsafeWindow.vueData.currentRegionId = region;
+            };
         };
 
-        if ((!document.getElementById("progressBar"))) {
+        if (startUpComplete) {
             if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
                 unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=false;
                 if (extract("setDetail")=="autodetail") {
@@ -1773,7 +1797,9 @@
             globalSS.ss=ss;
             globalSS.tp=tp;
             globalSS.initMenu=initMenu;
+            globalSS.extractAsDropdownInt=extractAsDropdownInt;
             globalSS.extract=extract;
+            globalSS.extractDropdownList=extractDropdownList;
         };
 
         if (extract("eggColour")!=="disabled") {
@@ -1802,7 +1828,6 @@
             };
         };
 
-        ranEverySecond = true;
         //block ads or something kek
         localStorage.timesPlayed = 0;
     };
@@ -2633,6 +2658,7 @@
         addParam("enableSeizureX",extract("botSeizure"));
         addParam("enableSeizureY",extract("botSeizure"));
 
+        addParam("autoRegion",extractAsDropdownInt("autoRegionBots"));
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
@@ -3048,89 +3074,87 @@
             const objExists=Date.now();
 
             //update playerESP boxes, tracer lines, colors
-            if (extract("playerESP")||extract("tracers")||extract("chams")||extract("targets")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
-                ss.PLAYERS.forEach(player=>{
-                    if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                        const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
-                        const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
-                        const passedLists=whitelisted&&(!blacklisted);
-                        const tracersType=extract("tracersType");
+            ss.PLAYERS.forEach(player=>{
+                if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+                    const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
+                    const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
+                    const passedLists=whitelisted&&(!blacklisted);
+                    const tracersType=extract("tracersType");
 
-                        let color,progress;
-                        if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && isPartialMatch(whitelistPlayers,player.name) ) {
-                            color=hexToRgb(extract("whitelistColor"));
-                        } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
-                            color=hexToRgb(extract("blacklistColor"));
-                        } else if ( tracersType=="proximity" ) {
-                            const distance = distancePlayers(player);
-                            if (distance < extract("tracersColor1to2")) { //fade between first set
-                                progress=(distance/extract("tracersColor1to2"));
-                                color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
-                            } else if (distance < extract("tracersColor2to3")) { //fade between second set
-                                progress=((distance-extract("tracersColor1to2"))/(extract("tracersColor2to3")-extract("tracersColor1to2")));
-                                color=fadeBetweenColors(extract("tracersColor2"),extract("tracersColor3"),progress);
-                            } else {
-                                color=hexToRgb(extract("tracersColor3"));
-                            };
-                        } else if (tracersType=="static") {
-                            color=hexToRgb(extract("tracersColor1"));
-                        } else if (tracersType == "visibility") {
-                            color = getLineOfSight(player) ? hexToRgb(extract("tracersColor2")) : hexToRgb(extract("tracersColor1"))
+                    let color,progress;
+                    if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && isPartialMatch(whitelistPlayers,player.name) ) {
+                        color=hexToRgb(extract("whitelistColor"));
+                    } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
+                        color=hexToRgb(extract("blacklistColor"));
+                    } else if ( tracersType=="proximity" ) {
+                        const distance = distancePlayers(player);
+                        if (distance < extract("tracersColor1to2")) { //fade between first set
+                            progress=(distance/extract("tracersColor1to2"));
+                            color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
+                        } else if (distance < extract("tracersColor2to3")) { //fade between second set
+                            progress=((distance-extract("tracersColor1to2"))/(extract("tracersColor2to3")-extract("tracersColor1to2")));
+                            color=fadeBetweenColors(extract("tracersColor2"),extract("tracersColor3"),progress);
+                        } else {
+                            color=hexToRgb(extract("tracersColor3"));
                         };
-
-                        updateOrCreateLinesESP(player,"playerESP",color);
-
-                        player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
-                        player.box.visibility = extract("playerESP") && passedLists;
-                        player.target.visibility = extract("targets") && passedLists;
-
-                        if (player.actor) {
-                            eggSize=extract("eggSize")
-                            player.actor.bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
-                        };
-
-                        player.actor.bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
-
-                        player.exists=objExists;
+                    } else if (tracersType=="static") {
+                        color=hexToRgb(extract("tracersColor1"));
+                    } else if (tracersType == "visibility") {
+                        color = getLineOfSight(player) ? hexToRgb(extract("tracersColor2")) : hexToRgb(extract("tracersColor1"))
                     };
-                    if (player) {
-                        if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
-                            player.actor.nameSprite._manager.renderingGroupId = 1;
-                            player.actor.nameSprite.renderingGroupId = 1;
-                            var h = Math.length3(player.x - ss.MYPLAYER.x, player.y - ss.MYPLAYER.y, player.z - ss.MYPLAYER.z),
-                            d = Math.pow(h, 1.25)*2;
-                            player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
-                            ss.MYPLAYER.actor.scene.activeCamera.fov=0.75
-                        };
-                        if (!player.logged) {
-                            player.logged=true;
-                            if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }
-                            if (extract("joinMessages") && (!unsafeWindow.newGame)) {
-                                if (extract("publicBroadcast")) {
-                                    sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
-                                } else {
-                                    processChatItem("joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
-                                };
-                            };
-                            onlinePlayersArray.push([player,player.name,player.team]);
-                        };
-                        player.isOnline=objExists;
+
+                    updateOrCreateLinesESP(player,"playerESP",color);
+
+                    player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
+                    player.box.visibility = extract("playerESP") && passedLists;
+                    player.target.visibility = extract("targets") && passedLists;
+
+                    if (player.actor) {
+                        eggSize=extract("eggSize")
+                        player.actor.bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
                     };
-                });
-                playersInGame=onlinePlayersArray.length;
-                for ( let i=0;i<onlinePlayersArray.length;i++) {
-                    if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
-                        onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
-                    } else {
-                        if (extract("leaveMessages") && (!unsafeWindow.newGame)) {
+
+                    player.actor.bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
+
+                    player.exists=objExists;
+                };
+                if (player) {
+                    if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
+                        player.actor.nameSprite._manager.renderingGroupId = 1;
+                        player.actor.nameSprite.renderingGroupId = 1;
+                        var h = Math.length3(player.x - ss.MYPLAYER.x, player.y - ss.MYPLAYER.y, player.z - ss.MYPLAYER.z),
+                        d = Math.pow(h, 1.25)*2;
+                        player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
+                        ss.MYPLAYER.actor.scene.activeCamera.fov=0.75
+                    };
+                    if (!player.logged) {
+                        player.logged=true;
+                        if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
+                        if (extract("joinMessages") && (!unsafeWindow.newGame)) {
                             if (extract("publicBroadcast")) {
-                                sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
+                                sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
                             } else {
-                                processChatItem("left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
+                                processChatItem("joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
                             };
                         };
-                        onlinePlayersArray.splice(i,1);
+                        onlinePlayersArray.push([player,player.name,player.team]);
                     };
+                    player.isOnline=objExists;
+                };
+            });
+            playersInGame=onlinePlayersArray.length;
+            for ( let i=0;i<onlinePlayersArray.length;i++) {
+                if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
+                    onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
+                } else {
+                    if (extract("leaveMessages") && (!unsafeWindow.newGame)) {
+                        if (extract("publicBroadcast")) {
+                            sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
+                        } else {
+                            processChatItem("left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
+                        };
+                    };
+                    onlinePlayersArray.splice(i,1);
                 };
             };
             //update ammoESP boxes, tracer lines, colors
