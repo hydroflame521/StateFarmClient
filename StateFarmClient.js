@@ -2594,6 +2594,10 @@
                 addParam("enableBlacklistAimbot",true);
             };
 
+            addParam("eggColour",extract("eggColourBots")=="random" ? randomInt(1,7) : extractAsDropdownInt("eggColourBots"));
+            addParam("autoStamp",extract("autoStampBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoStampBots"));
+            addParam("autoHat",extract("autoHatBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoHatBots"));
+
             addParam("usernameAutoJoin",name,true);
 
             console.log("PARAMS:",params)
@@ -2628,10 +2632,6 @@
         //seizure
         addParam("enableSeizureX",extract("botSeizure"));
         addParam("enableSeizureY",extract("botSeizure"));
-
-        addParam("eggColour",extract("eggColourBots")=="random" ? randomInt(1,7) : extractAsDropdownInt("eggColourBots"));
-        addParam("autoStamp",extract("autoStampBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoStampBots"));
-        addParam("autoHat",extract("autoHatBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoHatBots"));
 
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
