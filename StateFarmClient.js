@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre23
+// @version      3.3.2-pre24
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -503,7 +503,7 @@
                     initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff",});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
-            initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 3}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
+            initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 1}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
@@ -594,6 +594,10 @@
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
+            tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "Egg Colour", storeAs: "eggColour", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, /*{text: "Randomised", value: "random"}*/], defaultValue: "disabled"});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Stamp", storeAs: "autoStamp", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}], defaultValue: "disabled"});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Hat", storeAs: "autoHat", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}], defaultValue: "disabled"});
         //BOTTING MODULES
         initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder",});
         initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
@@ -707,6 +711,10 @@
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
+        tp.botTabs.pages[0].addSeparator();
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, {text: "Randomised", value: "random"}], defaultValue: "darkesteggshell", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}, {text: "Randomised", value: "random"}], defaultValue: "pablosmile", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Hat", storeAs: "autoHatBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}, {text: "Randomised", value: "random"}], defaultValue: "pablohat", botParam: true,});
         //MANAGE STUFF
         initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("StateFarm_KillBots") }, botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("StateFarm_RefreshBots") }, botParam: true,});
@@ -1653,9 +1661,11 @@
             monitorObjects.botOnline = ((amountOnline) + " bots online.")+monitorObjects.botOnline;
         };
         GM_setValue("StateFarm_BotStatus",botsArray);
+
         allFolders.forEach(function (name) {
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
+
         if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
             if (extract("mockMode")) {
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
@@ -1720,6 +1730,7 @@
                 };
             };
         };
+
         if ((!document.getElementById("progressBar"))) {
             if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
                 unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=false;
@@ -1742,6 +1753,7 @@
             };
             previousDetail=extract("setDetail");
         };
+
         const banPopup = document.getElementById("bannedPopup");
         if (banPopup?.style.display!=='none') {
             isBanned=true;
@@ -1764,6 +1776,32 @@
             globalSS.extract=extract;
         };
 
+        if (extract("eggColour")!=="disabled") {
+            const colour = extract("eggColour")=="random" ? randomInt(0,6) : extractAsDropdownInt("eggColour")-1;
+            if (colour!==ss.USERDATA.playerAccount.colorIdx) {
+                extern.setShellColor(colour);
+                vueApp.onBackClick();
+            };
+        };
+        if (extract("autoStamp")!=="disabled") {
+            const stampID = 2000 + (extract("autoStamp")=="random" ? randomInt(1,6) : extractAsDropdownInt("autoStamp"));
+            if (ss.USERDATA && ss.USERDATA.playerAccount) {
+                if (stampID!==((ss.USERDATA.playerAccount.stampItem && ss.USERDATA.playerAccount.stampItem?.id)||-1)) {
+                    ss.USERDATA.playerAccount.stampItem = unsafeWindow.extern.catalog.findItemById(stampID);
+                    vueApp.onBackClick();
+                };
+            };
+        };
+        if (extract("autoHat")!=="disabled") {
+            const hatID = 1000 + (extract("autoHat")=="random" ? randomInt(1,6) : extractAsDropdownInt("autoHat"));
+            if (ss.USERDATA && ss.USERDATA.playerAccount) {
+                if (hatID!==((ss.USERDATA.playerAccount.hatItem && ss.USERDATA.playerAccount.hatItem?.id)||-1)) {
+                    ss.USERDATA.playerAccount.hatItem = unsafeWindow.extern.catalog.findItemById(hatID);
+                    vueApp.onBackClick();
+                };
+            };
+        };
+
         ranEverySecond = true;
         //block ads or something kek
         localStorage.timesPlayed = 0;
@@ -1777,10 +1815,10 @@
                 currentFrameIndex = (currentFrameIndex + 1) % titleAnimationFrames.length;
             };
         } else {
-            unsafeWindow.document.title = "";
+            unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer io game";
         };
 
-        if (unsafeWindow.extern.inGame) {
+        if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
             //innertext stuff, fairly resource intensive. disable these for performance
             if (extract("playerStats")) {
                 let playerStates="";
@@ -2591,6 +2629,10 @@
         addParam("enableSeizureX",extract("botSeizure"));
         addParam("enableSeizureY",extract("botSeizure"));
 
+        addParam("eggColour",extract("eggColourBots")=="random" ? randomInt(1,7) : extractAsDropdownInt("eggColourBots"));
+        addParam("autoStamp",extract("autoStampBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoStampBots"));
+        addParam("autoHat",extract("autoHatBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoHatBots"));
+
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
@@ -3276,7 +3318,7 @@
             const targetType = extract("aimbotTargetMode");
             const visibilityMode = extract("aimbotVisibilityMode");
 
-            let enemyMinimumValue = (targetType == "pointingat") ? extract("aimbotMinAngle") : 10000; //used for selecting target (either pointingat or nearest)
+            let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? extract("aimbotMinAngle") : 10000; //used for selecting target (either pointingat or nearest)
 
             let didAimbot
             const candidates=[];
