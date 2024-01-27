@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre25
+// @version      3.3.2-release
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -102,8 +102,8 @@
     const aimbottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#botting";
     const replacementLogoURL = 'https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true';
     //INIT VARS
-    const presets = {
-        onlypuppy7: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true",
+    const inbuiltPresets = {
+        onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
     };
     unsafeWindow.newGame=false
     let binding=false;
@@ -467,7 +467,7 @@
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
+                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
                 tp.aimbotFolder.addSeparator();
@@ -548,8 +548,8 @@
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
-                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 0, max: 60000, step: 10}, defaultValue: 500,});
-                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm On Top! ",});
+                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 10, max: 60000, step: 10}, defaultValue: 500,});
+                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm Client On Top! ",});
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
@@ -599,12 +599,20 @@
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
                 initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
-                initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
-                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", bindLocation: tp.automationTab.pages[1],});
+                tp.autoJoinFolder.addSeparator();
+                initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useDefaultName", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
+                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", clickFunction: function(){
+                    const copiedName = retieveCopiedName();
+                    console.log("Retrieved copied name:",copiedName);
+                    change("usernameAutoJoin",(copiedName||"StateFarmer"));
+                },});
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
+            initModule({ location: tp.automationTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "Gamemode", storeAs: "autoGamemode", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Region", storeAs: "autoRegion", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Egg Colour", storeAs: "eggColour", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, /*{text: "Randomised", value: "random"}*/], defaultValue: "disabled"});
@@ -672,13 +680,13 @@
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", bindLocation: tp.clientTab.pages[1], dropdown: [
+            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", defaultValue: "onlypuppy7", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "onlypuppy7's Config", value: "onlypuppy7"},
             ]});
             initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
                 if (userConfirmed) {
-                    applySettings(presets[extract("selectedPreset")]);
+                    applySettings(inbuiltPresets[extract("selectedPreset")]);
                 };
             },});
             tp.clientTab.pages[0].addSeparator();
@@ -690,7 +698,7 @@
                 const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored module states and keybinds.");
                 if (userConfirmed) {
                     initMenu(true);
-                    userConfirmed=alert("Reset to defaults.");
+                    alert("Reset to defaults.");
                 };
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
@@ -717,7 +725,8 @@
         initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1, botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()}, botParam: true,});
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useDefaultNameBots", defaultValue: true, botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "StateFarmer", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", botParam: true,});
         tp.botTabs.pages[0].addSeparator();
@@ -736,14 +745,16 @@
         initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("StateFarm_LeaveBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("StateFarm_SpamReportBots") }, botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCodeBots", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
-        tp.botTabs.pages[2].addSeparator();
+        tp.botTabs.pages[1].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "GameType", storeAs: "autoGamemodeBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "AutoRegion", storeAs: "autoRegionBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
-        tp.botTabs.pages[2].addSeparator();
+        tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
         //PARAMS STUFF
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
@@ -755,6 +766,9 @@
         initModule({ location: tp.botTabs.pages[2], title: "DoMock", storeAs: "botMock", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoAutoEZ", storeAs: "botAutoEZ", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "DoSpam", storeAs: "botSpam", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "StateFarm Client On Top! ", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47"});
         initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
@@ -778,6 +792,9 @@
                 tp.mainPanel.hidden=true;
             }, 500);
         };
+
+        if (extract("spamChatText").includes("On Top!")) { change("spamChatText",menuTitle+" On Top! ") }
+        if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot",menuTitle+" On Top! ") }
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
@@ -1718,6 +1735,13 @@
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
             };
+            if (extract("leaveEmpty")) {
+                if (playersInGame==1) {
+                    createPopup("Left empty game. [LeaveEmpty]")
+                    change("leaveGame");
+                    playersInGame=0;
+                };
+            };
             //credits: @2lars and @macintosh2 in the discord :)
             if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
                 if ((extract("autoTeam")=="random") ||
@@ -1743,15 +1767,16 @@
             redCircle.style.display = 'none';
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
-                    const playerSlots = document.querySelectorAll('.playerSlot--name');
-                    const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
-                    //console.log("adsknjf--->"mapNames);
-                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,( ((extract("usernameAutoJoin")=="")||(!extract("useDefaultName"))) ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
             if (extract("autoRegion")!=="disabled") {
                 const region = (extract("autoRegion")=="random" ? extractDropdownList("autoRegion")[randomInt(1,7)].value : extract("autoRegion"));
                 unsafeWindow.vueData.currentRegionId = region;
+            };
+            if (extract("autoGamemode")!=="disabled") {
+                const gamemode = ((extract("autoGamemode")=="random") ? randomInt(0,3) : (extractAsDropdownInt("autoGamemode")-1));
+                unsafeWindow.vueApp.onGameTypeChanged(gamemode);
             };
         };
 
@@ -1835,7 +1860,7 @@
         updateConfig(); deciSecondsPassed+=1;
 
         if (extract("titleAnimation")) {
-            if (deciSecondsPassed%4==0) {
+            if (deciSecondsPassed%3==0) {
                 unsafeWindow.document.title = titleAnimationFrames[currentFrameIndex];
                 currentFrameIndex = (currentFrameIndex + 1) % titleAnimationFrames.length;
             };
@@ -2578,15 +2603,12 @@
 
         let botNames=[];
         for (let i = 0; i < extract("numberBots"); i++) {
-            let name=extract("botUsername");
+            let name=(extract("botUsername"));
             if (extract("botCopyName")) {
-                if (!unsafeWindow.extern.inGame) {
-                    alert("Cannot copy names if not in a game!")
+                name = retieveCopiedName();
+                if (!name) {
+                    alert("StateFarm: Cannot copy names if you haven't been in a game!");
                     return;
-                } else {
-                    const playerSlots = document.querySelectorAll('.playerSlot--name');
-                    const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
-                    name = mapNames[Math.floor(Math.random() * mapNames.length)];
                 };
             };
             botNames.push(name);
@@ -2658,7 +2680,6 @@
         addParam("enableSeizureX",extract("botSeizure"));
         addParam("enableSeizureY",extract("botSeizure"));
 
-        addParam("autoRegion",extractAsDropdownInt("autoRegionBots"));
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
@@ -2669,6 +2690,12 @@
         addParam("autoWeapon",extractAsDropdownInt("botWeapon")+1);
         addParam("autoTeam",extractAsDropdownInt("botTeam"));
         addParam("autoUnban",extract("botAutoUnban"));
+        addParam("autoRegion",extractAsDropdownInt("autoRegionBots"));
+        addParam("autoGamemode",extractAsDropdownInt("autoGamemodeBots"));
+        addParam("useDefaultName",extract("useDefaultNameBots"));
+        addParam("leaveEmpty",extract("leaveEmptyBots"));
+        addParam("spamChat",extract("botSpam"));
+        addParam("spamChatText",extract("spamChatTextBot"));
         addParam("tallChat",extract("botTallChat"),true);
 
         return params;
@@ -2708,6 +2735,12 @@
     const updateBotParams = function() {
         console.log(constructBotParams());
         GM_setValue("StateFarm_BotParams",constructBotParams());
+    };
+
+    const retieveCopiedName = function () {
+        const playerSlots = document.querySelectorAll('.playerSlot--name');
+        const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
+        return mapNames[Math.floor(Math.random() * mapNames.length)];
     };
 
     function loggedGameMap() {}
