@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre1
+// @version      3.3.3-pre2
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -363,13 +363,31 @@
             });
         };
     });
-    const initTab = function(tab) {
+    const initTabs = function(tab,guideData) {
         tp[tab.storeAs]=tab.location.addTab({
             pages: [
                 {title: 'Modules'},
                 {title: 'Binds'},
+                {title: 'Guide'},
             ],
         });
+        if (guideData) {
+            const thePages = [];
+            guideData.forEach(aPage=>{
+                thePages.push({title: aPage.title});
+            });
+            tp[tab.storeAs+"Guide"]=tp[tab.storeAs].pages[2].addTab({ pages: thePages }); //is there a one liner for this? uhhh probabyl
+            //tp[tab.storeAs + "Guide"] = tab.location.addTab({ thePages: guideData.map(page => ({ title: page.title })) });
+            for (let i = 0; i < guideData.length; i++) {
+                const storeAs = tab.storeAs+"Guide"+i;
+                const text = (guideData[i].content||"Not set up correctly lmao");
+                initModule({ location: tp[tab.storeAs+"Guide"].pages[i], storeAs: storeAs, monitor: (text.split('\n').length + 0.25),});
+                monitorObjects[storeAs]=text;
+                const infoElement = tp[storeAs+"Button"].controller_.view.element.children[1].children[0];
+                infoElement.style.width = "226px";
+                infoElement.style.setProperty("margin-left", "-66px", "important");
+            };
+        };
     };
     const initFolder = function(folder) {
         tp[folder.storeAs]=folder.location.addFolder({
@@ -451,7 +469,64 @@
         tp.mainPanel.title = menuTitle;
         //COMBAT MODULES
         initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder",});
-        initTab({ location: tp.combatFolder, storeAs: "combatTab" })
+        initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
+            {title: "Basics", content: 
+`This is the combat tab. Here you will find
+options relating to aimbotting, and other
+useful macros. Aimbot is made active by
+turning it on. Using ToggleRM will give you
+more control by allowing you to switch by
+pressing the right mouse button.
+TargetMode also allows a more intuitive
+means of selecting who you will target.
+The most powerful features you can use
+are Predictions and Antibloom. These
+improve the accuracy of the tracking.
+AntiSwitch will make you lock on to a
+target until they die, and if you don't want
+to target them after they die then choose
+1Kill too. Auto Refill helps you stay
+topped up and choosing the Smart
+mode allows you to refill at the moment
+when you will not have a long
+reload time. GrenadeMAX makes all
+grenades get thrown at max strength.`},
+        {title: "Visibility", content: 
+`There are a couple of options related to
+visibility (Line-of-Sight). First is
+TargetVisible. This tunes the aimbot to
+be more strategic with where it aims.
+NoWallTrack makes it such that if a
+targeted player goes behind a wall, you
+stop aimlocking them. There is also an
+AutoFire mode with this sort of
+functionality.`},
+        {title: "Advanced", content: 
+`If you want to increase stealthiness,
+make use of MinAngle and AntiSnap. The
+first will make it so that you have to
+manually move your reticle within your
+specified radius to lock on. The latter
+smooths snapping, which evades
+detection on botter spotter scripts.
+If you want to be more powerful, opt for
+SilentAim. This modifies your direction
+packets instead of making you lock on.
+However, this can lead to slightly glitchy
+movement. When this is on, MinAngle
+changes to instead narrow down the
+selection of targets rather than acting
+as a guide.
+AntiSneak is a module which, while not
+always showing use, can help you in a
+difficult situation. It automatically
+switches targets to a player that enters
+your specified range, and begins
+shooting with your primary gun, and then
+the pistol. Ideal use case is when you are
+sniping and someone sneaks up on you
+(...hence it is called... AntiSneak).`},
+        ]);
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
@@ -482,7 +557,7 @@
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder",});
-        initTab({ location: tp.renderFolder, storeAs: "renderTab" });
+        initTabs({ location: tp.renderFolder, storeAs: "renderTab" });
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
@@ -523,7 +598,7 @@
             initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true,});
         //HUD MODULES
         initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder",});
-        initTab({ location: tp.hudFolder, storeAs: "hudTab" });
+        initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
             initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1],});
@@ -536,7 +611,7 @@
             initModule({ location: tp.hudTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.hudTab.pages[1],});
         //CHAT MODULES
         initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder",});
-        initTab({ location: tp.chatFolder, storeAs: "chatTab" });
+        initTabs({ location: tp.chatFolder, storeAs: "chatTab" });
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
@@ -564,7 +639,7 @@
                 initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1],});
         //LISTS MODULES
         initFolder({ location: tp.mainPanel, title: "Lists", storeAs: "listsFolder",});
-        initTab({ location: tp.listsFolder, storeAs: "listsTab" })
+        initTabs({ location: tp.listsFolder, storeAs: "listsTab" })
             initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2",});
             initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder",});
                 initModule({ location: tp.whitelistFolder, title: "WAimbot", storeAs: "enableWhitelistAimbot", bindLocation: tp.listsTab.pages[1],});
@@ -580,7 +655,7 @@
                 initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00",});
         //AUTOMATION MODULES
         initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
-        initTab({ location: tp.automationFolder, storeAs: "automationTab" })
+        initTabs({ location: tp.automationFolder, storeAs: "automationTab" })
             initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: function(){
                 alert("Thank you for your efforts comrade! o7");
                 spamReport();
@@ -620,13 +695,13 @@
             initModule({ location: tp.automationTab.pages[0], title: "Auto Hat", storeAs: "autoHat", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}], defaultValue: "disabled"});
         //BOTTING MODULES
         initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder",});
-        initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
+        initTabs({ location: tp.bottingFolder, storeAs: "bottingTab" })
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function(){tp.botPanel.hidden=!tp.botPanel.hidden}, defaultBind:"J",});
             tp.bottingTab.pages[0].addSeparator();
             initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(aimbottingGuideURL)},});
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
-        initTab({ location: tp.miscFolder, storeAs: "miscTab" })
+        initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
@@ -663,7 +738,7 @@
                 initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
         //CLIENT MODULES
         initFolder({ location: tp.mainPanel, title: "Client & About", storeAs: "clientFolder",});
-        initTab({ location: tp.clientFolder, storeAs: "clientTab" })
+        initTabs({ location: tp.clientFolder, storeAs: "clientTab" })
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.mainPanel.hidden=!tp.mainPanel.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
             tp.clientTab.pages[0].addSeparator();
