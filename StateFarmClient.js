@@ -93,6 +93,7 @@
             applyStateFarmLogo();
             const observer = new MutationObserver(applyStateFarmLogo);
             observer.observe(document.body, { subtree: true, childList: true });
+            detectURLParams();
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
@@ -1937,7 +1938,7 @@ sniping and someone sneaks up on you
             };
         };
         if ((!ranEverySecond) && startUpComplete) {
-            detectURLParams();
+            // detectURLParams();
             ranEverySecond = true;
         };
 
