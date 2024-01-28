@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre3
+// @version      3.3.3-pre4
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -133,7 +133,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -415,7 +415,7 @@
                 title: module.button,
             }).on("click", (value) => {
                 if (module.clickFunction!==undefined) {module.clickFunction(value)};
-                if (module.botParam!==undefined) {updateBotParams(module.botParam)};
+                if ((module.botParam!==undefined) && (!AUTOMATED)) {updateBotParams(module.botParam)};
             });
         } else if (module.monitor) {
             monitorObjects[module.storeAs]="Text Goes Here";
@@ -432,9 +432,11 @@
             tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config
             ).on("change", (value) => {
                 if (module.changeFunction!==undefined) {module.changeFunction(value)};
-                if (module.botParam!==undefined) {
+                if ((module.botParam!==undefined)) {
                     setTimeout(() => {
-                        updateBotParams(module.botParam);
+                        if (startUpComplete) {
+                            updateBotParams(module.botParam);
+                        };
                     }, 500);
                 };
                 setTimeout(() => {
@@ -678,7 +680,7 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useDefaultName", bindLocation: tp.automationTab.pages[1],});
                 initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer",});
                 initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", clickFunction: function(){
-                    const copiedName = retieveCopiedName();
+                    const copiedName = retrieveCopiedName();
                     console.log("Retrieved copied name:",copiedName);
                     change("usernameAutoJoin",(copiedName||"ЅtateFarmer"));
                 },});
@@ -1738,11 +1740,7 @@ sniping and someone sneaks up on you
         object.box.color = new ss.BABYLONJS.Color3(...color);
     };
     const everySecond = function () {
-        const startUpComplete = (!document.getElementById("progressBar"));
-        if ((!ranEverySecond) && startUpComplete) {
-            detectURLParams();
-            ranEverySecond = true;
-        };
+        startUpComplete = (!document.getElementById("progressBar"));
         const botsArray = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
@@ -1750,6 +1748,7 @@ sniping and someone sneaks up on you
             if (clientID) {
                 const extractedParams=GM_getValue("StateFarm_BotParams");
                 if (extractedParams!==previousParams) {
+                    console.log("StateFarm: Change in Bot Panel detected.");
                     applySettings(extractedParams);
                     previousParams=extractedParams;
                 };
@@ -1788,7 +1787,7 @@ sniping and someone sneaks up on you
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
 
-        if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
+        if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
                 let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
@@ -1936,6 +1935,10 @@ sniping and someone sneaks up on you
                     vueApp.onBackClick();
                 };
             };
+        };
+        if ((!ranEverySecond) && startUpComplete) {
+            detectURLParams();
+            ranEverySecond = true;
         };
 
         //block ads or something kek
@@ -2464,7 +2467,14 @@ sniping and someone sneaks up on you
         };
         unsafeWindow.modifyControls = function(CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
-            if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up };
+            if (extract("autoWalk")) {
+                CONTROLKEYS|=ss.CONTROLVALUES.up;
+                // if (distancePlayers(currentlyTargeting||playerLookingAt)>1.5) { //no speen
+                //     CONTROLKEYS|=ss.CONTROLVALUES.up;
+                // } else {
+                //     CONTROLKEYS&=~ss.CONTROLVALUES.up;
+                // };
+            };
             // credit for code: de_neuublue
             if (extract("bunnyhop") && isKeyToggled["Space"]) {
                 CONTROLKEYS |= ss.CONTROLVALUES.jump;
@@ -2676,6 +2686,7 @@ sniping and someone sneaks up on you
     };
 
     const deployBots = function() {
+        updateBotParams();
         if (!JSON.parse(localStorage.getItem("firstTimeBots"))) {
             localStorage.setItem("firstTimeBots",JSON.stringify(true));
             unsafeWindow.open(aimbottingGuideURL);
@@ -2689,7 +2700,7 @@ sniping and someone sneaks up on you
         for (let i = 0; i < extract("numberBots"); i++) {
             let name=(extract("botUsername"));
             if (extract("botCopyName")) {
-                name = retieveCopiedName();
+                name = retrieveCopiedName();
                 if (!name) {
                     alert("StateFarm: Cannot copy names if you haven't been in a game!");
                     return;
@@ -2749,9 +2760,11 @@ sniping and someone sneaks up on you
         addParam("aimbot",extract("botAimbot"));
         addParam("antiBloom",extract("botAimbot"));
         addParam("grenadeMax",extract("botAimbot"));
-        addParam("antiSneak",extract("botAimbot")?1.4:0);
         addParam("autoRefill",extract("botAimbot"));
-        addParam("autoGrenade",extract("botAimbot"));
+        //do shoot
+        addParam("antiSneak",extract("botAutoShoot")?1.4:0);
+        addParam("enableAutoFire",extract("botAutoShoot"));
+        addParam("autoGrenade",extract("botAutoShoot"));
         //automove
         addParam("autoWalk",extract("botAutoMove"));
         addParam("autoStrafe",extract("botAutoMove"));
@@ -2767,7 +2780,6 @@ sniping and someone sneaks up on you
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
-        addParam("enableAutoFire",extract("botAutoShoot"));
         addParam("autoEZ",extract("botAutoEZ"));
         addParam("cheatAccuse",extract("botCheatAccuse"));
         addParam("joinCode",extract("botJoinCode"));
@@ -2780,7 +2792,6 @@ sniping and someone sneaks up on you
         addParam("leaveEmpty",extract("leaveEmptyBots"));
         addParam("spamChat",extract("botSpam"));
         addParam("spamChatText",extract("spamChatTextBot"));
-        addParam("noCooladown",true);
         addParam("tallChat",extract("botTallChat"),true);
 
         return params;
@@ -2793,7 +2804,7 @@ sniping and someone sneaks up on you
         };
         let customSettings = getSearchParam("StateFarm")
         if (customSettings!==null) {
-            console.log("StateFarm Custom Settings!");
+            console.log("StateFarm Custom Settings in URL!");
             customSettings=customSettings.split("|");
             applySettings(customSettings[0]);
             // let setVars=[];
@@ -2807,7 +2818,7 @@ sniping and someone sneaks up on you
     };
 
     const applySettings = function(settings) {
-        console.log(settings);
+        console.log(AUTOMATED,settings);
         settings=settings.split("<");
         if (!AUTOMATED) { initMenu(true) };
         settings.forEach(element=>{
@@ -2818,11 +2829,12 @@ sniping and someone sneaks up on you
     };
 
     const updateBotParams = function() {
-        console.log(constructBotParams());
-        GM_setValue("StateFarm_BotParams",constructBotParams());
+        const botParams = constructBotParams();
+        GM_setValue("StateFarm_BotParams",botParams);
+        console.log("StateFarm: set bot params to:",botParams);
     };
 
-    const retieveCopiedName = function () {
+    const retrieveCopiedName = function () {
         const playerSlots = document.querySelectorAll('.playerSlot--name');
         const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
         return mapNames[Math.floor(Math.random() * mapNames.length)];
@@ -3584,8 +3596,8 @@ sniping and someone sneaks up on you
                 ss.MYPLAYER.pitch+=2*Math.PI;
             };
 
-            let autoFireType=extract("autoFireType");
             if (extract("enableAutoFire")) {
+                let autoFireType=extract("autoFireType");
                 let doAutoFire=false
                 if (autoFireType=="always") {
                     doAutoFire=true;
@@ -3601,16 +3613,16 @@ sniping and someone sneaks up on you
                         ss.MYPLAYER.melee();
                     };
                 };
-            };
-            //method by de_Neuublue
-            if ( autoFireType=="forceAutomatic" ) {
-                if (ss.MYPLAYER.weapon.constructor.originallySemi == null) {
-                    ss.MYPLAYER.weapon.constructor.originallySemi = !ss.MYPLAYER.weapon.constructor.automatic;
+                //method by de_Neuublue
+                if ( autoFireType=="forceAutomatic" ) {
+                    if (ss.MYPLAYER.weapon.constructor.originallySemi == null) {
+                        ss.MYPLAYER.weapon.constructor.originallySemi = !ss.MYPLAYER.weapon.constructor.automatic;
+                    };
+                    ss.MYPLAYER.weapon.constructor.automatic = true;
+                } else if (ss.MYPLAYER.weapon.constructor.originallySemi) {
+                    ss.MYPLAYER.weapon.constructor.originallySemi = null;
+                    ss.MYPLAYER.weapon.constructor.automatic = false;
                 };
-                ss.MYPLAYER.weapon.constructor.automatic = true;
-            } else if (ss.MYPLAYER.weapon.constructor.originallySemi) {
-                ss.MYPLAYER.weapon.constructor.originallySemi = null;
-                ss.MYPLAYER.weapon.constructor.automatic = false;
             };
         });
     };
