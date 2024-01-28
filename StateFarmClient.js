@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-release
+// @version      3.3.3-pre1
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -133,7 +133,7 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,resetModules,amountOnline,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -147,7 +147,6 @@
         trihard: 6,
         random: 3, // :trol_fancy:
     };
-    const gameTypes = [ "ffa", "teams", "captula", "kotc", ];
     let proxyList = [
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
         'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
@@ -324,6 +323,7 @@
     document.addEventListener("keydown", function (event) {
         event=(event.code.replace("Key",""));
         isKeyToggled[event]=true;
+        if (event=="Escape") { noPointerPause=false; unsafeWindow.document.onpointerlockchange() };
     });
     document.addEventListener("keyup", function (event) {
         event=(event.code.replace("Key",""));
@@ -645,6 +645,14 @@
             },});
             initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", bindLocation: tp.miscTab.pages[1], button: "RELOAD NOW", clickFunction: function(){
                 reloadPage();
+            },});
+            tp.miscTab.pages[0].addSeparator();
+            initModule({ location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function(){
+                if (document.pointerLockElement !== null) { //currently locked
+                    noPointerPause=true; unsafeWindow.document.exitPointerLock();
+                } else if (noPointerPause) { //already unlocked?
+                    noPointerPause=false; canvas.requestPointerLock();
+                };
             },});
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
@@ -1677,7 +1685,7 @@
                     username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + ss.GAMECODE + " (" + gameTypes[unsafeWindow.vueApp.game.gameType] + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + ss.GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
                         (errorString||"idle")),
                 };
             };
@@ -1730,7 +1738,7 @@
                 }; //chatOnKill
             };
             if (extract("gameInfo")) {
-                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+gameTypes[unsafeWindow.vueApp.game.gameType+" | Map: "+unsafeWindow.vueApp.game.mapName];
+                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName;
                 gameInfoElement.innerText = gameInfoText;
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
@@ -2334,6 +2342,9 @@
         unsafeWindow.getAdminSpoof = function () {
             return extract("adminSpoof");
         };
+        unsafeWindow.getPointerEscape = function () {
+            return noPointerPause;
+        };
         unsafeWindow.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
                 ss.MYPLAYER=MYPLAYER;
@@ -2520,6 +2531,8 @@
             js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.onConnectFail('+FUNCTIONPARAM+','+ERRORARRAY+');')
             //get rid of tutorial popup because its a stupid piece of shit
             js=js.replace(',vueApp.onTutorialPopupClick()','');
+            //pointer escape
+            js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.getPointerEscape()) {return};');
 
             //replace graveyard:
             // //sus
