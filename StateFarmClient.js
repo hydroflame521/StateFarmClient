@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre5
+// @version      3.3.3-pre6
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2016,7 +2016,7 @@ sniping and someone sneaks up on you
             if (GM_getValue("StateFarm_NewProxyBots")) {
                 if (Date.now()>lastBotNewProxy) {
                     newProxy();
-                    lastBotUnban=Date.now()+3000;
+                    lastBotNewProxy=Date.now()+3000;
                 };
             };
             if (GM_getValue("StateFarm_RefreshBots")) {
