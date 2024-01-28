@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre2
+// @version      3.3.3-pre3
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -78,7 +78,7 @@
 
 (function () {
     //script info
-    const name="StateFarm Client";
+    const name="ЅtateFarm Client";
     const version=GM_info.script.version;
     const menuTitle=name + " v" + version;
     //startup sequence
@@ -624,7 +624,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
                 initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 10, max: 60000, step: 10}, defaultValue: 500,});
-                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm Client On Top! ",});
+                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ",});
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
@@ -676,11 +676,11 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
                 tp.autoJoinFolder.addSeparator();
                 initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useDefaultName", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
+                initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer",});
                 initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", clickFunction: function(){
                     const copiedName = retieveCopiedName();
                     console.log("Retrieved copied name:",copiedName);
-                    change("usernameAutoJoin",(copiedName||"StateFarmer"));
+                    change("usernameAutoJoin",(copiedName||"ЅtateFarmer"));
                 },});
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
@@ -809,7 +809,7 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()}, botParam: true,});
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useDefaultNameBots", defaultValue: true, botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "StateFarmer", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", botParam: true,});
         tp.botTabs.pages[0].addSeparator();
@@ -851,7 +851,7 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSpam", storeAs: "botSpam", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "StateFarm Client On Top! ", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47"});
         initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
@@ -876,8 +876,10 @@ sniping and someone sneaks up on you
             }, 500);
         };
 
-        if (extract("spamChatText").includes("On Top!")) { change("spamChatText",menuTitle+" On Top! ") }
-        if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot",menuTitle+" On Top! ") }
+        const defaultSpamText = ("dsc.gg/sfclient: "+menuTitle+" On Top! ");
+
+        if (extract("spamChatText").includes("On Top!")) { change("spamChatText",defaultSpamText) };
+        if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot",defaultSpamText) };
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
@@ -2646,12 +2648,6 @@ sniping and someone sneaks up on you
             // js = js.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
             //disable autopause
             // js = js.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
-            //safe unfocus
-            // js = js.replace('document.onpointerlockchange', 'document.dopausingstuff');
-            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // js = js.replace(',xc("down")', '');
             //adblock/vip spoof
             // js = js.replace(/z\.isUpgraded\(\)/g,'true');
             // js = js.replace(/aipAPItag\.sdkBlocked/g,'false');
@@ -2784,6 +2780,7 @@ sniping and someone sneaks up on you
         addParam("leaveEmpty",extract("leaveEmptyBots"));
         addParam("spamChat",extract("botSpam"));
         addParam("spamChatText",extract("spamChatTextBot"));
+        addParam("noCooladown",true);
         addParam("tallChat",extract("botTallChat"),true);
 
         return params;
