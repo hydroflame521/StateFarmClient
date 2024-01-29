@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre6
+// @version      3.3.3-pre7
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -135,7 +135,7 @@
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
     let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     const weaponArray={ //this could be done differently but i cba
@@ -1788,6 +1788,12 @@ sniping and someone sneaks up on you
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
 
+        coordElement.style.display = 'none';
+        gameInfoElement.style.display = 'none';
+        playerstatsElement.style.display = 'none';
+        playerinfoElement.style.display = 'none';
+        redCircle.style.display = 'none';
+
         if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
@@ -1845,11 +1851,6 @@ sniping and someone sneaks up on you
             };
             addStreamsToInGameUI();
         } else {
-            coordElement.style.display = 'none';
-            gameInfoElement.style.display = 'none';
-            playerstatsElement.style.display = 'none';
-            playerinfoElement.style.display = 'none';
-            redCircle.style.display = 'none';
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
                     unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,( ((extract("usernameAutoJoin")=="")||(!extract("useDefaultName"))) ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
@@ -1886,6 +1887,23 @@ sniping and someone sneaks up on you
                 unsafeWindow.extern.applyUiSettings(unsafeWindow.vueApp.settingsUi);
             };
             previousDetail=extract("setDetail");
+
+            if (previousTitleAnimation!==extract("titleAnimation")) {
+                let existingFavicons = document.querySelectorAll("link[rel*='icon']");
+                existingFavicons.forEach(function (favicon) {
+                    favicon.parentNode.removeChild(favicon);
+                });
+                let favicon = document.createElement('link');
+                favicon.type = 'image/x-icon';
+                favicon.rel = 'shortcut icon';
+                if (extract("titleAnimation")) {
+                    favicon.href = GM_info.script.icon;
+                } else {
+                    favicon.href = 'https://www.google.com/s2/favicons?domain=shellshock.io';
+                };
+                document.getElementsByTagName('head')[0].appendChild(favicon);
+                previousTitleAnimation = extract("titleAnimation");
+            };
         };
 
         const banPopup = document.getElementById("bannedPopup");
