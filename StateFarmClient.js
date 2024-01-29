@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre9
+// @version      3.3.3-pre10
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -135,7 +135,7 @@
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
     let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     const weaponArray={ //this could be done differently but i cba
@@ -2490,44 +2490,44 @@ sniping and someone sneaks up on you
         };
         unsafeWindow.modifyControls = function(CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
-            if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up; console.log("walking forward") };
-            if (window.forceForwardJustChanged) {
-                if (window.forceForward) {
-                    CONTROLKEYS|=ss.CONTROLVALUES.up;
-                } else {
-                    CONTROLKEYS &= ~ss.CONTROLVALUES.up;
-                }
-                window.forceForwardJustChanged = false;
-            }
-            // credit for code: de_neuublue
-            if (extract("bunnyhop") && isKeyToggled["Space"]) {
-                CONTROLKEYS |= ss.CONTROLVALUES.jump;
-            };
-            if (extract("autoJump")) {
-                if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
-                    CONTROLKEYS|=ss.CONTROLVALUES.jump;
-                    lastAutoJump=Date.now();
+            if (forceControlKeys) {
+                forceControlKeysCache = true;
+                return forceControlKeys;
+            } else if (forceControlKeysCache) {
+                forceControlKeysCache = false;
+                return 0;
+            } else {
+                if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up; console.log("walking forward") };
+                // credit for code: de_neuublue
+                if (extract("bunnyhop") && isKeyToggled["Space"]) {
+                    CONTROLKEYS |= ss.CONTROLVALUES.jump;
                 };
-            };
-            if (extract("autoStrafe")) {
-                if (Date.now()>(autoStrafeValue[0])) {
-                    if (autoStrafeValue[1]==0) { //decide new strafe delay
-                        autoStrafeValue[0]=Date.now() + randomInt(500,3000);
-                        autoStrafeValue[2]=(Math.random()>0.5) ? "left" : "right";
-                        autoStrafeValue[1]=1;
-                    } else if (autoStrafeValue[1]==1) { //time to start strafe
-                        autoStrafeValue[3]=Date.now() + randomInt(500,2000);
-                        autoStrafeValue[1]=2;
-                    } else if (autoStrafeValue[1]==2 && Date.now()<autoStrafeValue[3]) { //do strafe
-                        CONTROLKEYS|=ss.CONTROLVALUES[autoStrafeValue[2]];
-                    } else if (autoStrafeValue[1]==2) { //stop strafe
-                        CONTROLKEYS&=~ss.CONTROLVALUES.left;
-                        CONTROLKEYS&=~ss.CONTROLVALUES.right;
-                        autoStrafeValue[1]=0;
+                if (extract("autoJump")) {
+                    if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
+                        CONTROLKEYS|=ss.CONTROLVALUES.jump;
+                        lastAutoJump=Date.now();
                     };
                 };
+                if (extract("autoStrafe")) {
+                    if (Date.now()>(autoStrafeValue[0])) {
+                        if (autoStrafeValue[1]==0) { //decide new strafe delay
+                            autoStrafeValue[0]=Date.now() + randomInt(500,3000);
+                            autoStrafeValue[2]=(Math.random()>0.5) ? "left" : "right";
+                            autoStrafeValue[1]=1;
+                        } else if (autoStrafeValue[1]==1) { //time to start strafe
+                            autoStrafeValue[3]=Date.now() + randomInt(500,2000);
+                            autoStrafeValue[1]=2;
+                        } else if (autoStrafeValue[1]==2 && Date.now()<autoStrafeValue[3]) { //do strafe
+                            CONTROLKEYS|=ss.CONTROLVALUES[autoStrafeValue[2]];
+                        } else if (autoStrafeValue[1]==2) { //stop strafe
+                            CONTROLKEYS&=~ss.CONTROLVALUES.left;
+                            CONTROLKEYS&=~ss.CONTROLVALUES.right;
+                            autoStrafeValue[1]=0;
+                        };
+                    };
+                };
+                return CONTROLKEYS;
             };
-            return CONTROLKEYS;
         };
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
@@ -3437,6 +3437,10 @@ sniping and someone sneaks up on you
         createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {F.STATEFARM()} });
         createAnonFunction("STATEFARM",function(){
 
+            if ( !ranOneTime ) { oneTime() };
+            initVars();
+            updateLinesESP();
+
             //this is crashing rn
 
 
@@ -3466,7 +3470,6 @@ sniping and someone sneaks up on you
                             console.log("setting active node target");
                             print_node_list(window.activePath);
                             window.activeNodeTarget = window.activePath[0];
-                            window.forceForwardJustChanged = true;
                             console.log("list printed, target set, creating pathfinding lines")
                             create_pathfinding_lines(ss, window.activePath);
                             window.findNewPath = false; 
@@ -3492,7 +3495,6 @@ sniping and someone sneaks up on you
                         console.log("path completed");
                         window.activePath = null;
                         window.activeNodeTarget = null;
-                        window.forceForwardJustChanged = true;
                     }
                 } else {
                     console.log("not at target");
@@ -3505,8 +3507,6 @@ sniping and someone sneaks up on you
                 } */
             }
 
-            window.forceForward = false;
-
             if (window.activeNodeTarget) {
                 // look towards the node
                 console.log("looking towards node")
@@ -3516,18 +3516,9 @@ sniping and someone sneaks up on you
                 ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
                 ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
                 console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
-                window.forceForward = true;
+                forceControlKeys = ss.CONTROLVALUES.up;
                 console.log("done with looking & window forward set")
-            }
-
-            
-
-            isBanned=false; //cant be banned if in a game /shrug
-            errorString=undefined; //no error if ur playing
-
-            if ( !ranOneTime ) { oneTime() };
-            initVars();
-            updateLinesESP();
+            };
 
             // forceControlKeys = 30; @everyone @porcupane
 
