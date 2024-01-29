@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre8
+// @version      3.3.3-pre9
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
