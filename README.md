@@ -14,14 +14,14 @@ It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Botting**, **Custom Binding
 2. [Installation Tutorial](#installation-tutorial)
 3. [Getting Started](#getting-started)
 4. [Features](#features)
-	1. [Combat](#combat-tab)
-	2. [Render](#render-tab)
-	3. [HUD](#hud)
-	4. [Chat](#chat-tab)
-	5. [Automation](#automation-tab)
-	6. [Botting](#botting)
-	7. [Miscellaneous](#misc)
-	8.  [Client & About](#client&about)
+	1. [Combat](#-combat)
+	2. [Render](#-render)
+	3. [HUD](#-hud)
+	4. [Chat](#-chat)
+	5. [Automation](#-automation)
+	6. [Botting](#-botting)
+	7. [Miscellaneous](#-misc)
+	8. [Client & About](#-client-&-about)
 5. [Gameplay Strategies](#gameplay-strategies)
 6. [Adblocking](#adblocking)
 7. [Issues and Troubleshooting](#issues-and-troubleshooting)
@@ -98,7 +98,7 @@ With the exception of the color pickers and some links, these should all be bind
 
 > A module can have multiple tags.
 
-### [](#combat-tab) Combat Tab:
+### [](#combat) Combat:
 -   _**Aimbot**_(Powerful❗❗)(Blatant🔴): locks onto targeted player. The player it locks onto is decided by the targeting type, see below.
 -   _**TargetMode**_(Strong❗): decides the priority for which player aimbot should target.
     -   _**Pointing At**_: Closest to direction the camera is pointing.
@@ -132,7 +132,7 @@ With the exception of the color pickers and some links, these should all be bind
 -   _**GrenadeMAX**_(Strong❗): sets grenades to be thrown to max power without the need of charging.
 
 ![combat tab](https://cdn.discordapp.com/attachments/898816619344699436/1201497372056899664/image.png)
-### [](#render-tab) Render Tab:
+### [](#render) Render:
 -   _**PlayerESP**_(Info 💡): creates boxes around enemy players.
 -   _**Tracers**_(Info 💡): creates lines pointing from the center of the screen to the location of enemy players.
 -   _**Chams**_(Info 💡): renders players through walls.
@@ -187,7 +187,7 @@ With the exception of the color pickers and some links, these should all be bind
 ![HUD tab](https://cdn.discordapp.com/attachments/898816619344699436/1201501949783187486/image.png)
 
 
-### [](#chat-tab) Chat Tab:
+### [](#chat-tab) Chat:
 -   _**InfiniHistory**_(Utility🔧): disables the default limiting of history from 5 messages to no limit.
 -   _**HighlightTxt**_(Utility🔧): allows you to highlight text from the chat to copy somewhere else.
 -   _**Max Ingame**_(Utility🔧): limits the amount of messages that will be shown whilst playing (this is needed as InfiniHistory will cause messages to go all the way up the left side).
@@ -210,7 +210,7 @@ With the exception of the color pickers and some links, these should all be bind
 - _**[SFC]Added**_(Troll 🗿): adds [SFC] infront of all names (**S** tate **F** arm **C** lient).
 
 ![chat tab](https://cdn.discordapp.com/attachments/898816619344699436/1197154651125076049/image.png)
-### [](#list-tab) Lists Tab:
+### [](#list) Lists:
 
 - **WHITELIST OPTIONS**:
 - _**Whitelist**_: enter a list of names to be used with the corresponding whitelist options. They do not need to be complete and partial matches will work. Separate by commas to list multiple.
@@ -229,7 +229,7 @@ With the exception of the color pickers and some links, these should all be bind
 - ***Blacklist Highlight Color***: self explanatory.
 
 ![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1194992411693301831/image.png)
-## [](#automation-tab) Automation Tab
+## [](#automation) Automation:
 - _**AutoWalk**_: walks forward automatically
 - _**AutoJump**_: automatically jumps with the delay set
 - _**JumpDelay**_: the delay in jumps(ms)
@@ -311,8 +311,7 @@ With the exception of the color pickers and some links, these should all be bind
 ![params tab](https://cdn.discordapp.com/attachments/898816619344699436/1201510309123326062/image.png)
 > You can find information on your deployed bots in the Info tab of the botting panel
 
-
-## [](#misc) Miscellaneous Tab:
+## [](#misc) Miscellaneous:
 -   _**UnlockSkins**_: unlocks all skins in Shell Shockers locally, other players will not see them.
 -  _**AdminSpoof**_: Shows admin options such as boot, ban, info(won't do anything). Doesn't do anything server sided. 
 -  _**Unban**_: Unbans the user by forcing signout and resetting the session.
@@ -330,7 +329,7 @@ With the exception of the color pickers and some links, these should all be bind
 > Sometimes a side effect of this is that the player model remains skewed even while returning to normal play.
 
 ![Misc tab](https://cdn.discordapp.com/attachments/898816619344699436/1201513326744698950/image.png)
-## [](#client&about) Client & About:
+## [](#client-&-about) Client & About:
 -   _**Hide GUI**_: hides upon pressing the button or the keybind (default H).
 -   _**Theme**_: Allows the user to choose from a wide range of themes.
 ![enter image description here](https://cdn.discordapp.com/attachments/898816619344699436/1201515020224315522/image.png)
