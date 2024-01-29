@@ -547,6 +547,10 @@
             initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", bindLocation: tp.miscTab.pages[1], button: "RELOAD NOW", clickFunction: function(){
                 reloadPage();
             },});
+            initModule({ location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
+                window.findNewPath = true;
+            },});
+            window.findNewPath = false;
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
             initFolder({ location: tp.miscTab.pages[0], title: "Seizure Options", storeAs: "seizureFolder",});
@@ -1907,7 +1911,7 @@
             "well done": "thanks g",
             "that was": "was it though?",
             "how": "i want to know too",
-            "esp ": "you think people can see thru walls? thats absurd",
+            "esp": "you think people can see thru walls? thats absurd",
             "shell": "thats what we're playing",
             "weird": "ur odd",
             "lag": "get better internet pooron lol",
@@ -2178,7 +2182,15 @@
         };
         unsafeWindow.modifyControls = function(CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
-            if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up };
+            if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up; console.log("walking forward") };
+            if (window.forceForwardJustChanged) {
+                if (window.forceForward) {
+                    CONTROLKEYS|=ss.CONTROLVALUES.up;
+                } else {
+                    CONTROLKEYS &= ~ss.CONTROLVALUES.up;
+                }
+                window.forceForwardJustChanged = false;
+            }
             // credit for code: de_neuublue
             if (extract("bunnyhop") && isKeyToggled["Space"]) {
                 CONTROLKEYS |= ss.CONTROLVALUES.jump;
@@ -2549,6 +2561,10 @@
           // Allow it to bubble up.
           this.bubbleUp(this.content.length - 1);
         },
+        
+        rescoreElement: function(node) {
+            this.sinkDown(this.content.indexOf(node));
+          },
       
         pop: function() {
           // Store the first element so we can return it later.
@@ -2695,6 +2711,9 @@
                         if (x == 0 && y == 0 && z == 0) {
                             continue;
                         }
+                        if (Math.abs(x) + Math.abs(y) + Math.abs(z) > 1) {
+                            continue;
+                        }
                         var map_data_x = Math.floor(this.position.x + x);
                         var map_data_y = Math.floor(this.position.y + y);
                         var map_data_z = Math.floor(this.position.z + z);
@@ -2742,7 +2761,6 @@
     }
 
     var map_data_created = false;
-    var found_example_path = false;
 
     // kazowie
 
@@ -2753,10 +2771,14 @@
     function pathTo(node) {
         var current = node;
         var path = [];
+        console.log("pathTo called")
         while (current.parent) {
             path.unshift(current);
+            if (current.parent === undefined) { console.log("parent undefined; path nodes successfully acquired:", path.length)}
             current = current.parent;
+            console.log("pathTo loop, list len:", path.length)
         }
+        console.log("done")
         return path;
     }
 
@@ -2766,22 +2788,39 @@
         });
     }
 
+    function cleanList(items) {
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            item.f = undefined;
+            item.g = undefined;
+            item.h = undefined;
+            item.closed = undefined;
+            item.parent = undefined;
+            item.visited = undefined;
+        }
+    }
+
 
 
 
     function AStar(start, goal) {
+        console.log("astar called")
+        cleanList(GLOBAL_NODE_LIST)
         // start and goal are map nodes
         // map data is the list of all the nodes
         // each node has a .linked indicating which nodes can be traveled to from it
         // returns a list of nodes to travel through, ordered from start to goal
         // if no path is found, returns null
 
-        let closed_set = [];
+        var closed_set = [];
+
 
         var heuristic = TaxicabDist3D;
         var open_heap = getHeap();
 
         start.h = heuristic(start.position, goal.position);
+        start.g = 0;
+        start.f = start.g + start.h;
 
         open_heap.push(start);
 
@@ -2790,48 +2829,81 @@
             var current = open_heap.pop();
 
             if (current === goal) {
-                return pathTo(current);
+                console.log("done with astar - path found")
+                var val = pathTo(current);
+                console.log("done with pathTo");
+                return val;
             }
 
             closed_set.push(current);
+
             var neighbors = current.linked;
             
             for (var i = 0; i < neighbors.length; i++) {
                 var neighbor = neighbors[i];
+
                 if (closed_set.includes(neighbor)) {
                     continue;
                 }
-                var tentative_g_score = current.g + heuristic(current.position, neighbor.position);
-                if (!open_heap.includes(neighbor)) {
-                    open_heap.push(neighbor);
-                } else if (tentative_g_score >= neighbor.g) {
-                    continue;
+
+                var tentative_g_score = current.g + 1;
+                var visited = neighbor.visited;
+                if (!visited || tentative_g_score < neighbor.g) {
+                    neighbor.visited = true;
+                    neighbor.parent = current;
+                    neighbor.g = tentative_g_score;
+                    neighbor.h = heuristic(neighbor.position, goal.position);
+                    neighbor.f = neighbor.g + neighbor.h;
+                    if (!visited) {
+                        open_heap.push(neighbor);
+                    } else {
+                        open_heap.rescoreElement(neighbor);
+                    }
                 }
-                neighbor.parent = current;
-                neighbor.g = tentative_g_score;
-                neighbor.f = neighbor.g + heuristic(neighbor.position, goal.position);
-                if (!open_heap.includes(neighbor)) {
-                    open_heap.push(neighbor);
-                }
+            
+
             }
             
         }
 
-        if (open_heap.size() == 0) {
-            return null;
-        } else {
-            return pathTo(current);
-        }
+
+        console.log("done with astar - no path found")
+        // return null if no path has been found
+        return null
 
 
     }
 
     function print_node_list(list) {
         var output = "";
+        console.log("printing node list, length:", list.length, "list:", list)
         for (var i = 0; i < list.length; i++) {
             output += list[i].position.x + ", " + list[i].position.y + ", " + list[i].position.z + "\n";
         }
         console.log(output);
+    }
+
+    function create_red_line_between_nodes(ss, node1, node2) {
+        // const tracerLines = ss.BABYLONJS.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+        pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
+        pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
+        if (window.pathLines === undefined) {
+            let node_lines = ss.BABYLONJS.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER.actor.mesh.position, pos2] }, ss.MYPLAYER.actor.scene);
+            node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
+            node_lines.renderingGroupId = 1;
+            window.pathLines = [node_lines];
+        } else {
+            let node_lines = ss.BABYLONJS.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER.actor.mesh.position, pos2] }, ss.MYPLAYER.actor.scene);
+            node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
+            node_lines.renderingGroupId = 1;
+            window.pathLines.push(node_lines);
+        }
+    }
+
+    function create_pathfinding_lines(ss, path) {
+        for (var i = 0; i < path.length - 1; i++) {
+            create_red_line_between_nodes(ss, path[i], path[i + 1]);
+        }
     }
 
     // end pathfinding
@@ -3045,27 +3117,89 @@
         createAnonFunction("STATEFARM",function(){
 
             //this is crashing rn
-            /*
+
+
+            
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
             }
 
-            if (!found_example_path) {
+            if (window.findNewPath && !window.activePath && !window.activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
                 let player_pos = get_player_position(ss.MYPLAYER);
                 let player_node = get_node_at(player_pos);
                 if (player_node) {
-                    random_node = GLOBAL_NODE_LIST[Math.floor(Math.random() * GLOBAL_NODE_LIST.length)];
-                }
-                path = AStar(player_node, random_node);
-                if (path) {
-                    print_node_list(path);
-                    found_example_path = true;
+                    let position = {
+                        x: player_pos.x + Math.floor(Math.random() * 5) - 1,
+                        y: player_pos.y,
+                        z: player_pos.z + Math.floor(Math.random() * 5) - 1
+                    }
+                    // check if node at position exists
+                    let random_node = get_node_at(position);
+                    
+                    if (!(player_node === random_node) && random_node) {
+                        console.log("location, target:")
+                        print_node_list([player_node, random_node])
+                        window.activePath = AStar(player_node, random_node);
+                        if (window.activePath) {
+                            console.log("setting active node target");
+                            print_node_list(window.activePath);
+                            window.activeNodeTarget = window.activePath[0];
+                            window.forceForwardJustChanged = true;
+                            console.log("list printed, target set, creating pathfinding lines")
+                            create_pathfinding_lines(ss, window.activePath);
+                            window.findNewPath = false; 
+                            console.log("found path to random node")                 
+                        } else {
+                            console.log("unable to find path to random node")
+                        }
+                    } else {
+                        console.log("player node / random node not air")
+                    }
+                } else {
+                    console.log("player not on air node currently")
                 }
             }
-            */
 
-            linked_nodes = get_player_linked_nodes(ss.MYPLAYER);
+            if (window.activeNodeTarget && window.activePath) {
+                console.log("found target and path");
+                let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                if (player_node == window.activeNodeTarget) {
+                    window.activeNodeTarget = window.activePath.shift();
+                    console.log("update target");
+                    if (window.activePath.length == 0) {
+                        console.log("path completed");
+                        window.activePath = null;
+                        window.activeNodeTarget = null;
+                        window.forceForwardJustChanged = true;
+                    }
+                } else {
+                    console.log("not at target");
+                }
+                /* if (!(window.activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
+                    window.findNewPath = true;
+                    window.activePath = null;
+                    window.activeNodeTarget = null;
+                    console.log("went off path, finding new path")
+                } */
+            }
+
+            window.forceForward = false;
+
+            if (window.activeNodeTarget) {
+                // look towards the node
+                console.log("looking towards node")
+                let directionVector = getDirectionVectorFacingTarget(window.activeNodeTarget.position, true, 0);
+                let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
+                console.log("vector obtained: ", directionVector);
+                ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
+                ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
+                console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
+                window.forceForward = true;
+                console.log("done with looking & window forward set")
+            }
+
+            
 
             isBanned=false; //cant be banned if in a game /shrug
             errorString=undefined; //no error if ur playing
@@ -3085,7 +3219,7 @@
                 myPlayerDot.style.display = 'block';
                 ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
             }
-            else{
+            else {
                 ss.PLAYERS.forEach(player=>{
                     if (playerDotsMap.has(player.uniqueId)) {
                         const playerDotToRemove = playerDotsMap.get(player.uniqueId);
