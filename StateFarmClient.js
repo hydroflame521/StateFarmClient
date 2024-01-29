@@ -19,66 +19,66 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.2-pre19
+// @version      3.3.3-pre8
 
-// @match        *://shellshock.io/*
-// @match        *://algebra.best/*
-// @match        *://algebra.vip/*
-// @match        *://biologyclass.club/*
-// @match        *://deadlyegg.com/*
-// @match        *://deathegg.world/*
-// @match        *://eggboy.club/*
-// @match        *://eggboy.xyz/*
-// @match        *://eggcombat.com/*
-// @match        *://egg.dance/*
-// @match        *://eggfacts.fun/*
-// @match        *://egghead.institute/*
-// @match        *://eggisthenewblack.com/*
-// @match        *://eggsarecool.com/*
-// @match        *://geometry.best/*
-// @match        *://geometry.monster/*
-// @match        *://geometry.pw/*
-// @match        *://geometry.report/*
-// @match        *://hardboiled.life/*
-// @match        *://hardshell.life/*
-// @match        *://humanorganising.org/*
-// @match        *://mathactivity.xyz/*
-// @match        *://mathactivity.club/*
-// @match        *://mathdrills.info/*
-// @match        *://mathdrills.life/*
-// @match        *://mathfun.rocks/*
-// @match        *://mathgames.world/*
-// @match        *://math.international/*
-// @match        *://mathlete.fun/*
-// @match        *://mathlete.pro/*
-// @match        *://overeasy.club/*
-// @match        *://scrambled.tech/*
-// @match        *://scrambled.today/*
-// @match        *://scrambled.us/*
-// @match        *://scrambled.world/*
-// @match        *://shellshockers.club/*
-// @match        *://shellshockers.life/*
-// @match        *://shellshockers.site/*
-// @match        *://shellshockers.us/*
-// @match        *://shellshockers.world/*
-// @match        *://shellshockers.xyz/*
-// @match        *://shellsocks.com/*
-// @match        *://softboiled.club/*
-// @match        *://urbanegger.com/*
-// @match        *://violentegg.club/*
-// @match        *://violentegg.fun/*
-// @match        *://yolk.best/*
-// @match        *://yolk.life/*
-// @match        *://yolk.rocks/*
-// @match        *://yolk.tech/*
-// @match        *://yolk.quest/*
-// @match        *://yolk.today/*
-// @match        *://zygote.cafe/*
+// @match        *://*.shellshock.io/*
+// @match        *://*.algebra.best/*
+// @match        *://*.algebra.vip/*
+// @match        *://*.biologyclass.club/*
+// @match        *://*.deadlyegg.com/*
+// @match        *://*.deathegg.world/*
+// @match        *://*.eggboy.club/*
+// @match        *://*.eggboy.xyz/*
+// @match        *://*.eggcombat.com/*
+// @match        *://*.egg.dance/*
+// @match        *://*.eggfacts.fun/*
+// @match        *://*.egghead.institute/*
+// @match        *://*.eggisthenewblack.com/*
+// @match        *://*.eggsarecool.com/*
+// @match        *://*.geometry.best/*
+// @match        *://*.geometry.monster/*
+// @match        *://*.geometry.pw/*
+// @match        *://*.geometry.report/*
+// @match        *://*.hardboiled.life/*
+// @match        *://*.hardshell.life/*
+// @match        *://*.humanorganising.org/*
+// @match        *://*.mathactivity.xyz/*
+// @match        *://*.mathactivity.club/*
+// @match        *://*.mathdrills.info/*
+// @match        *://*.mathdrills.life/*
+// @match        *://*.mathfun.rocks/*
+// @match        *://*.mathgames.world/*
+// @match        *://*.math.international/*
+// @match        *://*.mathlete.fun/*
+// @match        *://*.mathlete.pro/*
+// @match        *://*.overeasy.club/*
+// @match        *://*.scrambled.tech/*
+// @match        *://*.scrambled.today/*
+// @match        *://*.scrambled.us/*
+// @match        *://*.scrambled.world/*
+// @match        *://*.shellshockers.club/*
+// @match        *://*.shellshockers.life/*
+// @match        *://*.shellshockers.site/*
+// @match        *://*.shellshockers.us/*
+// @match        *://*.shellshockers.world/*
+// @match        *://*.shellshockers.xyz/*
+// @match        *://*.shellsocks.com/*
+// @match        *://*.softboiled.club/*
+// @match        *://*.urbanegger.com/*
+// @match        *://*.violentegg.club/*
+// @match        *://*.violentegg.fun/*
+// @match        *://*.yolk.best/*
+// @match        *://*.yolk.life/*
+// @match        *://*.yolk.rocks/*
+// @match        *://*.yolk.tech/*
+// @match        *://*.yolk.quest/*
+// @match        *://*.yolk.today/*
+// @match        *://*.zygote.cafe/*
 // ==/UserScript==
 
 (function () {
     //script info
-    const name="StateFarm Client";
+    const name="ЅtateFarm Client";
     const version=GM_info.script.version;
     const menuTitle=name + " v" + version;
     //startup sequence
@@ -93,15 +93,19 @@
             applyStateFarmLogo();
             const observer = new MutationObserver(applyStateFarmLogo);
             observer.observe(document.body, { subtree: true, childList: true });
+            detectURLParams();
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
     const discordURL = "https://discord.gg/mPa95HB7Q6";
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
-    const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#features";
-    const aimbottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#botting";
-    const replacementLogoURL = 'https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true';
+    const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
+    const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
+    const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     //INIT VARS
+    const inbuiltPresets = {
+        onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
+    };
     unsafeWindow.newGame=false
     let binding=false;
     let lastSpamMessage=0;
@@ -112,6 +116,8 @@
     let lastBotNewProxy=0;
     let lastBotLeave=0;
     let lastBotSpamReport=0;
+    let currentFrameIndex = 0;
+    let deciSecondsPassed = 0;
     let lastSentMessage="";
     let targetingComplete=false;
     let yourPlayerKills = 0;
@@ -128,8 +134,8 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,resetModules,amountOnline,errorString,playersInGame,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,previousDetail,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     const weaponArray={ //this could be done differently but i cba
@@ -142,7 +148,6 @@
         trihard: 6,
         random: 3, // :trol_fancy:
     };
-    const gameTypes = [ "ffa", "teams", "captula", "kotc", ];
     let proxyList = [
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
         'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
@@ -155,14 +160,85 @@
     proxyList=[...proxyList].sort(() => Math.random() - 0.5);
     let proxyListIndex=0;
     const monitorObjects = {};
+    //title animation
+    const titleAnimationFrames = [
+        '︻デ═一',
+        '︻デ═一',
+        'デ═一　-',
+        '═一　　　-',
+        '一　　　　-',
+        '.　　　　　-',
+        '.　　　　-',
+        '.　　　-',
+        '.　　　　-　　0',
+        '.　　　　　-0',
+        '.　　　　\\/',
+        '.　　　_-_',
+        '.　___',
+        '__',
+        '.',
+        'STATEFARMCLIEN',
+        'TATEFARMCLIENT',
+        'ATEFARMCLIENTV',
+        'TEFARMCLIENTV3',
+        'EFARMCLIENTV3 ',
+        'FARMCLIENTV3 S',
+        'ARMCLIENTV3 ST',
+        'RMCLIENTV3 STA',
+        'MCLIENTV3 STAT',
+        'CLIENTV3 STATE',
+        'LIENTV3 STATEF',
+        'IENTV3 STATEFA',
+        'ENTV3 STATEFAR',
+        'NTV3 STATEFARM',
+        'TV3 STATEFARMC',
+        'V3 STATEFARMCL',
+        '3 STATEFARMCLI',
+        'STATEFARMCLIEN',
+        'TATEFARMCLIENT',
+        'STATEFARM',
+        'CLIENT V3',
+        'STATEFARM',
+        'CLIENT V3',
+        'STATEFARM',
+        'CLIENT V3',
+        'STATEFARM',
+        'CLIENT V3',
+        ':)',
+        ';)',
+        ':)',
+        '⠝⠓⠗⠅ ஃ ⠟⠑⠙⠟',
+        '⠑⠑⠟⠟ ஃ ⠙⠛⠟⠕',
+        '⠛⠟⠍⠑ ஃ ⠅⠑⠍⠃',
+        '⠅⠟⠇⠝ ஃ ⠟⠕⠗⠕',
+        '⠝⠓⠗⠅ ஃ ⠟⠑⠙⠟',
+        '⠑⠑⠟⠟ ஃ ⠙⠛⠟⠕',
+        '⠛⠟⠍⠑ ஃ ⠅⠑⠍⠃',
+        '⠅⠟⠇⠝ ஃ ⠟⠕⠗⠕',
+        '( ͡° ͜ʖ ͡°)',
+        '( ͠° ͟ʖ ͡°)',
+        '( ͡° ͟ʖ ͡°)',
+        '( ͡° ͟ʖ ͠°)一',
+        '( ͡° ͟ʖ ͠°)═一',
+        '( ͡° ͟ʖ ͠°)デ═一',
+        '( ͡° ͟ʖ ͠°)︻デ═一',
+        ' ͡° ͟ʖ ͠°)︻デ═一',
+        ' ͟ʖ ͠°)︻デ═一',
+        ' ͠°)︻デ═一',
+        ')︻デ═一',
+    ];
 
     //menu interaction functions
+    //menu extraction
     const extract = function (variable,shouldUpdate) {
         if (shouldUpdate) {updateConfig()};
         return configMain[variable]||configBots[variable];
     };
+    const extractDropdownList = function (variable) {
+        return tp[variable+"Button"].controller_.binding.value.constraint_.constraints[0].options;
+    };
     const extractAsDropdownInt = function (variable) {
-        const options = tp[variable+"Button"].controller_.binding.value.constraint_.constraints[0].options;
+        const options = extractDropdownList(variable);
         const state = extract(variable);
         for (let i = 0; i < options.length; i++) {
             if (options[i].value === state) {
@@ -170,13 +246,19 @@
             };
         };
     };
+
     const beginBinding = function (value) {
         if (binding == false) {
             binding=value;
             tp[binding+"BindButton"].title="PRESS KEY";
         };
     };
-    const change = function (module,newValue) { //its important to note that every module must have a unique name
+    //one day i should make this unshit. dom is not the correct way to go about this.
+    //unfortunately tweakpane is a pain in the ass and has barely anything for actually extracting/changing vars
+    //a way it could be done is export preset => change value => import preset
+    //but doesnt account for it being a button... and dropdowns wouldnt switch properly too. laziness. the problem is that this works fine.
+    //suppose i could always just log the type of module and refer to it later. you can also get the parent object from the tp object, that would save iterating over everything.
+    const change = function (module,newValue) { //its important to note that every module must have a unique name (the title of the module, NOT the storeAs)
         const labels = document.querySelectorAll('.tp-lblv_l');
         const moduleButton=module+"Button";
         const moduleLabel=tp[moduleButton].label;
@@ -242,6 +324,7 @@
     document.addEventListener("keydown", function (event) {
         event=(event.code.replace("Key",""));
         isKeyToggled[event]=true;
+        if (event=="Escape") { noPointerPause=false; unsafeWindow.document.onpointerlockchange() };
     });
     document.addEventListener("keyup", function (event) {
         event=(event.code.replace("Key",""));
@@ -281,13 +364,31 @@
             });
         };
     });
-    const initTab = function(tab) {
+    const initTabs = function(tab,guideData) {
         tp[tab.storeAs]=tab.location.addTab({
             pages: [
                 {title: 'Modules'},
                 {title: 'Binds'},
+                {title: 'Guide'},
             ],
         });
+        if (guideData) {
+            const thePages = [];
+            guideData.forEach(aPage=>{
+                thePages.push({title: aPage.title});
+            });
+            tp[tab.storeAs+"Guide"]=tp[tab.storeAs].pages[2].addTab({ pages: thePages }); //is there a one liner for this? uhhh probabyl
+            //tp[tab.storeAs + "Guide"] = tab.location.addTab({ thePages: guideData.map(page => ({ title: page.title })) });
+            for (let i = 0; i < guideData.length; i++) {
+                const storeAs = tab.storeAs+"Guide"+i;
+                const text = (guideData[i].content||"Not set up correctly lmao");
+                initModule({ location: tp[tab.storeAs+"Guide"].pages[i], storeAs: storeAs, monitor: (text.split('\n').length + 0.25),});
+                monitorObjects[storeAs]=text;
+                const infoElement = tp[storeAs+"Button"].controller_.view.element.children[1].children[0];
+                infoElement.style.width = "226px";
+                infoElement.style.setProperty("margin-left", "-66px", "important");
+            };
+        };
     };
     const initFolder = function(folder) {
         tp[folder.storeAs]=folder.location.addFolder({
@@ -315,7 +416,7 @@
                 title: module.button,
             }).on("click", (value) => {
                 if (module.clickFunction!==undefined) {module.clickFunction(value)};
-                if (module.botParam!==undefined) {updateBotParams(module.botParam)};
+                if ((module.botParam!==undefined) && (!AUTOMATED)) {updateBotParams(module.botParam)};
             });
         } else if (module.monitor) {
             monitorObjects[module.storeAs]="Text Goes Here";
@@ -332,9 +433,11 @@
             tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config
             ).on("change", (value) => {
                 if (module.changeFunction!==undefined) {module.changeFunction(value)};
-                if (module.botParam!==undefined) {
+                if ((module.botParam!==undefined)) {
                     setTimeout(() => {
-                        updateBotParams(module.botParam);
+                        if (startUpComplete) {
+                            updateBotParams(module.botParam);
+                        };
                     }, 500);
                 };
                 setTimeout(() => {
@@ -369,7 +472,64 @@
         tp.mainPanel.title = menuTitle;
         //COMBAT MODULES
         initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder",});
-        initTab({ location: tp.combatFolder, storeAs: "combatTab" })
+        initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
+            {title: "Basics", content: 
+`This is the combat tab. Here you will find
+options relating to aimbotting, and other
+useful macros. Aimbot is made active by
+turning it on. Using ToggleRM will give you
+more control by allowing you to switch by
+pressing the right mouse button.
+TargetMode also allows a more intuitive
+means of selecting who you will target.
+The most powerful features you can use
+are Predictions and Antibloom. These
+improve the accuracy of the tracking.
+AntiSwitch will make you lock on to a
+target until they die, and if you don't want
+to target them after they die then choose
+1Kill too. Auto Refill helps you stay
+topped up and choosing the Smart
+mode allows you to refill at the moment
+when you will not have a long
+reload time. GrenadeMAX makes all
+grenades get thrown at max strength.`},
+        {title: "Visibility", content: 
+`There are a couple of options related to
+visibility (Line-of-Sight). First is
+TargetVisible. This tunes the aimbot to
+be more strategic with where it aims.
+NoWallTrack makes it such that if a
+targeted player goes behind a wall, you
+stop aimlocking them. There is also an
+AutoFire mode with this sort of
+functionality.`},
+        {title: "Advanced", content: 
+`If you want to increase stealthiness,
+make use of MinAngle and AntiSnap. The
+first will make it so that you have to
+manually move your reticle within your
+specified radius to lock on. The latter
+smooths snapping, which evades
+detection on botter spotter scripts.
+If you want to be more powerful, opt for
+SilentAim. This modifies your direction
+packets instead of making you lock on.
+However, this can lead to slightly glitchy
+movement. When this is on, MinAngle
+changes to instead narrow down the
+selection of targets rather than acting
+as a guide.
+AntiSneak is a module which, while not
+always showing use, can help you in a
+difficult situation. It automatically
+switches targets to a player that enters
+your specified range, and begins
+shooting with your primary gun, and then
+the pistol. Ideal use case is when you are
+sniping and someone sneaks up on you
+(...hence it is called... AntiSneak).`},
+        ]);
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
@@ -385,19 +545,22 @@
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
+                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
                 initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1],});
+            tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "While Holding LMB", value: "leftMouse"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
+            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
+            tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder",});
-        initTab({ location: tp.renderFolder, storeAs: "renderTab" });
+        initTabs({ location: tp.renderFolder, storeAs: "renderTab" });
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
@@ -428,7 +591,7 @@
                     initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff",});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
-            initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 3}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
+            initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 1}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
@@ -438,7 +601,7 @@
             initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true,});
         //HUD MODULES
         initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder",});
-        initTab({ location: tp.hudFolder, storeAs: "hudTab" });
+        initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
             initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1],});
@@ -451,7 +614,7 @@
             initModule({ location: tp.hudTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.hudTab.pages[1],});
         //CHAT MODULES
         initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder",});
-        initTab({ location: tp.chatFolder, storeAs: "chatTab" });
+        initTabs({ location: tp.chatFolder, storeAs: "chatTab" });
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
@@ -463,8 +626,8 @@
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
-                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 0, max: 60000, step: 10}, defaultValue: 500,});
-                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "StateFarm On Top! ",});
+                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 10, max: 60000, step: 10}, defaultValue: 500,});
+                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ",});
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
@@ -479,7 +642,7 @@
                 initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1],});
         //LISTS MODULES
         initFolder({ location: tp.mainPanel, title: "Lists", storeAs: "listsFolder",});
-        initTab({ location: tp.listsFolder, storeAs: "listsTab" })
+        initTabs({ location: tp.listsFolder, storeAs: "listsTab" })
             initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2",});
             initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder",});
                 initModule({ location: tp.whitelistFolder, title: "WAimbot", storeAs: "enableWhitelistAimbot", bindLocation: tp.listsTab.pages[1],});
@@ -495,7 +658,7 @@
                 initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00",});
         //AUTOMATION MODULES
         initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
-        initTab({ location: tp.automationFolder, storeAs: "automationTab" })
+        initTabs({ location: tp.automationFolder, storeAs: "automationTab" })
             initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: function(){
                 alert("Thank you for your efforts comrade! o7");
                 spamReport();
@@ -514,20 +677,34 @@
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
                 initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
-                initModule({ location: tp.autoJoinFolder, title: "Username", storeAs: "usernameAutoJoin", defaultValue: "StateFarmer",});
-                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", bindLocation: tp.automationTab.pages[1],});
+                tp.autoJoinFolder.addSeparator();
+                initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useDefaultName", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer",});
+                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", clickFunction: function(){
+                    const copiedName = retrieveCopiedName();
+                    console.log("Retrieved copied name:",copiedName);
+                    change("usernameAutoJoin",(copiedName||"ЅtateFarmer"));
+                },});
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
+            initModule({ location: tp.automationTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.automationTab.pages[1],});
+            tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "Gamemode", storeAs: "autoGamemode", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Region", storeAs: "autoRegion", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
+            tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "Egg Colour", storeAs: "eggColour", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, /*{text: "Randomised", value: "random"}*/], defaultValue: "disabled"});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Stamp", storeAs: "autoStamp", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}], defaultValue: "disabled"});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Hat", storeAs: "autoHat", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}], defaultValue: "disabled"});
         //BOTTING MODULES
         initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder",});
-        initTab({ location: tp.bottingFolder, storeAs: "bottingTab" })
+        initTabs({ location: tp.bottingFolder, storeAs: "bottingTab" })
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function(){tp.botPanel.hidden=!tp.botPanel.hidden}, defaultBind:"J",});
             tp.bottingTab.pages[0].addSeparator();
-            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(aimbottingGuideURL)},});
+            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(bottingGuideURL)},});
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
-        initTab({ location: tp.miscFolder, storeAs: "miscTab" })
+        initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
@@ -547,6 +724,14 @@
             initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", bindLocation: tp.miscTab.pages[1], button: "RELOAD NOW", clickFunction: function(){
                 reloadPage();
             },});
+            tp.miscTab.pages[0].addSeparator();
+            initModule({ location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function(){
+                if (document.pointerLockElement !== null) { //currently locked
+                    noPointerPause=true; unsafeWindow.document.exitPointerLock();
+                } else if (noPointerPause) { //already unlocked?
+                    noPointerPause=false; canvas.requestPointerLock();
+                };
+            },});
             initModule({ location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
                 window.findNewPath = true;
             },});
@@ -560,11 +745,12 @@
                 initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
         //CLIENT MODULES
         initFolder({ location: tp.mainPanel, title: "Client & About", storeAs: "clientFolder",});
-        initTab({ location: tp.clientFolder, storeAs: "clientTab" })
+        initTabs({ location: tp.clientFolder, storeAs: "clientTab" })
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.mainPanel.hidden=!tp.mainPanel.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.clientTab.pages[1],});
+            initModule({ location: tp.clientTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.clientTab.pages[1],});
             initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "Default", value: "defaultTheme"},
                 {text: "Iceberg", value: "icebergTheme"},
@@ -573,7 +759,8 @@
                 {text: "Retro", value: "retroTheme"},
                 {text: "Translucent", value: "translucentTheme"},
                 {text: "StateFarmer", value: "statefarmerTheme"},
-                {text: "Blurple", value: "blurpleTheme"}
+                {text: "Blurple", value: "blurpleTheme"},
+                {text: "ShellFarm", value: "shellFarmTheme"},
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
                 applyTheme(value.value);
             }});
@@ -583,13 +770,13 @@
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
             tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presets", bindLocation: tp.clientTab.pages[1], dropdown: [
-                {text: "onlypuppy7's Config", value: "aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true"},
+            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", defaultValue: "onlypuppy7", bindLocation: tp.clientTab.pages[1], dropdown: [
+                {text: "onlypuppy7's Config", value: "onlypuppy7"},
             ]});
             initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
                 if (userConfirmed) {
-                    applySettings(extract("presets"));
+                    applySettings(inbuiltPresets[extract("selectedPreset")]);
                 };
             },});
             tp.clientTab.pages[0].addSeparator();
@@ -601,7 +788,7 @@
                 const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored module states and keybinds.");
                 if (userConfirmed) {
                     initMenu(true);
-                    userConfirmed=alert("Reset to defaults.");
+                    alert("Reset to defaults.");
                 };
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
@@ -628,12 +815,17 @@
         initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1, botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()}, botParam: true,});
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Name", storeAs: "botUsername", defaultValue: "StateFarmer", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useDefaultNameBots", defaultValue: true, botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", botParam: true,});
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
+        tp.botTabs.pages[0].addSeparator();
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, {text: "Randomised", value: "random"}], defaultValue: "darkesteggshell", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}, {text: "Randomised", value: "random"}], defaultValue: "pablosmile", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Hat", storeAs: "autoHatBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}, {text: "Randomised", value: "random"}], defaultValue: "pablohat", botParam: true,});
         //MANAGE STUFF
         initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("StateFarm_KillBots") }, botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("StateFarm_RefreshBots") }, botParam: true,});
@@ -643,11 +835,16 @@
         initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("StateFarm_LeaveBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("StateFarm_SpamReportBots") }, botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCodeBots", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
+        tp.botTabs.pages[1].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "GameType", storeAs: "autoGamemodeBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "AutoRegion", storeAs: "autoRegionBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
+        tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
         //PARAMS STUFF
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
@@ -660,7 +857,10 @@
         initModule({ location: tp.botTabs.pages[2], title: "DoAutoEZ", storeAs: "botAutoEZ", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "whipper"});
+        initModule({ location: tp.botTabs.pages[2], title: "DoSpam", storeAs: "botSpam", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true,});
+        tp.botTabs.pages[2].addSeparator();
+        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47"});
         initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});;
@@ -677,11 +877,16 @@
 
         updateConfig();
 
-        if (AUTOMATED) {
+        if (AUTOMATED) { //why after 500ms? perhaps we'll never know. maybe because it gives a visual indication that statefarm is statefarming.
             setTimeout(() => {
                 tp.mainPanel.hidden=true;
             }, 500);
         };
+
+        const defaultSpamText = ("dsc.gg/sfclient: "+menuTitle+" On Top! ");
+
+        if (extract("spamChatText").includes("On Top!")) { change("spamChatText",defaultSpamText) };
+        if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot",defaultSpamText) };
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
@@ -718,7 +923,7 @@
         } catch (error) {
             // Handle the error and display an error message onscreen
             console.error("An error occurred:", error);
-            alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the moderators.");
+            alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the developers.");
         }
     };
     const applyStylesAddElements = function (themeToApply = "null") {
@@ -1136,6 +1341,29 @@
                 --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
                 --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
                 --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
+            case ( "shellFarmTheme" ):
+                rootTheme = `
+                --tp-base-background-color: hsla(198, 100%, 50%, 1.00);
+                --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
+                --tp-button-background-color: hsla(0, 0%, 100%, 1.00);
+                --tp-button-background-color-active: hsla(0, 0%, 85%, 1.00);
+                --tp-button-background-color-focus: hsla(0, 0%, 90%, 1.00);
+                --tp-button-background-color-hover: hsla(0, 0%, 95%, 1.00);
+                --tp-button-foreground-color: hsla(230, 20%, 11%, 1.00);
+                --tp-container-background-color: hsla(0, 0%, 0%, 0.20);
+                --tp-container-background-color-active: hsla(0, 0%, 0%, 0.35);
+                --tp-container-background-color-focus: hsla(0, 0%, 0%, 0.30);
+                --tp-container-background-color-hover: hsla(0, 0%, 0%, 0.25);
+                --tp-container-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-groove-foreground-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-input-background-color-active: hsla(0, 0%, 0%, 0.65);
+                --tp-input-background-color-focus: hsla(0, 0%, 0%, 0.60);
+                --tp-input-background-color-hover: hsla(0, 0%, 0%, 0.55);
+                --tp-input-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
+                --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
+                --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
         };
 
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
@@ -1517,26 +1745,28 @@
         object.box.color = new ss.BABYLONJS.Color3(...color);
     };
     const everySecond = function () {
-        if (!ranEverySecond) {
-            detectURLParams();
-        };
+        startUpComplete = (!document.getElementById("progressBar"));
         const botsArray = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
 
-            if (unsafeWindow.vueData.firebaseId) {clientID=unsafeWindow.vueData.firebaseId};
             if (clientID) {
                 const extractedParams=GM_getValue("StateFarm_BotParams");
                 if (extractedParams!==previousParams) {
+                    console.log("StateFarm: Change in Bot Panel detected.");
                     applySettings(extractedParams);
                     previousParams=extractedParams;
                 };
+
+                delete botsArray[clientID];
+
+                clientID = (unsafeWindow.vueData.firebaseId||clientID);
 
                 botsArray[clientID] = {
                     username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : "in game ") + ss.GAMECODE + " (" + gameTypes[unsafeWindow.vueData.currentGameType] + ", " + vueData.currentRegionId + ")"))||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + ss.GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
                         (errorString||"idle")),
                 };
             };
@@ -1557,10 +1787,18 @@
             monitorObjects.botOnline = ((amountOnline) + " bots online.")+monitorObjects.botOnline;
         };
         GM_setValue("StateFarm_BotStatus",botsArray);
+
         allFolders.forEach(function (name) {
             localStorage.setItem(name,JSON.stringify(tp[name].expanded));
         });
-        if (unsafeWindow.extern.inGame) {
+
+        coordElement.style.display = 'none';
+        gameInfoElement.style.display = 'none';
+        playerstatsElement.style.display = 'none';
+        playerinfoElement.style.display = 'none';
+        redCircle.style.display = 'none';
+
+        if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
                 let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
@@ -1587,10 +1825,17 @@
                 }; //chatOnKill
             };
             if (extract("gameInfo")) {
-                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining.";
+                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName;
                 gameInfoElement.innerText = gameInfoText;
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
+            };
+            if (extract("leaveEmpty")) {
+                if (playersInGame==1) {
+                    createPopup("Left empty game. [LeaveEmpty]")
+                    change("leaveGame");
+                    playersInGame=0;
+                };
             };
             //credits: @2lars and @macintosh2 in the discord :)
             if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
@@ -1610,21 +1855,22 @@
             };
             addStreamsToInGameUI();
         } else {
-            coordElement.style.display = 'none';
-            gameInfoElement.style.display = 'none';
-            playerstatsElement.style.display = 'none';
-            playerinfoElement.style.display = 'none';
-            redCircle.style.display = 'none';
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
-                    const playerSlots = document.querySelectorAll('.playerSlot--name');
-                    const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
-                    //console.log("adsknjf--->"mapNames);
-                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,extract("copyName") ? mapNames[Math.floor(Math.random() * mapNames.length)] : ( (extract("usernameAutoJoin")=="") ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,( ((extract("usernameAutoJoin")=="")||(!extract("useDefaultName"))) ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
+            if (extract("autoRegion")!=="disabled") {
+                const region = (extract("autoRegion")=="random" ? extractDropdownList("autoRegion")[randomInt(1,7)].value : extract("autoRegion"));
+                unsafeWindow.vueData.currentRegionId = region;
+            };
+            if (extract("autoGamemode")!=="disabled") {
+                const gamemode = ((extract("autoGamemode")=="random") ? randomInt(0,3) : (extractAsDropdownInt("autoGamemode")-1));
+                unsafeWindow.vueApp.onGameTypeChanged(gamemode);
+            };
         };
-        if ((!document.getElementById("progressBar"))) {
+
+        if (startUpComplete) {
             if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
                 unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=false;
                 if (extract("setDetail")=="autodetail") {
@@ -1645,7 +1891,25 @@
                 unsafeWindow.extern.applyUiSettings(unsafeWindow.vueApp.settingsUi);
             };
             previousDetail=extract("setDetail");
+
+            if (previousTitleAnimation!==extract("titleAnimation")) {
+                let existingFavicons = document.querySelectorAll("link[rel*='icon']");
+                existingFavicons.forEach(function (favicon) {
+                    favicon.parentNode.removeChild(favicon);
+                });
+                let favicon = document.createElement('link');
+                favicon.type = 'image/x-icon';
+                favicon.rel = 'shortcut icon';
+                if (extract("titleAnimation")) {
+                    favicon.href = GM_info.script.icon;
+                } else {
+                    favicon.href = 'https://www.google.com/s2/favicons?domain=shellshock.io';
+                };
+                document.getElementsByTagName('head')[0].appendChild(favicon);
+                previousTitleAnimation = extract("titleAnimation");
+            };
         };
+
         const banPopup = document.getElementById("bannedPopup");
         if (banPopup?.style.display!=='none') {
             isBanned=true;
@@ -1665,16 +1929,57 @@
             globalSS.ss=ss;
             globalSS.tp=tp;
             globalSS.initMenu=initMenu;
+            globalSS.extractAsDropdownInt=extractAsDropdownInt;
+            globalSS.extract=extract;
+            globalSS.extractDropdownList=extractDropdownList;
         };
 
-        ranEverySecond = true;
+        if (extract("eggColour")!=="disabled") {
+            const colour = extract("eggColour")=="random" ? randomInt(0,6) : extractAsDropdownInt("eggColour")-1;
+            if (colour!==ss.USERDATA.playerAccount.colorIdx) {
+                extern.setShellColor(colour);
+                vueApp.onBackClick();
+            };
+        };
+        if (extract("autoStamp")!=="disabled") {
+            const stampID = 2000 + (extract("autoStamp")=="random" ? randomInt(1,6) : extractAsDropdownInt("autoStamp"));
+            if (ss.USERDATA && ss.USERDATA.playerAccount) {
+                if (stampID!==((ss.USERDATA.playerAccount.stampItem && ss.USERDATA.playerAccount.stampItem?.id)||-1)) {
+                    ss.USERDATA.playerAccount.stampItem = unsafeWindow.extern.catalog.findItemById(stampID);
+                    vueApp.onBackClick();
+                };
+            };
+        };
+        if (extract("autoHat")!=="disabled") {
+            const hatID = 1000 + (extract("autoHat")=="random" ? randomInt(1,6) : extractAsDropdownInt("autoHat"));
+            if (ss.USERDATA && ss.USERDATA.playerAccount) {
+                if (hatID!==((ss.USERDATA.playerAccount.hatItem && ss.USERDATA.playerAccount.hatItem?.id)||-1)) {
+                    ss.USERDATA.playerAccount.hatItem = unsafeWindow.extern.catalog.findItemById(hatID);
+                    vueApp.onBackClick();
+                };
+            };
+        };
+        if ((!ranEverySecond) && startUpComplete) {
+            // detectURLParams();
+            ranEverySecond = true;
+        };
+
         //block ads or something kek
         localStorage.timesPlayed = 0;
     };
     const everyDecisecond = function () {
-        updateConfig();
+        updateConfig(); deciSecondsPassed+=1;
 
-        if (unsafeWindow.extern.inGame) {
+        if (extract("titleAnimation")) {
+            if (deciSecondsPassed%3==0) {
+                unsafeWindow.document.title = titleAnimationFrames[currentFrameIndex];
+                currentFrameIndex = (currentFrameIndex + 1) % titleAnimationFrames.length;
+            };
+        } else {
+            unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer io game";
+        };
+
+        if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
             //innertext stuff, fairly resource intensive. disable these for performance
             if (extract("playerStats")) {
                 let playerStates="";
@@ -1733,7 +2038,7 @@
             if (GM_getValue("StateFarm_NewProxyBots")) {
                 if (Date.now()>lastBotNewProxy) {
                     newProxy();
-                    lastBotUnban=Date.now()+3000;
+                    lastBotNewProxy=Date.now()+3000;
                 };
             };
             if (GM_getValue("StateFarm_RefreshBots")) {
@@ -2096,13 +2401,13 @@
         let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
         // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
-    
+
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
         let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
-    
+
         let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
         let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
         let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
@@ -2111,7 +2416,7 @@
     const getAimbot = function(target) {
         let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
-        
+
         let direction = {
             yaw: calculateYaw(directionVector),
             pitch: calculatePitch(directionVector),
@@ -2139,6 +2444,9 @@
         };
         unsafeWindow.getAdminSpoof = function () {
             return extract("adminSpoof");
+        };
+        unsafeWindow.getPointerEscape = function () {
+            return noPointerPause;
         };
         unsafeWindow.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
@@ -2264,7 +2572,7 @@
                 getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
                 getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
                 getVar("SETTINGS", '\\.mouseSpeed&&([a-zA-Z]+)\\.mouseSensitivity!==null');
-                getVar("CONTROLVALUES", 'this\\.controlKeys&([a-zA-Z]+)\\.jump,this\\.actor');
+                getVar("CONTROLVALUES", '\\.controlKeys&([a-zA-Z]+)\\.jump');
                 getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
                 // getVar("vs", '(vs)'); //todo
                 // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
@@ -2334,6 +2642,8 @@
             js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.onConnectFail('+FUNCTIONPARAM+','+ERRORARRAY+');')
             //get rid of tutorial popup because its a stupid piece of shit
             js=js.replace(',vueApp.onTutorialPopupClick()','');
+            //pointer escape
+            js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.getPointerEscape()) {return};');
 
             //replace graveyard:
             // //sus
@@ -2372,12 +2682,6 @@
             // js = js.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
             //disable autopause
             // js = js.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
-            //safe unfocus
-            // js = js.replace('document.onpointerlockchange', 'document.dopausingstuff');
-            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // js = js.replace(',document.exitPointerLock())', ',document.exitPointerLock(),document.dopausingstuff())');
-            // js = js.replace(',xc("down")', '');
             //adblock/vip spoof
             // js = js.replace(/z\.isUpgraded\(\)/g,'true');
             // js = js.replace(/aipAPItag\.sdkBlocked/g,'false');
@@ -2406,9 +2710,10 @@
     };
 
     const deployBots = function() {
+        updateBotParams();
         if (!JSON.parse(localStorage.getItem("firstTimeBots"))) {
             localStorage.setItem("firstTimeBots",JSON.stringify(true));
-            unsafeWindow.open(aimbottingGuideURL);
+            unsafeWindow.open(bottingGuideURL);
         };
 
         GM_setValue("StateFarm_BotStatus",{});
@@ -2417,15 +2722,12 @@
 
         let botNames=[];
         for (let i = 0; i < extract("numberBots"); i++) {
-            let name=extract("botUsername");
+            let name=(extract("botUsername"));
             if (extract("botCopyName")) {
-                if (!unsafeWindow.extern.inGame) {
-                    alert("Cannot copy names if not in a game!")
+                name = retrieveCopiedName();
+                if (!name) {
+                    alert("StateFarm: Cannot copy names if you haven't been in a game!");
                     return;
-                } else {
-                    const playerSlots = document.querySelectorAll('.playerSlot--name');
-                    const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
-                    name = mapNames[Math.floor(Math.random() * mapNames.length)];
                 };
             };
             botNames.push(name);
@@ -2450,13 +2752,17 @@
             let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
-            
+
             const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
 
             if (BLACKLIST!=="") {
                 addParam("blacklist",BLACKLIST);
                 addParam("enableBlacklistAimbot",true);
             };
+
+            addParam("eggColour",extract("eggColourBots")=="random" ? randomInt(1,7) : extractAsDropdownInt("eggColourBots"));
+            addParam("autoStamp",extract("autoStampBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoStampBots"));
+            addParam("autoHat",extract("autoHatBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoHatBots"));
 
             addParam("usernameAutoJoin",name,true);
 
@@ -2478,9 +2784,11 @@
         addParam("aimbot",extract("botAimbot"));
         addParam("antiBloom",extract("botAimbot"));
         addParam("grenadeMax",extract("botAimbot"));
-        addParam("antiSneak",extract("botAimbot")?1.4:0);
         addParam("autoRefill",extract("botAimbot"));
-        addParam("autoGrenade",extract("botAimbot"));
+        //do shoot
+        addParam("antiSneak",extract("botAutoShoot")?1.4:0);
+        addParam("enableAutoFire",extract("botAutoShoot"));
+        addParam("autoGrenade",extract("botAutoShoot"));
         //automove
         addParam("autoWalk",extract("botAutoMove"));
         addParam("autoStrafe",extract("botAutoMove"));
@@ -2496,13 +2804,18 @@
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
-        addParam("enableAutoFire",extract("botAutoShoot"));
         addParam("autoEZ",extract("botAutoEZ"));
         addParam("cheatAccuse",extract("botCheatAccuse"));
         addParam("joinCode",extract("botJoinCode"));
         addParam("autoWeapon",extractAsDropdownInt("botWeapon")+1);
         addParam("autoTeam",extractAsDropdownInt("botTeam"));
         addParam("autoUnban",extract("botAutoUnban"));
+        addParam("autoRegion",extractAsDropdownInt("autoRegionBots"));
+        addParam("autoGamemode",extractAsDropdownInt("autoGamemodeBots"));
+        addParam("useDefaultName",extract("useDefaultNameBots"));
+        addParam("leaveEmpty",extract("leaveEmptyBots"));
+        addParam("spamChat",extract("botSpam"));
+        addParam("spamChatText",extract("spamChatTextBot"));
         addParam("tallChat",extract("botTallChat"),true);
 
         return params;
@@ -2515,7 +2828,7 @@
         };
         let customSettings = getSearchParam("StateFarm")
         if (customSettings!==null) {
-            console.log("StateFarm Custom Settings!");
+            console.log("StateFarm Custom Settings in URL!");
             customSettings=customSettings.split("|");
             applySettings(customSettings[0]);
             // let setVars=[];
@@ -2529,9 +2842,9 @@
     };
 
     const applySettings = function(settings) {
-        console.log(settings);
+        console.log(AUTOMATED,settings);
         settings=settings.split("<");
-        initMenu(true);
+        if (!AUTOMATED) { initMenu(true) };
         settings.forEach(element=>{
             element=element.split(">");
             change(element[0],JSON.parse(element[1]));
@@ -2540,8 +2853,15 @@
     };
 
     const updateBotParams = function() {
-        console.log(constructBotParams());
-        GM_setValue("StateFarm_BotParams",constructBotParams());
+        const botParams = constructBotParams();
+        GM_setValue("StateFarm_BotParams",botParams);
+        console.log("StateFarm: set bot params to:",botParams);
+    };
+
+    const retrieveCopiedName = function () {
+        const playerSlots = document.querySelectorAll('.playerSlot--name');
+        const mapNames = Array.from(playerSlots).map(playerSlot => playerSlot.textContent.trim());
+        return mapNames[Math.floor(Math.random() * mapNames.length)];
     };
 
     function loggedGameMap() {}
@@ -2553,7 +2873,7 @@
         this.content = [];
         this.scoreFunction = scoreFunction;
       }
-      
+
       BinaryHeap.prototype = {
         push: function(element) {
           // Add the new element to the end of the array.
@@ -2579,7 +2899,7 @@
           }
           return result;
         },
-      
+
         remove: function(node) {
           var length = this.content.length;
           // To remove a value, we must search through the array to find
@@ -2600,11 +2920,11 @@
             break;
           }
         },
-      
+
         size: function() {
           return this.content.length;
         },
-      
+
         bubbleUp: function(n) {
           // Fetch the element that has to be moved.
           var element = this.content[n], score = this.scoreFunction(element);
@@ -2617,7 +2937,7 @@
             // are done.
             if (score >= this.scoreFunction(parent))
               break;
-      
+
             // Otherwise, swap the parent with the current element and
             // continue.
             this.content[parentN] = element;
@@ -2629,13 +2949,13 @@
         includes: function(n) {
             return this.content.includes(n);
         },
-      
+
         sinkDown: function(n) {
           // Look up the target element and its score.
           var length = this.content.length,
           element = this.content[n],
           elemScore = this.scoreFunction(element);
-      
+
           while(true) {
             // Compute the indices of the child elements.
             var child2N = (n + 1) * 2, child1N = child2N - 1;
@@ -2658,10 +2978,10 @@
               if (child2Score < (swap == null ? elemScore : child1Score))
                 swap = child2N;
             }
-      
+
             // No need to swap further, we are done.
             if (swap == null) break;
-      
+
             // Otherwise, swap and continue.
             this.content[n] = this.content[swap];
             this.content[swap] = element;
@@ -2838,7 +3158,7 @@
             closed_set.push(current);
 
             var neighbors = current.linked;
-            
+
             for (var i = 0; i < neighbors.length; i++) {
                 var neighbor = neighbors[i];
 
@@ -2919,6 +3239,9 @@
             ranOneTime=true;
         };
         const initVars = function () {
+            isBanned=false; //cant be banned if in a game /shrug
+            errorString=undefined; //no error if ur playing
+            forceControlKeys=undefined; //reset every frame
             if (unsafeWindow.newGame) {
                 onlinePlayersArray=[];
             };
@@ -2968,89 +3291,87 @@
             const objExists=Date.now();
 
             //update playerESP boxes, tracer lines, colors
-            if (extract("playerESP")||extract("tracers")||extract("chams")||extract("targets")||extract("nametags")||extract("joinMessages")||extract("leaveMessages")) {
-                ss.PLAYERS.forEach(player=>{
-                    if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                        const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
-                        const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
-                        const passedLists=whitelisted&&(!blacklisted);
-                        const tracersType=extract("tracersType");
+            ss.PLAYERS.forEach(player=>{
+                if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+                    const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
+                    const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
+                    const passedLists=whitelisted&&(!blacklisted);
+                    const tracersType=extract("tracersType");
 
-                        let color,progress;
-                        if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && isPartialMatch(whitelistPlayers,player.name) ) {
-                            color=hexToRgb(extract("whitelistColor"));
-                        } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
-                            color=hexToRgb(extract("blacklistColor"));
-                        } else if ( tracersType=="proximity" ) {
-                            const distance = distancePlayers(player);
-                            if (distance < extract("tracersColor1to2")) { //fade between first set
-                                progress=(distance/extract("tracersColor1to2"));
-                                color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
-                            } else if (distance < extract("tracersColor2to3")) { //fade between second set
-                                progress=((distance-extract("tracersColor1to2"))/(extract("tracersColor2to3")-extract("tracersColor1to2")));
-                                color=fadeBetweenColors(extract("tracersColor2"),extract("tracersColor3"),progress);
-                            } else {
-                                color=hexToRgb(extract("tracersColor3"));
-                            };
-                        } else if (tracersType=="static") {
-                            color=hexToRgb(extract("tracersColor1"));
-                        } else if (tracersType == "visibility") {
-                            color = getLineOfSight(player) ? hexToRgb(extract("tracersColor2")) : hexToRgb(extract("tracersColor1"))
+                    let color,progress;
+                    if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && isPartialMatch(whitelistPlayers,player.name) ) {
+                        color=hexToRgb(extract("whitelistColor"));
+                    } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
+                        color=hexToRgb(extract("blacklistColor"));
+                    } else if ( tracersType=="proximity" ) {
+                        const distance = distancePlayers(player);
+                        if (distance < extract("tracersColor1to2")) { //fade between first set
+                            progress=(distance/extract("tracersColor1to2"));
+                            color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
+                        } else if (distance < extract("tracersColor2to3")) { //fade between second set
+                            progress=((distance-extract("tracersColor1to2"))/(extract("tracersColor2to3")-extract("tracersColor1to2")));
+                            color=fadeBetweenColors(extract("tracersColor2"),extract("tracersColor3"),progress);
+                        } else {
+                            color=hexToRgb(extract("tracersColor3"));
                         };
-
-                        updateOrCreateLinesESP(player,"playerESP",color);
-
-                        player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
-                        player.box.visibility = extract("playerESP") && passedLists;
-                        player.target.visibility = extract("targets") && passedLists;
-
-                        if (player.actor) {
-                            eggSize=extract("eggSize")
-                            player.actor.bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
-                        };
-
-                        player.actor.bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
-
-                        player.exists=objExists;
+                    } else if (tracersType=="static") {
+                        color=hexToRgb(extract("tracersColor1"));
+                    } else if (tracersType == "visibility") {
+                        color = getLineOfSight(player) ? hexToRgb(extract("tracersColor2")) : hexToRgb(extract("tracersColor1"))
                     };
-                    if (player) {
-                        if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
-                            player.actor.nameSprite._manager.renderingGroupId = 1;
-                            player.actor.nameSprite.renderingGroupId = 1;
-                            var h = Math.length3(player.x - ss.MYPLAYER.x, player.y - ss.MYPLAYER.y, player.z - ss.MYPLAYER.z),
-                            d = Math.pow(h, 1.25)*2;
-                            player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
-                            ss.MYPLAYER.actor.scene.activeCamera.fov=0.75
-                        };
-                        if (!player.logged) {
-                            player.logged=true;
-                            if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }
-                            if (extract("joinMessages") && (!unsafeWindow.newGame)) {
-                                if (extract("publicBroadcast")) {
-                                    sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
-                                } else {
-                                    processChatItem("joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
-                                };
-                            };
-                            onlinePlayersArray.push([player,player.name,player.team]);
-                        };
-                        player.isOnline=objExists;
+
+                    updateOrCreateLinesESP(player,"playerESP",color);
+
+                    player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
+                    player.box.visibility = extract("playerESP") && passedLists;
+                    player.target.visibility = extract("targets") && passedLists;
+
+                    if (player.actor) {
+                        eggSize=extract("eggSize")
+                        player.actor.bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
                     };
-                });
-                playersInGame=onlinePlayersArray.length;
-                for ( let i=0;i<onlinePlayersArray.length;i++) {
-                    if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
-                        onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
-                    } else {
-                        if (extract("leaveMessages") && (!unsafeWindow.newGame)) {
+
+                    player.actor.bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
+
+                    player.exists=objExists;
+                };
+                if (player) {
+                    if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
+                        player.actor.nameSprite._manager.renderingGroupId = 1;
+                        player.actor.nameSprite.renderingGroupId = 1;
+                        var h = Math.length3(player.x - ss.MYPLAYER.x, player.y - ss.MYPLAYER.y, player.z - ss.MYPLAYER.z),
+                        d = Math.pow(h, 1.25)*2;
+                        player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
+                        ss.MYPLAYER.actor.scene.activeCamera.fov=0.75
+                    };
+                    if (!player.logged) {
+                        player.logged=true;
+                        if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
+                        if (extract("joinMessages") && (!unsafeWindow.newGame)) {
                             if (extract("publicBroadcast")) {
-                                sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
+                                sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
                             } else {
-                                processChatItem("left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
+                                processChatItem("joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
                             };
                         };
-                        onlinePlayersArray.splice(i,1);
+                        onlinePlayersArray.push([player,player.name,player.team]);
                     };
+                    player.isOnline=objExists;
+                };
+            });
+            playersInGame=onlinePlayersArray.length;
+            for ( let i=0;i<onlinePlayersArray.length;i++) {
+                if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
+                    onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
+                } else {
+                    if (extract("leaveMessages") && (!unsafeWindow.newGame)) {
+                        if (extract("publicBroadcast")) {
+                            sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
+                        } else {
+                            processChatItem("left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
+                        };
+                    };
+                    onlinePlayersArray.splice(i,1);
                 };
             };
             //update ammoESP boxes, tracer lines, colors
@@ -3208,13 +3529,15 @@
             initVars();
             updateLinesESP();
 
+            // forceControlKeys = 30; @everyone @porcupane
+
             let isVisible;
             const player=currentlyTargeting||playerLookingAt||undefined;
             if (player && player.playing) {
                 isVisible=getLineOfSight(player);
             };
             highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
-            
+
             if (extract("radar")){
                 myPlayerDot.style.display = 'block';
                 ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
@@ -3243,8 +3566,23 @@
                 document.getElementById("chatOut").style.userSelect="text"
             };
             if ( extract("autoRefill") ) {
+                //console.log(ss.MYPLAYER.weapon);
                 if (ammo.rounds==0) {
                     ss.MYPLAYER.reload();
+                } else if (extract("smartRefill")) {
+                    let smartRefillMinAmmo = {
+                        eggk47:1,
+                        dozenGauge:0,
+                        csg1:1,
+                        rpegg:0,
+                        smg:1,
+                        m24:0,
+                        aug:3,
+                        cluck9mm:1
+                    };
+                    if (ammo.rounds <= smartRefillMinAmmo[ss.MYPLAYER.weapon.constructor.standardMeshName]) {
+                        ss.MYPLAYER.reload();
+                    };
                 };
             };
             if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount>0)) {
@@ -3277,8 +3615,6 @@
 
             let enemyMinimumDistance = 999999;
             enemyNearest=undefined; //used for antisneak
-            
-            let enemyMinimumValue = 999999; //used for selecting target (either pointingat or nearest)
 
             let previousTarget=currentlyTargeting;
             let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
@@ -3288,11 +3624,13 @@
             const targetType = extract("aimbotTargetMode");
             const visibilityMode = extract("aimbotVisibilityMode");
 
+            let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? extract("aimbotMinAngle") : 10000; //used for selecting target (either pointingat or nearest)
+
             let didAimbot
             const candidates=[];
             let amountVisible=0;
 
-            ss.PLAYERS.forEach(player=>{ //iterate over all players to 
+            ss.PLAYERS.forEach(player=>{ //iterate over all players to
                 if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
@@ -3415,8 +3753,6 @@
                 let doAutoFire=false
                 if (autoFireType=="always") {
                     doAutoFire=true;
-                } else if (autoFireType=="leftMouse" && isLeftButtonDown) {
-                    doAutoFire=true;
                 } else if (autoFireType=="whileAimbot" && didAimbot) {
                     doAutoFire=true;
                 } else if (autoFireType=="whileVisible" && isVisible) {
@@ -3429,6 +3765,16 @@
                         ss.MYPLAYER.melee();
                     };
                 };
+                //method by de_Neuublue
+                if ( autoFireType=="forceAutomatic" ) {
+                    if (ss.MYPLAYER.weapon.constructor.originallySemi == null) {
+                        ss.MYPLAYER.weapon.constructor.originallySemi = !ss.MYPLAYER.weapon.constructor.automatic;
+                    };
+                    ss.MYPLAYER.weapon.constructor.automatic = true;
+                } else if (ss.MYPLAYER.weapon.constructor.originallySemi) {
+                    ss.MYPLAYER.weapon.constructor.originallySemi = null;
+                    ss.MYPLAYER.weapon.constructor.automatic = false;
+                };
             };
         });
     };
@@ -3438,7 +3784,3 @@
     //start init thingamajigs
     startUp();
 })();
-
-// display: none !important;
-// console.log(aimbotBindButton.title);
-// console.log(bindsArray);
