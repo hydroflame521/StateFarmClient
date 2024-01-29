@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre7
+// @version      3.3.3-pre8
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -99,9 +99,9 @@
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
     const discordURL = "https://discord.gg/mPa95HB7Q6";
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
-    const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#features";
-    const aimbottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main#botting";
-    const replacementLogoURL = 'https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true';
+    const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
+    const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
+    const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     //INIT VARS
     const inbuiltPresets = {
         onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
@@ -135,7 +135,7 @@
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
     let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     const weaponArray={ //this could be done differently but i cba
@@ -701,7 +701,7 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.bottingFolder, storeAs: "bottingTab" })
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function(){tp.botPanel.hidden=!tp.botPanel.hidden}, defaultBind:"J",});
             tp.bottingTab.pages[0].addSeparator();
-            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(aimbottingGuideURL)},});
+            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(bottingGuideURL)},});
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -2486,43 +2486,47 @@ sniping and someone sneaks up on you
         };
         unsafeWindow.modifyControls = function(CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
-            if (extract("autoWalk")) {
-                CONTROLKEYS|=ss.CONTROLVALUES.up;
-                // if (distancePlayers(currentlyTargeting||playerLookingAt)>1.5) { //no speen
-                //     CONTROLKEYS|=ss.CONTROLVALUES.up;
-                // } else {
-                //     CONTROLKEYS&=~ss.CONTROLVALUES.up;
-                // };
-            };
-            // credit for code: de_neuublue
-            if (extract("bunnyhop") && isKeyToggled["Space"]) {
-                CONTROLKEYS |= ss.CONTROLVALUES.jump;
-            };
-            if (extract("autoJump")) {
-                if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
-                    CONTROLKEYS|=ss.CONTROLVALUES.jump;
-                    lastAutoJump=Date.now();
+            if (forceControlKeys!==undefined) {
+                return forceControlKeys;
+            } else {
+                if (extract("autoWalk")) {
+                    CONTROLKEYS|=ss.CONTROLVALUES.up;
+                    // if (distancePlayers(currentlyTargeting||playerLookingAt)>1.5) { //no speen
+                    //     CONTROLKEYS|=ss.CONTROLVALUES.up;
+                    // } else {
+                    //     CONTROLKEYS&=~ss.CONTROLVALUES.up;
+                    // };
                 };
-            };
-            if (extract("autoStrafe")) {
-                if (Date.now()>(autoStrafeValue[0])) {
-                    if (autoStrafeValue[1]==0) { //decide new strafe delay
-                        autoStrafeValue[0]=Date.now() + randomInt(500,3000);
-                        autoStrafeValue[2]=(Math.random()>0.5) ? "left" : "right";
-                        autoStrafeValue[1]=1;
-                    } else if (autoStrafeValue[1]==1) { //time to start strafe
-                        autoStrafeValue[3]=Date.now() + randomInt(500,2000);
-                        autoStrafeValue[1]=2;
-                    } else if (autoStrafeValue[1]==2 && Date.now()<autoStrafeValue[3]) { //do strafe
-                        CONTROLKEYS|=ss.CONTROLVALUES[autoStrafeValue[2]];
-                    } else if (autoStrafeValue[1]==2) { //stop strafe
-                        CONTROLKEYS&=~ss.CONTROLVALUES.left;
-                        CONTROLKEYS&=~ss.CONTROLVALUES.right;
-                        autoStrafeValue[1]=0;
+                // credit for code: de_neuublue
+                if (extract("bunnyhop") && isKeyToggled["Space"]) {
+                    CONTROLKEYS |= ss.CONTROLVALUES.jump;
+                };
+                if (extract("autoJump")) {
+                    if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
+                        CONTROLKEYS|=ss.CONTROLVALUES.jump;
+                        lastAutoJump=Date.now();
                     };
                 };
+                if (extract("autoStrafe")) {
+                    if (Date.now()>(autoStrafeValue[0])) {
+                        if (autoStrafeValue[1]==0) { //decide new strafe delay
+                            autoStrafeValue[0]=Date.now() + randomInt(500,3000);
+                            autoStrafeValue[2]=(Math.random()>0.5) ? "left" : "right";
+                            autoStrafeValue[1]=1;
+                        } else if (autoStrafeValue[1]==1) { //time to start strafe
+                            autoStrafeValue[3]=Date.now() + randomInt(500,2000);
+                            autoStrafeValue[1]=2;
+                        } else if (autoStrafeValue[1]==2 && Date.now()<autoStrafeValue[3]) { //do strafe
+                            CONTROLKEYS|=ss.CONTROLVALUES[autoStrafeValue[2]];
+                        } else if (autoStrafeValue[1]==2) { //stop strafe
+                            CONTROLKEYS&=~ss.CONTROLVALUES.left;
+                            CONTROLKEYS&=~ss.CONTROLVALUES.right;
+                            autoStrafeValue[1]=0;
+                        };
+                    };
+                };
+                return CONTROLKEYS;
             };
-            return CONTROLKEYS;
         };
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
@@ -2708,7 +2712,7 @@ sniping and someone sneaks up on you
         updateBotParams();
         if (!JSON.parse(localStorage.getItem("firstTimeBots"))) {
             localStorage.setItem("firstTimeBots",JSON.stringify(true));
-            unsafeWindow.open(aimbottingGuideURL);
+            unsafeWindow.open(bottingGuideURL);
         };
 
         GM_setValue("StateFarm_BotStatus",{});
@@ -3174,6 +3178,9 @@ sniping and someone sneaks up on you
             ranOneTime=true;
         };
         const initVars = function () {
+            isBanned=false; //cant be banned if in a game /shrug
+            errorString=undefined; //no error if ur playing
+            forceControlKeys=undefined; //reset every frame
             if (unsafeWindow.newGame) {
                 onlinePlayersArray=[];
             };
@@ -3391,12 +3398,11 @@ sniping and someone sneaks up on you
             linked_nodes = get_player_linked_nodes(ss.MYPLAYER);
             */
 
-            isBanned=false; //cant be banned if in a game /shrug
-            errorString=undefined; //no error if ur playing
-
             if ( !ranOneTime ) { oneTime() };
             initVars();
             updateLinesESP();
+
+            // forceControlKeys = 30; @everyone @porcupane
 
             let isVisible;
             const player=currentlyTargeting||playerLookingAt||undefined;
