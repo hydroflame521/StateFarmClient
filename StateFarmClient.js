@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre12
+// @version      3.3.3-pre13
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -121,7 +121,6 @@
     let deciSecondsPassed = 0;
     let lastSentMessage="";
     let targetingComplete=false;
-    let yourPlayerKills = 0;
     let currentlyTargetingName = "none";
     let username = "";
     let previousParams = "";
@@ -1817,16 +1816,6 @@ sniping and someone sneaks up on you
                     };
                 };
             };
-            if (extract("autoEZ")||extract("cheatAccuse")) {
-                if (ss.MYPLAYER.score !== yourPlayerKills) {
-                    yourPlayerKills = ss.MYPLAYER.score;
-                    if (ss.MYPLAYER?.playing && extract("autoEZ")) {
-                        sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
-                    } else if (extract("cheatAccuse")) {
-                        sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
-                    };
-                }; //chatOnKill
-            };
             if (extract("gameInfo")) {
                 let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName;
                 gameInfoElement.innerText = gameInfoText;
@@ -2451,6 +2440,20 @@ sniping and someone sneaks up on you
         unsafeWindow.getPointerEscape = function () {
             return noPointerPause;
         };
+        unsafeWindow.interceptDeath = function (KILLER,DEAD) {
+            // console.log("dead:",DEAD.name,"killed by:",KILLER.name);
+            if (DEAD.name == ss.MYPLAYER.name) { //you died
+                console.log("wtf i died");
+                if (extract("cheatAccuse")) {
+                    sendChatMessage(`are you cheating ${KILLER.name}? everyone report`);
+                };
+            } else if (KILLER.name == ss.MYPLAYER.name) { //you killed someone
+                console.log("lmfao scrub");
+                if (extract("autoEZ")) {
+                    sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
+                };
+            };
+        };
         unsafeWindow.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
                 ss.MYPLAYER=MYPLAYER;
@@ -2648,6 +2651,12 @@ sniping and someone sneaks up on you
             js=js.replace(',vueApp.onTutorialPopupClick()','');
             //pointer escape
             js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.getPointerEscape()) {return};');
+            //death hook
+            const DEATHFUNCTION = new RegExp('\\.document\\.write\\("<hr>"\\)\\}function ([a-zA-Z]+)\\(').exec(js)[1];
+            console.log("DEATHFUNCTION",DEATHFUNCTION);
+            const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
+            console.log("DEATHARGS",DEATHARGS);
+            js=js.replace('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.interceptDeath('+DEATHARGS+');');
 
             //replace graveyard:
             // //sus
