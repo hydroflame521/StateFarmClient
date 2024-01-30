@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre14
+// @version      3.3.3-pre15
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -76,23 +76,31 @@
 // @match        *://*.zygote.cafe/*
 // ==/UserScript==
 
+console.log("StateFarm: running (before function)");
+
 (function () {
+    console.log("StateFarm: running (after function)");
     //script info
     const name="ЅtateFarm Client";
     const version=GM_info.script.version;
     const menuTitle=name + " v" + version;
     //startup sequence
     const startUp=function () {
-        mainLoop()
-        injectScript()
+        console.log("StateFarm: mainLoop()");
+        mainLoop();
+        console.log("StateFarm: injectScript()");
+        injectScript();
         document.addEventListener("DOMContentLoaded", function () {
+            console.log("StateFarm: initMenu()");
             initMenu();
+            console.log("StateFarm: applyStylesAddElements()");
             applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
             const intervalId1 = setInterval(everySecond, 1000);
             const intervalId2 = setInterval(everyDecisecond, 100);
             applyStateFarmLogo();
             const observer = new MutationObserver(applyStateFarmLogo);
             observer.observe(document.body, { subtree: true, childList: true });
+            console.log("StateFarm: detectURLParams()");
             detectURLParams();
         });
     };
@@ -112,11 +120,6 @@
     let lastSpamMessage=0;
     let lastAutoJump=0;
     let lastAntiAFKMessage=0;
-    let lastBotReload=0;
-    let lastBotUnban=0;
-    let lastBotNewProxy=0;
-    let lastBotLeave=0;
-    let lastBotSpamReport=0;
     let currentFrameIndex = 0;
     let deciSecondsPassed = 0;
     let lastSentMessage="";
@@ -134,8 +137,8 @@
     let onlinePlayersArray=[];
     let bindsArray={};
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let whitelistPlayers,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -419,7 +422,7 @@
                 title: module.button,
             }).on("click", (value) => {
                 if (module.clickFunction!==undefined) {module.clickFunction(value)};
-                if ((module.botParam!==undefined) && (!AUTOMATED)) {updateBotParams(module.botParam)};
+                if (module.botParam!==undefined) {updateBotParams(module.botParam)};
             });
         } else if (module.monitor) {
             monitorObjects[module.storeAs]="Text Goes Here";
@@ -831,16 +834,16 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}, {text: "Randomised", value: "random"}], defaultValue: "pablosmile", botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Bot Hat", storeAs: "autoHatBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}, {text: "Randomised", value: "random"}], defaultValue: "pablohat", botParam: true,});
         //MANAGE STUFF
-        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("StateFarm_KillBots") }, botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("StateFarm_RefreshBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("kill") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("refresh") }, botParam: true,});
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function(){ broadcastToBots("StateFarm_NewProxyBots") }, botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("StateFarm_UnbanBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function(){ broadcastToBots("newproxy") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("unban") }, botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true,});
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("StateFarm_LeaveBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("leave") }, botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("StateFarm_SpamReportBots") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("report") }, botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
@@ -1563,32 +1566,20 @@ sniping and someone sneaks up on you
             };
         })();
     };
-    const broadcastToBots = function(message) {
-        GM_setValue(message,true);
-        console.log("Setting",message,"to true (broadcast invoked). Proof?",GM_getValue(message));
-        setTimeout(function() {
-            GM_setValue(message,false);
-            console.log("Setting",message,"to false (timeout). Proof?",GM_getValue(message));
-        }, 2000);
+
+    const broadcastToBots = function(command) {
+        const commandTime = Date.now();
+        console.log("doing command set:", command, "| at time:", commandTime);
+        GM_setValue("StateFarm_Command", command);
+        GM_setValue("StateFarm_CommandTime", commandTime);
     };
-    const setBotCommand = function(command) {
-        console.log("doing command set",command);
-        GM_setValue("command", command);
-        GM_setValue("latestCommandTime", Date.now());
-        
-    }
 
     const hexToRgb = function (hex) {
-        // Remove the hash sign, if present
         hex = hex.replace(/^#/, '');
-
-        // Parse the hexadecimal value into RGB components
         const bigint = parseInt(hex, 16);
         const r = (bigint >> 16) & 255;
         const g = (bigint >> 8) & 255;
         const b = bigint & 255;
-
-        // Normalize the values to the range [0, 1]
         return [r / 255, g / 255, b / 255];
     };
     const fadeBetweenColors = function (color1, color2, progress) {
@@ -1625,7 +1616,7 @@ sniping and someone sneaks up on you
             z: target.z - ss.MYPLAYER.actor.mesh.position.z,
         };
     };
-    const reverse_string = function (str) { return str.split("").reverse().join("") };
+    const reverseString = function (str) { return str.split("").reverse().join("") };
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
@@ -1969,11 +1960,30 @@ sniping and someone sneaks up on you
         //block ads or something kek
         localStorage.timesPlayed = 0;
     };
-    function handleCommand(command) {
+    const handleCommand = function(command) {
         args = command.split(" ");
+
         switch (args[0]) {
             case "ping":
-                alert("Pong");
+                createPopup("Pong! "+((Date.now()-cachedCommandTime))+"ms","success");
+                break;
+            case "kill":
+                unsafeWindow.close();
+                break;
+            case "leave":
+                change("leaveGame");
+                break;
+            case "unban":
+                unban();
+                break;
+            case "newproxy":
+                newProxy();
+                break;
+            case "refresh":
+                reloadPage();
+                break;
+            case "report":
+                spamReport();
                 break;
             case "join":
                 code = args[1];
@@ -1981,7 +1991,8 @@ sniping and someone sneaks up on you
                     unsafeWindow.vueApp.externPlayObject(0,0,unsafeWindow.vueApp.playerName,-1,code);
                 } else {
                     alert("Invalid code");
-                }
+                };
+                break;
             case "pathtarget": // pathfinding target
                 option = args[1];
                 if (option) {
@@ -1993,12 +2004,12 @@ sniping and someone sneaks up on you
                             pathfindingTargetOverride = { x: x, y: y, z: z };
                         } else {
                             alert("Invalid coordinates");
-                        }
-                    }
-                }
-            }
-        
-    }
+                        };
+                    };
+                };
+                break;
+            };
+    };
     const clearPath = function() {
         activePath = undefined;
         activeNodeTarget = undefined;
@@ -2006,7 +2017,7 @@ sniping and someone sneaks up on you
     const clearPath_andTarget = function() {
         clearPath();
         pathfindingTargetOverride = undefined;
-    }
+    };
     const everyDecisecond = function () {
         updateConfig(); deciSecondsPassed+=1;
 
@@ -2060,48 +2071,16 @@ sniping and someone sneaks up on you
             };
         };
         if (AUTOMATED) { //i know what youre saying looking at this. i am the greatest programmer to have ever lived
-            if (GM_getValue("StateFarm_KillBots")) {
-                unsafeWindow.close();
-            };
-            if (GM_getValue("StateFarm_LeaveBots")) {
-                if (Date.now()>lastBotLeave) {
-                    change("leaveGame");
-                    lastBotLeave=Date.now()+3000; //these are necessary cos you'll queue a bajillion reloads lmao
-                };
-            };
-            if (GM_getValue("StateFarm_UnbanBots")) {
-                if (Date.now()>lastBotUnban) {
-                    unban();
-                    lastBotUnban=Date.now()+3000;
-                };
-            };
-            if (GM_getValue("StateFarm_NewProxyBots")) {
-                if (Date.now()>lastBotNewProxy) {
-                    newProxy();
-                    lastBotNewProxy=Date.now()+3000;
-                };
-            };
-            if (GM_getValue("StateFarm_RefreshBots")) {
-                if (Date.now()>lastBotReload) {
-                    reloadPage();
-                    lastBotReload=Date.now()+3000;
-                };
-            };
-            if (GM_getValue("StateFarm_SpamReportBots")) {
-                if (Date.now()>lastBotSpamReport) {
-                    spamReport();
-                    lastBotSpamReport=Date.now()+3000;
-                };
-            };
-            if (GM_getValue("latestCommandTime") > cachedCommandTime) {
-                alert("New command incoming")
-                cachedCommand = GM_getValue("command");
-                cachedCommandTime = GM_getValue("latestCommandTime");
+            if (GM_getValue("StateFarm_CommandTime") > cachedCommandTime) {
+                // alert("New command incoming");
+                cachedCommand = GM_getValue("StateFarm_Command");
+                cachedCommandTime = GM_getValue("StateFarm_CommandTime");
                 console.log("Command received:", cachedCommand);
                 handleCommand(cachedCommand);
             } else {
-                console.log("No new command, cached command:", cachedCommand, "cached time:", cachedCommandTime, "diff to now:", Date.now() - cachedCommandTime);
-            }
+                // uncommment if needed
+                // console.log("No new command, cached command:", cachedCommand, "cached time:", cachedCommandTime, "diff to now:", Date.now() - cachedCommandTime);
+            };
         };
     };
     const updateConfig = function () {
@@ -2331,9 +2310,9 @@ sniping and someone sneaks up on you
              if ('AntiAFK' in string) {
                  return packet;
              };
-             new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(string).split(""))).join("");
+             new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverseString(string).split(""))).join("");
              var constructed =  constructChatPacket(new_str);
-             //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
+             //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverseString(string), new_str);
              return constructed;
         }; */
         return packet
@@ -2479,25 +2458,28 @@ sniping and someone sneaks up on you
     };
     const injectScript = function () {
         //TODO: replace with anon functions
-        unsafeWindow.fixCamera = function () {
+        createAnonFunction('fixCamera', function () {
             return isKeyToggled[bindsArray.zoom] && (extract("zoom")*(Math.PI / 180)) || (extract("fov")*(Math.PI/180)) || 1.25;
-        };
-        unsafeWindow.getChatLimit = function () {
+        });
+        createAnonFunction('getChatLimit', function () {
             return (extract("chatExtend")&&999999)||4;
-        };
-        unsafeWindow.getDisableChatFilter = function () {
+        });
+        createAnonFunction('getDisableChatFilter', function () {
             return extract("disableChatFilter");
-        };
-        unsafeWindow.getSkinHack = function () {
+        });
+        createAnonFunction('getSkinHack', function () {
             return extract("unlockSkins");
-        };
-        unsafeWindow.getAdminSpoof = function () {
+        });
+        createAnonFunction('getAdminSpoof', function () {
             return extract("adminSpoof");
-        };
-        unsafeWindow.getPointerEscape = function () {
+        });
+        createAnonFunction('getPointerEscape', function () {
             return noPointerPause;
-        };
-        unsafeWindow.interceptDeath = function (KILLER,DEAD) {
+        });
+        createAnonFunction('setNewGame', function () {
+            newGame = true;
+        });
+        createAnonFunction('interceptDeath', function (KILLER,DEAD) {
             // console.log("dead:",DEAD.name,"killed by:",KILLER.name);
             if (DEAD.name == ss.MYPLAYER.name) { //you died
                 console.log("wtf i died");
@@ -2510,8 +2492,8 @@ sniping and someone sneaks up on you
                     sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
                 };
             };
-        };
-        unsafeWindow.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
+        });
+        createAnonFunction('beforeFiring', function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
                 ss.MYPLAYER=MYPLAYER;
                 const aimbot = getAimbot(currentlyTargeting);
@@ -2521,8 +2503,8 @@ sniping and someone sneaks up on you
                     ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)].pitch = setPrecision(aimbot.pitch);
                 };
             };
-        };
-        unsafeWindow.onConnectFail = function (ERRORCODE,ERRORARRAY) {
+        });
+        createAnonFunction('onConnectFail', function (ERRORCODE,ERRORARRAY) {
             errorString = findKeyByValue(ERRORARRAY,ERRORCODE);
             console.log("StateFarm has detected a connection error...",errorString,ERRORCODE,ERRORARRAY);
             if ((!attemptedAutoUnban) && extract("autoUnban")&&(errorString=="sessionNotFound")) {
@@ -2538,12 +2520,12 @@ sniping and someone sneaks up on you
                     };
                 }, 5000);
             };
-        };
-        unsafeWindow.modifyChat = function(msg) {
+        });
+        createAnonFunction('modifyChat', function(msg) {
             if (msg!==lastSentMessage) { //not spammed or afked
                 if (extract("chatFilterBypass")) {
                     const UNICODE_RTL_OVERRIDE = '\u202e'
-                    msg = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(msg).split(""))).join("");
+                    msg = ([UNICODE_RTL_OVERRIDE,].concat(reverseString(msg).split(""))).join("");
                 };
             };
             if (extract("tallChat") && !(msg.includes("᥊"))) {
@@ -2551,13 +2533,12 @@ sniping and someone sneaks up on you
             };
             if (msg[0] === '%') {
                 command = msg.slice(1);
-                msg = "";
-                
-                setBotCommand(command);
-            }
+                msg = ""; //dont send anything
+                broadcastToBots(command);
+            };
             return msg;
-        };
-        unsafeWindow.modifyControls = function(CONTROLKEYS) {
+        });
+        createAnonFunction('modifyControls', function(CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
             if (forceControlKeys) {
                 forceControlKeysCache = true;
@@ -2597,7 +2578,7 @@ sniping and someone sneaks up on you
                 };
                 return CONTROLKEYS;
             };
-        };
+        });
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
         let shellshockjs
@@ -2669,28 +2650,28 @@ sniping and someone sneaks up on you
             console.log('%cSuccess! Cull inhibition ss.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
-            js = js.replace('fire(){var','fire(){window.beforeFiring(this.player);var');
+            js = js.replace('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
             //hook for fov mods
-            js = js.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.fixCamera()');
-            js = js.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.fixCamera()');
+            js = js.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.'+functionNames.fixCamera+'()');
+            js = js.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
             //chat mods: disable chat culling
             const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(js)[1];
-            js = js.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.getChatLimit()&&${somethingLength}[0].remove(),`);
+            js = js.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.${functionNames.getChatLimit}()&&${somethingLength}[0].remove(),`);
             //chat mods: disable filter (credit to A3+++ for this finding)
             const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(js)[1];
             const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(js)[1];
-            js = js.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.getDisableChatFilter())`);
+            js = js.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
             const [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
             js = js.replace(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
             match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
-            if (match) js = js.replace(match[0], match[0] + `||window.getSkinHack()`);
+            if (match) js = js.replace(match[0], match[0] + `||window.${functionNames.getSkinHack}()`);
             //reset join/leave msgs
-            js = js.replace(',console.log("joinGame()',',window.newGame=true,console.log("value changed, also joinGame()');
+            js = js.replace(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
             //bypass chat filter
             match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
-            js=js.replace('.value.trim()','.value.trim();'+match+'=window.modifyChat('+match+')')
+            js=js.replace('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
             //hook for control interception
             const PLAYERTHING=new RegExp('\\.weapon\\.actor\\.equip\\(\\)\};([a-zA-Z]+)\\.prototype\\.update').exec(js)[1];
             const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
@@ -2698,10 +2679,10 @@ sniping and someone sneaks up on you
             console.log("CONTROLKEYS:",CONTROLKEYS);
             console.log("PLAYERTHING:",PLAYERTHING);
             console.log("ARGTHING:",ARGTHING);
-            js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.modifyControls('+CONTROLKEYS+');');
+            js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
             //admin spoof lol
-            js=js.replace('isGameOwner(){return ','isGameOwner(){return window.getAdminSpoof()?true:')
-            js=js.replace('adminRoles(){return ','adminRoles(){return window.getAdminSpoof()?255:')
+            js=js.replace('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
+            js=js.replace('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
             //grab reason for connect fail
             const CONNECTFAILFUNCTION = new RegExp(',1e3\\)\\):([a-zA-Z]+)\\(').exec(js)[1];
             const FUNCTIONPARAM = new RegExp('function '+CONNECTFAILFUNCTION+'\\(([a-zA-Z]+)\\)').exec(js)[1];
@@ -2709,17 +2690,17 @@ sniping and someone sneaks up on you
             console.log("CONNECTFAILFUNCTION:",CONNECTFAILFUNCTION);
             console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
             console.log("ERRORARRAY:",ERRORARRAY);
-            js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.onConnectFail('+FUNCTIONPARAM+','+ERRORARRAY+');')
+            js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+ERRORARRAY+');')
             //get rid of tutorial popup because its a stupid piece of shit
             js=js.replace(',vueApp.onTutorialPopupClick()','');
             //pointer escape
-            js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.getPointerEscape()) {return};');
+            js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
             //death hook
             const DEATHFUNCTION = new RegExp('\\.document\\.write\\("<hr>"\\)\\}function ([a-zA-Z]+)\\(').exec(js)[1];
             console.log("DEATHFUNCTION",DEATHFUNCTION);
             const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
             console.log("DEATHARGS",DEATHARGS);
-            js=js.replace('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.interceptDeath('+DEATHARGS+');');
+            js=js.replace('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
             //replace graveyard:
             // //sus
@@ -2871,7 +2852,7 @@ sniping and someone sneaks up on you
         addParam("autoJump",extract("botAutoMove"));
         addParam("autoJumpDelay",1500);
         //low res
-        addParam("enableTextures",extract("botLowRes"));
+        addParam("enableTextures",!extract("botLowRes"));
         addParam("setDetail",extract("botLowRes")?2:0);
         //seizure
         addParam("enableSeizureX",extract("botSeizure"));
@@ -2930,9 +2911,13 @@ sniping and someone sneaks up on you
     };
 
     const updateBotParams = function() {
-        const botParams = constructBotParams();
-        GM_setValue("StateFarm_BotParams",botParams);
-        console.log("StateFarm: set bot params to:",botParams);
+        if (AUTOMATED) { // nuh uh.
+            createPopup("Automated window cannot config bots.","error");
+        } else {
+            const botParams = constructBotParams();
+            GM_setValue("StateFarm_BotParams",botParams);
+            console.log("StateFarm: set bot params to:",botParams);
+        };
     };
 
     const retrieveCopiedName = function () {
@@ -2941,8 +2926,7 @@ sniping and someone sneaks up on you
         return mapNames[Math.floor(Math.random() * mapNames.length)];
     };
 
-    function loggedGameMap() {}
-    loggedGameMap.logged = false;
+    loggedGameMap = false;
 
     // begin pathfinding
 
@@ -3329,15 +3313,16 @@ sniping and someone sneaks up on you
             isBanned=false; //cant be banned if in a game /shrug
             errorString=undefined; //no error if ur playing
             forceControlKeys=undefined; //reset every frame
-            if (unsafeWindow.newGame) {
+
+            if (newGame) {
                 onlinePlayersArray=[];
             };
             if (extract("debug")&&(typeof playerLogger === 'undefined')) {
                 playerLogger=[];
             };
-            if (!loggedGameMap.logged) {
+            if (!loggedGameMap) {
                 console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
-                loggedGameMap.logged = true;
+                loggedGameMap = true;
             };
             username=ss.MYPLAYER?.name;
 
@@ -3434,7 +3419,7 @@ sniping and someone sneaks up on you
                     if (!player.logged) {
                         player.logged=true;
                         if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
-                        if (extract("joinMessages") && (!unsafeWindow.newGame)) {
+                        if (extract("joinMessages") && (!newGame)) {
                             if (extract("publicBroadcast")) {
                                 sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
                             } else {
@@ -3451,7 +3436,7 @@ sniping and someone sneaks up on you
                 if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
                     onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
                 } else {
-                    if (extract("leaveMessages") && (!unsafeWindow.newGame)) {
+                    if (extract("leaveMessages") && (!newGame)) {
                         if (extract("publicBroadcast")) {
                             sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
                         } else {
@@ -3519,7 +3504,7 @@ sniping and someone sneaks up on you
                     if (ESPArray[i][3]) {ESPArray[i][3].dispose()}; //target
                     ESPArray.splice(i,1);
                 };
-            }; unsafeWindow.newGame=false;
+            }; newGame=false;
         };
         createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {return F.STATEFARM()} });
         createAnonFunction("STATEFARM",function(){
@@ -3567,6 +3552,7 @@ sniping and someone sneaks up on you
                     console.log("player not on air node currently")
                 }
             }
+
             if (AUTOMATED && pathfindingTargetOverride !== undefined) {
                 player_node = get_player_linked_nodes(ss.MYPLAYER);
                 target_node = get_node_at(pathfindingTargetOverride);
@@ -3613,8 +3599,6 @@ sniping and someone sneaks up on you
                 forceControlKeys = ss.CONTROLVALUES.up;
                 console.log("done with looking & window forward set")
             };
-
-            // forceControlKeys = 30; @everyone @porcupane
 
             let isVisible;
             const player=currentlyTargeting||playerLookingAt||undefined;
@@ -3777,7 +3761,7 @@ sniping and someone sneaks up on you
 
                         if (previousTarget!==currentlyTargeting) { targetingComplete=false };
 
-                        function lerp(start, end, alpha) {
+                        const lerp = function(start, end, alpha) {
                             let value = (1 - alpha ) * start + alpha * end;
                             if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
                                 value = end; targetingComplete=true;
@@ -3877,5 +3861,6 @@ sniping and someone sneaks up on you
     var css = "text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(70.2, 100%, 50%), 25px 14px hsl(75.6, 100%, 50%), 27px 15px hsl(81, 100%, 50%), 28px 16px hsl(86.4, 100%, 50%), 30px 17px hsl(91.8, 100%, 50%), 32px 18px hsl(97.2, 100%, 50%), 33px 19px hsl(102.6, 100%, 50%), 35px 20px hsl(108, 100%, 50%), 36px 21px hsl(113.4, 100%, 50%), 38px 22px hsl(118.8, 100%, 50%), 39px 23px hsl(124.2, 100%, 50%), 41px 24px hsl(129.6, 100%, 50%), 42px 25px hsl(135, 100%, 50%), 43px 26px hsl(140.4, 100%, 50%), 45px 27px hsl(145.8, 100%, 50%), 46px 28px hsl(151.2, 100%, 50%), 47px 29px hsl(156.6, 100%, 50%), 48px 30px hsl(162, 100%, 50%), 49px 31px hsl(167.4, 100%, 50%), 50px 32px hsl(172.8, 100%, 50%), 51px 33px hsl(178.2, 100%, 50%), 52px 34px hsl(183.6, 100%, 50%), 53px 35px hsl(189, 100%, 50%), 54px 36px hsl(194.4, 100%, 50%), 55px 37px hsl(199.8, 100%, 50%), 55px 38px hsl(205.2, 100%, 50%), 56px 39px hsl(210.6, 100%, 50%), 57px 40px hsl(216, 100%, 50%), 57px 41px hsl(221.4, 100%, 50%), 58px 42px hsl(226.8, 100%, 50%), 58px 43px hsl(232.2, 100%, 50%), 58px 44px hsl(237.6, 100%, 50%), 59px 45px hsl(243, 100%, 50%), 59px 46px hsl(248.4, 100%, 50%), 59px 47px hsl(253.8, 100%, 50%), 59px 48px hsl(259.2, 100%, 50%), 59px 49px hsl(264.6, 100%, 50%), 60px 50px hsl(270, 100%, 50%), 59px 51px hsl(275.4, 100%, 50%), 59px 52px hsl(280.8, 100%, 50%), 59px 53px hsl(286.2, 100%, 50%), 59px 54px hsl(291.6, 100%, 50%), 59px 55px hsl(297, 100%, 50%), 58px 56px hsl(302.4, 100%, 50%), 58px 57px hsl(307.8, 100%, 50%), 58px 58px hsl(313.2, 100%, 50%), 57px 59px hsl(318.6, 100%, 50%), 57px 60px hsl(324, 100%, 50%), 56px 61px hsl(329.4, 100%, 50%), 55px 62px hsl(334.8, 100%, 50%), 55px 63px hsl(340.2, 100%, 50%), 54px 64px hsl(345.6, 100%, 50%), 53px 65px hsl(351, 100%, 50%), 52px 66px hsl(356.4, 100%, 50%), 51px 67px hsl(361.8, 100%, 50%), 50px 68px hsl(367.2, 100%, 50%), 49px 69px hsl(372.6, 100%, 50%), 48px 70px hsl(378, 100%, 50%), 47px 71px hsl(383.4, 100%, 50%), 46px 72px hsl(388.8, 100%, 50%), 45px 73px hsl(394.2, 100%, 50%), 43px 74px hsl(399.6, 100%, 50%), 42px 75px hsl(405, 100%, 50%), 41px 76px hsl(410.4, 100%, 50%), 39px 77px hsl(415.8, 100%, 50%), 38px 78px hsl(421.2, 100%, 50%), 36px 79px hsl(426.6, 100%, 50%), 35px 80px hsl(432, 100%, 50%), 33px 81px hsl(437.4, 100%, 50%), 32px 82px hsl(442.8, 100%, 50%), 30px 83px hsl(448.2, 100%, 50%), 28px 84px hsl(453.6, 100%, 50%), 27px 85px hsl(459, 100%, 50%), 25px 86px hsl(464.4, 100%, 50%), 23px 87px hsl(469.8, 100%, 50%), 22px 88px hsl(475.2, 100%, 50%), 20px 89px hsl(480.6, 100%, 50%), 18px 90px hsl(486, 100%, 50%), 16px 91px hsl(491.4, 100%, 50%), 14px 92px hsl(496.8, 100%, 50%), 13px 93px hsl(502.2, 100%, 50%), 11px 94px hsl(507.6, 100%, 50%), 9px 95px hsl(513, 100%, 50%), 7px 96px hsl(518.4, 100%, 50%), 5px 97px hsl(523.8, 100%, 50%), 3px 98px hsl(529.2, 100%, 50%), 1px 99px hsl(534.6, 100%, 50%), 7px 100px hsl(540, 100%, 50%), -1px 101px hsl(545.4, 100%, 50%), -3px 102px hsl(550.8, 100%, 50%), -5px 103px hsl(556.2, 100%, 50%), -7px 104px hsl(561.6, 100%, 50%), -9px 105px hsl(567, 100%, 50%), -11px 106px hsl(572.4, 100%, 50%), -13px 107px hsl(577.8, 100%, 50%), -14px 108px hsl(583.2, 100%, 50%), -16px 109px hsl(588.6, 100%, 50%), -18px 110px hsl(594, 100%, 50%), -20px 111px hsl(599.4, 100%, 50%), -22px 112px hsl(604.8, 100%, 50%), -23px 113px hsl(610.2, 100%, 50%), -25px 114px hsl(615.6, 100%, 50%), -27px 115px hsl(621, 100%, 50%), -28px 116px hsl(626.4, 100%, 50%), -30px 117px hsl(631.8, 100%, 50%), -32px 118px hsl(637.2, 100%, 50%), -33px 119px hsl(642.6, 100%, 50%), -35px 120px hsl(648, 100%, 50%), -36px 121px hsl(653.4, 100%, 50%), -38px 122px hsl(658.8, 100%, 50%), -39px 123px hsl(664.2, 100%, 50%), -41px 124px hsl(669.6, 100%, 50%), -42px 125px hsl(675, 100%, 50%), -43px 126px hsl(680.4, 100%, 50%), -45px 127px hsl(685.8, 100%, 50%), -46px 128px hsl(691.2, 100%, 50%), -47px 129px hsl(696.6, 100%, 50%), -48px 130px hsl(702, 100%, 50%), -49px 131px hsl(707.4, 100%, 50%), -50px 132px hsl(712.8, 100%, 50%), -51px 133px hsl(718.2, 100%, 50%), -52px 134px hsl(723.6, 100%, 50%), -53px 135px hsl(729, 100%, 50%), -54px 136px hsl(734.4, 100%, 50%), -55px 137px hsl(739.8, 100%, 50%), -55px 138px hsl(745.2, 100%, 50%), -56px 139px hsl(750.6, 100%, 50%), -57px 140px hsl(756, 100%, 50%), -57px 141px hsl(761.4, 100%, 50%), -58px 142px hsl(766.8, 100%, 50%), -58px 143px hsl(772.2, 100%, 50%), -58px 144px hsl(777.6, 100%, 50%), -59px 145px hsl(783, 100%, 50%), -59px 146px hsl(788.4, 100%, 50%), -59px 147px hsl(793.8, 100%, 50%), -59px 148px hsl(799.2, 100%, 50%), -59px 149px hsl(804.6, 100%, 50%), -60px 150px hsl(810, 100%, 50%), -59px 151px hsl(815.4, 100%, 50%), -59px 152px hsl(820.8, 100%, 50%), -59px 153px hsl(826.2, 100%, 50%), -59px 154px hsl(831.6, 100%, 50%), -59px 155px hsl(837, 100%, 50%), -58px 156px hsl(842.4, 100%, 50%), -58px 157px hsl(847.8, 100%, 50%), -58px 158px hsl(853.2, 100%, 50%), -57px 159px hsl(858.6, 100%, 50%), -57px 160px hsl(864, 100%, 50%), -56px 161px hsl(869.4, 100%, 50%), -55px 162px hsl(874.8, 100%, 50%), -55px 163px hsl(880.2, 100%, 50%), -54px 164px hsl(885.6, 100%, 50%), -53px 165px hsl(891, 100%, 50%), -52px 166px hsl(896.4, 100%, 50%), -51px 167px hsl(901.8, 100%, 50%), -50px 168px hsl(907.2, 100%, 50%), -49px 169px hsl(912.6, 100%, 50%), -48px 170px hsl(918, 100%, 50%), -47px 171px hsl(923.4, 100%, 50%), -46px 172px hsl(928.8, 100%, 50%), -45px 173px hsl(934.2, 100%, 50%), -43px 174px hsl(939.6, 100%, 50%), -42px 175px hsl(945, 100%, 50%), -41px 176px hsl(950.4, 100%, 50%), -39px 177px hsl(955.8, 100%, 50%), -38px 178px hsl(961.2, 100%, 50%), -36px 179px hsl(966.6, 100%, 50%), -35px 180px hsl(972, 100%, 50%), -33px 181px hsl(977.4, 100%, 50%), -32px 182px hsl(982.8, 100%, 50%), -30px 183px hsl(988.2, 100%, 50%), -28px 184px hsl(993.6, 100%, 50%), -27px 185px hsl(999, 100%, 50%), -25px 186px hsl(1004.4, 100%, 50%), -23px 187px hsl(1009.8, 100%, 50%), -22px 188px hsl(1015.2, 100%, 50%), -20px 189px hsl(1020.6, 100%, 50%), -18px 190px hsl(1026, 100%, 50%), -16px 191px hsl(1031.4, 100%, 50%), -14px 192px hsl(1036.8, 100%, 50%), -13px 193px hsl(1042.2, 100%, 50%), -11px 194px hsl(1047.6, 100%, 50%), -9px 195px hsl(1053, 100%, 50%), -7px 196px hsl(1058.4, 100%, 50%), -5px 197px hsl(1063.8, 100%, 50%), -3px 198px hsl(1069.2, 100%, 50%), -1px 199px hsl(1074.6, 100%, 50%), -1px 200px hsl(1080, 100%, 50%), 1px 201px hsl(1085.4, 100%, 50%), 3px 202px hsl(1090.8, 100%, 50%), 5px 203px hsl(1096.2, 100%, 50%), 7px 204px hsl(1101.6, 100%, 50%), 9px 205px hsl(1107, 100%, 50%), 11px 206px hsl(1112.4, 100%, 50%), 13px 207px hsl(1117.8, 100%, 50%), 14px 208px hsl(1123.2, 100%, 50%), 16px 209px hsl(1128.6, 100%, 50%), 18px 210px hsl(1134, 100%, 50%), 20px 211px hsl(1139.4, 100%, 50%), 22px 212px hsl(1144.8, 100%, 50%), 23px 213px hsl(1150.2, 100%, 50%), 25px 214px hsl(1155.6, 100%, 50%), 27px 215px hsl(1161, 100%, 50%), 28px 216px hsl(1166.4, 100%, 50%), 30px 217px hsl(1171.8, 100%, 50%), 32px 218px hsl(1177.2, 100%, 50%), 33px 219px hsl(1182.6, 100%, 50%), 35px 220px hsl(1188, 100%, 50%), 36px 221px hsl(1193.4, 100%, 50%), 38px 222px hsl(1198.8, 100%, 50%), 39px 223px hsl(1204.2, 100%, 50%), 41px 224px hsl(1209.6, 100%, 50%), 42px 225px hsl(1215, 100%, 50%), 43px 226px hsl(1220.4, 100%, 50%), 45px 227px hsl(1225.8, 100%, 50%), 46px 228px hsl(1231.2, 100%, 50%), 47px 229px hsl(1236.6, 100%, 50%), 48px 230px hsl(1242, 100%, 50%), 49px 231px hsl(1247.4, 100%, 50%), 50px 232px hsl(1252.8, 100%, 50%), 51px 233px hsl(1258.2, 100%, 50%), 52px 234px hsl(1263.6, 100%, 50%), 53px 235px hsl(1269, 100%, 50%), 54px 236px hsl(1274.4, 100%, 50%), 55px 237px hsl(1279.8, 100%, 50%), 55px 238px hsl(1285.2, 100%, 50%), 56px 239px hsl(1290.6, 100%, 50%), 57px 240px hsl(1296, 100%, 50%), 57px 241px hsl(1301.4, 100%, 50%), 58px 242px hsl(1306.8, 100%, 50%), 58px 243px hsl(1312.2, 100%, 50%), 58px 244px hsl(1317.6, 100%, 50%), 59px 245px hsl(1323, 100%, 50%), 59px 246px hsl(1328.4, 100%, 50%), 59px 247px hsl(1333.8, 100%, 50%), 59px 248px hsl(1339.2, 100%, 50%), 59px 249px hsl(1344.6, 100%, 50%), 60px 250px hsl(1350, 100%, 50%), 59px 251px hsl(1355.4, 100%, 50%), 59px 252px hsl(1360.8, 100%, 50%), 59px 253px hsl(1366.2, 100%, 50%), 59px 254px hsl(1371.6, 100%, 50%), 59px 255px hsl(1377, 100%, 50%), 58px 256px hsl(1382.4, 100%, 50%), 58px 257px hsl(1387.8, 100%, 50%), 58px 258px hsl(1393.2, 100%, 50%), 57px 259px hsl(1398.6, 100%, 50%), 57px 260px hsl(1404, 100%, 50%), 56px 261px hsl(1409.4, 100%, 50%), 55px 262px hsl(1414.8, 100%, 50%), 55px 263px hsl(1420.2, 100%, 50%), 54px 264px hsl(1425.6, 100%, 50%), 53px 265px hsl(1431, 100%, 50%), 52px 266px hsl(1436.4, 100%, 50%), 51px 267px hsl(1441.8, 100%, 50%), 50px 268px hsl(1447.2, 100%, 50%), 49px 269px hsl(1452.6, 100%, 50%), 48px 270px hsl(1458, 100%, 50%), 47px 271px hsl(1463.4, 100%, 50%), 46px 272px hsl(1468.8, 100%, 50%), 45px 273px hsl(1474.2, 100%, 50%), 43px 274px hsl(1479.6, 100%, 50%), 42px 275px hsl(1485, 100%, 50%), 41px 276px hsl(1490.4, 100%, 50%), 39px 277px hsl(1495.8, 100%, 50%), 38px 278px hsl(1501.2, 100%, 50%), 36px 279px hsl(1506.6, 100%, 50%), 35px 280px hsl(1512, 100%, 50%), 33px 281px hsl(1517.4, 100%, 50%), 32px 282px hsl(1522.8, 100%, 50%), 30px 283px hsl(1528.2, 100%, 50%), 28px 284px hsl(1533.6, 100%, 50%), 27px 285px hsl(1539, 100%, 50%), 25px 286px hsl(1544.4, 100%, 50%), 23px 287px hsl(1549.8, 100%, 50%), 22px 288px hsl(1555.2, 100%, 50%), 20px 289px hsl(1560.6, 100%, 50%), 18px 290px hsl(1566, 100%, 50%), 16px 291px hsl(1571.4, 100%, 50%), 14px 292px hsl(1576.8, 100%, 50%), 13px 293px hsl(1582.2, 100%, 50%), 11px 294px hsl(1587.6, 100%, 50%), 9px 295px hsl(1593, 100%, 50%), 7px 296px hsl(1598.4, 100%, 50%), 5px 297px hsl(1603.8, 100%, 50%), 3px 298px hsl(1609.2, 100%, 50%), 1px 299px hsl(1614.6, 100%, 50%), 2px 300px hsl(1620, 100%, 50%), -1px 301px hsl(1625.4, 100%, 50%), -3px 302px hsl(1630.8, 100%, 50%), -5px 303px hsl(1636.2, 100%, 50%), -7px 304px hsl(1641.6, 100%, 50%), -9px 305px hsl(1647, 100%, 50%), -11px 306px hsl(1652.4, 100%, 50%), -13px 307px hsl(1657.8, 100%, 50%), -14px 308px hsl(1663.2, 100%, 50%), -16px 309px hsl(1668.6, 100%, 50%), -18px 310px hsl(1674, 100%, 50%), -20px 311px hsl(1679.4, 100%, 50%), -22px 312px hsl(1684.8, 100%, 50%), -23px 313px hsl(1690.2, 100%, 50%), -25px 314px hsl(1695.6, 100%, 50%), -27px 315px hsl(1701, 100%, 50%), -28px 316px hsl(1706.4, 100%, 50%), -30px 317px hsl(1711.8, 100%, 50%), -32px 318px hsl(1717.2, 100%, 50%), -33px 319px hsl(1722.6, 100%, 50%), -35px 320px hsl(1728, 100%, 50%), -36px 321px hsl(1733.4, 100%, 50%), -38px 322px hsl(1738.8, 100%, 50%), -39px 323px hsl(1744.2, 100%, 50%), -41px 324px hsl(1749.6, 100%, 50%), -42px 325px hsl(1755, 100%, 50%), -43px 326px hsl(1760.4, 100%, 50%), -45px 327px hsl(1765.8, 100%, 50%), -46px 328px hsl(1771.2, 100%, 50%), -47px 329px hsl(1776.6, 100%, 50%), -48px 330px hsl(1782, 100%, 50%), -49px 331px hsl(1787.4, 100%, 50%), -50px 332px hsl(1792.8, 100%, 50%), -51px 333px hsl(1798.2, 100%, 50%), -52px 334px hsl(1803.6, 100%, 50%), -53px 335px hsl(1809, 100%, 50%), -54px 336px hsl(1814.4, 100%, 50%), -55px 337px hsl(1819.8, 100%, 50%), -55px 338px hsl(1825.2, 100%, 50%), -56px 339px hsl(1830.6, 100%, 50%), -57px 340px hsl(1836, 100%, 50%), -57px 341px hsl(1841.4, 100%, 50%), -58px 342px hsl(1846.8, 100%, 50%), -58px 343px hsl(1852.2, 100%, 50%), -58px 344px hsl(1857.6, 100%, 50%), -59px 345px hsl(1863, 100%, 50%), -59px 346px hsl(1868.4, 100%, 50%), -59px 347px hsl(1873.8, 100%, 50%), -59px 348px hsl(1879.2, 100%, 50%), -59px 349px hsl(1884.6, 100%, 50%), -60px 350px hsl(1890, 100%, 50%), -59px 351px hsl(1895.4, 100%, 50%), -59px 352px hsl(1900.8, 100%, 50%), -59px 353px hsl(1906.2, 100%, 50%), -59px 354px hsl(1911.6, 100%, 50%), -59px 355px hsl(1917, 100%, 50%), -58px 356px hsl(1922.4, 100%, 50%), -58px 357px hsl(1927.8, 100%, 50%), -58px 358px hsl(1933.2, 100%, 50%), -57px 359px hsl(1938.6, 100%, 50%), -57px 360px hsl(1944, 100%, 50%), -56px 361px hsl(1949.4, 100%, 50%), -55px 362px hsl(1954.8, 100%, 50%), -55px 363px hsl(1960.2, 100%, 50%), -54px 364px hsl(1965.6, 100%, 50%), -53px 365px hsl(1971, 100%, 50%), -52px 366px hsl(1976.4, 100%, 50%), -51px 367px hsl(1981.8, 100%, 50%), -50px 368px hsl(1987.2, 100%, 50%), -49px 369px hsl(1992.6, 100%, 50%), -48px 370px hsl(1998, 100%, 50%), -47px 371px hsl(2003.4, 100%, 50%), -46px 372px hsl(2008.8, 100%, 50%), -45px 373px hsl(2014.2, 100%, 50%), -43px 374px hsl(2019.6, 100%, 50%), -42px 375px hsl(2025, 100%, 50%), -41px 376px hsl(2030.4, 100%, 50%), -39px 377px hsl(2035.8, 100%, 50%), -38px 378px hsl(2041.2, 100%, 50%), -36px 379px hsl(2046.6, 100%, 50%), -35px 380px hsl(2052, 100%, 50%), -33px 381px hsl(2057.4, 100%, 50%), -32px 382px hsl(2062.8, 100%, 50%), -30px 383px hsl(2068.2, 100%, 50%), -28px 384px hsl(2073.6, 100%, 50%), -27px 385px hsl(2079, 100%, 50%), -25px 386px hsl(2084.4, 100%, 50%), -23px 387px hsl(2089.8, 100%, 50%), -22px 388px hsl(2095.2, 100%, 50%), -20px 389px hsl(2100.6, 100%, 50%), -18px 390px hsl(2106, 100%, 50%), -16px 391px hsl(2111.4, 100%, 50%), -14px 392px hsl(2116.8, 100%, 50%), -13px 393px hsl(2122.2, 100%, 50%), -11px 394px hsl(2127.6, 100%, 50%), -9px 395px hsl(2133, 100%, 50%), -7px 396px hsl(2138.4, 100%, 50%), -5px 397px hsl(2143.8, 100%, 50%), -3px 398px hsl(2149.2, 100%, 50%), -1px 399px hsl(2154.6, 100%, 50%); font-size: 40px;";
 
     //start init thingamajigs
+    console.log("StateFarm: startUp()");
     startUp();
 })();
