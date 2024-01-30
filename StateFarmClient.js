@@ -137,6 +137,7 @@
     let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
+    let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
@@ -736,9 +737,9 @@ sniping and someone sneaks up on you
                 };
             },});
             initModule({ location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
-                window.findNewPath = true;
+                findNewPath = true;
             },});
-            window.findNewPath = false;
+            findNewPath = false;
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
             initFolder({ location: tp.miscTab.pages[0], title: "Seizure Options", storeAs: "seizureFolder",});
@@ -1999,8 +2000,8 @@ sniping and someone sneaks up on you
         
     }
     const clearPath = function() {
-        window.activePath = undefined;
-        window.activeNodeTarget = undefined;
+        activePath = undefined;
+        activeNodeTarget = undefined;
     }
     const clearPath_andTarget = function() {
         clearPath();
@@ -3532,7 +3533,7 @@ sniping and someone sneaks up on you
                 map_data_created = true;
             }
 
-            if (window.findNewPath && !window.activePath && !window.activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
+            if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
                 let player_pos = get_player_position(ss.MYPLAYER);
                 let player_node = get_node_at(player_pos);
                 if (player_node) {
@@ -3547,14 +3548,14 @@ sniping and someone sneaks up on you
                     if (!(player_node === random_node) && random_node) {
                         console.log("location, target:")
                         print_node_list([player_node, random_node])
-                        window.activePath = AStar(player_node, random_node);
-                        if (window.activePath) {
+                        activePath = AStar(player_node, random_node);
+                        if (activePath) {
                             console.log("setting active node target");
-                            print_node_list(window.activePath);
-                            window.activeNodeTarget = window.activePath[0];
+                            print_node_list(activePath);
+                            activeNodeTarget = activePath[0];
                             console.log("list printed, target set, creating pathfinding lines")
-                            create_pathfinding_lines(ss, window.activePath);
-                            window.findNewPath = false; 
+                            create_pathfinding_lines(ss, activePath);
+                            findNewPath = false; 
                             console.log("found path to random node")                 
                         } else {
                             console.log("unable to find path to random node")
@@ -3572,38 +3573,38 @@ sniping and someone sneaks up on you
                 if (player_node && target_node) {
                     path = AStar(player_node, target_node);
                     if (path) {
-                        window.activePath = path;
-                        window.activeNodeTarget = path[0];
+                        activePath = path;
+                        activeNodeTarget = path[0];
                     }
                 }
             }
 
-            if (window.activeNodeTarget && window.activePath) {
+            if (activeNodeTarget && activePath) {
                 console.log("found target and path");
                 let player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                if (player_node == window.activeNodeTarget) {
-                    window.activeNodeTarget = window.activePath.shift();
+                if (player_node == activeNodeTarget) {
+                    activeNodeTarget = activePath.shift();
                     console.log("update target");
-                    if (window.activePath.length == 0) {
+                    if (activePath.length == 0) {
                         console.log("path completed");
-                        window.activePath = null;
-                        window.activeNodeTarget = null;
+                        activePath = null;
+                        activeNodeTarget = null;
                     }
                 } else {
                     console.log("not at target");
                 }
-                /* if (!(window.activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
-                    window.findNewPath = true;
-                    window.activePath = null;
-                    window.activeNodeTarget = null;
+                /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
+                    findNewPath = true;
+                    activePath = null;
+                    activeNodeTarget = null;
                     console.log("went off path, finding new path")
                 } */
             }
 
-            if (window.activeNodeTarget) {
+            if (activeNodeTarget) {
                 // look towards the node
                 console.log("looking towards node")
-                let directionVector = getDirectionVectorFacingTarget(window.activeNodeTarget.position, true, 0);
+                let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
                 let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
                 console.log("vector obtained: ", directionVector);
                 ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
