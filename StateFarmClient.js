@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre10
+// @version      3.3.3-pre13
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -108,6 +108,7 @@
     };
     unsafeWindow.newGame=false
     let binding=false;
+    let previousFrame=0;
     let lastSpamMessage=0;
     let lastAutoJump=0;
     let lastAntiAFKMessage=0;
@@ -120,7 +121,6 @@
     let deciSecondsPassed = 0;
     let lastSentMessage="";
     let targetingComplete=false;
-    let yourPlayerKills = 0;
     let currentlyTargetingName = "none";
     let username = "";
     let previousParams = "";
@@ -601,6 +601,7 @@ sniping and someone sneaks up on you
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "Set Detail", storeAs: "setDetail", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Auto Detail", value: "autodetail"}, {text: "No Details", value: "nodetails"}, {text: "Shadows", value: "shadows"}, {text: "High Res", value: "highres"}, {text: "Shadows+High Res", value: "shadowshighres"}], defaultValue: "disabled"});
             initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true,});
+            initModule({ location: tp.renderTab.pages[0], title: "Render Delay", storeAs: "renderDelay", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0,});
         //HUD MODULES
         initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder",});
         initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
@@ -851,6 +852,7 @@ sniping and someone sneaks up on you
         //PARAMS STUFF
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,})
+        initModule({ location: tp.botTabs.pages[2], title: "RenderDelay", storeAs: "renderDelayBots", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0, botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
@@ -1823,16 +1825,6 @@ sniping and someone sneaks up on you
                     };
                 };
             };
-            if (extract("autoEZ")||extract("cheatAccuse")) {
-                if (ss.MYPLAYER.score !== yourPlayerKills) {
-                    yourPlayerKills = ss.MYPLAYER.score;
-                    if (ss.MYPLAYER?.playing && extract("autoEZ")) {
-                        sendChatMessage(`imagine dying ${currentlyTargetingName}, couldn't be me`);
-                    } else if (extract("cheatAccuse")) {
-                        sendChatMessage(`are you cheating ${currentlyTargetingName}? everyone report`);
-                    };
-                }; //chatOnKill
-            };
             if (extract("gameInfo")) {
                 let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName;
                 gameInfoElement.innerText = gameInfoText;
@@ -1840,7 +1832,7 @@ sniping and someone sneaks up on you
                 gameInfoElement.style.display = '';
             };
             if (extract("leaveEmpty")) {
-                if (playersInGame==1) {
+                if (playersInGame==1 || playersInGame==2) { //if literally empty or there is one person remaining
                     createPopup("Left empty game. [LeaveEmpty]")
                     change("leaveGame");
                     playersInGame=0;
@@ -2026,7 +2018,7 @@ sniping and someone sneaks up on you
             unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer ,io game";
         };
 
-        if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
+        if (ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             //innertext stuff, fairly resource intensive. disable these for performance
             if (extract("playerStats")) {
                 let playerStates="";
@@ -2504,6 +2496,20 @@ sniping and someone sneaks up on you
         unsafeWindow.getPointerEscape = function () {
             return noPointerPause;
         };
+        unsafeWindow.interceptDeath = function (KILLER,DEAD) {
+            // console.log("dead:",DEAD.name,"killed by:",KILLER.name);
+            if (DEAD.name == ss.MYPLAYER.name) { //you died
+                console.log("wtf i died");
+                if (extract("cheatAccuse")) {
+                    sendChatMessage(`are you cheating ${KILLER.name}? everyone report`);
+                };
+            } else if (KILLER.name == ss.MYPLAYER.name) { //you killed someone
+                console.log("lmfao scrub");
+                if (extract("autoEZ")) {
+                    sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
+                };
+            };
+        };
         unsafeWindow.beforeFiring = function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
                 ss.MYPLAYER=MYPLAYER;
@@ -2651,7 +2657,8 @@ sniping and someone sneaks up on you
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
             match=js.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
-            js = js.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${functionNames.retrieveFunctions}"]({${injectionString}},true`);
+            console.log(match);
+            js = js.replace('.engine.runRenderLoop(function(){'+match[1]+'(),',`.engine.runRenderLoop(function (){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
             js = js.replace('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop ss.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
@@ -2706,6 +2713,12 @@ sniping and someone sneaks up on you
             js=js.replace(',vueApp.onTutorialPopupClick()','');
             //pointer escape
             js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.getPointerEscape()) {return};');
+            //death hook
+            const DEATHFUNCTION = new RegExp('\\.document\\.write\\("<hr>"\\)\\}function ([a-zA-Z]+)\\(').exec(js)[1];
+            console.log("DEATHFUNCTION",DEATHFUNCTION);
+            const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
+            console.log("DEATHARGS",DEATHARGS);
+            js=js.replace('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.interceptDeath('+DEATHARGS+');');
 
             //replace graveyard:
             // //sus
@@ -2863,6 +2876,7 @@ sniping and someone sneaks up on you
         addParam("enableSeizureX",extract("botSeizure"));
         addParam("enableSeizureY",extract("botSeizure"));
 
+        addParam("renderDelay",extract("renderDelayBots"));
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
@@ -3506,17 +3520,13 @@ sniping and someone sneaks up on you
                 };
             }; unsafeWindow.newGame=false;
         };
-        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {F.STATEFARM()} });
+        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {return F.STATEFARM()} });
         createAnonFunction("STATEFARM",function(){
 
             if ( !ranOneTime ) { oneTime() };
             initVars();
             updateLinesESP();
 
-            //this is crashing rn
-
-
-            
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
@@ -3850,6 +3860,16 @@ sniping and someone sneaks up on you
                     ss.MYPLAYER.weapon.constructor.automatic = false;
                 };
             };
+
+            let doRender = true;
+
+            if ((extract("renderDelay")>10) && (Date.now()<(previousFrame+extract("renderDelay")))) { //because bots lmao
+                doRender = false;
+            } else {
+                previousFrame = Date.now();
+            };
+
+            return (!doRender);
         });
     };
 
