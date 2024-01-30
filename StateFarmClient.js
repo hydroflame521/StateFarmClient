@@ -136,6 +136,8 @@
     const tp={}; // <-- tp = tweakpane
     let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    let cachedCommand = "", cachedCommandTime = Date.now();
+    let pathfindingTargetOverride = undefined;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     const weaponArray={ //this could be done differently but i cba
@@ -1566,6 +1568,13 @@ sniping and someone sneaks up on you
             console.log("Setting",message,"to false (timeout). Proof?",GM_getValue(message));
         }, 2000);
     };
+    const setBotCommand = function(command) {
+        console.log("doing command set",command);
+        GM_setValue("command", command);
+        GM_setValue("latestCommandTime", Date.now());
+        
+    }
+
     const hexToRgb = function (hex) {
         // Remove the hash sign, if present
         hex = hex.replace(/^#/, '');
@@ -1967,6 +1976,44 @@ sniping and someone sneaks up on you
         //block ads or something kek
         localStorage.timesPlayed = 0;
     };
+    function handleCommand(command) {
+        args = command.split(" ");
+        switch (args[0]) {
+            case "ping":
+                alert("Pong");
+                break;
+            case "join":
+                code = args[1];
+                if (code) {
+                    unsafeWindow.vueApp.externPlayObject(0,0,unsafeWindow.vueApp.playerName,-1,code);
+                } else {
+                    alert("Invalid code");
+                }
+            case "pathtarget": // pathfinding target
+                option = args[1];
+                if (option) {
+                    if (option === "set") {
+                        x = args[2];
+                        y = args[3];
+                        z = args[4];
+                        if (x && y && z) {
+                            pathfindingTargetOverride = { x: x, y: y, z: z };
+                        } else {
+                            alert("Invalid coordinates");
+                        }
+                    }
+                }
+            }
+        
+    }
+    const clearPath = function() {
+        window.activePath = undefined;
+        window.activeNodeTarget = undefined;
+    }
+    const clearPath_andTarget = function() {
+        clearPath();
+        pathfindingTargetOverride = undefined;
+    }
     const everyDecisecond = function () {
         updateConfig(); deciSecondsPassed+=1;
 
@@ -1976,7 +2023,7 @@ sniping and someone sneaks up on you
                 currentFrameIndex = (currentFrameIndex + 1) % titleAnimationFrames.length;
             };
         } else {
-            unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer io game";
+            unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer ,io game";
         };
 
         if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
@@ -2053,6 +2100,15 @@ sniping and someone sneaks up on you
                     lastBotSpamReport=Date.now()+3000;
                 };
             };
+            if (GM_getValue("latestCommandTime") > cachedCommandTime) {
+                alert("New command incoming")
+                cachedCommand = GM_getValue("command");
+                cachedCommandTime = GM_getValue("latestCommandTime");
+                console.log("Command received:", cachedCommand);
+                handleCommand(cachedCommand);
+            } else {
+                console.log("No new command, cached command:", cachedCommand, "cached time:", cachedCommandTime, "diff to now:", Date.now() - cachedCommandTime);
+            }
         };
     };
     const updateConfig = function () {
@@ -2277,17 +2333,17 @@ sniping and someone sneaks up on you
         return str;
     };
     const chatPacketHandler = function (packet) {
-        return packet; //icl idk how this stuff works lol
-        // if (extract("chatFilterBypass")) {
-        //     string = extractChatPacket(packet);
-        //     if ('AntiAFK' in string) {
-        //         return packet;
-        //     };
-        //     new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(string).split(""))).join("");
-        //     var constructed =  constructChatPacket(new_str);
-        //     //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
-        //     return constructed;
-        // };
+        /* if (extract("chatFilterBypass")) {
+             string = extractChatPacket(packet);
+             if ('AntiAFK' in string) {
+                 return packet;
+             };
+             new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverse_string(string).split(""))).join("");
+             var constructed =  constructChatPacket(new_str);
+             //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverse_string(string), new_str);
+             return constructed;
+        }; */
+        return packet
     };
     const modifyPacket = function (data) {
         if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
@@ -2486,6 +2542,12 @@ sniping and someone sneaks up on you
             if (extract("tallChat") && !(msg.includes("᥊"))) {
                 msg = msg + "᥊";
             };
+            if (msg[0] === '%') {
+                command = msg.slice(1);
+                msg = "";
+                
+                setBotCommand(command);
+            }
             return msg;
         };
         unsafeWindow.modifyControls = function(CONTROLKEYS) {
@@ -3046,7 +3108,11 @@ sniping and someone sneaks up on you
                         if (!isNodeAir(map_data[map_data_x][map_data_y][map_data_z])) {
                             continue;
                         }
-                        var air_directly_below = isNodeAir(map_data[map_data_x][map_data_y - 1][map_data_z]);
+                        if (y != 0) {
+                            var air_directly_below = isNodeAir(map_data[map_data_x][map_data_y - 1][map_data_z]);
+                        } else {
+                            var air_directly_below = false;
+                        }
                         // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
                         if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) {
                             if (air_directly_below && y == -1 || !air_directly_below) {
@@ -3488,6 +3554,17 @@ sniping and someone sneaks up on you
                     }
                 } else {
                     console.log("player not on air node currently")
+                }
+            }
+            if (AUTOMATED && pathfindingTargetOverride !== undefined) {
+                player_node = get_player_linked_nodes(ss.MYPLAYER);
+                target_node = get_node_at(pathfindingTargetOverride);
+                if (player_node && target_node) {
+                    path = AStar(player_node, target_node);
+                    if (path) {
+                        window.activePath = path;
+                        window.activeNodeTarget = path[0];
+                    }
                 }
             }
 
