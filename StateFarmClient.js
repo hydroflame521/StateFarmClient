@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre11
+// @version      3.3.3-pre12
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -108,6 +108,7 @@
     };
     unsafeWindow.newGame=false
     let binding=false;
+    let previousFrame=0;
     let lastSpamMessage=0;
     let lastAutoJump=0;
     let lastAntiAFKMessage=0;
@@ -599,6 +600,7 @@ sniping and someone sneaks up on you
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "Set Detail", storeAs: "setDetail", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Auto Detail", value: "autodetail"}, {text: "No Details", value: "nodetails"}, {text: "Shadows", value: "shadows"}, {text: "High Res", value: "highres"}, {text: "Shadows+High Res", value: "shadowshighres"}], defaultValue: "disabled"});
             initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true,});
+            initModule({ location: tp.renderTab.pages[0], title: "Render Delay", storeAs: "renderDelay", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0,});
         //HUD MODULES
         initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder",});
         initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
@@ -849,6 +851,7 @@ sniping and someone sneaks up on you
         //PARAMS STUFF
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,})
+        initModule({ location: tp.botTabs.pages[2], title: "RenderDelay", storeAs: "renderDelayBots", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0, botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
@@ -1979,7 +1982,7 @@ sniping and someone sneaks up on you
             unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer io game";
         };
 
-        if (unsafeWindow.extern.inGame && ss && ss.MYPLAYER) {
+        if (ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             //innertext stuff, fairly resource intensive. disable these for performance
             if (extract("playerStats")) {
                 let playerStates="";
@@ -2589,7 +2592,8 @@ sniping and someone sneaks up on you
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
             match=js.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
-            js = js.replace(`\.engine\.runRenderLoop\(function\(\)\{${match[1]}\(`,`.engine.runRenderLoop(function (){${match[1]}(),window["${functionNames.retrieveFunctions}"]({${injectionString}},true`);
+            console.log(match);
+            js = js.replace('.engine.runRenderLoop(function(){'+match[1]+'(),',`.engine.runRenderLoop(function (){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
             js = js.replace('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop ss.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
@@ -2801,6 +2805,7 @@ sniping and someone sneaks up on you
         addParam("enableSeizureX",extract("botSeizure"));
         addParam("enableSeizureY",extract("botSeizure"));
 
+        addParam("renderDelay",extract("renderDelayBots"));
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
@@ -3440,17 +3445,13 @@ sniping and someone sneaks up on you
                 };
             }; unsafeWindow.newGame=false;
         };
-        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {F.STATEFARM()} });
+        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {return F.STATEFARM()} });
         createAnonFunction("STATEFARM",function(){
 
             if ( !ranOneTime ) { oneTime() };
             initVars();
             updateLinesESP();
 
-            //this is crashing rn
-
-
-            
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
@@ -3773,6 +3774,16 @@ sniping and someone sneaks up on you
                     ss.MYPLAYER.weapon.constructor.automatic = false;
                 };
             };
+
+            let doRender = true;
+
+            if ((extract("renderDelay")>10) && (Date.now()<(previousFrame+extract("renderDelay")))) { //because bots lmao
+                doRender = false;
+            } else {
+                previousFrame = Date.now();
+            };
+
+            return (!doRender);
         });
     };
 
