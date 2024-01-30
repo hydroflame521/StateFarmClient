@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre10
+// @version      3.3.3-pre11
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -1831,7 +1831,7 @@ sniping and someone sneaks up on you
                 gameInfoElement.style.display = '';
             };
             if (extract("leaveEmpty")) {
-                if (playersInGame==1) {
+                if (playersInGame==1 || playersInGame==2) { //if literally empty or there is one person remaining
                     createPopup("Left empty game. [LeaveEmpty]")
                     change("leaveGame");
                     playersInGame=0;
