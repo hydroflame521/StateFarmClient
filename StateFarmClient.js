@@ -3046,11 +3046,17 @@ sniping and someone sneaks up on you
                         if (!isNodeAir(map_data[map_data_x][map_data_y][map_data_z])) {
                             continue;
                         }
+                        var air_directly_below = isNodeAir(map_data[map_data_x][map_data_y - 1][map_data_z]);
                         // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
                         if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) {
-                            this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z));
+                            if (air_directly_below && y == -1 || !air_directly_below) {
+                                this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z));
+                            }
                         } else {
-                            this.add_link(new MapNode(new Position(map_data_x, map_data_y, map_data_z), [], map_data));
+                            var new_node = new MapNode(new Position(map_data_x, map_data_y, map_data_z), [], map_data);
+                            if (air_directly_below && y == -1 || !air_directly_below) {
+                                this.add_link(new_node);
+                            }
                         }
 
                     }
