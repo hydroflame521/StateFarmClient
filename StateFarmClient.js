@@ -8,6 +8,8 @@
 // @run-at       document-start
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_deleteValue
+// @grant        GM_listValues
 // @grant        GM_info
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
@@ -19,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre15
+// @version      3.3.3-pre24
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -78,6 +80,8 @@
 
 console.log("StateFarm: running (before function)");
 
+alert("WARNING: STATEFARM IS NOT FULLY FIXED! IT *WILL* CRASH!");
+
 (function () {
     console.log("StateFarm: running (after function)");
     //script info
@@ -86,6 +90,8 @@ console.log("StateFarm: running (before function)");
     const menuTitle=name + " v" + version;
     //startup sequence
     const startUp=function () {
+        console.log("StateFarm: detectURLParams()");
+        detectURLParams();
         console.log("StateFarm: mainLoop()");
         mainLoop();
         console.log("StateFarm: injectScript()");
@@ -100,8 +106,6 @@ console.log("StateFarm: running (before function)");
             applyStateFarmLogo();
             const observer = new MutationObserver(applyStateFarmLogo);
             observer.observe(document.body, { subtree: true, childList: true });
-            console.log("StateFarm: detectURLParams()");
-            detectURLParams();
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
@@ -114,7 +118,8 @@ console.log("StateFarm: running (before function)");
     const inbuiltPresets = {
         onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
     };
-    unsafeWindow.newGame=false
+    const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
+    console.log("Save key:",storageKey);
     let binding=false;
     let previousFrame=0;
     let lastSpamMessage=0;
@@ -123,10 +128,10 @@ console.log("StateFarm: running (before function)");
     let currentFrameIndex = 0;
     let deciSecondsPassed = 0;
     let lastSentMessage="";
+    let URLParams="";
     let targetingComplete=false;
     let currentlyTargetingName = "none";
     let username = "";
-    let previousParams = "";
     let autoStrafeValue=[0,0,"left"];
     const allModules=[];
     const allFolders=[];
@@ -136,14 +141,16 @@ console.log("StateFarm: running (before function)");
     let ESPArray=[];
     let onlinePlayersArray=[];
     let bindsArray={};
+    const H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,menuInitiated,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
+    let configNotSet = true;
     const weaponArray={ //this could be done differently but i cba
         eggk47: 0,
         scrambler: 1,
@@ -278,7 +285,7 @@ console.log("StateFarm: running (before function)");
                     if (newValue==undefined) {
                         newValue=(!currentValue);
                     };
-                    if (newValue!==!(!currentValue)) {
+                    if (newValue!==(!!currentValue)) {
                         checkbox.click(); // Toggle checkbox
                     };
                     console.log(module,"checkbox",currentValue,newValue);
@@ -341,7 +348,7 @@ console.log("StateFarm: running (before function)");
                 if (event=="Delete") { event="Set Bind" };
                 tp[binding+"BindButton"].title=event;
                 bindsArray[binding]=event;
-                localStorage.setItem(binding+"Bind",JSON.stringify(event));
+                save(binding+"Bind",event);
                 createPopup("Binded "+tp[binding+"Button"].label+" to key: "+event);
                 binding=false;
         } else {
@@ -399,13 +406,20 @@ console.log("StateFarm: running (before function)");
     const initFolder = function(folder) {
         tp[folder.storeAs]=folder.location.addFolder({
             title: folder.title,
-            expanded: JSON.parse(localStorage.getItem(folder.storeAs)) !== null ? JSON.parse(localStorage.getItem(folder.storeAs)) : false
+            expanded: load(folder.storeAs) !== null ? load(folder.storeAs) : false
         });
         allFolders.push(folder.storeAs);
     };
     const initModule = function (module) {
         const value={};
         value[module.storeAs]=(module.defaultValue !== undefined ? module.defaultValue : false);
+
+        tp[module.storeAs+"TiedModules"] = {
+            showConditions: (module.showConditions||false),
+            hideConditions: (module.hideConditions||false),
+            enableConditions: (module.enableConditions||false),
+            disableConditions: (module.disableConditions||false), //why have disable when there is already enable? enable acts like an AND operator, whereas having conditions for the opposite allows for an OR operation. it is messy, but hey it works lmao?
+        };
 
         if (!(module.slider&&module.slider.step)) {module.slider={}};
         const config={
@@ -436,27 +450,26 @@ console.log("StateFarm: running (before function)");
                 tp[(module.storeAs+"Button")].refresh();
             }, 1000);
         } else {
-            tp[(module.storeAs+"Button")]=module.location.addInput(value,module.storeAs,config
+            tp[module.storeAs+"Button"]=module.location.addInput(value,module.storeAs,config
             ).on("change", (value) => {
                 if (module.changeFunction!==undefined) {module.changeFunction(value)};
-                if ((module.botParam!==undefined)) {
-                    setTimeout(() => {
-                        if (startUpComplete) {
+                setTimeout(() => {
+                    if (startUpComplete) {
+                        if ((module.botParam!==undefined)) {
                             updateBotParams(module.botParam);
                         };
-                    }, 500);
-                };
-                setTimeout(() => {
+                    };
+                    updateHiddenAndDisabled();
                     saveConfig();
-                }, 500);
+                }, 150);
             });
         };
-        allModules.push(name.replace("Button",""));
+        allModules.push(module.storeAs);
         if (module.bindLocation) {initBind(module)};
     };
     const initBind = function (module) {
-        if (resetModules) { localStorage.removeItem(module.storeAs+"Bind") };
-        const theBind=(JSON.parse(localStorage.getItem(module.storeAs+"Bind")) || module.defaultBind || "Set Bind");
+        if (resetModules) { remove(module.storeAs+"Bind") };
+        const theBind=( load(module.storeAs+"Bind") || module.defaultBind || "Set Bind" );
         tp[(module.storeAs+"BindButton")]=module.bindLocation.addButton({
             label: module.title,
             title: theBind,
@@ -470,6 +483,7 @@ console.log("StateFarm: running (before function)");
         //init tp.mainPanel
 
         resetModules = reset;
+        menuInitiated = false;
 
         if (tp.mainPanel) { tp.mainPanel.dispose() };
         if (tp.botPanel) { tp.botPanel.dispose() };
@@ -538,30 +552,30 @@ sniping and someone sneaks up on you
         ]);
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
-                initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat"});
-                initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Prioritise Visible", value: "prioritise"}, {text: "Only Visible", value: "onlyvisible"}], defaultValue: "disabled"});
+                initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat", enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Prioritise Visible", value: "prioritise"}, {text: "Only Visible", value: "onlyvisible"}], defaultValue: "disabled", enableConditions: [["aimbot",true]]});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true], ["silentAimbot",false]],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1],});
-                initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1],});
+                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2,});
-                initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0,});
-                initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0,});
+                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2, enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
+                initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff"});
+                initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff", enableConditions: [["aimbot",true]]});
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1],});
+            initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1], showConditions: [["autoRefill",true]],});
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse"});
+            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse", showConditions: [["enableAutoFire",true]]});
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
@@ -574,27 +588,27 @@ sniping and someone sneaks up on you
             initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
             tp.renderTab.pages[0].addSeparator();
             initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder",});
-                initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}, {text: "Visibility", value: "visibility"}], defaultValue: "static",});
-                initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000",});
-                initModule({ location: tp.tracersFolder, title: "Color 2", storeAs: "tracersColor2", defaultValue: "#00ff00",});
-                initModule({ location: tp.tracersFolder, title: "Color 3", storeAs: "tracersColor3", defaultValue: "#ffffff",});
-                tp.tracersFolder.addSeparator();
-                initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 5,});
-                initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 15,});
+                initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}, {text: "Visibility", value: "visibility"}], defaultValue: "static", disableConditions: [["tracers",false],["playerESP",false]],});
+                initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000", disableConditions: [["tracers",false],["playerESP",false]],});
+                initModule({ location: tp.tracersFolder, title: "Color 2", storeAs: "tracersColor2", defaultValue: "#00ff00", disableConditions: [["tracers",false],["playerESP",false]], hideConditions: [["tracersType","static"]],});
+                initModule({ location: tp.tracersFolder, title: "Color 3", storeAs: "tracersColor3", defaultValue: "#ffffff", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["tracersType","proximity"]],});
+                // tp.tracersFolder.addSeparator();
+                initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 5, showConditions: [["tracersType","proximity"]], disableConditions: [["tracers",false],["playerESP",false]],});
+                initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 15, showConditions: [["tracersType","proximity"]], disableConditions: [["tracers",false],["playerESP",false]],});
             tp.renderTab.pages[0].addSeparator();
             initFolder({ location: tp.renderTab.pages[0], title: "Ammo ESP/Tracers Options", storeAs: "tracersAmmoFolder",});
                 initFolder({ location: tp.tracersAmmoFolder, title: "Ammo", storeAs: "ammoFolder",});
                     initModule({ location: tp.ammoFolder, title: "AESP", storeAs: "ammoESP", bindLocation: tp.renderTab.pages[1],});
                     initModule({ location: tp.ammoFolder, title: "ATracers", storeAs: "ammoTracers", bindLocation: tp.renderTab.pages[1],});
                     tp.ammoFolder.addSeparator();
-                    initModule({ location: tp.ammoFolder, title: "ARegime", storeAs: "ammoESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted"});
-                    initModule({ location: tp.ammoFolder, title: "AColor", storeAs: "ammoESPColor", defaultValue: "#ffff00",});
+                    initModule({ location: tp.ammoFolder, title: "ARegime", storeAs: "ammoESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted", disableConditions: [["ammoESP",false],["ammoTracers",false]],});
+                    initModule({ location: tp.ammoFolder, title: "AColor", storeAs: "ammoESPColor", defaultValue: "#ffff00", disableConditions: [["ammoESP",false],["ammoTracers",false]],});
                 initFolder({ location: tp.tracersAmmoFolder, title: "Grenades", storeAs: "grenadesFolder",});
                     initModule({ location: tp.grenadesFolder, title: "GESP", storeAs: "grenadeESP", bindLocation: tp.renderTab.pages[1],});
                     initModule({ location: tp.grenadesFolder, title: "GTracers", storeAs: "grenadeTracers", bindLocation: tp.renderTab.pages[1],});
                     tp.grenadesFolder.addSeparator();
-                    initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted"});
-                    initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff",});
+                    initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted", disableConditions: [["grenadeESP",false],["grenadeTracers",false]],});
+                    initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff", disableConditions: [["grenadeESP",false],["grenadeTracers",false]],});
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 1}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
@@ -611,7 +625,7 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
             initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1], enableConditions: [["aimbot",true]],});
             tp.hudTab.pages[0].addSeparator();
             initModule({ location: tp.hudTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "RadarWIP", storeAs: "radar", bindLocation: tp.hudTab.pages[1],});
@@ -633,8 +647,8 @@ sniping and someone sneaks up on you
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
-                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 10, max: 60000, step: 10}, defaultValue: 500,});
-                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ",});
+                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 10, max: 60000, step: 10}, defaultValue: 500, enableConditions: [["spamChat",true]],});
+                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ", enableConditions: [["spamChat",true]],});
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
@@ -645,24 +659,24 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.joinLeaveFolder, title: "Join Msgs", storeAs: "joinMessages", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.joinLeaveFolder, title: "Leave Msgs", storeAs: "leaveMessages", bindLocation: tp.chatTab.pages[1],});
                 tp.joinLeaveFolder.addSeparator();
-                initModule({ location: tp.joinLeaveFolder, title: "Send2Chat", storeAs: "publicBroadcast", bindLocation: tp.chatTab.pages[1],});
-                initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1],});
+                initModule({ location: tp.joinLeaveFolder, title: "Send2Chat", storeAs: "publicBroadcast", bindLocation: tp.chatTab.pages[1], disableConditions: [["joinMessages",false],["leaveMessages",false]],});
+                initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1], disableConditions: [["joinMessages",false],["leaveMessages",false]],});
         //LISTS MODULES
         initFolder({ location: tp.mainPanel, title: "Lists", storeAs: "listsFolder",});
         initTabs({ location: tp.listsFolder, storeAs: "listsTab" })
             initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2",});
             initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder",});
                 initModule({ location: tp.whitelistFolder, title: "WAimbot", storeAs: "enableWhitelistAimbot", bindLocation: tp.listsTab.pages[1],});
-                initModule({ location: tp.whitelistFolder, title: "WESP", storeAs: "enableWhitelistTracers", bindLocation: tp.listsTab.pages[1],});
-                initModule({ location: tp.whitelistFolder, title: "WESPType", storeAs: "whitelistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Only Include", value: "onlyinclude"},{text: "Highlight", value: "highlight"},], defaultValue: "onlyinclude",});
-                initModule({ location: tp.whitelistFolder, title: "WHighlight", storeAs: "whitelistColor", defaultValue: "#e80aac",});
+                initModule({ location: tp.whitelistFolder, title: "WESP", storeAs: "enableWhitelistTracers", bindLocation: tp.listsTab.pages[1], disableConditions: [["tracers",false],["playerESP",false]],});
+                initModule({ location: tp.whitelistFolder, title: "WESPType", storeAs: "whitelistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Only Include", value: "onlyinclude"},{text: "Highlight", value: "highlight"},], defaultValue: "onlyinclude", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableWhitelistTracers",true]],});
+                initModule({ location: tp.whitelistFolder, title: "WHighlight", storeAs: "whitelistColor", defaultValue: "#e80aac", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableWhitelistTracers",true], ["whitelistESPType", "highlight"]],});
             tp.listsTab.pages[0].addSeparator();
             initModule({ location: tp.listsTab.pages[0], title: "Blacklist", storeAs: "blacklist", defaultValue: "User-1, User-2",});
             initFolder({ location: tp.listsTab.pages[0], title: "Blacklist (Exclude) Options", storeAs: "blacklistFolder",});
                 initModule({ location: tp.blacklistFolder, title: "BAimbot", storeAs: "enableBlacklistAimbot", bindLocation: tp.listsTab.pages[1],});
-                initModule({ location: tp.blacklistFolder, title: "BESP", storeAs: "enableBlacklistTracers", bindLocation: tp.listsTab.pages[1],});
-                initModule({ location: tp.blacklistFolder, title: "BESPType", storeAs: "blacklistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Just Exclude", value: "justexclude"},{text: "Highlight", value: "highlight"},], defaultValue: "justexclude",});
-                initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00",});
+                initModule({ location: tp.blacklistFolder, title: "BESP", storeAs: "enableBlacklistTracers", bindLocation: tp.listsTab.pages[1], disableConditions: [["tracers",false],["playerESP",false]],});
+                initModule({ location: tp.blacklistFolder, title: "BESPType", storeAs: "blacklistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Just Exclude", value: "justexclude"},{text: "Highlight", value: "highlight"},], defaultValue: "justexclude", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableBlacklistTracers",true]],});
+                initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableBlacklistTracers",true], ["blacklistESPType", "highlight"]],});
         //AUTOMATION MODULES
         initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
         initTabs({ location: tp.automationFolder, storeAs: "automationTab" })
@@ -675,19 +689,19 @@ sniping and someone sneaks up on you
             initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0,});
+            initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0, showConditions: [["autoJump", true]],});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
-                initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE",});
-                initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)},});
+                initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE", enableConditions: [["autoJoin", true]],});
+                initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)}, enableConditions: [["autoJoin", true]],});
                 tp.autoJoinFolder.addSeparator();
-                initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useDefaultName", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer",});
-                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", clickFunction: function(){
+                initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useCustomName", bindLocation: tp.automationTab.pages[1], enableConditions: [["autoJoin", true]],});
+                initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer", enableConditions: [["autoJoin", true], ["useCustomName", true]],});
+                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", enableConditions: [["autoJoin", true], ["useCustomName", true]], clickFunction: function(){
                     const copiedName = retrieveCopiedName();
                     console.log("Retrieved copied name:",copiedName);
                     change("usernameAutoJoin",(copiedName||"ЅtateFarmer"));
@@ -772,10 +786,10 @@ sniping and someone sneaks up on you
                 applyTheme(value.value);
             }});
             tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X",});
+            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X", enableConditions: [["enablePanic",true]],});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
-                initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/",});
+                initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/", enableConditions: [["enablePanic",true]],});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", defaultValue: "onlypuppy7", bindLocation: tp.clientTab.pages[1], dropdown: [
                 {text: "onlypuppy7's Config", value: "onlypuppy7"},
@@ -783,7 +797,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
                 if (userConfirmed) {
-                    applySettings(inbuiltPresets[extract("selectedPreset")]);
+                    applySettings(inbuiltPresets[extract("selectedPreset")], true);
                 };
             },});
             tp.clientTab.pages[0].addSeparator();
@@ -819,31 +833,31 @@ sniping and someone sneaks up on you
         });
 
         //DEPLOY STUFF
-        initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1, botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()}, botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
+        initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()},});
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useDefaultNameBots", defaultValue: true, botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useCustomNameBots", defaultValue: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", enableConditions: [["useCustomNameBots",true]],});
+        initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", enableConditions: [["useCustomNameBots",true]],});
+        initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", enableConditions: [["useCustomNameBots",true]],});
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillMe", storeAs: "botNoKillMe",});
+        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillBot", storeAs: "botNoKillBots",});
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, {text: "Randomised", value: "random"}], defaultValue: "darkesteggshell", botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}, {text: "Randomised", value: "random"}], defaultValue: "pablosmile", botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Hat", storeAs: "autoHatBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}, {text: "Randomised", value: "random"}], defaultValue: "pablohat", botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, {text: "Randomised", value: "random"}], defaultValue: "darkesteggshell",});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}, {text: "Randomised", value: "random"}], defaultValue: "pablosmile",});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Hat", storeAs: "autoHatBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}, {text: "Randomised", value: "random"}], defaultValue: "pablohat",});
         //MANAGE STUFF
-        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("kill") }, botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("refresh") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("kill") },});
+        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("refresh") },});
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function(){ broadcastToBots("newproxy") }, botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("unban") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function(){ broadcastToBots("newproxy") },});
+        initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("unban") },});
         initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true,});
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("leave") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("leave") },});
         initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("report") }, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("report") },});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
@@ -852,13 +866,13 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[1], title: "GameType", storeAs: "autoGamemodeBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "AutoRegion", storeAs: "autoRegionBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
+        initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled",});
         //PARAMS STUFF
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,})
         initModule({ location: tp.botTabs.pages[2], title: "RenderDelay", storeAs: "renderDelayBots", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0, botParam: true,});
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true, enableConditions: [["botRespawn",true]],});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoTallChat", storeAs: "botTallChat", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "DoMock", storeAs: "botMock", botParam: true,});
@@ -866,31 +880,35 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSpam", storeAs: "botSpam", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true, enableConditions: [["botSpam",true]],});
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47"});
-        initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true,});;
+        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47", enableConditions: [["botRespawn",true]],});
+        initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true, enableConditions: [["botRespawn",true]],});
+        initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true, enableConditions: [["botRespawn",true]],});
+        initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true, enableConditions: [["botRespawn",true]],});;
         //INFO STUFF
         initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true,});
 
-        if ((!localStorage.getItem("StateFarmConfigMainPanel")) || reset) {
-            saveConfig();
-        } else {
-            console.log("##############################################")
-            tp.mainPanel.importPreset(JSON.parse(localStorage.getItem("StateFarmConfigMainPanel")));
-            tp.botPanel.importPreset(JSON.parse(localStorage.getItem("StateFarmConfigBotPanel")));
+        if (!AUTOMATED) {
+            if (!load("StateFarmConfigMainPanel") || reset) {
+                saveConfig();
+            } else {
+                console.log("##############################################")
+                tp.mainPanel.importPreset(load("StateFarmConfigMainPanel"));
+                tp.botPanel.importPreset(load("StateFarmConfigBotPanel"));
+            };
         };
 
         updateConfig();
 
-        if (AUTOMATED) { //why after 500ms? perhaps we'll never know. maybe because it gives a visual indication that statefarm is statefarming.
-            setTimeout(() => {
+        setTimeout(() => {
+            if (AUTOMATED) { //why after 500ms? perhaps we'll never know. maybe because it gives a visual indication that statefarm is statefarming.
                 tp.mainPanel.hidden=true;
-            }, 500);
-        };
+            };
+            updateHiddenAndDisabled();
+        }, 500);
 
+        menuInitiated = true;
         const defaultSpamText = ("dsc.gg/sfclient: "+menuTitle+" On Top! ");
 
         if (extract("spamChatText").includes("On Top!")) { change("spamChatText",defaultSpamText) };
@@ -1458,22 +1476,18 @@ sniping and someone sneaks up on you
         // Check if a player dot with the unique ID already exists, then do flow of control
         let xPosition = (player.x / 100) * windowWidth;xPosition += (windowWidth + xPosition)/2;
         let yPosition = (player.z / 100) * windowHeight;yPosition += (windowHeight + yPosition)/2;
-        if (!player.playing || !player)
-        {
+        if (!player[H.playing] || !player) {
             if (playerDotsMap.has(player.uniqueId)) {
                 const playerDotToRemove = playerDotsMap.get(player.uniqueId);
                 mapEl.removeChild(playerDotToRemove); // Remove the dot from the DOM
                 playerDotsMap.delete(player.uniqueId); // Remove the dot from the map
-            }
-        }
-        else if (player === myPlayer)
-        {
+            };
+        } else if (player === myPlayer) {
             myPlayerDot.style.left = `${xPosition}px`;
             myPlayerDot.style.top = `${yPosition}px`;
             myPlayerDot.textContent = myPlayer.name;
             myPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player.yaw) + 'deg)';
-        }
-        else if (playerDotsMap.has(player.uniqueId)) {
+        } else if (playerDotsMap.has(player.uniqueId)) {
             // If it exists, update its position
             const existingPlayerDot = playerDotsMap.get(player.uniqueId);
             existingPlayerDot.style.left = `${xPosition}px`;
@@ -1569,7 +1583,7 @@ sniping and someone sneaks up on you
 
     const broadcastToBots = function(command) {
         const commandTime = Date.now();
-        console.log("doing command set:", command, "| at time:", commandTime);
+        console.log("StateFarm: doing command set:", command, "| at time:", commandTime);
         GM_setValue("StateFarm_Command", command);
         GM_setValue("StateFarm_CommandTime", commandTime);
     };
@@ -1608,12 +1622,12 @@ sniping and someone sneaks up on you
         return Math.abs(obj1.yaw-obj2.yaw)+Math.abs(obj1.pitch-obj2.pitch);
     };
     const getDirectionVectorFacingTarget = function (target,vectorPassed,offsetY) {
-        target = vectorPassed ? target : target.actor.mesh.position;
+        target = vectorPassed ? target : target[H.actor].mesh.position;
         offsetY=offsetY||0;
         return {
-            x: target.x - ss.MYPLAYER.actor.mesh.position.x,
-            y: target.y - ss.MYPLAYER.actor.mesh.position.y+offsetY,
-            z: target.z - ss.MYPLAYER.actor.mesh.position.z,
+            x: target.x - ss.MYPLAYER[H.actor].mesh.position.x,
+            y: target.y - ss.MYPLAYER[H.actor].mesh.position.y+offsetY,
+            z: target.z - ss.MYPLAYER[H.actor].mesh.position.z,
         };
     };
     const reverseString = function (str) { return str.split("").reverse().join("") };
@@ -1681,9 +1695,9 @@ sniping and someone sneaks up on you
     const updateOrCreateLinesESP = function (object,type,color) {
         let newPosition,newScene,newParent
         if (type=="playerESP") {
-            newPosition = object.actor.mesh.position;
-            newScene    = object.actor.scene;
-            newParent   = object.actor.mesh;
+            newPosition = object[H.actor].mesh.position;
+            newScene    = object[H.actor].scene;
+            newParent   = object[H.actor].mesh;
         } else {
             newPosition = object.position;
             newScene    = object._scene;
@@ -1691,7 +1705,7 @@ sniping and someone sneaks up on you
         };
         if (!object.generatedESP) {
             //tracers
-            const tracerLines = ss.BABYLONJS.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+            const tracerLines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines]("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
             tracerLines.color=new ss.BABYLONJS.Color3(1, 1, 1);
             tracerLines.renderingGroupId=1;
             object.tracerLines = tracerLines;
@@ -1721,7 +1735,7 @@ sniping and someone sneaks up on you
                 lines.push([vertices[i + 4], vertices[(i + 1) % 4 + 4]]);
                 lines.push([vertices[i], vertices[i + 4]]);
             };
-            const box = ss.BABYLONJS.MeshBuilder.CreateLineSystem('boxLines', { lines }, newScene);
+            const box = ss.BABYLONJS[H.MeshBuilder].CreateLineSystem('boxLines', { lines }, newScene);
             box.color = new ss.BABYLONJS.Color3(1, 1, 1);
             box.position.y=boxOffset[type];
             box.renderingGroupId = 1;
@@ -1730,7 +1744,7 @@ sniping and someone sneaks up on you
             //TARGETS
             let target
             if (type=="playerESP") {
-                target = ss.BABYLONJS.MeshBuilder.CreateSphere("sphere", { diameter: 0.05 }, newScene);
+                target = ss.BABYLONJS[H.MeshBuilder].CreateSphere("sphere", { diameter: 0.05 }, newScene);
                 target.material = new ss.BABYLONJS.StandardMaterial("sphereMaterial", newScene);
                 target.material.diffuseColor = new ss.BABYLONJS.Color3(1, 0, 0);
                 target.material.alpha = 0.5;
@@ -1752,26 +1766,23 @@ sniping and someone sneaks up on you
         const botsArray = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
             automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
-
             if (clientID) {
-                const extractedParams=GM_getValue("StateFarm_BotParams");
-                if (extractedParams!==previousParams) {
-                    console.log("StateFarm: Change in Bot Panel detected.");
-                    applySettings(extractedParams);
-                    previousParams=extractedParams;
+                const newArray = {
+                    noConfig: ((botsArray[clientID] && configNotSet) ? (
+                        (botsArray[clientID].noConfig>Date.now()) ? botsArray[clientID].noConfig : Date.now()
+                        ) : 0),
+                    username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
+                    timecode: Date.now(),
+                    status: ((isBanned&&"banned")||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + ss.GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
+                        (errorString||"idle")),
                 };
 
                 delete botsArray[clientID];
 
                 clientID = (unsafeWindow.vueData.firebaseId||clientID);
 
-                botsArray[clientID] = {
-                    username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
-                    timecode: Date.now(),
-                    status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER.playing ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + ss.GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
-                        (errorString||"idle")),
-                };
+                botsArray[clientID] = newArray;
             };
         } else {
             automatedElement.style.display='none';
@@ -1779,9 +1790,13 @@ sniping and someone sneaks up on you
             amountOnline = 0;
             for (const botID in botsArray) {
                 const data=botsArray[botID];
-                if ((data.timecode+5000)<Date.now()) { //give up on this bot lmao
+                if (data.noConfig) {
+                    updateBotParams();
+                    botsArray[botID].noConfig = Date.now()+5000;
+                };
+                if ((data.timecode+10000)<Date.now()) { //give up on this bot lmao
                     delete botsArray[botID];
-                } else if ((data.timecode+2000)<Date.now()) { //maybe it will come back
+                } else if ((data.timecode+4000)<Date.now()) { //maybe it will come back
                     botsArray[botID].status="not responding " + (Date.now()-data.timecode) + "ms elapsed";
                 }; //bot is doing fine... hopefully
                 amountOnline+=1;
@@ -1792,7 +1807,7 @@ sniping and someone sneaks up on you
         GM_setValue("StateFarm_BotStatus",botsArray);
 
         allFolders.forEach(function (name) {
-            localStorage.setItem(name,JSON.stringify(tp[name].expanded));
+            save(name,tp[name].expanded);
         });
 
         coordElement.style.display = 'none';
@@ -1838,7 +1853,7 @@ sniping and someone sneaks up on you
                     unsafeWindow.extern.switchTeam();
                 };
             };
-            if (!ss.MYPLAYER.playing) {
+            if (!ss.MYPLAYER[H.playing]) {
                 if (extract("autoRespawn")) {
                     var button = document.querySelector('.ss_button.btn_big.btn-dark-bevel.btn-respawn.ss_button.btn_green.bevel_green');
                     if (button) {
@@ -1850,7 +1865,7 @@ sniping and someone sneaks up on you
         } else {
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
-                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,( ((extract("usernameAutoJoin")=="")||(!extract("useDefaultName"))) ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,( ((extract("usernameAutoJoin")=="")||(!extract("useCustomName"))) ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
                 };
             };
             if (extract("autoRegion")!=="disabled") {
@@ -1925,6 +1940,11 @@ sniping and someone sneaks up on you
             globalSS.extractAsDropdownInt=extractAsDropdownInt;
             globalSS.extract=extract;
             globalSS.extractDropdownList=extractDropdownList;
+            globalSS.save=save;
+            globalSS.load=load;
+            globalSS.remove=remove;
+            globalSS.change=change;
+            globalSS.list=GM_listValues;
         };
 
         if (extract("eggColour")!=="disabled") {
@@ -1953,7 +1973,6 @@ sniping and someone sneaks up on you
             };
         };
         if ((!ranEverySecond) && startUpComplete) {
-            // detectURLParams();
             ranEverySecond = true;
         };
 
@@ -1964,6 +1983,13 @@ sniping and someone sneaks up on you
         args = command.split(" ");
 
         switch (args[0]) {
+            case "setconfig":
+                let receivedConfig = decodeURIComponent(unsafeWindow.escape(window.atob(args[1])));
+                if (URLParams !== "") { receivedConfig = URLParams + "<" + receivedConfig };
+                console.log("StateFarm: Change in Bot Panel detected.", receivedConfig);
+                applySettings(receivedConfig);
+                configNotSet = false;
+                break;
             case "ping":
                 createPopup("Pong! "+((Date.now()-cachedCommandTime))+"ms","success");
                 break;
@@ -2035,7 +2061,7 @@ sniping and someone sneaks up on you
             if (extract("playerStats")) {
                 let playerStates="";
                 ss.PLAYERS.forEach(player=>{
-                    if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+                    if (player && (player!==ss.MYPLAYER) && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                         playerStates=playerStates+player.name+": "+Math.round(player.hp)+" HP\n";
                     };
                 });
@@ -2047,7 +2073,7 @@ sniping and someone sneaks up on you
             if (extract("playerInfo")) {
                 let playerInfoString="";
                 const player=currentlyTargeting||playerLookingAt||undefined
-                if (player && player.playing) {
+                if (player && player[H.playing]) {
                     playerInfoString=playerInfoString+player.name+"\n"
                     playerInfoString=playerInfoString+"HP: "+Math.round(player.hp)+"\n"
                     playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
@@ -2059,9 +2085,9 @@ sniping and someone sneaks up on you
                 playerinfoElement.style.display = '';
             };
             if (extract("showCoordinates")) {
-                const fonx = Number((ss.MYPLAYER.actor.mesh.position.x).toFixed(3));
-                const fony = Number((ss.MYPLAYER.actor.mesh.position.y).toFixed(3));
-                const fonz = Number((ss.MYPLAYER.actor.mesh.position.z).toFixed(3));
+                const fonx = Number((ss.MYPLAYER[H.actor].mesh.position.x).toFixed(3));
+                const fony = Number((ss.MYPLAYER[H.actor].mesh.position.y).toFixed(3));
+                const fonz = Number((ss.MYPLAYER[H.actor].mesh.position.z).toFixed(3));
                 const yaw = Number((ss.MYPLAYER.yaw).toFixed(3)); //could i function this? yea
                 const pitch = Number((ss.MYPLAYER.pitch).toFixed(3));
                 const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
@@ -2087,9 +2113,57 @@ sniping and someone sneaks up on you
         configMain = tp.mainPanel.exportPreset();
         configBots = tp.botPanel.exportPreset();
     };
+    const updateHiddenAndDisabledHelper = function (array) { //determines if all conditions are met
+        conditionMet = false;
+        array.forEach(condition=>{
+            if ((extract(condition[0]) ? extract(condition[0]) : false) !== condition[1]) {
+                conditionMet = true;
+                return;
+            };
+        });
+        return conditionMet;
+    }
+    const updateHiddenAndDisabled = function () {
+        //the format for hidden/disabled modules is as follows:
+        //hidden/disabled is an array of arrays. within each of the items, there is the condition required for the module to be shown
+        //eg: [["aimbot",true],...] (will only be shown if extract("aimbot")==true)
+        if (menuInitiated) {
+            allModules.forEach(module=>{
+                const tiedModules = tp[module+"TiedModules"];
+                if (tiedModules) {
+                    if (tiedModules.showConditions) {
+                        tp[module+"Button"].hidden = updateHiddenAndDisabledHelper(tiedModules.showConditions);
+                    };
+                    if (tiedModules.hideConditions) {
+                        tp[module+"Button"].hidden = !updateHiddenAndDisabledHelper(tiedModules.hideConditions);
+                    };
+                    if (tiedModules.enableConditions) {
+                        tp[module+"Button"].disabled = updateHiddenAndDisabledHelper(tiedModules.enableConditions);
+                    };
+                    if (tiedModules.disableConditions) {
+                        tp[module+"Button"].disabled = !updateHiddenAndDisabledHelper(tiedModules.disableConditions);
+                    };
+                };
+            });
+        };
+    };
     const saveConfig = function () {
-        localStorage.setItem("StateFarmConfigMainPanel",JSON.stringify(tp.mainPanel.exportPreset()));
-        localStorage.setItem("StateFarmConfigBotPanel",JSON.stringify(tp.botPanel.exportPreset()));
+        save("StateFarmConfigMainPanel",tp.mainPanel.exportPreset());
+        save("StateFarmConfigBotPanel",tp.botPanel.exportPreset());
+    };
+    const save = function (key,value) {
+        if (AUTOMATED) { return undefined };
+        if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //dont need that anymore lmao
+        GM_setValue(storageKey+key,value);
+    };
+    const load = function (key) {
+        if (AUTOMATED) { key = getScrambled() };
+        return GM_getValue(storageKey+key)||JSON.parse(localStorage.getItem(key)); //localstorage is for legacy purposes *only*
+    };
+    const remove = function (key) {
+        if (AUTOMATED) { return undefined };
+        GM_deleteValue(storageKey+key);
+        if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //legacy
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         try {
@@ -2146,7 +2220,7 @@ sniping and someone sneaks up on you
     const highlightTargetOnLeaderboard = function (target, aimbot) {
         let playerArray = [];
         ss.PLAYERS.forEach(player=>{
-            if (player && (target!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+            if (player && (target!==ss.MYPLAYER) && player[H.playing] && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
                 const hp = player.hp
@@ -2154,7 +2228,7 @@ sniping and someone sneaks up on you
             };
         });
         Array.from(document.getElementById("playerList").children).forEach(playerListItem=>{
-            if (aimbot&&target?.playing && target?.name === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
+            if (aimbot && target?.name && target[H.playing] === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
                 playerListItem.style.backgroundColor = 'blue';
             } else {
                 playerListItem.style.backgroundColor = '';
@@ -2418,17 +2492,17 @@ sniping and someone sneaks up on you
         const terminalVelocity = -cappedVector.y;
         const timeAccelerating = Math.min(timeDiff, (terminalVelocity - velocityVector.y) / -0.012);
         const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
-        const rayToGround = ss.RAYS.rayCollidesWithMap(newPos,new ss.BABYLONJS.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
+        const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos,new ss.BABYLONJS.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
         newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
         return newPos;
     };
     const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
         // credit for code: de_neuublue/crackware
-        if (target && target.actor && target.actor.bodyMesh && target.actor.bodyMesh.renderOverlay && target.actor.bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
+        if (target && target[H.actor] && target[H.actor].bodyMesh && target[H.actor].bodyMesh.renderOverlay && target[H.actor].bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
 
-        let myPlayerPosition = ss.MYPLAYER.actor.mesh.position;
-        let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position; //set to always use prediction for now
-        // let targetPosition = usePrediction ? predictPosition(target) : target.actor.mesh.position;
+        let myPlayerPosition = ss.MYPLAYER[H.actor].mesh.position;
+        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor].mesh.position; //set to always use prediction for now
+        // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor].mesh.position;
 
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
@@ -2436,13 +2510,13 @@ sniping and someone sneaks up on you
         directionVector = directionMatrix.getTranslation();
         let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
 
-        let rayCollidesWithMap = ss.RAYS.rayCollidesWithMap(position, directionVector, ss.RAYS.projectileCollidesWithCell);
+        let rayCollidesWithMap = ss.RAYS[H.rayCollidesWithMap](position, directionVector, ss.RAYS.projectileCollidesWithCell);
         let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
         let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
         return distanceToTarget < distanceToMap
     };
     const getAimbot = function(target) {
-        let targetPosition = extract("prediction") ? predictPosition(target) : target.actor.mesh.position;
+        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor].mesh.position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
 
         let direction = {
@@ -2482,26 +2556,75 @@ sniping and someone sneaks up on you
         createAnonFunction('interceptDeath', function (KILLER,DEAD) {
             // console.log("dead:",DEAD.name,"killed by:",KILLER.name);
             if (DEAD.name == ss.MYPLAYER.name) { //you died
-                console.log("wtf i died");
                 if (extract("cheatAccuse")) {
                     sendChatMessage(`are you cheating ${KILLER.name}? everyone report`);
                 };
             } else if (KILLER.name == ss.MYPLAYER.name) { //you killed someone
-                console.log("lmfao scrub");
                 if (extract("autoEZ")) {
                     sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
                 };
             };
         });
-        createAnonFunction('beforeFiring', function (MYPLAYER) { //i kept this here, but do not use this. the delay is usually too great to do some kind of secret fire
-            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER.playing && currentlyTargeting && currentlyTargeting.playing) {
+        createAnonFunction('beforeFiring', function (MYPLAYER) {
+            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER[H.playing] && currentlyTargeting && currentlyTargeting[H.playing]) {
                 ss.MYPLAYER=MYPLAYER;
                 const aimbot = getAimbot(currentlyTargeting);
                 // credit for code: de_neuublue
+                let diffYaw = Math.radDifference(ss.MYPLAYER.yaw, aimbot.yaw) * 180 / Math.PI;
+                let diffPositive = diffYaw > 0 // a turn to the left if positive
+                diffYaw *= diffPositive ? 1 : -1;
                 for (let i = 0; i < 3; i++) {
-                    ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)].yaw = setPrecision(aimbot.yaw);
-                    ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)].pitch = setPrecision(aimbot.pitch);
+                    let state = ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)];
+                    let newControlKeys = 0;
+                    if (diffYaw > 157.5) {
+                        newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.right : 0
+                        newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.left : 0
+                        newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.down : 0
+                        newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.up : 0
+                    } else if (diffYaw > 112.5) {
+                        if (diffPositive) {
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.right : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left: 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.right : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.left : 0
+                        } else {
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.right : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.left : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.right : 0
+                        }
+                    } else if (diffYaw > 67.5) {
+                        if (diffPositive) {
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.up : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.down : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.right : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.left : 0
+                        } else {
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.down : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.up : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.left : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.right : 0
+                        }
+                    } else if (diffYaw > 22.5) {
+                        if (diffPositive) {
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.left : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.right : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.right : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left : 0
+                        } else {
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.right: 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.left : 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.right : 0
+                        };
+                    };
+                    // console.log(ss.CONTROLKEYS, newControlKeys);
+                    state.controlKeys |= newControlKeys;
+                    state.yaw = setPrecision(aimbot.yaw);
+                    state.pitch = setPrecision(aimbot.pitch);
+                    ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)] = state;
                 };
+                ss.SERVERSYNC();
             };
         });
         createAnonFunction('onConnectFail', function (ERRORCODE,ERRORARRAY) {
@@ -2547,14 +2670,14 @@ sniping and someone sneaks up on you
                 forceControlKeysCache = false;
                 return 0;
             } else {
-                if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLVALUES.up; console.log("walking forward") };
+                if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLKEYSENUM.up };
                 // credit for code: de_neuublue
                 if (extract("bunnyhop") && isKeyToggled["Space"]) {
-                    CONTROLKEYS |= ss.CONTROLVALUES.jump;
+                    CONTROLKEYS |= ss.CONTROLKEYSENUM.jump;
                 };
                 if (extract("autoJump")) {
                     if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
-                        CONTROLKEYS|=ss.CONTROLVALUES.jump;
+                        CONTROLKEYS|=ss.CONTROLKEYSENUM.jump;
                         lastAutoJump=Date.now();
                     };
                 };
@@ -2568,10 +2691,10 @@ sniping and someone sneaks up on you
                             autoStrafeValue[3]=Date.now() + randomInt(500,2000);
                             autoStrafeValue[1]=2;
                         } else if (autoStrafeValue[1]==2 && Date.now()<autoStrafeValue[3]) { //do strafe
-                            CONTROLKEYS|=ss.CONTROLVALUES[autoStrafeValue[2]];
+                            CONTROLKEYS|=ss.CONTROLKEYSENUM[autoStrafeValue[2]];
                         } else if (autoStrafeValue[1]==2) { //stop strafe
-                            CONTROLKEYS&=~ss.CONTROLVALUES.left;
-                            CONTROLKEYS&=~ss.CONTROLVALUES.right;
+                            CONTROLKEYS&=~ss.CONTROLKEYSENUM.left;
+                            CONTROLKEYS&=~ss.CONTROLKEYSENUM.right;
                             autoStrafeValue[1]=0;
                         };
                     };
@@ -2611,22 +2734,21 @@ sniping and someone sneaks up on you
             };
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             try {
-                getVar("PLAYERS", '=([a-zA-Z]+)\\[this\\.controlledBy\\]');
-                getVar("MYPLAYER", '&&([a-zA-Z]+)\\.grenadeCountdown<=0\\)this\\.cancelGrenade');
+                getVar("PLAYERS", '([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
+                getVar("MYPLAYER", '\\.([a-zA-Z]+)\\.addArrayInPlace\\(');
                 getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                 getVar("BABYLONJS", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible');
-                getVar("OBJECTSVAR", '&&([a-zA-Z]+)\\.getShadowMap\\(\\)\\.renderList');
-                getVar("GAMEMAP", '>=([a-zA-Z]+)\\.height&&\\(this\\.climbing=!1\\)');
+                getVar("OBJECTSVAR", '&&([a-zA-Z]+)\\.getShadowMap\\(\\)');
+                getVar("GAMEMAP", ',([a-zA-Z]+)\\.width-\\.1\\),');
                 getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
-                getVar("CAMERA", ',([a-zA-Z_$]+)=new '+vars.BABYLONJS+'\\.TargetCamera\\("camera"');
-                getVar("RAYS", '\\.25\\),([a-zA-Z_$]+)\\.rayCollidesWithPlayer');
-                getVar("GAMECODE", 'gameCode:([a-zA-Z]+)\\|\\|');
-                getVar("SETTINGS", '\\.mouseSpeed&&([a-zA-Z]+)\\.mouseSensitivity!==null');
-                getVar("CONTROLVALUES", '\\.controlKeys&([a-zA-Z]+)\\.jump');
+                getVar("CAMERA", '200/([a-zA-Z]+)\\.fov\\);this\\.shotReticle');
+                getVar("RAYS", "mesh:([a-zA-Z]+)\.fullCollisionMesh");
+                getVar("GAMECODE", '\\{crazyShare:([a-zA-Z]+)\\}');
+                getVar("SETTINGS", 'localStore\\.setItem\\("highRes",([a-zA-Z]+)\\.highRes\\)');
+                getVar("CONTROLKEYSENUM","&([a-zA-Z]+)\\.up&&\\(this")
                 getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
-                // getVar("vs", '(vs)'); //todo
-                // getVar("switchTeam", 'switchTeam:([a-zA-Z]+),onChatKeyDown');
-                // getVar("game", 'packInt8\\(([a-zA-Z]+)\\.explode\\),');
+                getVar("CONTROLKEYS", '\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(');
+                getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
 
                 createPopup("StateFarm Script injected!","success");
                 console.log(injectionString,allFuncName);
@@ -2638,16 +2760,16 @@ sniping and someone sneaks up on you
             };
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
-            match=js.match(/\.engine\.runRenderLoop\(function\(\)\{([a-zA-Z]+)\(/);
+            match=js.match(/\.engine\.\$\(function\(\)\{([a-zA-Z]+)\(/);
             console.log(match);
-            js = js.replace('.engine.runRenderLoop(function(){'+match[1]+'(),',`.engine.runRenderLoop(function (){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
+            js = js.replace('.engine.$(function(){'+match[1]+'(),',`.engine.$(function(){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
             js = js.replace('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
-            console.log('%cSuccess! Variable retrieval and main loop ss.', 'color: green; font-weight: bold;');
+            console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
-            match=js.match(/playing&&!([a-zA-Z]+)&&/);
+            match=js.match(/&&!([a-zA-Z]+)&&[a-zA-Z]+\(\)\}/);
             js = js.replace(`if(${match[1]})`,`if(true)`);
-            console.log('%cSuccess! Cull inhibition ss.', 'color: green; font-weight: bold;');
+            console.log('%cSuccess! Cull inhibition hooked '+match[1], 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
             js = js.replace('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
@@ -2673,13 +2795,13 @@ sniping and someone sneaks up on you
             match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
             js=js.replace('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
             //hook for control interception
-            const PLAYERTHING=new RegExp('\\.weapon\\.actor\\.equip\\(\\)\};([a-zA-Z]+)\\.prototype\\.update').exec(js)[1];
-            const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
+            // const PLAYERTHING=new RegExp('\\.weapon\\[H.actor]\\.equip\\(\\)\};([a-zA-Z]+)\\.prototype\\.update').exec(js)[1];
+            // const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
             const CONTROLKEYS=new RegExp('\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(').exec(js)[1];
             console.log("CONTROLKEYS:",CONTROLKEYS);
-            console.log("PLAYERTHING:",PLAYERTHING);
-            console.log("ARGTHING:",ARGTHING);
-            js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
+            // console.log("PLAYERTHING:",PLAYERTHING);
+            // console.log("ARGTHING:",ARGTHING);
+            // js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
             //admin spoof lol
             js=js.replace('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
             js=js.replace('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
@@ -2701,6 +2823,16 @@ sniping and someone sneaks up on you
             const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
             console.log("DEATHARGS",DEATHARGS);
             js=js.replace('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
+
+            H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z]+)\(this\.x,this\.y,this\.z\)\},/)[1];
+            H.playing = js.match(/this\.hp=[a-zA-Z]+\.hp,this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
+            H.MeshBuilder = js.match(/\.([a-zA-Z]+)\.CreateLineSystem\("/)[1];
+            H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
+            H.rayCollidesWithMap = js.match(/\.([a-zA-Z]+)\([a-zA-Z]+\.forwardRay\.origin,[a-zA-Z]+\.forwardRay/)[1];
+            H.renderList = js.match(/getShadowMap\(\)\.([a-zA-Z]+)\.push/)[1];
+            H.capVector3 = js.match(/\),Math\.([a-zA-Z]+)\([a-zA-Z]+,\.29\)/)[1];
+
+            console.log(H);
 
             //replace graveyard:
             // //sus
@@ -2729,7 +2861,7 @@ sniping and someone sneaks up on you
             //     console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
             //     console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
             // `);
-            // js = js.replace('this.actor.fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this.actor.fire(),this.fireMunitions');
+            // js = js.replace('this[H.actor].fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this[H.actor].fire(),this.fireMunitions');
             // js = js.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
             // js = js.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
             // js = js.replace('let i=this.accuracy','let i=0');
@@ -2768,8 +2900,8 @@ sniping and someone sneaks up on you
 
     const deployBots = function() {
         updateBotParams();
-        if (!JSON.parse(localStorage.getItem("firstTimeBots"))) {
-            localStorage.setItem("firstTimeBots",JSON.stringify(true));
+        if (!load("firstTimeBots")) {
+            save("firstTimeBots",true);
             unsafeWindow.open(bottingGuideURL);
         };
 
@@ -2806,7 +2938,7 @@ sniping and someone sneaks up on you
             let topOffset=0;
             let proxyURL=proxyList[proxyListIndex];
             proxyListIndex=(proxyListIndex+1)%proxyList.length;
-            let params="?AUTOMATED=true&StateFarm="+constructBotParams()+"<";
+            let params="?AUTOMATED=true&StateFarm=";
             let name=botNames[i];
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
 
@@ -2870,7 +3002,7 @@ sniping and someone sneaks up on you
         addParam("autoUnban",extract("botAutoUnban"));
         addParam("autoRegion",extractAsDropdownInt("autoRegionBots"));
         addParam("autoGamemode",extractAsDropdownInt("autoGamemodeBots"));
-        addParam("useDefaultName",extract("useDefaultNameBots"));
+        addParam("useCustomName",extract("useCustomNameBots"));
         addParam("leaveEmpty",extract("leaveEmptyBots"));
         addParam("spamChat",extract("botSpam"));
         addParam("spamChatText",extract("spamChatTextBot"));
@@ -2886,9 +3018,9 @@ sniping and someone sneaks up on you
         };
         let customSettings = getSearchParam("StateFarm")
         if (customSettings!==null) {
-            console.log("StateFarm Custom Settings in URL!");
             customSettings=customSettings.split("|");
-            applySettings(customSettings[0]);
+            URLParams=customSettings[0];
+            console.log("StateFarm: Custom Settings in URL!", URLParams);
             // let setVars=[];
             // let setBinds=[];
             // if (customSettings[0]) {setVars=customSettings[0].split("<")};
@@ -2899,10 +3031,10 @@ sniping and someone sneaks up on you
         };
     };
 
-    const applySettings = function(settings) {
+    const applySettings = function(settings,reset) {
         console.log(AUTOMATED,settings);
         settings=settings.split("<");
-        if (!AUTOMATED) { initMenu(true) };
+        if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings")};
         settings.forEach(element=>{
             element=element.split(">");
             change(element[0],JSON.parse(element[1]));
@@ -2915,8 +3047,8 @@ sniping and someone sneaks up on you
             createPopup("Automated window cannot config bots.","error");
         } else {
             const botParams = constructBotParams();
-            GM_setValue("StateFarm_BotParams",botParams);
-            console.log("StateFarm: set bot params to:",botParams);
+            broadcastToBots("setconfig "+btoa(unsafeWindow.unescape(encodeURIComponent(botParams))));
+            console.log("StateFarm: attempted to set bot params to.");
         };
     };
 
@@ -3135,9 +3267,9 @@ sniping and someone sneaks up on you
     }
 
     function get_player_position(player) {
-        var x = Math.floor(player.actor.mesh.position.x);
-        var y = Math.floor(player.actor.mesh.position.y);
-        var z = Math.floor(player.actor.mesh.position.z);
+        var x = Math.floor(player[H.actor].mesh.position.x);
+        var y = Math.floor(player[H.actor].mesh.position.y);
+        var z = Math.floor(player[H.actor].mesh.position.z);
         return new Position(x, y, z);
     }
 
@@ -3275,16 +3407,16 @@ sniping and someone sneaks up on you
     }
 
     function create_red_line_between_nodes(ss, node1, node2) {
-        // const tracerLines = ss.BABYLONJS.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+        // const tracerLines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines]("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
         pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
         pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
         if (window.pathLines === undefined) {
-            let node_lines = ss.BABYLONJS.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER.actor.mesh.position, pos2] }, ss.MYPLAYER.actor.scene);
+            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor].mesh.position, pos2] }, ss.MYPLAYER[H.actor].scene);
             node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
             node_lines.renderingGroupId = 1;
             window.pathLines = [node_lines];
         } else {
-            let node_lines = ss.BABYLONJS.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER.actor.mesh.position, pos2] }, ss.MYPLAYER.actor.scene);
+            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor].mesh.position, pos2] }, ss.MYPLAYER[H.actor].scene);
             node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
             node_lines.renderingGroupId = 1;
             window.pathLines.push(node_lines);
@@ -3299,8 +3431,29 @@ sniping and someone sneaks up on you
 
     // end pathfinding
 
+    const findKeyWithProperty = function(obj, propertyToFind) {
+        for (const key in obj) {
+            if (obj[key] === null || obj[key] === undefined) {
+                continue;
+            }
+            if ((typeof(obj[key])=='object' || typeof(obj[key])=='function') && obj[key].hasOwnProperty(propertyToFind)) {
+                return key;
+            };
+        };
+        // Property not found
+        return null;
+    };
+
     const mainLoop = function () {
         const oneTime = function () {
+            //xd lmao
+            ss.BABYLONJS.Vector3 = ss.MYPLAYER.constructor.v1.constructor;
+            ss.BABYLONJS.Matrix.RotationYawPitchRoll = ss.BABYLONJS.Matrix[H.RotationYawPitchRoll];
+            H.actor = findKeyWithProperty(ss.MYPLAYER,"mesh");
+            Math.capVector3 = Math[H.capVector3];
+
+            console.log("StateFarm: found vars:", H);
+
             crosshairsPosition=new ss.BABYLONJS.Vector3();
             Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
                 get: () => {
@@ -3326,11 +3479,11 @@ sniping and someone sneaks up on you
             };
             username=ss.MYPLAYER?.name;
 
-            crosshairsPosition.copyFrom(ss.MYPLAYER.actor.mesh.position);
-            const horizontalOffset = Math.sin(ss.MYPLAYER.actor.mesh.rotation.y);
+            crosshairsPosition.copyFrom(ss.MYPLAYER[H.actor].mesh.position);
+            const horizontalOffset = Math.sin(ss.MYPLAYER[H.actor].mesh.rotation.y);
             const verticalOffset = Math.sin(-ss.MYPLAYER.pitch);
             crosshairsPosition.x += horizontalOffset;
-            crosshairsPosition.z += Math.cos(ss.MYPLAYER.actor.mesh.rotation.y);
+            crosshairsPosition.z += Math.cos(ss.MYPLAYER[H.actor].mesh.rotation.y);
             crosshairsPosition.y += verticalOffset + 0.4;
 
             ammo=ss.MYPLAYER.weapon.ammo;
@@ -3357,14 +3510,14 @@ sniping and someone sneaks up on you
                 };
             };
 
-            ss.MYPLAYER.actor.scene.texturesEnabled=extract("enableTextures");
+            ss.MYPLAYER[H.actor].scene.texturesEnabled=extract("enableTextures");
         };
         const updateLinesESP = function () {
             const objExists=Date.now();
 
             //update playerESP boxes, tracer lines, colors
             ss.PLAYERS.forEach(player=>{
-                if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+                if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                     const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
                     const passedLists=whitelisted&&(!blacklisted);
@@ -3394,27 +3547,27 @@ sniping and someone sneaks up on you
 
                     updateOrCreateLinesESP(player,"playerESP",color);
 
-                    player.tracerLines.visibility = player.playing && extract("tracers") && passedLists;
+                    player.tracerLines.visibility = player[H.playing] && extract("tracers") && passedLists;
                     player.box.visibility = extract("playerESP") && passedLists;
                     player.target.visibility = extract("targets") && passedLists;
 
-                    if (player.actor) {
+                    if (player[H.actor]) {
                         eggSize=extract("eggSize")
-                        player.actor.bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
+                        player[H.actor].bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
                     };
 
-                    player.actor.bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
+                    player[H.actor].bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
 
                     player.exists=objExists;
                 };
                 if (player) {
-                    if (extract("nametags") && player.actor && player.actor.nameSprite) { //taken from shellshock.js, so var names are weird
-                        player.actor.nameSprite._manager.renderingGroupId = 1;
-                        player.actor.nameSprite.renderingGroupId = 1;
+                    if (extract("nametags") && player[H.actor] && player[H.actor].nameSprite) { //taken from shellshock.js, so var names are weird
+                        player[H.actor].nameSprite._manager.renderingGroupId = 1;
+                        player[H.actor].nameSprite.renderingGroupId = 1;
                         var h = Math.length3(player.x - ss.MYPLAYER.x, player.y - ss.MYPLAYER.y, player.z - ss.MYPLAYER.z),
                         d = Math.pow(h, 1.25)*2;
-                        player.actor.nameSprite.width = d / 10 + .6, player.actor.nameSprite.height = d / 20 + .3;
-                        ss.MYPLAYER.actor.scene.activeCamera.fov=0.75
+                        player[H.actor].nameSprite.width = d / 10 + .6, player[H.actor].nameSprite.height = d / 20 + .3;
+                        ss.MYPLAYER[H.actor].scene.activeCamera.fov=0.75
                     };
                     if (!player.logged) {
                         player.logged=true;
@@ -3448,7 +3601,7 @@ sniping and someone sneaks up on you
             };
             //update ammoESP boxes, tracer lines, colors
             if (extract("ammoESP")||extract("ammoTracers")||extract("grenadeESP")||extract("grenadeTracers")) {
-                ss.OBJECTSVAR.getShadowMap().renderList.forEach(item=>{
+                ss.OBJECTSVAR.getShadowMap()[H.renderList].forEach(item=>{
                     if ( item._isEnabled && item.sourceMesh && item.sourceMesh.name && (item.sourceMesh.name=="grenadeItem" || item.sourceMesh.name=="ammo") ) { //this is what we want
                         const itemType=item.sourceMesh.name;
                         let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
@@ -3513,96 +3666,96 @@ sniping and someone sneaks up on you
             initVars();
             updateLinesESP();
 
-            if (!map_data_created) {
-                new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
-                map_data_created = true;
-            }
+            // if (!map_data_created) {
+            //     new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
+            //     map_data_created = true;
+            // }
 
-            if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
-                let player_pos = get_player_position(ss.MYPLAYER);
-                let player_node = get_node_at(player_pos);
-                if (player_node) {
-                    let position = {
-                        x: player_pos.x + Math.floor(Math.random() * 5) - 1,
-                        y: player_pos.y,
-                        z: player_pos.z + Math.floor(Math.random() * 5) - 1
-                    }
-                    // check if node at position exists
-                    let random_node = get_node_at(position);
+            // if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
+            //     let player_pos = get_player_position(ss.MYPLAYER);
+            //     let player_node = get_node_at(player_pos);
+            //     if (player_node) {
+            //         let position = {
+            //             x: player_pos.x + Math.floor(Math.random() * 5) - 1,
+            //             y: player_pos.y,
+            //             z: player_pos.z + Math.floor(Math.random() * 5) - 1
+            //         }
+            //         // check if node at position exists
+            //         let random_node = get_node_at(position);
                     
-                    if (!(player_node === random_node) && random_node) {
-                        console.log("location, target:")
-                        print_node_list([player_node, random_node])
-                        activePath = AStar(player_node, random_node);
-                        if (activePath) {
-                            console.log("setting active node target");
-                            print_node_list(activePath);
-                            activeNodeTarget = activePath[0];
-                            console.log("list printed, target set, creating pathfinding lines")
-                            create_pathfinding_lines(ss, activePath);
-                            findNewPath = false; 
-                            console.log("found path to random node")                 
-                        } else {
-                            console.log("unable to find path to random node")
-                        }
-                    } else {
-                        console.log("player node / random node not air")
-                    }
-                } else {
-                    console.log("player not on air node currently")
-                }
-            }
+            //         if (!(player_node === random_node) && random_node) {
+            //             console.log("location, target:")
+            //             print_node_list([player_node, random_node])
+            //             activePath = AStar(player_node, random_node);
+            //             if (activePath) {
+            //                 console.log("setting active node target");
+            //                 print_node_list(activePath);
+            //                 activeNodeTarget = activePath[0];
+            //                 console.log("list printed, target set, creating pathfinding lines")
+            //                 create_pathfinding_lines(ss, activePath);
+            //                 findNewPath = false; 
+            //                 console.log("found path to random node")                 
+            //             } else {
+            //                 console.log("unable to find path to random node")
+            //             }
+            //         } else {
+            //             console.log("player node / random node not air")
+            //         }
+            //     } else {
+            //         console.log("player not on air node currently")
+            //     }
+            // }
 
-            if (AUTOMATED && pathfindingTargetOverride !== undefined) {
-                player_node = get_player_linked_nodes(ss.MYPLAYER);
-                target_node = get_node_at(pathfindingTargetOverride);
-                if (player_node && target_node) {
-                    path = AStar(player_node, target_node);
-                    if (path) {
-                        activePath = path;
-                        activeNodeTarget = path[0];
-                    }
-                }
-            }
+            // if (AUTOMATED && pathfindingTargetOverride !== undefined) {
+            //     player_node = get_player_linked_nodes(ss.MYPLAYER);
+            //     target_node = get_node_at(pathfindingTargetOverride);
+            //     if (player_node && target_node) {
+            //         path = AStar(player_node, target_node);
+            //         if (path) {
+            //             activePath = path;
+            //             activeNodeTarget = path[0];
+            //         }
+            //     }
+            // }
 
-            if (activeNodeTarget && activePath) {
-                console.log("found target and path");
-                let player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                if (player_node == activeNodeTarget) {
-                    activeNodeTarget = activePath.shift();
-                    console.log("update target");
-                    if (activePath.length == 0) {
-                        console.log("path completed");
-                        activePath = null;
-                        activeNodeTarget = null;
-                    }
-                } else {
-                    console.log("not at target");
-                }
-                /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
-                    findNewPath = true;
-                    activePath = null;
-                    activeNodeTarget = null;
-                    console.log("went off path, finding new path")
-                } */
-            }
+            // if (activeNodeTarget && activePath) {
+            //     console.log("found target and path");
+            //     let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+            //     if (player_node == activeNodeTarget) {
+            //         activeNodeTarget = activePath.shift();
+            //         console.log("update target");
+            //         if (activePath.length == 0) {
+            //             console.log("path completed");
+            //             activePath = null;
+            //             activeNodeTarget = null;
+            //         }
+            //     } else {
+            //         console.log("not at target");
+            //     }
+            //     /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
+            //         findNewPath = true;
+            //         activePath = null;
+            //         activeNodeTarget = null;
+            //         console.log("went off path, finding new path")
+            //     } */
+            // }
 
-            if (activeNodeTarget) {
-                // look towards the node
-                console.log("looking towards node")
-                let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
-                let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
-                console.log("vector obtained: ", directionVector);
-                ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
-                ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
-                console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
-                forceControlKeys = ss.CONTROLVALUES.up;
-                console.log("done with looking & window forward set")
-            };
+            // if (activeNodeTarget) {
+            //     // look towards the node
+            //     console.log("looking towards node")
+            //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
+            //     let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
+            //     console.log("vector obtained: ", directionVector);
+            //     ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
+            //     ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
+            //     console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
+            //     forceControlKeys = ss.CONTROLKEYSENUM.up;
+            //     console.log("done with looking & window forward set")
+            // };
 
             let isVisible;
             const player=currentlyTargeting||playerLookingAt||undefined;
-            if (player && player.playing) {
+            if (player && player[H.playing]) {
                 isVisible=getLineOfSight(player);
             };
             highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
@@ -3623,7 +3776,7 @@ sniping and someone sneaks up on you
             }
 
             if ( extract("freecam") ) {
-                ss.MYPLAYER.actor.mesh.position.y = ss.MYPLAYER.actor.mesh.position.y + 1;
+                ss.MYPLAYER[H.actor].mesh.position.y = ss.MYPLAYER[H.actor].mesh.position.y + 1;
             };
             if (extract("spamChat")) {
                 if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
@@ -3657,7 +3810,7 @@ sniping and someone sneaks up on you
             if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount>0)) {
                 ss.MYPLAYER.throwGrenade();
             };
-            if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER.playing)) {
+            if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER[H.playing])) {
                 weaponArray.random = randomInt(0,6);
                 document.querySelectorAll('.weapon_img')[weaponArray[extract("autoWeapon")]].parentNode.click();
             };
@@ -3687,7 +3840,7 @@ sniping and someone sneaks up on you
 
             let previousTarget=currentlyTargeting;
             let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
-            let isDoingAimbot=(extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER.playing);
+            let isDoingAimbot=(extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
             // console.log(targetingComplete);
 
             const targetType = extract("aimbotTargetMode");
@@ -3700,7 +3853,7 @@ sniping and someone sneaks up on you
             let amountVisible=0;
 
             ss.PLAYERS.forEach(player=>{ //iterate over all players to
-                if (player && (player!==ss.MYPLAYER) && player.playing && (player.hp>0)) {
+                if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player.hp>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                     const passedLists=whitelisted&&(!blacklisted);
@@ -3750,7 +3903,7 @@ sniping and someone sneaks up on you
 
             currentlyTargetingName=(currentlyTargeting?.name==undefined) ? currentlyTargetingName : currentlyTargeting?.name;
             if (isDoingAimbot) {
-                if ( currentlyTargeting && currentlyTargeting.playing ) { //found a target
+                if ( currentlyTargeting && currentlyTargeting[H.playing] ) { //found a target
                     didAimbot=true
                     if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
@@ -3863,4 +4016,6 @@ sniping and someone sneaks up on you
     //start init thingamajigs
     console.log("StateFarm: startUp()");
     startUp();
+    console.log("StateFarm: after startUp()");
 })();
+console.log("StateFarm: after function");
