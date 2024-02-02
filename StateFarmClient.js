@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre28
+// @version      3.3.3-pre29
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -3915,7 +3915,7 @@ sniping and someone sneaks up on you
 
             currentlyTargetingName=(currentlyTargeting?.name==undefined) ? currentlyTargetingName : currentlyTargeting?.name;
             if (isDoingAimbot) {
-                if ( currentlyTargeting && currentlyTargeting[H.playing] ) { //found a target
+                if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
                     didAimbot=true
                     if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
