@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre27
+// @version      3.3.3-pre28
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2394,9 +2394,10 @@ sniping and someone sneaks up on you
         return packet
     };
     const modifyPacket = function (data) {
-        if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
+        if (!ss || (data instanceof String)) { // avoid server comm, ping, etc. necessary to load
             return data;
         };
+
 
         if (data.byteLength == 0) {
             return data;
@@ -2404,7 +2405,11 @@ sniping and someone sneaks up on you
 
         var arr = new Uint8Array(data);
 
-        if (arr[0] == 49) { // comm code 49 = client to server grenade throw
+        // if (arr[0]!==17) {
+        //     console.log(arr)
+        // };
+
+        if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
             if (extract("grenadeMax")) {
                 arr[1] = 255;
                 console.log("StateFarm: modified a grenade packet to be at full power");
@@ -2412,7 +2417,7 @@ sniping and someone sneaks up on you
             } else {
                 console.log("StateFarm: didn't modify grenade packet")
             };
-        } else if (arr[0] == 4) {
+        } else if (arr[0] == ss.SERVERCODES.chat) {
             console.log('%c Chat packet sent, chat handler!!!', css);
             return chatPacketHandler(data);
         } else {
@@ -2751,6 +2756,7 @@ sniping and someone sneaks up on you
                 getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
                 getVar("CONTROLKEYS", '\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(');
                 getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
+                getVar("SERVERCODES", 'case ([a-zA-Z]+)\.die');
 
                 createPopup("StateFarm Script injected!","success");
                 createPopup("May currently be unstable.");
