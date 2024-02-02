@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre29
+// @version      3.3.3-pre30
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2071,7 +2071,7 @@ sniping and someone sneaks up on you
             if (extract("playerInfo")) {
                 let playerInfoString="";
                 const player=currentlyTargeting||playerLookingAt||undefined
-                if (player && player[H.playing]) {
+                if (player && player.distance && player[H.playing]) {
                     playerInfoString=playerInfoString+player.name+"\n"
                     playerInfoString=playerInfoString+"HP: "+Math.round(player.hp)+"\n"
                     playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
