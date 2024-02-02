@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre26
+// @version      3.3.3-pre27
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2164,26 +2164,30 @@ sniping and someone sneaks up on you
         if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //legacy
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
-        try {
-            lastSentMessage=text;
-            chatThing=document.getElementById('chatIn');
-            if (chatThing && unsafeWindow.extern.startChat) {
-                unsafeWindow.extern.startChat();
-                chatThing.value=text;
-                chatThing.dispatchEvent(new KeyboardEvent('keydown', {
-                    key: 'Enter',
-                    code: 'Enter',
-                    keyCode: 13,
-                    which: 13,
-                    bubbles: true,
-                    cancelable: true,
-                }));
-                return true;
-            } else {
-                return false;
+        if (ss.MYPLAYER.chatLines<2) {
+            try {
+                lastSentMessage=text;
+                chatThing=document.getElementById('chatIn');
+                if (chatThing && unsafeWindow.extern.startChat) {
+                    unsafeWindow.extern.startChat();
+                    chatThing.value=text;
+                    chatThing.dispatchEvent(new KeyboardEvent('keydown', {
+                        key: 'Enter',
+                        code: 'Enter',
+                        keyCode: 13,
+                        which: 13,
+                        bubbles: true,
+                        cancelable: true,
+                    }));
+                    return true;
+                } else {
+                    return false;
+                };
+            } catch (error) {
+                return false
             };
-        } catch (error) {
-            return false
+        } else {
+            createPopup("Chat Cooldown: "+(globalSS.ss.MYPLAYER.chatLines-2)+" remaining.","error");
         };
     };
     const addStreamsToInGameUI = function () {
@@ -2836,6 +2840,7 @@ sniping and someone sneaks up on you
             //replace graveyard:
             // //sus
             // js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
+            // js=js.replace('Zn(t,f,u,r){','Zn(t,f,u,r){console.log(t,f,u,r);');
             // js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
             // //motion blur
             // js=js.replace('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
@@ -3425,8 +3430,8 @@ sniping and someone sneaks up on you
     function create_pathfinding_lines(ss, path) {
         for (var i = 0; i < path.length - 1; i++) {
             create_red_line_between_nodes(ss, path[i], path[i + 1]);
-        }
-    }
+        };
+    };
 
     // end pathfinding
 
@@ -3434,8 +3439,8 @@ sniping and someone sneaks up on you
         for (const key in obj) {
             if (obj[key] === null || obj[key] === undefined) {
                 continue;
-            }
-            if ((typeof(obj[key])=='object' || typeof(obj[key])=='function') && obj[key].hasOwnProperty(propertyToFind)) {
+            };
+            if (!!obj[key] && (typeof(obj[key])=='object' || typeof(obj[key])=='function') && obj[key].hasOwnProperty(propertyToFind)) {
                 return key;
             };
         };
@@ -3778,9 +3783,11 @@ sniping and someone sneaks up on you
                 ss.MYPLAYER[H.actor].mesh.position.y = ss.MYPLAYER[H.actor].mesh.position.y + 1;
             };
             if (extract("spamChat")) {
-                if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
-                    sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
-                    lastSpamMessage=Date.now()
+                if (ss.MYPLAYER.chatLines<2) {
+                    if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
+                        sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
+                        lastSpamMessage=Date.now()
+                    };
                 };
             };
             if ( extract("chatHighlight") ) {
