@@ -1,6 +1,6 @@
 ﻿# StateFarm Client for Shell Shockers
 
-![Discord Shield](https://discordapp.com/api/guilds/988104240000028706/widget.png?style=shield)
+![Discord Shield](https://discordapp.com/api/guilds/988104240000028706/widget.png?style=shield) 
 
 Hack Client for Shell Shockers (shellshock.io). The most feature rich and powerful client to exist for the game. 
 It includes **Aimbot**, **ESP**, **Blooms Hacks**, **Botting**, **Custom Binding**, **Highly Customisable Modules**, **Chat Mods** and much much more.
