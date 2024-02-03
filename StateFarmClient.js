@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
-// @description  Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @description  Fixed for 0.47.0! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre24
+// @version      3.3.3-pre30
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -79,8 +79,6 @@
 // ==/UserScript==
 
 console.log("StateFarm: running (before function)");
-
-alert("WARNING: STATEFARM IS NOT FULLY FIXED! IT *WILL* CRASH!");
 
 (function () {
     console.log("StateFarm: running (after function)");
@@ -625,7 +623,7 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
             initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1], enableConditions: [["aimbot",true]],});
+            initModule({ showConditions: [["disabledlmao",true]], location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1], enableConditions: [["aimbot",true]],});
             tp.hudTab.pages[0].addSeparator();
             initModule({ location: tp.hudTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "RadarWIP", storeAs: "radar", bindLocation: tp.hudTab.pages[1],});
@@ -2073,7 +2071,7 @@ sniping and someone sneaks up on you
             if (extract("playerInfo")) {
                 let playerInfoString="";
                 const player=currentlyTargeting||playerLookingAt||undefined
-                if (player && player[H.playing]) {
+                if (player && player.distance && player[H.playing]) {
                     playerInfoString=playerInfoString+player.name+"\n"
                     playerInfoString=playerInfoString+"HP: "+Math.round(player.hp)+"\n"
                     playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
@@ -2166,26 +2164,30 @@ sniping and someone sneaks up on you
         if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //legacy
     };
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
-        try {
-            lastSentMessage=text;
-            chatThing=document.getElementById('chatIn');
-            if (chatThing && unsafeWindow.extern.startChat) {
-                unsafeWindow.extern.startChat();
-                chatThing.value=text;
-                chatThing.dispatchEvent(new KeyboardEvent('keydown', {
-                    key: 'Enter',
-                    code: 'Enter',
-                    keyCode: 13,
-                    which: 13,
-                    bubbles: true,
-                    cancelable: true,
-                }));
-                return true;
-            } else {
-                return false;
+        if (ss.MYPLAYER.chatLines<2) {
+            try {
+                lastSentMessage=text;
+                chatThing=document.getElementById('chatIn');
+                if (chatThing && unsafeWindow.extern.startChat) {
+                    unsafeWindow.extern.startChat();
+                    chatThing.value=text;
+                    chatThing.dispatchEvent(new KeyboardEvent('keydown', {
+                        key: 'Enter',
+                        code: 'Enter',
+                        keyCode: 13,
+                        which: 13,
+                        bubbles: true,
+                        cancelable: true,
+                    }));
+                    return true;
+                } else {
+                    return false;
+                };
+            } catch (error) {
+                return false
             };
-        } catch (error) {
-            return false
+        } else {
+            createPopup("Chat Cooldown: "+(globalSS.ss.MYPLAYER.chatLines-2)+" remaining.","error");
         };
     };
     const addStreamsToInGameUI = function () {
@@ -2392,9 +2394,10 @@ sniping and someone sneaks up on you
         return packet
     };
     const modifyPacket = function (data) {
-        if (data instanceof String) { // avoid server comm, ping, etc. necessary to load
+        if (!ss || (data instanceof String)) { // avoid server comm, ping, etc. necessary to load
             return data;
         };
+
 
         if (data.byteLength == 0) {
             return data;
@@ -2402,7 +2405,11 @@ sniping and someone sneaks up on you
 
         var arr = new Uint8Array(data);
 
-        if (arr[0] == 49) { // comm code 49 = client to server grenade throw
+        // if (arr[0]!==17) {
+        //     console.log(arr)
+        // };
+
+        if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
             if (extract("grenadeMax")) {
                 arr[1] = 255;
                 console.log("StateFarm: modified a grenade packet to be at full power");
@@ -2410,7 +2417,7 @@ sniping and someone sneaks up on you
             } else {
                 console.log("StateFarm: didn't modify grenade packet")
             };
-        } else if (arr[0] == 4) {
+        } else if (arr[0] == ss.SERVERCODES.chat) {
             console.log('%c Chat packet sent, chat handler!!!', css);
             return chatPacketHandler(data);
         } else {
@@ -2749,8 +2756,10 @@ sniping and someone sneaks up on you
                 getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
                 getVar("CONTROLKEYS", '\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(');
                 getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
+                getVar("SERVERCODES", 'case ([a-zA-Z]+)\.die');
 
                 createPopup("StateFarm Script injected!","success");
+                createPopup("May currently be unstable.");
                 console.log(injectionString,allFuncName);
             } catch (err) {
                 createPopup("Error! Scipt injection failed! See console.","error")
@@ -2795,13 +2804,13 @@ sniping and someone sneaks up on you
             match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
             js=js.replace('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
             //hook for control interception
-            // const PLAYERTHING=new RegExp('\\.weapon\\[H.actor]\\.equip\\(\\)\};([a-zA-Z]+)\\.prototype\\.update').exec(js)[1];
-            // const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
+            const PLAYERTHING=new RegExp(';([a-zA-Z]+)\\.prototype\\.enableShield').exec(js)[1];
+            const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
             const CONTROLKEYS=new RegExp('\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(').exec(js)[1];
             console.log("CONTROLKEYS:",CONTROLKEYS);
-            // console.log("PLAYERTHING:",PLAYERTHING);
-            // console.log("ARGTHING:",ARGTHING);
-            // js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
+            console.log("PLAYERTHING:",PLAYERTHING);
+            console.log("ARGTHING:",ARGTHING);
+            js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
             //admin spoof lol
             js=js.replace('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
             js=js.replace('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
@@ -2837,6 +2846,7 @@ sniping and someone sneaks up on you
             //replace graveyard:
             // //sus
             // js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
+            // js=js.replace('Zn(t,f,u,r){','Zn(t,f,u,r){console.log(t,f,u,r);');
             // js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
             // //motion blur
             // js=js.replace('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
@@ -3426,8 +3436,8 @@ sniping and someone sneaks up on you
     function create_pathfinding_lines(ss, path) {
         for (var i = 0; i < path.length - 1; i++) {
             create_red_line_between_nodes(ss, path[i], path[i + 1]);
-        }
-    }
+        };
+    };
 
     // end pathfinding
 
@@ -3435,8 +3445,8 @@ sniping and someone sneaks up on you
         for (const key in obj) {
             if (obj[key] === null || obj[key] === undefined) {
                 continue;
-            }
-            if ((typeof(obj[key])=='object' || typeof(obj[key])=='function') && obj[key].hasOwnProperty(propertyToFind)) {
+            };
+            if (!!obj[key] && (typeof(obj[key])=='object' || typeof(obj[key])=='function') && obj[key].hasOwnProperty(propertyToFind)) {
                 return key;
             };
         };
@@ -3779,9 +3789,11 @@ sniping and someone sneaks up on you
                 ss.MYPLAYER[H.actor].mesh.position.y = ss.MYPLAYER[H.actor].mesh.position.y + 1;
             };
             if (extract("spamChat")) {
-                if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
-                    sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
-                    lastSpamMessage=Date.now()
+                if (ss.MYPLAYER.chatLines<2) {
+                    if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
+                        sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
+                        lastSpamMessage=Date.now()
+                    };
                 };
             };
             if ( extract("chatHighlight") ) {
@@ -3907,7 +3919,7 @@ sniping and someone sneaks up on you
 
             currentlyTargetingName=(currentlyTargeting?.name==undefined) ? currentlyTargetingName : currentlyTargeting?.name;
             if (isDoingAimbot) {
-                if ( currentlyTargeting && currentlyTargeting[H.playing] ) { //found a target
+                if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
                     didAimbot=true
                     if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
