@@ -116,7 +116,7 @@ alert("WARNING: STATEFARM IS NOT FULLY FIXED! IT *WILL* CRASH!");
     const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     //INIT VARS
     const inbuiltPresets = {
-        onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>0.3<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
+        onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
     };
     const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
     console.log("Save key:",storageKey);
@@ -565,7 +565,7 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: Math.PI*2, step: 0.05}, defaultValue: Math.PI*2, enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: 360, step: 1}, defaultValue: Math.PI*2, enableConditions: [["aimbot",true]],});
                 initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
                 initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
@@ -3846,7 +3846,11 @@ sniping and someone sneaks up on you
             const targetType = extract("aimbotTargetMode");
             const visibilityMode = extract("aimbotVisibilityMode");
 
-            let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? extract("aimbotMinAngle") : 10000; //used for selecting target (either pointingat or nearest)
+            function deg2rad(deg) {
+                return deg * (Math.PI / 180);
+            }
+
+            let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? deg2rad(extract("aimbotMinAngle")) : 10000; //used for selecting target (either pointingat or nearest)
 
             let didAimbot
             const candidates=[];
@@ -3905,7 +3909,7 @@ sniping and someone sneaks up on you
             if (isDoingAimbot) {
                 if ( currentlyTargeting && currentlyTargeting[H.playing] ) { //found a target
                     didAimbot=true
-                    if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(extract("aimbotMinAngle")>currentlyTargeting?.angleDiff))) {
+                    if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
 
                         const aimbot=getAimbot(currentlyTargeting);
