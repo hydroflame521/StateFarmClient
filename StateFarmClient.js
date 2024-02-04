@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre34
+// @version      3.3.3-pre35
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2631,7 +2631,7 @@ sniping and someone sneaks up on you
                     state.pitch = setPrecision(aimbot.pitch);
                     ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)] = state;
                 };
-                ss.SERVERSYNC();
+                // ss.SERVERSYNC();
             };
         });
         createAnonFunction('onConnectFail', function (ERRORCODE,ERRORARRAY) {
@@ -2747,9 +2747,9 @@ sniping and someone sneaks up on you
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             try {
                 getVar("PLAYERS", '([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
-                getVar("MYPLAYER", '\\.([a-zA-Z]+)\\.addArrayInPlace\\(');
+                getVar("MYPLAYER", '\\),([a-zA-Z]+)\\.pitch=Math\\.clamp\\(');
                 getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
-                getVar("BABYLONJS", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible');
+                getVar("BABYLONJS", '\\),this\\.range=([a-zA-Z]+)\\.');
                 getVar("OBJECTSVAR", '&&([a-zA-Z]+)\\.getShadowMap\\(\\)');
                 getVar("GAMEMAP", ',([a-zA-Z]+)\\.width-\\.1\\),');
                 getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
@@ -2759,8 +2759,8 @@ sniping and someone sneaks up on you
                 getVar("SETTINGS", 'localStore\\.setItem\\("highRes",([a-zA-Z]+)\\.highRes\\)');
                 getVar("CONTROLKEYSENUM","&([a-zA-Z]+)\\.up&&\\(this")
                 getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
-                getVar("CONTROLKEYS", '\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(');
-                getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
+                getVar("CONTROLKEYS", '\\(-1\\),([a-zA-Z]+)=');
+                // getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
                 getVar("SERVERCODES", 'case ([a-zA-Z]+)\.die');
 
                 createPopup("StateFarm Script injected!","success");
@@ -2779,21 +2779,21 @@ sniping and someone sneaks up on you
                 if (oldJS !== js) {
                     console.log("%cReplacement successful! Injected code: "+replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 } else {
-                    console.log("%cReplacement failed! Attempted injected code: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    console.log("%cReplacement failed! Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
             };
 
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
-            match=js.match(/\.engine\.\$\(function\(\)\{([a-zA-Z]+)\(/);
+            match=js.match(/\.engine\.([a-zA-Z]+)\(\(function\(\)\{!/);
             console.log(match);
-            modifyJS('.engine.$(function(){'+match[1]+'(),',`.engine.$(function(){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
+            modifyJS('.engine.'+match[1]+'((function(){',`.engine.${match[1]}((function(){if(window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};`);
             modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
-            match=js.match(/&&!([a-zA-Z]+)&&[a-zA-Z]+\(\)\}/);
-            modifyJS(`if(${match[1]})`,`if(true)`);
+            match=js.match(/&&!([a-zA-Z]+)&&function\(\)\{if\(/);
+            modifyJS(`{if(${match[1]})`,`{if(true)`);
             console.log('%cSuccess! Cull inhibition hooked '+match[1], 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
@@ -2812,19 +2812,19 @@ sniping and someone sneaks up on you
             let [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
             modifyJS(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
-            match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
-            if (match) modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`);
+            match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/)[1];
+            if (match) {modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`)};
             //reset join/leave msgs
             modifyJS(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
             //bypass chat filter
-            match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
+            match = js.match(/([a-zA-Z]+)\.indexOf\("<"\)<0&&/)[1];
             modifyJS('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
             //hook for control interception
-            const UPDATETHING=js.match(/\.equip\(\)\};([a-zA-Z]+)\.prototype\.([a-zA-Z]+)=function\(([a-zA-Z]+)\)\{/)[0];
+            const UPDATETHING=js.match(/\.equip\(\)\},([a-zA-Z]+)\.prototype\.([a-zA-Z]+)=function\(([a-zA-Z]+)\)\{/)[0];
             // console.log("PLAYERTHING:",PLAYERTHING);
             console.log("UPDATETHING:",UPDATETHING);
             // console.log("ARGTHING:",ARGTHING);
-            const CONTROLKEYS=new RegExp('\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(').exec(js)[1];
+            const CONTROLKEYS=js.match(/holdToAim\?([a-zA-Z]+)\|=/)[1];
             console.log("CONTROLKEYS:",CONTROLKEYS);
             modifyJS(UPDATETHING,UPDATETHING+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
             //admin spoof lol
@@ -2843,7 +2843,7 @@ sniping and someone sneaks up on you
             //pointer escape
             modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
             //death hook
-            const DEATHFUNCTION = new RegExp('\\.document\\.write\\("<hr>"\\)\\}function ([a-zA-Z]+)\\(').exec(js)[1];
+            const DEATHFUNCTION = js.match(/&&([a-zA-Z]+)\([a-zA-Z]+,[a-zA-Z]+\),/)[1];
             console.log("DEATHFUNCTION",DEATHFUNCTION);
             const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
             console.log("DEATHARGS",DEATHARGS);
@@ -2855,7 +2855,7 @@ sniping and someone sneaks up on you
             H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
             H.rayCollidesWithMap = js.match(/\.([a-zA-Z]+)\([a-zA-Z]+\.forwardRay\.origin,[a-zA-Z]+\.forwardRay/)[1];
             H.renderList = js.match(/getShadowMap\(\)\.([a-zA-Z]+)\.push/)[1];
-            H.capVector3 = js.match(/\),Math\.([a-zA-Z]+)\([a-zA-Z]+,\.29\)/)[1];
+            // H.capVector3 = js.match(/\),Math\.([a-zA-Z]+)\([a-zA-Z]+,\.29\)/)[1];
 
             console.log(H);
 
@@ -3473,20 +3473,22 @@ sniping and someone sneaks up on you
     const mainLoop = function () {
         const oneTime = function () {
             //xd lmao
-            ss.BABYLONJS.Vector3 = ss.MYPLAYER.constructor.v1.constructor;
-            ss.BABYLONJS.Matrix.RotationYawPitchRoll = ss.BABYLONJS.Matrix[H.RotationYawPitchRoll];
-            H.actor = findKeyWithProperty(ss.MYPLAYER,"mesh");
-            Math.capVector3 = Math[H.capVector3];
-
-            console.log("StateFarm: found vars:", H);
-
-            crosshairsPosition=new ss.BABYLONJS.Vector3();
-            Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
-                get: () => {
-                    return extract("wireframe");
-                }
-            });
-            ranOneTime=true;
+            if (ss.MYPLAYER) {
+                ss.BABYLONJS.Vector3 = ss.MYPLAYER.constructor.v1.constructor;
+                ss.BABYLONJS.Matrix.RotationYawPitchRoll = ss.BABYLONJS.Matrix[H.RotationYawPitchRoll];
+                H.actor = findKeyWithProperty(ss.MYPLAYER,"mesh");
+                // Math.capVector3 = Math[H.capVector3];
+    
+                console.log("StateFarm: found vars:", H);
+    
+                crosshairsPosition=new ss.BABYLONJS.Vector3();
+                Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
+                    get: () => {
+                        return extract("wireframe");
+                    }
+                });
+                ranOneTime=true;
+            };
         };
         const initVars = function () {
             isBanned=false; //cant be banned if in a game /shrug
@@ -3689,6 +3691,7 @@ sniping and someone sneaks up on you
         createAnonFunction("STATEFARM",function(){
 
             if ( !ranOneTime ) { oneTime() };
+
             initVars();
             updateLinesESP();
 
