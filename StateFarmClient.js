@@ -13,15 +13,13 @@
 // @grant        GM_info
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
-// @downloadURL  https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.user.js
-// @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
 
 // version naming:
     //3.#.#-pre[number] for development versions, increment for every commit (not full release)
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre31
+// @version      3.3.3-pre30
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -76,6 +74,8 @@
 // @match        *://*.yolk.quest/*
 // @match        *://*.yolk.today/*
 // @match        *://*.zygote.cafe/*
+// @downloadURL https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3%20-%20Combat%2C%20Bloom%2C%20ESP%2C%20Rendering%2C%20Chat%2C%20Automation%2C%20Botting%2C%20Unbanning%20and%20more.user.js
+// @updateURL https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3%20-%20Combat%2C%20Bloom%2C%20ESP%2C%20Rendering%2C%20Chat%2C%20Automation%2C%20Botting%2C%20Unbanning%20and%20more.meta.js
 // ==/UserScript==
 
 console.log("StateFarm: running (before function)");
@@ -2637,6 +2637,11 @@ sniping and someone sneaks up on you
         createAnonFunction('onConnectFail', function (ERRORCODE,ERRORARRAY) {
             errorString = findKeyByValue(ERRORARRAY,ERRORCODE);
             console.log("StateFarm has detected a connection error...",errorString,ERRORCODE,ERRORARRAY);
+            if (document.getElementById("genericPopup").textContent === ' Game Not Found Sorry! This game ID is either invalid, or no longer exists.  OK '){
+                document.getElementById("genericPopup").children[1].textContent = 'joinCode not found! check your autoJoin settings and get a new code';
+                document.getElementById("genericPopup").children[2].children[1].textContent = "heeheeheehaw";
+                document.getElementById("genericPopup").children[0].children[1].textContent = 'MAKE NEW AUTOJOIN CODE';
+            };
             if ((!attemptedAutoUnban) && extract("autoUnban")&&(errorString=="sessionNotFound")) {
                 console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
                 createPopup("AutoUnban: Reloading page in 5 seconds...");
