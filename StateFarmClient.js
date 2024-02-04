@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre32
+// @version      3.3.3-pre33
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2798,7 +2798,7 @@ sniping and someone sneaks up on you
             const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(js)[1];
             js = js.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
-            const [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
+            let [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
             js = js.replace(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
             match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
@@ -2809,13 +2809,13 @@ sniping and someone sneaks up on you
             match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
             js=js.replace('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
             //hook for control interception
-            const PLAYERTHING=new RegExp(';([a-zA-Z]+)\\.prototype\\.enableShield').exec(js)[1];
-            const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
+            const UPDATETHING=js.match(/\.equip\(\)\};([a-zA-Z]+)\.prototype\.([a-zA-Z]+)=function\(([a-zA-Z]+)\)\{/)[0];
+            // console.log("PLAYERTHING:",PLAYERTHING);
+            console.log("UPDATETHING:",UPDATETHING);
+            // console.log("ARGTHING:",ARGTHING);
             const CONTROLKEYS=new RegExp('\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(').exec(js)[1];
             console.log("CONTROLKEYS:",CONTROLKEYS);
-            console.log("PLAYERTHING:",PLAYERTHING);
-            console.log("ARGTHING:",ARGTHING);
-            js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
+            js=js.replace(UPDATETHING,UPDATETHING+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
             //admin spoof lol
             js=js.replace('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
             js=js.replace('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
