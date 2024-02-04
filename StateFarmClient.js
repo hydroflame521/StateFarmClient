@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre33
+// @version      3.3.3-pre34
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2772,42 +2772,53 @@ sniping and someone sneaks up on you
                 console.log(err);
                 return js;
             };
+
+            const modifyJS = function(find,replace) {
+                let oldJS = js;
+                js = js.replace(find,replace);
+                if (oldJS !== js) {
+                    console.log("%cReplacement successful! Injected code: "+replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                } else {
+                    console.log("%cReplacement failed! Attempted injected code: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                };
+            };
+
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
             match=js.match(/\.engine\.\$\(function\(\)\{([a-zA-Z]+)\(/);
             console.log(match);
-            js = js.replace('.engine.$(function(){'+match[1]+'(),',`.engine.$(function(){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
-            js = js.replace('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
+            modifyJS('.engine.$(function(){'+match[1]+'(),',`.engine.$(function(){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
+            modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
             match=js.match(/&&!([a-zA-Z]+)&&[a-zA-Z]+\(\)\}/);
-            js = js.replace(`if(${match[1]})`,`if(true)`);
+            modifyJS(`if(${match[1]})`,`if(true)`);
             console.log('%cSuccess! Cull inhibition hooked '+match[1], 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
-            js = js.replace('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
+            modifyJS('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
             //hook for fov mods
-            js = js.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.'+functionNames.fixCamera+'()');
-            js = js.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
+            modifyJS(/\.fov\s*=\s*1\.25/g, '.fov = window.'+functionNames.fixCamera+'()');
+            modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
             //chat mods: disable chat culling
             const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(js)[1];
-            js = js.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.${functionNames.getChatLimit}()&&${somethingLength}[0].remove(),`);
+            modifyJS(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.${functionNames.getChatLimit}()&&${somethingLength}[0].remove(),`);
             //chat mods: disable filter (credit to A3+++ for this finding)
             const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(js)[1];
             const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(js)[1];
-            js = js.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
+            modifyJS(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
             let [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
-            js = js.replace(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
+            modifyJS(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
             match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
-            if (match) js = js.replace(match[0], match[0] + `||window.${functionNames.getSkinHack}()`);
+            if (match) modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`);
             //reset join/leave msgs
-            js = js.replace(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
+            modifyJS(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
             //bypass chat filter
             match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
-            js=js.replace('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
+            modifyJS('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
             //hook for control interception
             const UPDATETHING=js.match(/\.equip\(\)\};([a-zA-Z]+)\.prototype\.([a-zA-Z]+)=function\(([a-zA-Z]+)\)\{/)[0];
             // console.log("PLAYERTHING:",PLAYERTHING);
@@ -2815,10 +2826,10 @@ sniping and someone sneaks up on you
             // console.log("ARGTHING:",ARGTHING);
             const CONTROLKEYS=new RegExp('\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(').exec(js)[1];
             console.log("CONTROLKEYS:",CONTROLKEYS);
-            js=js.replace(UPDATETHING,UPDATETHING+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
+            modifyJS(UPDATETHING,UPDATETHING+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
             //admin spoof lol
-            js=js.replace('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
-            js=js.replace('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
+            modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
+            modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
             //grab reason for connect fail
             const CONNECTFAILFUNCTION = new RegExp(',1e3\\)\\):([a-zA-Z]+)\\(').exec(js)[1];
             const FUNCTIONPARAM = new RegExp('function '+CONNECTFAILFUNCTION+'\\(([a-zA-Z]+)\\)').exec(js)[1];
@@ -2826,17 +2837,17 @@ sniping and someone sneaks up on you
             console.log("CONNECTFAILFUNCTION:",CONNECTFAILFUNCTION);
             console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
             console.log("ERRORARRAY:",ERRORARRAY);
-            js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+ERRORARRAY+');')
+            modifyJS('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+ERRORARRAY+');')
             //get rid of tutorial popup because its a stupid piece of shit
-            js=js.replace(',vueApp.onTutorialPopupClick()','');
+            modifyJS(',vueApp.onTutorialPopupClick()','');
             //pointer escape
-            js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
+            modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
             //death hook
             const DEATHFUNCTION = new RegExp('\\.document\\.write\\("<hr>"\\)\\}function ([a-zA-Z]+)\\(').exec(js)[1];
             console.log("DEATHFUNCTION",DEATHFUNCTION);
             const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
             console.log("DEATHARGS",DEATHARGS);
-            js=js.replace('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
+            modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
             H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z]+)\(this\.x,this\.y,this\.z\)\},/)[1];
             H.playing = js.match(/this\.hp=[a-zA-Z]+\.hp,this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
@@ -2850,24 +2861,24 @@ sniping and someone sneaks up on you
 
             //replace graveyard:
             // //sus
-            // js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
-            // js=js.replace('Zn(t,f,u,r){','Zn(t,f,u,r){console.log(t,f,u,r);');
-            // js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
+            // modifyJS('Wo(t){','Wo(t){console.log("Wo",t);')
+            // modifyJS('Zn(t,f,u,r){','Zn(t,f,u,r){console.log(t,f,u,r);');
+            // modifyJS('Ts(t){','Ts(t){console.log("Ts",t);')
             // //motion blur
-            // js=js.replace('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
-            // js=js.replace('et.booted','et.noboot')
-            // js=js.replace('eu(t)','Bc(t)')
-            // js=js.replace('vueApp.showPlayerActionsPopup(i)','vueApp.showPlayerActionsPopup(i);console.log(i)')
+            // modifyJS('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
+            // modifyJS('et.booted','et.noboot')
+            // modifyJS('eu(t)','Bc(t)')
+            // modifyJS('vueApp.showPlayerActionsPopup(i)','vueApp.showPlayerActionsPopup(i);console.log(i)')
             //trajectories
             //bullet debugging
-            // js = js.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+            // modifyJS('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
             //     //console.log("##################################################");
             //     //console.log("______PLAYER FIRED FUNCTION");
             //     //console.log("Player Name: ",t.name);
             //     //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
             //     //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
             // `);
-            // js = js.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+            // modifyJS('var s=n.getTranslation();',`var s=n.getTranslation();
             //     console.log("##################################################");
             //     console.log("______IN FIRE FUNCTION");
             //     console.log("Range Number: ",this.constructor.range);
@@ -2876,22 +2887,22 @@ sniping and someone sneaks up on you
             //     console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
             //     console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
             // `);
-            // js = js.replace('this[H.actor].fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this[H.actor].fire(),this.fireMunitions');
-            // js = js.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
-            // js = js.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
-            // js = js.replace('let i=this.accuracy','let i=0');
-            // js = js.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
-            // js = js.replace('a=0;a<20;a++','a=0;a<200;a++');
-            // js = js.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
-            // js = js.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
+            // modifyJS('this[H.actor].fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this[H.actor].fire(),this.fireMunitions');
+            // modifyJS('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
+            // modifyJS('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
+            // modifyJS('let i=this.accuracy','let i=0');
+            // modifyJS('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
+            // modifyJS('a=0;a<20;a++','a=0;a<200;a++');
+            // modifyJS("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
+            // modifyJS("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
             //disable autopause
-            // js = js.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
+            // modifyJS('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
             //adblock/vip spoof
-            // js = js.replace(/z\.isUpgraded\(\)/g,'true');
-            // js = js.replace(/aipAPItag\.sdkBlocked/g,'false');
-            // js = js.replace(/this\.adBlockerDetected\(\)/,'false');
+            // modifyJS(/z\.isUpgraded\(\)/g,'true');
+            // modifyJS(/aipAPItag\.sdkBlocked/g,'false');
+            // modifyJS(/this\.adBlockerDetected\(\)/,'false');
 
-            js=js.replace('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
+            modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             console.log(js);
             return js;
         };
