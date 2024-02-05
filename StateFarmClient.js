@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre36
+// @version      3.3.3-pre37
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -129,7 +129,6 @@ console.log("StateFarm: running (before function)");
     let lastSentMessage="";
     let URLParams="";
     let targetingComplete=false;
-    let currentlyTargetingName = "none";
     let username = "";
     let autoStrafeValue=[0,0,"left"];
     const allModules=[];
@@ -1489,13 +1488,13 @@ sniping and someone sneaks up on you
             myPlayerDot.style.left = `${xPosition}px`;
             myPlayerDot.style.top = `${yPosition}px`;
             myPlayerDot.textContent = myPlayer.name;
-            myPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player.yaw) + 'deg)';
+            myPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player[H.yaw]) + 'deg)';
         } else if (playerDotsMap.has(player.uniqueId)) {
             // If it exists, update its position
             const existingPlayerDot = playerDotsMap.get(player.uniqueId);
             existingPlayerDot.style.left = `${xPosition}px`;
             existingPlayerDot.style.top = `${yPosition}px`;
-            //existingPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player.yaw) + 'deg)'; // could uncomment but then names unreadable,
+            //existingPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player[H.yaw]) + 'deg)'; // could uncomment but then names unreadable,
         } else {
             // If it doesn't exist, create a new player dot element
             const newPlayerDot = document.createElement('div');
@@ -1622,15 +1621,15 @@ sniping and someone sneaks up on you
         return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
     };
     const getAngularDifference = function (obj1,obj2) {
-        return Math.abs(obj1.yaw-obj2.yaw)+Math.abs(obj1.pitch-obj2.pitch);
+        return Math.abs(obj1.yawReal-obj2.yawReal)+Math.abs(obj1.pitchReal-obj2.pitchReal);
     };
     const getDirectionVectorFacingTarget = function (target,vectorPassed,offsetY) {
-        target = vectorPassed ? target : target[H.actor].mesh.position;
+        target = vectorPassed ? target : target[H.actor][H.mesh].position;
         offsetY=offsetY||0;
         return {
-            x: target.x - ss.MYPLAYER[H.actor].mesh.position.x,
-            y: target.y - ss.MYPLAYER[H.actor].mesh.position.y+offsetY,
-            z: target.z - ss.MYPLAYER[H.actor].mesh.position.z,
+            x: target.x - ss.MYPLAYER[H.actor][H.mesh].position.x,
+            y: target.y - ss.MYPLAYER[H.actor][H.mesh].position.y+offsetY,
+            z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
         };
     };
     const reverseString = function (str) { return str.split("").reverse().join("") };
@@ -1698,9 +1697,9 @@ sniping and someone sneaks up on you
     const updateOrCreateLinesESP = function (object,type,color) {
         let newPosition,newScene,newParent
         if (type=="playerESP") {
-            newPosition = object[H.actor].mesh.position;
+            newPosition = object[H.actor][H.mesh].position;
             newScene    = object[H.actor].scene;
-            newParent   = object[H.actor].mesh;
+            newParent   = object[H.actor][H.mesh];
         } else {
             newPosition = object.position;
             newScene    = object._scene;
@@ -1938,6 +1937,7 @@ sniping and someone sneaks up on you
         if (extract("debug")) {
             globalSS={};
             globalSS.ss=ss;
+            globalSS.H=H;
             globalSS.tp=tp;
             globalSS.initMenu=initMenu;
             globalSS.extractAsDropdownInt=extractAsDropdownInt;
@@ -2088,11 +2088,11 @@ sniping and someone sneaks up on you
                 playerinfoElement.style.display = '';
             };
             if (extract("showCoordinates")) {
-                const fonx = Number((ss.MYPLAYER[H.actor].mesh.position.x).toFixed(3));
-                const fony = Number((ss.MYPLAYER[H.actor].mesh.position.y).toFixed(3));
-                const fonz = Number((ss.MYPLAYER[H.actor].mesh.position.z).toFixed(3));
-                const yaw = Number((ss.MYPLAYER.yaw).toFixed(3)); //could i function this? yea
-                const pitch = Number((ss.MYPLAYER.pitch).toFixed(3));
+                const fonx = Number((ss.MYPLAYER[H.actor][H.mesh].position.x).toFixed(3));
+                const fony = Number((ss.MYPLAYER[H.actor][H.mesh].position.y).toFixed(3));
+                const fonz = Number((ss.MYPLAYER[H.actor][H.mesh].position.z).toFixed(3));
+                const yaw = Number((ss.MYPLAYER[H.yaw]).toFixed(3)); //could i function this? yea
+                const pitch = Number((ss.MYPLAYER[H.pitch]).toFixed(3));
                 const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
@@ -2487,10 +2487,10 @@ sniping and someone sneaks up on you
         return [bulletYawDiff,bulletPitchDiff];
     };
     const applyBloom = function(dir,multiplier) { //multiplier can be set to -1 to invert
-        const bloomValues=predictBloom(dir.yaw,dir.pitch);
+        const bloomValues=predictBloom(dir.yawReal,dir.pitchReal);
         return {
-            yaw: dir.yaw+(bloomValues[0]*multiplier),
-            pitch: dir.pitch+(bloomValues[1]*multiplier),
+            yawReal: dir.yawReal+(bloomValues[0]*multiplier),
+            pitchReal: dir.pitchReal+(bloomValues[1]*multiplier),
         };
     };
     const predictPosition = function(player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
@@ -2510,11 +2510,11 @@ sniping and someone sneaks up on you
     };
     const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
         // credit for code: de_neuublue/crackware
-        if (target && target[H.actor] && target[H.actor].bodyMesh && target[H.actor].bodyMesh.renderOverlay && target[H.actor].bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
+        if (target && target[H.actor] && target[H.actor][H.bodyMesh] && target[H.actor][H.bodyMesh].renderOverlay && target[H.actor][H.bodyMesh].overlayColor.g == 1) return; //check if player is spawned in fully
 
-        let myPlayerPosition = ss.MYPLAYER[H.actor].mesh.position;
-        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor].mesh.position; //set to always use prediction for now
-        // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor].mesh.position;
+        let myPlayerPosition = ss.MYPLAYER[H.actor][H.mesh].position;
+        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor][H.mesh].position; //set to always use prediction for now
+        // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor][H.mesh].position;
 
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
@@ -2528,12 +2528,12 @@ sniping and someone sneaks up on you
         return distanceToTarget < distanceToMap
     };
     const getAimbot = function(target) {
-        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor].mesh.position;
+        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor][H.mesh].position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
 
         let direction = {
-            yaw: calculateYaw(directionVector),
-            pitch: calculatePitch(directionVector),
+            yawReal: calculateYaw(directionVector),
+            pitchReal: calculatePitch(directionVector),
         };
 
         if (extract("antiBloom")) {
@@ -2582,7 +2582,7 @@ sniping and someone sneaks up on you
                 ss.MYPLAYER=MYPLAYER;
                 const aimbot = getAimbot(currentlyTargeting);
                 // credit for code: de_neuublue
-                let diffYaw = Math.radDifference(ss.MYPLAYER.yaw, aimbot.yaw) * 180 / Math.PI;
+                let diffYaw = Math.radDifference(ss.MYPLAYER[H.yaw], aimbot.yawReal) * 180 / Math.PI;
                 let diffPositive = diffYaw > 0 // a turn to the left if positive
                 diffYaw *= diffPositive ? 1 : -1;
                 for (let i = 0; i < 3; i++) {
@@ -2632,8 +2632,8 @@ sniping and someone sneaks up on you
                     };
                     // console.log(ss.CONTROLKEYS, newControlKeys);
                     state.controlKeys |= newControlKeys;
-                    state.yaw = setPrecision(aimbot.yaw);
-                    state.pitch = setPrecision(aimbot.pitch);
+                    state[H.yaw] = setPrecision(aimbot.yawReal);
+                    state[H.pitch] = setPrecision(aimbot.pitchReal);
                     ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)] = state;
                 };
                 // ss.SERVERSYNC();
@@ -2758,7 +2758,7 @@ sniping and someone sneaks up on you
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             try {
                 getVar("PLAYERS", '([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
-                getVar("MYPLAYER", '\\),([a-zA-Z]+)\\.pitch=Math\\.clamp\\(');
+                getVar("MYPLAYER", '\\),([a-zA-Z]+)\\.[a-zA-Z]+=Math\\.clamp\\([a-zA-Z]+\.[a-zA-Z]+\\+');
                 getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                 getVar("BABYLONJS", '\\),this\\.range=([a-zA-Z]+)\\.');
                 getVar("OBJECTSVAR", '&&([a-zA-Z]+)\\.getShadowMap\\(\\)');
@@ -2800,10 +2800,9 @@ sniping and someone sneaks up on you
 
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
-            // match=js.match(/\.engine\.([a-zA-Z]+)\(\(function\(\)\{!/)[1];
-            match=js.match(/([a-zA-Z]+)/)[1];
+            match=js.match(/\|\(([a-zA-Z]+)\.sh/)[1];
             console.log(match);
-            modifyJS('.engine.'+match+'((function(){',`.engine.${match}((function(){if(window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};`);
+            modifyJS(match+'.render',`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${match}.render`);
             modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
@@ -2871,6 +2870,10 @@ sniping and someone sneaks up on you
             H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
             H.rayCollidesWithMap = js.match(/\.([a-zA-Z]+)\([a-zA-Z]+\.forwardRay\.origin,[a-zA-Z]+\.forwardRay/)[1];
             H.renderList = js.match(/getShadowMap\(\)\.([a-zA-Z]+)\.push/)[1];
+            H.pitch = js.match(/\),[a-zA-Z]+\.([a-zA-Z]+)=Math\.clamp\([a-zA-Z]+\.[a-zA-Z]+\+/)[1];
+            H.yaw = js.match(/Math\.radAdd\([a-zA-Z]+\.([a-zA-Z]+),[a-zA-Z]+\*[a-zA-Z]+\)/)[1];
+            H.mesh = js.match(/=1\),this\.([a-zA-Z]+)\./)[1];
+            H.bodyMesh = js.match(/\.([a-zA-Z]+)\.renderOverlay/)[1];
             // H.capVector3 = js.match(/\),Math\.([a-zA-Z]+)\([a-zA-Z]+,\.29\)/)[1];
 
             console.log(H);
@@ -2899,7 +2902,7 @@ sniping and someone sneaks up on you
             //     console.log("______IN FIRE FUNCTION");
             //     console.log("Range Number: ",this.constructor.range);
             //     console.log("Accuracy: ",this.accuracy);
-            //     console.log("Yaw/Pitch: ",this.player.yaw, this.player.pitch);
+            //     console.log("Yaw/Pitch: ",this.player[H.yaw], this.player[H.pitch]);
             //     console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
             //     console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
             // `);
@@ -3226,7 +3229,7 @@ sniping and someone sneaks up on you
       };
 
     function isNodeAir(item) {
-        return item.mesh === undefined;
+        return item[H.mesh] === undefined;
     }
 
     class Position {
@@ -3309,9 +3312,9 @@ sniping and someone sneaks up on you
     }
 
     function get_player_position(player) {
-        var x = Math.floor(player[H.actor].mesh.position.x);
-        var y = Math.floor(player[H.actor].mesh.position.y);
-        var z = Math.floor(player[H.actor].mesh.position.z);
+        var x = Math.floor(player[H.actor][H.mesh].position.x);
+        var y = Math.floor(player[H.actor][H.mesh].position.y);
+        var z = Math.floor(player[H.actor][H.mesh].position.z);
         return new Position(x, y, z);
     }
 
@@ -3453,12 +3456,12 @@ sniping and someone sneaks up on you
         pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
         pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
         if (window.pathLines === undefined) {
-            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor].mesh.position, pos2] }, ss.MYPLAYER[H.actor].scene);
+            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
             node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
             node_lines.renderingGroupId = 1;
             window.pathLines = [node_lines];
         } else {
-            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor].mesh.position, pos2] }, ss.MYPLAYER[H.actor].scene);
+            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
             node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
             node_lines.renderingGroupId = 1;
             window.pathLines.push(node_lines);
@@ -3492,7 +3495,7 @@ sniping and someone sneaks up on you
             if (ss.MYPLAYER) {
                 ss.BABYLONJS.Vector3 = ss.MYPLAYER.constructor.v1.constructor;
                 ss.BABYLONJS.Matrix.RotationYawPitchRoll = ss.BABYLONJS.Matrix[H.RotationYawPitchRoll];
-                H.actor = findKeyWithProperty(ss.MYPLAYER,"mesh");
+                H.actor = findKeyWithProperty(ss.MYPLAYER,H.mesh);
                 // Math.capVector3 = Math[H.capVector3];
     
                 console.log("StateFarm: found vars:", H);
@@ -3543,11 +3546,11 @@ sniping and someone sneaks up on you
                 };
                 username=ss.MYPLAYER?.name;
     
-                crosshairsPosition.copyFrom(ss.MYPLAYER[H.actor].mesh.position);
-                const horizontalOffset = Math.sin(ss.MYPLAYER[H.actor].mesh.rotation.y);
-                const verticalOffset = Math.sin(-ss.MYPLAYER.pitch);
+                crosshairsPosition.copyFrom(ss.MYPLAYER[H.actor][H.mesh].position);
+                const horizontalOffset = Math.sin(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
+                const verticalOffset = Math.sin(-ss.MYPLAYER[H.pitch]);
                 crosshairsPosition.x += horizontalOffset;
-                crosshairsPosition.z += Math.cos(ss.MYPLAYER[H.actor].mesh.rotation.y);
+                crosshairsPosition.z += Math.cos(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
                 crosshairsPosition.y += verticalOffset + 0.4;
     
                 ammo=ss.MYPLAYER.weapon.ammo;
@@ -3599,10 +3602,10 @@ sniping and someone sneaks up on you
 
                     if (player[H.actor]) {
                         eggSize=extract("eggSize")
-                        player[H.actor].bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
+                        player[H.actor][H.bodyMesh].scaling = {x:eggSize, y:eggSize, z:eggSize}
                     };
 
-                    player[H.actor].bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
+                    player[H.actor][H.bodyMesh].renderingGroupId = extract("chams") ? 1 : 0;
 
                     player.exists=objExists;
                 };
@@ -3799,9 +3802,9 @@ sniping and someone sneaks up on you
             //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
             //     let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
             //     console.log("vector obtained: ", directionVector);
-            //     ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
-            //     ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
-            //     console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
+            //     ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
+            //     ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
+            //     console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
             //     forceControlKeys = ss.CONTROLKEYSENUM.up;
             //     console.log("done with looking & window forward set")
             // };
@@ -3829,7 +3832,7 @@ sniping and someone sneaks up on you
             }
 
             if ( extract("freecam") ) {
-                ss.MYPLAYER[H.actor].mesh.position.y = ss.MYPLAYER[H.actor].mesh.position.y + 1;
+                ss.MYPLAYER[H.actor][H.mesh].position.y = ss.MYPLAYER[H.actor][H.mesh].position.y + 1;
             };
             if (extract("spamChat")) {
                 if (ss.MYPLAYER.chatLines<2) {
@@ -3872,7 +3875,7 @@ sniping and someone sneaks up on you
             if (extract("revealBloom")) {
                 redCircle.style.display='';
                 const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
-                const bloomValues=predictBloom(ss.MYPLAYER.yaw,ss.MYPLAYER.pitch);
+                const bloomValues=predictBloom(ss.MYPLAYER[H.yaw],ss.MYPLAYER[H.pitch]);
                 // Set the new position of the circle
                 const centerX = (unsafeWindow.innerWidth / 2);
                 const centerY = (unsafeWindow.innerHeight / 2);
@@ -3919,7 +3922,7 @@ sniping and someone sneaks up on you
                     player.distance=distancePlayers(player);
                     player.adjustedDistance=distancePlayers(player,2);
                     const directionVector=getDirectionVectorFacingTarget(player);
-                    player.angleDiff=getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
+                    player.angleDiff=getAngularDifference(ss.MYPLAYER, {yawReal: calculateYaw(directionVector), pitchReal: calculatePitch(directionVector)});
                     player.isVisible=getLineOfSight(player,extract("prediction"));
 
                     if (player.angleDiff < playerLookingAtMinimum) {
@@ -3956,14 +3959,21 @@ sniping and someone sneaks up on you
                     if (valueToUse < enemyMinimumValue ) {
                         enemyMinimumValue = valueToUse;
                         currentlyTargeting = player;
+                        console.log("SET",player.name);
                     };
                 };
             });
 
-            currentlyTargetingName=(currentlyTargeting?.name==undefined) ? currentlyTargetingName : currentlyTargeting?.name;
             if (isDoingAimbot) {
+                console.log(currentlyTargeting.name);
                 if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
-                    didAimbot=true
+                    didAimbot=true;
+                    if (extract("tracers")) {
+                        currentlyTargeting.tracerLines.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
+                    };
+                    if (extract("playerESP")) {
+                        currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
+                    };
                     if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
 
@@ -3982,10 +3992,9 @@ sniping and someone sneaks up on you
                         };
 
                         // Exponential lerp towards the target rotation
-                        ss.MYPLAYER.yaw = setPrecision(lerp(ss.MYPLAYER.yaw, aimbot.yaw, antiSnap));
-                        ss.MYPLAYER.pitch = setPrecision(lerp(ss.MYPLAYER.pitch, aimbot.pitch, antiSnap));
+                        ss.MYPLAYER[H.yaw] = setPrecision(lerp(ss.MYPLAYER[H.yaw], aimbot.yawReal, antiSnap));
+                        ss.MYPLAYER[H.pitch] = setPrecision(lerp(ss.MYPLAYER[H.pitch], aimbot.pitchReal, antiSnap));
                     };
-
                     if ( enemyMinimumDistance < extract("antiSneak")) {
                         currentlyTargeting = enemyNearest;
                         if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
@@ -3994,13 +4003,6 @@ sniping and someone sneaks up on you
                         };
                         ss.MYPLAYER.pullTrigger();
                         // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
-                    };
-
-                    if (extract("tracers")) {
-                        currentlyTargeting.tracerLines.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
-                    };
-                    if (extract("playerESP")) {
-                        currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                 } else {
                     if (extract("oneKill")) {
@@ -4013,20 +4015,20 @@ sniping and someone sneaks up on you
                 currentlyTargeting=false;
                 targetingComplete=false;
                 if (extract("enableSeizureX")) {
-                    ss.MYPLAYER.yaw+=extract("amountSeizureX")
+                    ss.MYPLAYER[H.yaw]+=extract("amountSeizureX")
                 };
                 if (extract("enableSeizureY")) {
-                    ss.MYPLAYER.pitch+=extract("amountSeizureY")
+                    ss.MYPLAYER[H.pitch]+=extract("amountSeizureY")
                 };
             };
             highlightTargetOnLeaderboard(currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
             if (extract("upsideDown")) { //sorta useless
-                if (ss.MYPLAYER.pitch<1.5 && ss.MYPLAYER.pitch>-1.5) {
-                    ss.MYPLAYER.pitch=Math.PI;
+                if (ss.MYPLAYER[H.pitch]<1.5 && ss.MYPLAYER[H.pitch]>-1.5) {
+                    ss.MYPLAYER[H.pitch]=Math.PI;
                 };
             };
             if (extract("silentRoll")) {
-                ss.MYPLAYER.pitch+=2*Math.PI;
+                ss.MYPLAYER[H.pitch]+=2*Math.PI;
             };
 
             if (extract("enableAutoFire")) {
