@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre38
+// @version      3.3.3-pre39
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2864,7 +2864,7 @@ sniping and someone sneaks up on you
             console.log("DEATHARGS",DEATHARGS);
             modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
-            H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z]+)\(this\.x,this\.y,this\.z\)\},/)[1];
+            H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z])\(this\.x,this\.y,this\.z\)\},/)[1]; //+
             H.playing = js.match(/this\.hp=[a-zA-Z]+\.hp,this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
             H.MeshBuilder = js.match(/\.([a-zA-Z]+)\.CreateLineSystem\("/)[1];
             H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
