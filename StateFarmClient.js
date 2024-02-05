@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre37
+// @version      3.3.3-pre38
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2757,7 +2757,7 @@ sniping and someone sneaks up on you
             };
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             try {
-                getVar("PLAYERS", '([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
+                getVar("PLAYERS", ',([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
                 getVar("MYPLAYER", '\\),([a-zA-Z]+)\\.[a-zA-Z]+=Math\\.clamp\\([a-zA-Z]+\.[a-zA-Z]+\\+');
                 getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
                 getVar("BABYLONJS", '\\),this\\.range=([a-zA-Z]+)\\.');
