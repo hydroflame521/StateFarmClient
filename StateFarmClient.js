@@ -19,7 +19,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre39
+// @version      3.3.3-pre40
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2765,7 +2765,7 @@ sniping and someone sneaks up on you
                 getVar("GAMEMAP", ',([a-zA-Z]+)\\.width-\\.1\\),');
                 getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
                 getVar("CAMERA", '200/([a-zA-Z]+)\\.fov\\);this\\.shotReticle');
-                getVar("RAYS", "mesh:([a-zA-Z]+)\.fullCollisionMesh");
+                getVar("RAYS", "mesh:([a-zA-Z])\.fullCollisionMesh"); //+
                 getVar("GAMECODE", '\\{crazyShare:([a-zA-Z]+)\\}');
                 getVar("SETTINGS", 'localStore\\.setItem\\("highRes",([a-zA-Z]+)\\.highRes\\)');
                 getVar("CONTROLKEYSENUM","&([a-zA-Z]+)\\.up&&\\(this")
