@@ -46,3 +46,5 @@ def main():
         fileh.write(parse_regexes())
     sync_remote()
 
+if __name__ == '__main__':
+    main()
