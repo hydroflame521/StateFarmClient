@@ -13,15 +13,13 @@
 // @grant        GM_info
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
-// @downloadURL  https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.user.js
-// @updateURL    https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3.meta.js
 
 // version naming:
     //3.#.#-pre[number] for development versions, increment for every commit (not full release)
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre30
+// @version      3.3.3-pre40
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -76,8 +74,11 @@
 // @match        *://*.yolk.quest/*
 // @match        *://*.yolk.today/*
 // @match        *://*.zygote.cafe/*
+// @downloadURL https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3%20-%20Combat%2C%20Bloom%2C%20ESP%2C%20Rendering%2C%20Chat%2C%20Automation%2C%20Botting%2C%20Unbanning%20and%20more.user.js
+// @updateURL https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3%20-%20Combat%2C%20Bloom%2C%20ESP%2C%20Rendering%2C%20Chat%2C%20Automation%2C%20Botting%2C%20Unbanning%20and%20more.meta.js
 // ==/UserScript==
 
+let attemptedInjection = true;
 console.log("StateFarm: running (before function)");
 
 (function () {
@@ -128,7 +129,6 @@ console.log("StateFarm: running (before function)");
     let lastSentMessage="";
     let URLParams="";
     let targetingComplete=false;
-    let currentlyTargetingName = "none";
     let username = "";
     let autoStrafeValue=[0,0,"left"];
     const allModules=[];
@@ -141,7 +141,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     const H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,menuInitiated,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,didStateFarm,menuInitiated,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -410,6 +410,10 @@ console.log("StateFarm: running (before function)");
         allFolders.push(folder.storeAs);
     };
     const initModule = function (module) {
+        if (module.requirements) {
+
+        };
+
         const value={};
         value[module.storeAs]=(module.defaultValue !== undefined ? module.defaultValue : false);
 
@@ -1485,13 +1489,13 @@ sniping and someone sneaks up on you
             myPlayerDot.style.left = `${xPosition}px`;
             myPlayerDot.style.top = `${yPosition}px`;
             myPlayerDot.textContent = myPlayer.name;
-            myPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player.yaw) + 'deg)';
+            myPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player[H.yaw]) + 'deg)';
         } else if (playerDotsMap.has(player.uniqueId)) {
             // If it exists, update its position
             const existingPlayerDot = playerDotsMap.get(player.uniqueId);
             existingPlayerDot.style.left = `${xPosition}px`;
             existingPlayerDot.style.top = `${yPosition}px`;
-            //existingPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player.yaw) + 'deg)'; // could uncomment but then names unreadable,
+            //existingPlayerDot.style.transform = 'translate(-50%, -50%) rotate(' + yawToDeg(player[H.yaw]) + 'deg)'; // could uncomment but then names unreadable,
         } else {
             // If it doesn't exist, create a new player dot element
             const newPlayerDot = document.createElement('div');
@@ -1618,15 +1622,15 @@ sniping and someone sneaks up on you
         return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
     };
     const getAngularDifference = function (obj1,obj2) {
-        return Math.abs(obj1.yaw-obj2.yaw)+Math.abs(obj1.pitch-obj2.pitch);
+        return Math.abs(obj1.yawReal-obj2.yawReal)+Math.abs(obj1.pitchReal-obj2.pitchReal);
     };
     const getDirectionVectorFacingTarget = function (target,vectorPassed,offsetY) {
-        target = vectorPassed ? target : target[H.actor].mesh.position;
+        target = vectorPassed ? target : target[H.actor][H.mesh].position;
         offsetY=offsetY||0;
         return {
-            x: target.x - ss.MYPLAYER[H.actor].mesh.position.x,
-            y: target.y - ss.MYPLAYER[H.actor].mesh.position.y+offsetY,
-            z: target.z - ss.MYPLAYER[H.actor].mesh.position.z,
+            x: target.x - ss.MYPLAYER[H.actor][H.mesh].position.x,
+            y: target.y - ss.MYPLAYER[H.actor][H.mesh].position.y+offsetY,
+            z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
         };
     };
     const reverseString = function (str) { return str.split("").reverse().join("") };
@@ -1694,9 +1698,9 @@ sniping and someone sneaks up on you
     const updateOrCreateLinesESP = function (object,type,color) {
         let newPosition,newScene,newParent
         if (type=="playerESP") {
-            newPosition = object[H.actor].mesh.position;
+            newPosition = object[H.actor][H.mesh].position;
             newScene    = object[H.actor].scene;
-            newParent   = object[H.actor].mesh;
+            newParent   = object[H.actor][H.mesh];
         } else {
             newPosition = object.position;
             newScene    = object._scene;
@@ -1934,6 +1938,7 @@ sniping and someone sneaks up on you
         if (extract("debug")) {
             globalSS={};
             globalSS.ss=ss;
+            globalSS.H=H;
             globalSS.tp=tp;
             globalSS.initMenu=initMenu;
             globalSS.extractAsDropdownInt=extractAsDropdownInt;
@@ -2113,11 +2118,11 @@ sniping and someone sneaks up on you
                 playerinfoElement.style.display = '';
             };
             if (extract("showCoordinates")) {
-                const fonx = Number((ss.MYPLAYER[H.actor].mesh.position.x).toFixed(3));
-                const fony = Number((ss.MYPLAYER[H.actor].mesh.position.y).toFixed(3));
-                const fonz = Number((ss.MYPLAYER[H.actor].mesh.position.z).toFixed(3));
-                const yaw = Number((ss.MYPLAYER.yaw).toFixed(3)); //could i function this? yea
-                const pitch = Number((ss.MYPLAYER.pitch).toFixed(3));
+                const fonx = Number((ss.MYPLAYER[H.actor][H.mesh].position.x).toFixed(3));
+                const fony = Number((ss.MYPLAYER[H.actor][H.mesh].position.y).toFixed(3));
+                const fonz = Number((ss.MYPLAYER[H.actor][H.mesh].position.z).toFixed(3));
+                const yaw = Number((ss.MYPLAYER[H.yaw]).toFixed(3)); //could i function this? yea
+                const pitch = Number((ss.MYPLAYER[H.pitch]).toFixed(3));
                 const personalCoordinate = `XYZ: ${fonx}, ${fony}, ${fonz} Rot: ${yaw}, ${pitch}`;
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
@@ -2512,10 +2517,10 @@ sniping and someone sneaks up on you
         return [bulletYawDiff,bulletPitchDiff];
     };
     const applyBloom = function(dir,multiplier) { //multiplier can be set to -1 to invert
-        const bloomValues=predictBloom(dir.yaw,dir.pitch);
+        const bloomValues=predictBloom(dir.yawReal,dir.pitchReal);
         return {
-            yaw: dir.yaw+(bloomValues[0]*multiplier),
-            pitch: dir.pitch+(bloomValues[1]*multiplier),
+            yawReal: dir.yawReal+(bloomValues[0]*multiplier),
+            pitchReal: dir.pitchReal+(bloomValues[1]*multiplier),
         };
     };
     const predictPosition = function(player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
@@ -2535,11 +2540,11 @@ sniping and someone sneaks up on you
     };
     const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
         // credit for code: de_neuublue/crackware
-        if (target && target[H.actor] && target[H.actor].bodyMesh && target[H.actor].bodyMesh.renderOverlay && target[H.actor].bodyMesh.overlayColor.g == 1) return; //check if player is spawned in fully
+        if (target && target[H.actor] && target[H.actor][H.bodyMesh] && target[H.actor][H.bodyMesh].renderOverlay && target[H.actor][H.bodyMesh].overlayColor.g == 1) return; //check if player is spawned in fully
 
-        let myPlayerPosition = ss.MYPLAYER[H.actor].mesh.position;
-        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor].mesh.position; //set to always use prediction for now
-        // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor].mesh.position;
+        let myPlayerPosition = ss.MYPLAYER[H.actor][H.mesh].position;
+        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor][H.mesh].position; //set to always use prediction for now
+        // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor][H.mesh].position;
 
         let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
         let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
@@ -2553,12 +2558,12 @@ sniping and someone sneaks up on you
         return distanceToTarget < distanceToMap
     };
     const getAimbot = function(target) {
-        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor].mesh.position;
+        let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor][H.mesh].position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
 
         let direction = {
-            yaw: calculateYaw(directionVector),
-            pitch: calculatePitch(directionVector),
+            yawReal: calculateYaw(directionVector),
+            pitchReal: calculatePitch(directionVector),
         };
 
         if (extract("antiBloom")) {
@@ -2607,7 +2612,7 @@ sniping and someone sneaks up on you
                 ss.MYPLAYER=MYPLAYER;
                 const aimbot = getAimbot(currentlyTargeting);
                 // credit for code: de_neuublue
-                let diffYaw = Math.radDifference(ss.MYPLAYER.yaw, aimbot.yaw) * 180 / Math.PI;
+                let diffYaw = Math.radDifference(ss.MYPLAYER[H.yaw], aimbot.yawReal) * 180 / Math.PI;
                 let diffPositive = diffYaw > 0 // a turn to the left if positive
                 diffYaw *= diffPositive ? 1 : -1;
                 for (let i = 0; i < 3; i++) {
@@ -2657,16 +2662,21 @@ sniping and someone sneaks up on you
                     };
                     // console.log(ss.CONTROLKEYS, newControlKeys);
                     state.controlKeys |= newControlKeys;
-                    state.yaw = setPrecision(aimbot.yaw);
-                    state.pitch = setPrecision(aimbot.pitch);
+                    state[H.yaw] = setPrecision(aimbot.yawReal);
+                    state[H.pitch] = setPrecision(aimbot.pitchReal);
                     ss.MYPLAYER.stateBuffer[Math.mod(ss.MYPLAYER.stateIdx - i, 256)] = state;
                 };
-                ss.SERVERSYNC();
+                // ss.SERVERSYNC();
             };
         });
         createAnonFunction('onConnectFail', function (ERRORCODE,ERRORARRAY) {
             errorString = findKeyByValue(ERRORARRAY,ERRORCODE);
             console.log("StateFarm has detected a connection error...",errorString,ERRORCODE,ERRORARRAY);
+            if (document.getElementById("genericPopup").textContent === ' Game Not Found Sorry! This game ID is either invalid, or no longer exists.  OK '){
+                document.getElementById("genericPopup").children[1].textContent = 'joinCode not found! check your autoJoin settings and get a new code';
+                document.getElementById("genericPopup").children[2].children[1].textContent = "heeheeheehaw";
+                document.getElementById("genericPopup").children[0].children[1].textContent = 'MAKE NEW AUTOJOIN CODE';
+            };
             if ((!attemptedAutoUnban) && extract("autoUnban")&&(errorString=="sessionNotFound")) {
                 console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
                 createPopup("AutoUnban: Reloading page in 5 seconds...");
@@ -2759,164 +2769,189 @@ sniping and someone sneaks up on you
         });
         const applyStateFarm = function(js) {
             console.log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
+            attemptedInjection = true;
             const allFuncName={};
-            let vars=[];
+            // let vars=[];
             let injectionString="";
             let match;
             const getVar=function(name,regex){
-                const varName=eval(new RegExp(regex)+`.exec(js)[1]`);
-                vars[name]=varName;
-                injectionString=injectionString+name+": ("+varName+")||undefined,";
-                console.log('%cFound var! Saved '+varName+' as '+name, 'color: green; font-weight: bold;');
+                try {
+                    const varName=eval(new RegExp(regex)+`.exec(js)[1]`);
+                    // vars[name]=varName;
+                    injectionString=injectionString+name+": ("+varName+")||undefined,";
+                    console.log('%cFound var! Saved '+varName+' as '+name, 'color: green; font-weight: bold;');
+                } catch (err) {
+                    injectionString=injectionString+name+": ('not found')||undefined,";
+                    console.log('%cCould not find var. Saved "not found" as '+name, 'color: red; font-weight: bold;');
+                };
             };
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             try {
-                getVar("PLAYERS", '([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
-                getVar("MYPLAYER", '\\.([a-zA-Z]+)\\.addArrayInPlace\\(');
+                getVar("PLAYERS", ',([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
+                getVar("MYPLAYER", '\\),([a-zA-Z]+)\\.[a-zA-Z]+=Math\\.clamp\\([a-zA-Z]+\.[a-zA-Z]+\\+');
                 getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
-                getVar("BABYLONJS", ';([a-zA-Z]+)\\.TransformNode\\.prototype\\.setVisible');
+                getVar("BABYLONJS", '\\),this\\.range=([a-zA-Z]+)\\.');
                 getVar("OBJECTSVAR", '&&([a-zA-Z]+)\\.getShadowMap\\(\\)');
                 getVar("GAMEMAP", ',([a-zA-Z]+)\\.width-\\.1\\),');
                 getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
                 getVar("CAMERA", '200/([a-zA-Z]+)\\.fov\\);this\\.shotReticle');
-                getVar("RAYS", "mesh:([a-zA-Z]+)\.fullCollisionMesh");
+                getVar("RAYS", "mesh:([a-zA-Z])\.fullCollisionMesh"); //+
                 getVar("GAMECODE", '\\{crazyShare:([a-zA-Z]+)\\}');
                 getVar("SETTINGS", 'localStore\\.setItem\\("highRes",([a-zA-Z]+)\\.highRes\\)');
                 getVar("CONTROLKEYSENUM","&([a-zA-Z]+)\\.up&&\\(this")
                 getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
-                getVar("CONTROLKEYS", '\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(');
-                getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
+                getVar("CONTROLKEYS", '\\(-1\\),([a-zA-Z]+)=');
+                // getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
                 getVar("SERVERCODES", 'case ([a-zA-Z]+)\.die');
 
                 createPopup("StateFarm Script injected!","success");
                 createPopup("May currently be unstable.");
                 console.log(injectionString,allFuncName);
             } catch (err) {
-                createPopup("Error! Scipt injection failed! See console.","error")
+                createPopup("Error! Script injection failed! See console.","error")
                 alert( 'Oh bollocks! Looks like the script is out of date. Report this data to the original developers and any errors in the console.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
                 console.log(err);
                 return js;
             };
+
+            const modifyJS = function(find,replace) {
+                let oldJS = js;
+                try {
+                    js = js.replace(find,replace);
+                } catch (err) {
+                    console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                };
+                if (oldJS !== js) {
+                    console.log("%cReplacement successful! Injected code: "+replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                } else {
+                    console.log("%cReplacement failed! Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                };
+            };
+
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
-            match=js.match(/\.engine\.\$\(function\(\)\{([a-zA-Z]+)\(/);
+            match=js.match(/\|\(([a-zA-Z]+)\.sh/)[1];
             console.log(match);
-            js = js.replace('.engine.$(function(){'+match[1]+'(),',`.engine.$(function(){if (window["${functionNames.retrieveFunctions}"]({${injectionString}},true)){return};${match[1]}();`);
-            js = js.replace('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also tying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
+            modifyJS(match+'.render',`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${match}.render`);
+            modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
-            match=js.match(/&&!([a-zA-Z]+)&&[a-zA-Z]+\(\)\}/);
-            js = js.replace(`if(${match[1]})`,`if(true)`);
+            match=js.match(/&&!([a-zA-Z]+)&&function\(\)\{if\(/);
+            modifyJS(`{if(${match[1]})`,`{if(true)`);
             console.log('%cSuccess! Cull inhibition hooked '+match[1], 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
-            js = js.replace('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
+            modifyJS('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
             //hook for fov mods
-            js = js.replace(/\.fov\s*=\s*1\.25/g, '.fov = window.'+functionNames.fixCamera+'()');
-            js = js.replace(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
+            modifyJS(/\.fov\s*=\s*1\.25/g, '.fov = window.'+functionNames.fixCamera+'()');
+            modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
             //chat mods: disable chat culling
             const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(js)[1];
-            js = js.replace(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.${functionNames.getChatLimit}()&&${somethingLength}[0].remove(),`);
+            modifyJS(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.${functionNames.getChatLimit}()&&${somethingLength}[0].remove(),`);
             //chat mods: disable filter (credit to A3+++ for this finding)
             const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(js)[1];
             const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(js)[1];
-            js = js.replace(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
+            modifyJS(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
-            const [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
-            js = js.replace(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
+            let [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
+            modifyJS(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
-            match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/);
-            if (match) js = js.replace(match[0], match[0] + `||window.${functionNames.getSkinHack}()`);
+            match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/)[1];
+            if (match) {modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`)};
             //reset join/leave msgs
-            js = js.replace(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
+            modifyJS(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
             //bypass chat filter
-            match = new RegExp(`"&&\\s*([a-zA-Z]+)\\.indexOf\\("<"\\)<0`).exec(js)[1];
-            js=js.replace('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
+            match = js.match(/([a-zA-Z]+)\.indexOf\("<"\)<0&&/)[1];
+            modifyJS('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
             //hook for control interception
-            const PLAYERTHING=new RegExp(';([a-zA-Z]+)\\.prototype\\.enableShield').exec(js)[1];
-            const ARGTHING=new RegExp(PLAYERTHING+'\\.prototype\\.update=function\\(([a-zA-Z]+)\\)').exec(js)[1];
-            const CONTROLKEYS=new RegExp('\\);if\\(([a-zA-Z]+)!=0\\)\\{if\\(').exec(js)[1];
+            const UPDATETHING=js.match(/\.equip\(\)\},([a-zA-Z]+)\.prototype\.([a-zA-Z]+)=function\(([a-zA-Z]+)\)\{/)[0];
+            // console.log("PLAYERTHING:",PLAYERTHING);
+            console.log("UPDATETHING:",UPDATETHING);
+            // console.log("ARGTHING:",ARGTHING);
+            const CONTROLKEYS=js.match(/holdToAim\?([a-zA-Z]+)\|=/)[1];
             console.log("CONTROLKEYS:",CONTROLKEYS);
-            console.log("PLAYERTHING:",PLAYERTHING);
-            console.log("ARGTHING:",ARGTHING);
-            js=js.replace(PLAYERTHING+'.prototype.update=function('+ARGTHING+'){',PLAYERTHING+'.prototype.update=function('+ARGTHING+'){'+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
+            modifyJS(UPDATETHING,UPDATETHING+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
             //admin spoof lol
-            js=js.replace('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
-            js=js.replace('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
+            modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
+            modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
             //grab reason for connect fail
-            const CONNECTFAILFUNCTION = new RegExp(',1e3\\)\\):([a-zA-Z]+)\\(').exec(js)[1];
+            const CONNECTFAILFUNCTION = js.match(/,1e3\)\):([a-zA-Z]+)\(/)[1];
             const FUNCTIONPARAM = new RegExp('function '+CONNECTFAILFUNCTION+'\\(([a-zA-Z]+)\\)').exec(js)[1];
-            const ERRORARRAY = new RegExp('\\.code===([a-zA-Z]+)\\.sessionNotFound\\?\\(console\\.log\\(`').exec(js)[1];
+            const ERRORARRAY = js.match(/\.code===([a-zA-Z]+)\.sessionNotFound\?\(console\.log\(`/)[1];
             console.log("CONNECTFAILFUNCTION:",CONNECTFAILFUNCTION);
             console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
             console.log("ERRORARRAY:",ERRORARRAY);
-            js=js.replace('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+ERRORARRAY+');')
+            modifyJS('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+ERRORARRAY+');')
             //get rid of tutorial popup because its a stupid piece of shit
-            js=js.replace(',vueApp.onTutorialPopupClick()','');
+            modifyJS(',vueApp.onTutorialPopupClick()','');
             //pointer escape
-            js=js.replace('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
+            modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
             //death hook
-            const DEATHFUNCTION = new RegExp('\\.document\\.write\\("<hr>"\\)\\}function ([a-zA-Z]+)\\(').exec(js)[1];
+            const DEATHFUNCTION = js.match(/&&([a-zA-Z]+)\([a-zA-Z]+,[a-zA-Z]+\),/)[1];
             console.log("DEATHFUNCTION",DEATHFUNCTION);
             const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
             console.log("DEATHARGS",DEATHARGS);
-            js=js.replace('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
+            modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
-            H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z]+)\(this\.x,this\.y,this\.z\)\},/)[1];
+            H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z])\(this\.x,this\.y,this\.z\)\},/)[1]; //+
             H.playing = js.match(/this\.hp=[a-zA-Z]+\.hp,this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
             H.MeshBuilder = js.match(/\.([a-zA-Z]+)\.CreateLineSystem\("/)[1];
             H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
             H.rayCollidesWithMap = js.match(/\.([a-zA-Z]+)\([a-zA-Z]+\.forwardRay\.origin,[a-zA-Z]+\.forwardRay/)[1];
             H.renderList = js.match(/getShadowMap\(\)\.([a-zA-Z]+)\.push/)[1];
-            H.capVector3 = js.match(/\),Math\.([a-zA-Z]+)\([a-zA-Z]+,\.29\)/)[1];
+            H.pitch = js.match(/\),[a-zA-Z]+\.([a-zA-Z]+)=Math\.clamp\([a-zA-Z]+\.[a-zA-Z]+\+/)[1];
+            H.yaw = js.match(/Math\.radAdd\([a-zA-Z]+\.([a-zA-Z]+),[a-zA-Z]+\*[a-zA-Z]+\)/)[1];
+            H.mesh = js.match(/=1\),this\.([a-zA-Z]+)\./)[1];
+            H.bodyMesh = js.match(/\.([a-zA-Z]+)\.renderOverlay/)[1];
+            // H.capVector3 = js.match(/\),Math\.([a-zA-Z]+)\([a-zA-Z]+,\.29\)/)[1];
 
             console.log(H);
 
             //replace graveyard:
             // //sus
-            // js=js.replace('Wo(t){','Wo(t){console.log("Wo",t);')
-            // js=js.replace('Zn(t,f,u,r){','Zn(t,f,u,r){console.log(t,f,u,r);');
-            // js=js.replace('Ts(t){','Ts(t){console.log("Ts",t);')
+            // modifyJS('Wo(t){','Wo(t){console.log("Wo",t);')
+            // modifyJS('Zn(t,f,u,r){','Zn(t,f,u,r){console.log(t,f,u,r);');
+            // modifyJS('Ts(t){','Ts(t){console.log("Ts",t);')
             // //motion blur
-            // js=js.replace('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
-            // js=js.replace('et.booted','et.noboot')
-            // js=js.replace('eu(t)','Bc(t)')
-            // js=js.replace('vueApp.showPlayerActionsPopup(i)','vueApp.showPlayerActionsPopup(i);console.log(i)')
+            // modifyJS('._motionBlurEnabled=!1','._motionBlurEnabled=!0')
+            // modifyJS('et.booted','et.noboot')
+            // modifyJS('eu(t)','Bc(t)')
+            // modifyJS('vueApp.showPlayerActionsPopup(i)','vueApp.showPlayerActionsPopup(i);console.log(i)')
             //trajectories
             //bullet debugging
-            // js = js.replace('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
+            // modifyJS('.bulletPool.retrieve();i.fireThis(t,f,c,r)',`.bulletPool.retrieve();i.fireThis(t,f,c,r);
             //     //console.log("##################################################");
             //     //console.log("______PLAYER FIRED FUNCTION");
             //     //console.log("Player Name: ",t.name);
             //     //console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(c.x, c.z), 0));
             //     //console.log("Actual Bullet Pitch: ",-Math.atan2(c.y, Math.hypot(c.x, c.z)) % 1.5);
             // `);
-            // js = js.replace('var s=n.getTranslation();',`var s=n.getTranslation();
+            // modifyJS('var s=n.getTranslation();',`var s=n.getTranslation();
             //     console.log("##################################################");
             //     console.log("______IN FIRE FUNCTION");
             //     console.log("Range Number: ",this.constructor.range);
             //     console.log("Accuracy: ",this.accuracy);
-            //     console.log("Yaw/Pitch: ",this.player.yaw, this.player.pitch);
+            //     console.log("Yaw/Pitch: ",this.player[H.yaw], this.player[H.pitch]);
             //     console.log("Actual Bullet Yaw: ",Math.radAdd(Math.atan2(a.x, a.z), 0));
             //     console.log("Actual Bullet Pitch: ",-Math.atan2(a.y, Math.hypot(a.x, a.z)) % 1.5);
             // `);
-            // js = js.replace('this[H.actor].fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this[H.actor].fire(),this.fireMunitions');
-            // js = js.replace('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
-            // js = js.replace('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
-            // js = js.replace('let i=this.accuracy','let i=0');
-            // js = js.replace('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
-            // js = js.replace('a=0;a<20;a++','a=0;a<200;a++');
-            // js = js.replace("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
-            // js = js.replace("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
+            // modifyJS('this[H.actor].fire(),this.fireMunitions','console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(r);var yaw = Math.atan2(r[4], r.elements[0]);var pitch = Math.asin(-r.elements[8]);console.log("Final Yaw/Pitch:", [yaw, pitch].map(angle => angle * (180 / Math.PI)));this[H.actor].fire(),this.fireMunitions');
+            // modifyJS('var o=Ce.getBuffer()',';console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA");console.log(s);var o=Ce.getBuffer()');
+            // modifyJS('var c=this.seed/233280','var c=this.seed/233280;console.log(c)');
+            // modifyJS('let i=this.accuracy','let i=0');
+            // modifyJS('T.Matrix.RotationYawPitchRoll((this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l,(this.player.randomGen.getFloat()-.5)*l)','T.Matrix.RotationYawPitchRoll(-0.5*l,-0.5*l,0)');
+            // modifyJS('a=0;a<20;a++','a=0;a<200;a++');
+            // modifyJS("this.grenadeThrowPower=Math.clamp(t,0,1),","this.grenadeThrowPower=Math.clamp(t,0,1),console.log('hello',this.grenadeThrowPower),");
+            // modifyJS("s.packFloat(a.x)","s.packFloat(a.x),console.log('hello2',this.grenadeThrowPower,n,r,a)");
             //disable autopause
-            // js = js.replace('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
+            // modifyJS('&&(Li=null,Ue=0,q.controlKeys=0,q.releaseTrigger(),setTimeout(()=>{var f=Ce.getBuffer();f.packInt8(he.pause),f.send(we),q.resetCountdowns();let c=Gr&&!O.productBlockAds&&!pokiActive?10:5;ro(c)},100),ci=!0,vueApp.statsLoading(),Ei.set(function (){q.removeFromPlay(),as()},3e3),Sn!==void 0&&Tn!==void 0&&(aiptag=Sn,aipDisplay=Tn),console.log("pausing game via pointerlock exit"),to(),Nh(),crazyGamesActive&&crazysdk.gameplayStop())', '');
             //adblock/vip spoof
-            // js = js.replace(/z\.isUpgraded\(\)/g,'true');
-            // js = js.replace(/aipAPItag\.sdkBlocked/g,'false');
-            // js = js.replace(/this\.adBlockerDetected\(\)/,'false');
+            // modifyJS(/z\.isUpgraded\(\)/g,'true');
+            // modifyJS(/aipAPItag\.sdkBlocked/g,'false');
+            // modifyJS(/this\.adBlockerDetected\(\)/,'false');
 
-            js=js.replace('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
+            modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             console.log(js);
             return js;
         };
@@ -3224,7 +3259,7 @@ sniping and someone sneaks up on you
       };
 
     function isNodeAir(item) {
-        return item.mesh === undefined;
+        return item[H.mesh] === undefined;
     }
 
     class Position {
@@ -3307,9 +3342,9 @@ sniping and someone sneaks up on you
     }
 
     function get_player_position(player) {
-        var x = Math.floor(player[H.actor].mesh.position.x);
-        var y = Math.floor(player[H.actor].mesh.position.y);
-        var z = Math.floor(player[H.actor].mesh.position.z);
+        var x = Math.floor(player[H.actor][H.mesh].position.x);
+        var y = Math.floor(player[H.actor][H.mesh].position.y);
+        var z = Math.floor(player[H.actor][H.mesh].position.z);
         return new Position(x, y, z);
     }
 
@@ -3451,12 +3486,12 @@ sniping and someone sneaks up on you
         pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
         pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
         if (window.pathLines === undefined) {
-            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor].mesh.position, pos2] }, ss.MYPLAYER[H.actor].scene);
+            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
             node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
             node_lines.renderingGroupId = 1;
             window.pathLines = [node_lines];
         } else {
-            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor].mesh.position, pos2] }, ss.MYPLAYER[H.actor].scene);
+            let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
             node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
             node_lines.renderingGroupId = 1;
             window.pathLines.push(node_lines);
@@ -3487,20 +3522,22 @@ sniping and someone sneaks up on you
     const mainLoop = function () {
         const oneTime = function () {
             //xd lmao
-            ss.BABYLONJS.Vector3 = ss.MYPLAYER.constructor.v1.constructor;
-            ss.BABYLONJS.Matrix.RotationYawPitchRoll = ss.BABYLONJS.Matrix[H.RotationYawPitchRoll];
-            H.actor = findKeyWithProperty(ss.MYPLAYER,"mesh");
-            Math.capVector3 = Math[H.capVector3];
-
-            console.log("StateFarm: found vars:", H);
-
-            crosshairsPosition=new ss.BABYLONJS.Vector3();
-            Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
-                get: () => {
-                    return extract("wireframe");
-                }
-            });
-            ranOneTime=true;
+            if (ss.MYPLAYER) {
+                ss.BABYLONJS.Vector3 = ss.MYPLAYER.constructor.v1.constructor;
+                ss.BABYLONJS.Matrix.RotationYawPitchRoll = ss.BABYLONJS.Matrix[H.RotationYawPitchRoll];
+                H.actor = findKeyWithProperty(ss.MYPLAYER,H.mesh);
+                // Math.capVector3 = Math[H.capVector3];
+    
+                console.log("StateFarm: found vars:", H);
+    
+                crosshairsPosition=new ss.BABYLONJS.Vector3();
+                Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
+                    get: () => {
+                        return extract("wireframe");
+                    }
+                });
+                ranOneTime=true;
+            };
         };
         const initVars = function () {
             isBanned=false; //cant be banned if in a game /shrug
@@ -3513,24 +3550,6 @@ sniping and someone sneaks up on you
             if (extract("debug")&&(typeof playerLogger === 'undefined')) {
                 playerLogger=[];
             };
-            if (!loggedGameMap) {
-                console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
-                loggedGameMap = true;
-            };
-            username=ss.MYPLAYER?.name;
-
-            crosshairsPosition.copyFrom(ss.MYPLAYER[H.actor].mesh.position);
-            const horizontalOffset = Math.sin(ss.MYPLAYER[H.actor].mesh.rotation.y);
-            const verticalOffset = Math.sin(-ss.MYPLAYER.pitch);
-            crosshairsPosition.x += horizontalOffset;
-            crosshairsPosition.z += Math.cos(ss.MYPLAYER[H.actor].mesh.rotation.y);
-            crosshairsPosition.y += verticalOffset + 0.4;
-
-            ammo=ss.MYPLAYER.weapon.ammo;
-
-            whitelistPlayers=extract("whitelist").split(',');
-            blacklistPlayers=extract("blacklist").split(',');
-
             const weaponBox = document.getElementById("weaponBox");
             const chatContainer = document.getElementById('chatOut');
             const chatItems = chatContainer.getElementsByClassName('chat-item');
@@ -3550,7 +3569,27 @@ sniping and someone sneaks up on you
                 };
             };
 
-            ss.MYPLAYER[H.actor].scene.texturesEnabled=extract("enableTextures");
+            if (didStateFarm) {
+                if (!loggedGameMap) {
+                    console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
+                    loggedGameMap = true;
+                };
+                username=ss.MYPLAYER?.name;
+    
+                crosshairsPosition.copyFrom(ss.MYPLAYER[H.actor][H.mesh].position);
+                const horizontalOffset = Math.sin(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
+                const verticalOffset = Math.sin(-ss.MYPLAYER[H.pitch]);
+                crosshairsPosition.x += horizontalOffset;
+                crosshairsPosition.z += Math.cos(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
+                crosshairsPosition.y += verticalOffset + 0.4;
+    
+                ammo=ss.MYPLAYER.weapon.ammo;
+    
+                whitelistPlayers=extract("whitelist").split(',');
+                blacklistPlayers=extract("blacklist").split(',');
+    
+                ss.MYPLAYER[H.actor].scene.texturesEnabled=extract("enableTextures");
+            };
         };
         const updateLinesESP = function () {
             const objExists=Date.now();
@@ -3593,10 +3632,10 @@ sniping and someone sneaks up on you
 
                     if (player[H.actor]) {
                         eggSize=extract("eggSize")
-                        player[H.actor].bodyMesh.scaling = {x:eggSize, y:eggSize, z:eggSize}
+                        player[H.actor][H.bodyMesh].scaling = {x:eggSize, y:eggSize, z:eggSize}
                     };
 
-                    player[H.actor].bodyMesh.renderingGroupId = extract("chams") ? 1 : 0;
+                    player[H.actor][H.bodyMesh].renderingGroupId = extract("chams") ? 1 : 0;
 
                     player.exists=objExists;
                 };
@@ -3699,10 +3738,17 @@ sniping and someone sneaks up on you
                 };
             }; newGame=false;
         };
-        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) { ss=vars ; if (doStateFarm) {return F.STATEFARM()} });
+        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) {
+            ss=vars;
+            if (doStateFarm) {
+                didStateFarm = true;
+                return F.STATEFARM();
+            };
+        });
         createAnonFunction("STATEFARM",function(){
 
             if ( !ranOneTime ) { oneTime() };
+
             initVars();
             updateLinesESP();
 
@@ -3790,9 +3836,9 @@ sniping and someone sneaks up on you
                 let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
                 let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
                 console.log("vector obtained: ", directionVector);
-                ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
-                ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
-                console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
+                ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
+                ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
+                console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
                 forceControlKeys = ss.CONTROLKEYSENUM.up;
                 console.log("done with looking & window forward set")
             };
@@ -3820,7 +3866,7 @@ sniping and someone sneaks up on you
             }
 
             if ( extract("freecam") ) {
-                ss.MYPLAYER[H.actor].mesh.position.y = ss.MYPLAYER[H.actor].mesh.position.y + 1;
+                ss.MYPLAYER[H.actor][H.mesh].position.y = ss.MYPLAYER[H.actor][H.mesh].position.y + 1;
             };
             if (extract("spamChat")) {
                 if (ss.MYPLAYER.chatLines<2) {
@@ -3863,7 +3909,7 @@ sniping and someone sneaks up on you
             if (extract("revealBloom")) {
                 redCircle.style.display='';
                 const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
-                const bloomValues=predictBloom(ss.MYPLAYER.yaw,ss.MYPLAYER.pitch);
+                const bloomValues=predictBloom(ss.MYPLAYER[H.yaw],ss.MYPLAYER[H.pitch]);
                 // Set the new position of the circle
                 const centerX = (unsafeWindow.innerWidth / 2);
                 const centerY = (unsafeWindow.innerHeight / 2);
@@ -3910,7 +3956,7 @@ sniping and someone sneaks up on you
                     player.distance=distancePlayers(player);
                     player.adjustedDistance=distancePlayers(player,2);
                     const directionVector=getDirectionVectorFacingTarget(player);
-                    player.angleDiff=getAngularDifference(ss.MYPLAYER, {yaw: calculateYaw(directionVector), pitch: calculatePitch(directionVector)});
+                    player.angleDiff=getAngularDifference(ss.MYPLAYER, {yawReal: calculateYaw(directionVector), pitchReal: calculatePitch(directionVector)});
                     player.isVisible=getLineOfSight(player,extract("prediction"));
 
                     if (player.angleDiff < playerLookingAtMinimum) {
@@ -3947,14 +3993,21 @@ sniping and someone sneaks up on you
                     if (valueToUse < enemyMinimumValue ) {
                         enemyMinimumValue = valueToUse;
                         currentlyTargeting = player;
+                        console.log("SET",player.name);
                     };
                 };
             });
 
-            currentlyTargetingName=(currentlyTargeting?.name==undefined) ? currentlyTargetingName : currentlyTargeting?.name;
             if (isDoingAimbot) {
+                console.log(currentlyTargeting.name);
                 if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
-                    didAimbot=true
+                    didAimbot=true;
+                    if (extract("tracers")) {
+                        currentlyTargeting.tracerLines.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
+                    };
+                    if (extract("playerESP")) {
+                        currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
+                    };
                     if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
                         const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
 
@@ -3973,10 +4026,9 @@ sniping and someone sneaks up on you
                         };
 
                         // Exponential lerp towards the target rotation
-                        ss.MYPLAYER.yaw = setPrecision(lerp(ss.MYPLAYER.yaw, aimbot.yaw, antiSnap));
-                        ss.MYPLAYER.pitch = setPrecision(lerp(ss.MYPLAYER.pitch, aimbot.pitch, antiSnap));
+                        ss.MYPLAYER[H.yaw] = setPrecision(lerp(ss.MYPLAYER[H.yaw], aimbot.yawReal, antiSnap));
+                        ss.MYPLAYER[H.pitch] = setPrecision(lerp(ss.MYPLAYER[H.pitch], aimbot.pitchReal, antiSnap));
                     };
-
                     if ( enemyMinimumDistance < extract("antiSneak")) {
                         currentlyTargeting = enemyNearest;
                         if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
@@ -3985,13 +4037,6 @@ sniping and someone sneaks up on you
                         };
                         ss.MYPLAYER.pullTrigger();
                         // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
-                    };
-
-                    if (extract("tracers")) {
-                        currentlyTargeting.tracerLines.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
-                    };
-                    if (extract("playerESP")) {
-                        currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
                     };
                 } else {
                     if (extract("oneKill")) {
@@ -4004,20 +4049,20 @@ sniping and someone sneaks up on you
                 currentlyTargeting=false;
                 targetingComplete=false;
                 if (extract("enableSeizureX")) {
-                    ss.MYPLAYER.yaw+=extract("amountSeizureX")
+                    ss.MYPLAYER[H.yaw]+=extract("amountSeizureX")
                 };
                 if (extract("enableSeizureY")) {
-                    ss.MYPLAYER.pitch+=extract("amountSeizureY")
+                    ss.MYPLAYER[H.pitch]+=extract("amountSeizureY")
                 };
             };
             highlightTargetOnLeaderboard(currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
             if (extract("upsideDown")) { //sorta useless
-                if (ss.MYPLAYER.pitch<1.5 && ss.MYPLAYER.pitch>-1.5) {
-                    ss.MYPLAYER.pitch=Math.PI;
+                if (ss.MYPLAYER[H.pitch]<1.5 && ss.MYPLAYER[H.pitch]>-1.5) {
+                    ss.MYPLAYER[H.pitch]=Math.PI;
                 };
             };
             if (extract("silentRoll")) {
-                ss.MYPLAYER.pitch+=2*Math.PI;
+                ss.MYPLAYER[H.pitch]+=2*Math.PI;
             };
 
             if (extract("enableAutoFire")) {
@@ -4064,8 +4109,8 @@ sniping and someone sneaks up on you
     var css = "text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(70.2, 100%, 50%), 25px 14px hsl(75.6, 100%, 50%), 27px 15px hsl(81, 100%, 50%), 28px 16px hsl(86.4, 100%, 50%), 30px 17px hsl(91.8, 100%, 50%), 32px 18px hsl(97.2, 100%, 50%), 33px 19px hsl(102.6, 100%, 50%), 35px 20px hsl(108, 100%, 50%), 36px 21px hsl(113.4, 100%, 50%), 38px 22px hsl(118.8, 100%, 50%), 39px 23px hsl(124.2, 100%, 50%), 41px 24px hsl(129.6, 100%, 50%), 42px 25px hsl(135, 100%, 50%), 43px 26px hsl(140.4, 100%, 50%), 45px 27px hsl(145.8, 100%, 50%), 46px 28px hsl(151.2, 100%, 50%), 47px 29px hsl(156.6, 100%, 50%), 48px 30px hsl(162, 100%, 50%), 49px 31px hsl(167.4, 100%, 50%), 50px 32px hsl(172.8, 100%, 50%), 51px 33px hsl(178.2, 100%, 50%), 52px 34px hsl(183.6, 100%, 50%), 53px 35px hsl(189, 100%, 50%), 54px 36px hsl(194.4, 100%, 50%), 55px 37px hsl(199.8, 100%, 50%), 55px 38px hsl(205.2, 100%, 50%), 56px 39px hsl(210.6, 100%, 50%), 57px 40px hsl(216, 100%, 50%), 57px 41px hsl(221.4, 100%, 50%), 58px 42px hsl(226.8, 100%, 50%), 58px 43px hsl(232.2, 100%, 50%), 58px 44px hsl(237.6, 100%, 50%), 59px 45px hsl(243, 100%, 50%), 59px 46px hsl(248.4, 100%, 50%), 59px 47px hsl(253.8, 100%, 50%), 59px 48px hsl(259.2, 100%, 50%), 59px 49px hsl(264.6, 100%, 50%), 60px 50px hsl(270, 100%, 50%), 59px 51px hsl(275.4, 100%, 50%), 59px 52px hsl(280.8, 100%, 50%), 59px 53px hsl(286.2, 100%, 50%), 59px 54px hsl(291.6, 100%, 50%), 59px 55px hsl(297, 100%, 50%), 58px 56px hsl(302.4, 100%, 50%), 58px 57px hsl(307.8, 100%, 50%), 58px 58px hsl(313.2, 100%, 50%), 57px 59px hsl(318.6, 100%, 50%), 57px 60px hsl(324, 100%, 50%), 56px 61px hsl(329.4, 100%, 50%), 55px 62px hsl(334.8, 100%, 50%), 55px 63px hsl(340.2, 100%, 50%), 54px 64px hsl(345.6, 100%, 50%), 53px 65px hsl(351, 100%, 50%), 52px 66px hsl(356.4, 100%, 50%), 51px 67px hsl(361.8, 100%, 50%), 50px 68px hsl(367.2, 100%, 50%), 49px 69px hsl(372.6, 100%, 50%), 48px 70px hsl(378, 100%, 50%), 47px 71px hsl(383.4, 100%, 50%), 46px 72px hsl(388.8, 100%, 50%), 45px 73px hsl(394.2, 100%, 50%), 43px 74px hsl(399.6, 100%, 50%), 42px 75px hsl(405, 100%, 50%), 41px 76px hsl(410.4, 100%, 50%), 39px 77px hsl(415.8, 100%, 50%), 38px 78px hsl(421.2, 100%, 50%), 36px 79px hsl(426.6, 100%, 50%), 35px 80px hsl(432, 100%, 50%), 33px 81px hsl(437.4, 100%, 50%), 32px 82px hsl(442.8, 100%, 50%), 30px 83px hsl(448.2, 100%, 50%), 28px 84px hsl(453.6, 100%, 50%), 27px 85px hsl(459, 100%, 50%), 25px 86px hsl(464.4, 100%, 50%), 23px 87px hsl(469.8, 100%, 50%), 22px 88px hsl(475.2, 100%, 50%), 20px 89px hsl(480.6, 100%, 50%), 18px 90px hsl(486, 100%, 50%), 16px 91px hsl(491.4, 100%, 50%), 14px 92px hsl(496.8, 100%, 50%), 13px 93px hsl(502.2, 100%, 50%), 11px 94px hsl(507.6, 100%, 50%), 9px 95px hsl(513, 100%, 50%), 7px 96px hsl(518.4, 100%, 50%), 5px 97px hsl(523.8, 100%, 50%), 3px 98px hsl(529.2, 100%, 50%), 1px 99px hsl(534.6, 100%, 50%), 7px 100px hsl(540, 100%, 50%), -1px 101px hsl(545.4, 100%, 50%), -3px 102px hsl(550.8, 100%, 50%), -5px 103px hsl(556.2, 100%, 50%), -7px 104px hsl(561.6, 100%, 50%), -9px 105px hsl(567, 100%, 50%), -11px 106px hsl(572.4, 100%, 50%), -13px 107px hsl(577.8, 100%, 50%), -14px 108px hsl(583.2, 100%, 50%), -16px 109px hsl(588.6, 100%, 50%), -18px 110px hsl(594, 100%, 50%), -20px 111px hsl(599.4, 100%, 50%), -22px 112px hsl(604.8, 100%, 50%), -23px 113px hsl(610.2, 100%, 50%), -25px 114px hsl(615.6, 100%, 50%), -27px 115px hsl(621, 100%, 50%), -28px 116px hsl(626.4, 100%, 50%), -30px 117px hsl(631.8, 100%, 50%), -32px 118px hsl(637.2, 100%, 50%), -33px 119px hsl(642.6, 100%, 50%), -35px 120px hsl(648, 100%, 50%), -36px 121px hsl(653.4, 100%, 50%), -38px 122px hsl(658.8, 100%, 50%), -39px 123px hsl(664.2, 100%, 50%), -41px 124px hsl(669.6, 100%, 50%), -42px 125px hsl(675, 100%, 50%), -43px 126px hsl(680.4, 100%, 50%), -45px 127px hsl(685.8, 100%, 50%), -46px 128px hsl(691.2, 100%, 50%), -47px 129px hsl(696.6, 100%, 50%), -48px 130px hsl(702, 100%, 50%), -49px 131px hsl(707.4, 100%, 50%), -50px 132px hsl(712.8, 100%, 50%), -51px 133px hsl(718.2, 100%, 50%), -52px 134px hsl(723.6, 100%, 50%), -53px 135px hsl(729, 100%, 50%), -54px 136px hsl(734.4, 100%, 50%), -55px 137px hsl(739.8, 100%, 50%), -55px 138px hsl(745.2, 100%, 50%), -56px 139px hsl(750.6, 100%, 50%), -57px 140px hsl(756, 100%, 50%), -57px 141px hsl(761.4, 100%, 50%), -58px 142px hsl(766.8, 100%, 50%), -58px 143px hsl(772.2, 100%, 50%), -58px 144px hsl(777.6, 100%, 50%), -59px 145px hsl(783, 100%, 50%), -59px 146px hsl(788.4, 100%, 50%), -59px 147px hsl(793.8, 100%, 50%), -59px 148px hsl(799.2, 100%, 50%), -59px 149px hsl(804.6, 100%, 50%), -60px 150px hsl(810, 100%, 50%), -59px 151px hsl(815.4, 100%, 50%), -59px 152px hsl(820.8, 100%, 50%), -59px 153px hsl(826.2, 100%, 50%), -59px 154px hsl(831.6, 100%, 50%), -59px 155px hsl(837, 100%, 50%), -58px 156px hsl(842.4, 100%, 50%), -58px 157px hsl(847.8, 100%, 50%), -58px 158px hsl(853.2, 100%, 50%), -57px 159px hsl(858.6, 100%, 50%), -57px 160px hsl(864, 100%, 50%), -56px 161px hsl(869.4, 100%, 50%), -55px 162px hsl(874.8, 100%, 50%), -55px 163px hsl(880.2, 100%, 50%), -54px 164px hsl(885.6, 100%, 50%), -53px 165px hsl(891, 100%, 50%), -52px 166px hsl(896.4, 100%, 50%), -51px 167px hsl(901.8, 100%, 50%), -50px 168px hsl(907.2, 100%, 50%), -49px 169px hsl(912.6, 100%, 50%), -48px 170px hsl(918, 100%, 50%), -47px 171px hsl(923.4, 100%, 50%), -46px 172px hsl(928.8, 100%, 50%), -45px 173px hsl(934.2, 100%, 50%), -43px 174px hsl(939.6, 100%, 50%), -42px 175px hsl(945, 100%, 50%), -41px 176px hsl(950.4, 100%, 50%), -39px 177px hsl(955.8, 100%, 50%), -38px 178px hsl(961.2, 100%, 50%), -36px 179px hsl(966.6, 100%, 50%), -35px 180px hsl(972, 100%, 50%), -33px 181px hsl(977.4, 100%, 50%), -32px 182px hsl(982.8, 100%, 50%), -30px 183px hsl(988.2, 100%, 50%), -28px 184px hsl(993.6, 100%, 50%), -27px 185px hsl(999, 100%, 50%), -25px 186px hsl(1004.4, 100%, 50%), -23px 187px hsl(1009.8, 100%, 50%), -22px 188px hsl(1015.2, 100%, 50%), -20px 189px hsl(1020.6, 100%, 50%), -18px 190px hsl(1026, 100%, 50%), -16px 191px hsl(1031.4, 100%, 50%), -14px 192px hsl(1036.8, 100%, 50%), -13px 193px hsl(1042.2, 100%, 50%), -11px 194px hsl(1047.6, 100%, 50%), -9px 195px hsl(1053, 100%, 50%), -7px 196px hsl(1058.4, 100%, 50%), -5px 197px hsl(1063.8, 100%, 50%), -3px 198px hsl(1069.2, 100%, 50%), -1px 199px hsl(1074.6, 100%, 50%), -1px 200px hsl(1080, 100%, 50%), 1px 201px hsl(1085.4, 100%, 50%), 3px 202px hsl(1090.8, 100%, 50%), 5px 203px hsl(1096.2, 100%, 50%), 7px 204px hsl(1101.6, 100%, 50%), 9px 205px hsl(1107, 100%, 50%), 11px 206px hsl(1112.4, 100%, 50%), 13px 207px hsl(1117.8, 100%, 50%), 14px 208px hsl(1123.2, 100%, 50%), 16px 209px hsl(1128.6, 100%, 50%), 18px 210px hsl(1134, 100%, 50%), 20px 211px hsl(1139.4, 100%, 50%), 22px 212px hsl(1144.8, 100%, 50%), 23px 213px hsl(1150.2, 100%, 50%), 25px 214px hsl(1155.6, 100%, 50%), 27px 215px hsl(1161, 100%, 50%), 28px 216px hsl(1166.4, 100%, 50%), 30px 217px hsl(1171.8, 100%, 50%), 32px 218px hsl(1177.2, 100%, 50%), 33px 219px hsl(1182.6, 100%, 50%), 35px 220px hsl(1188, 100%, 50%), 36px 221px hsl(1193.4, 100%, 50%), 38px 222px hsl(1198.8, 100%, 50%), 39px 223px hsl(1204.2, 100%, 50%), 41px 224px hsl(1209.6, 100%, 50%), 42px 225px hsl(1215, 100%, 50%), 43px 226px hsl(1220.4, 100%, 50%), 45px 227px hsl(1225.8, 100%, 50%), 46px 228px hsl(1231.2, 100%, 50%), 47px 229px hsl(1236.6, 100%, 50%), 48px 230px hsl(1242, 100%, 50%), 49px 231px hsl(1247.4, 100%, 50%), 50px 232px hsl(1252.8, 100%, 50%), 51px 233px hsl(1258.2, 100%, 50%), 52px 234px hsl(1263.6, 100%, 50%), 53px 235px hsl(1269, 100%, 50%), 54px 236px hsl(1274.4, 100%, 50%), 55px 237px hsl(1279.8, 100%, 50%), 55px 238px hsl(1285.2, 100%, 50%), 56px 239px hsl(1290.6, 100%, 50%), 57px 240px hsl(1296, 100%, 50%), 57px 241px hsl(1301.4, 100%, 50%), 58px 242px hsl(1306.8, 100%, 50%), 58px 243px hsl(1312.2, 100%, 50%), 58px 244px hsl(1317.6, 100%, 50%), 59px 245px hsl(1323, 100%, 50%), 59px 246px hsl(1328.4, 100%, 50%), 59px 247px hsl(1333.8, 100%, 50%), 59px 248px hsl(1339.2, 100%, 50%), 59px 249px hsl(1344.6, 100%, 50%), 60px 250px hsl(1350, 100%, 50%), 59px 251px hsl(1355.4, 100%, 50%), 59px 252px hsl(1360.8, 100%, 50%), 59px 253px hsl(1366.2, 100%, 50%), 59px 254px hsl(1371.6, 100%, 50%), 59px 255px hsl(1377, 100%, 50%), 58px 256px hsl(1382.4, 100%, 50%), 58px 257px hsl(1387.8, 100%, 50%), 58px 258px hsl(1393.2, 100%, 50%), 57px 259px hsl(1398.6, 100%, 50%), 57px 260px hsl(1404, 100%, 50%), 56px 261px hsl(1409.4, 100%, 50%), 55px 262px hsl(1414.8, 100%, 50%), 55px 263px hsl(1420.2, 100%, 50%), 54px 264px hsl(1425.6, 100%, 50%), 53px 265px hsl(1431, 100%, 50%), 52px 266px hsl(1436.4, 100%, 50%), 51px 267px hsl(1441.8, 100%, 50%), 50px 268px hsl(1447.2, 100%, 50%), 49px 269px hsl(1452.6, 100%, 50%), 48px 270px hsl(1458, 100%, 50%), 47px 271px hsl(1463.4, 100%, 50%), 46px 272px hsl(1468.8, 100%, 50%), 45px 273px hsl(1474.2, 100%, 50%), 43px 274px hsl(1479.6, 100%, 50%), 42px 275px hsl(1485, 100%, 50%), 41px 276px hsl(1490.4, 100%, 50%), 39px 277px hsl(1495.8, 100%, 50%), 38px 278px hsl(1501.2, 100%, 50%), 36px 279px hsl(1506.6, 100%, 50%), 35px 280px hsl(1512, 100%, 50%), 33px 281px hsl(1517.4, 100%, 50%), 32px 282px hsl(1522.8, 100%, 50%), 30px 283px hsl(1528.2, 100%, 50%), 28px 284px hsl(1533.6, 100%, 50%), 27px 285px hsl(1539, 100%, 50%), 25px 286px hsl(1544.4, 100%, 50%), 23px 287px hsl(1549.8, 100%, 50%), 22px 288px hsl(1555.2, 100%, 50%), 20px 289px hsl(1560.6, 100%, 50%), 18px 290px hsl(1566, 100%, 50%), 16px 291px hsl(1571.4, 100%, 50%), 14px 292px hsl(1576.8, 100%, 50%), 13px 293px hsl(1582.2, 100%, 50%), 11px 294px hsl(1587.6, 100%, 50%), 9px 295px hsl(1593, 100%, 50%), 7px 296px hsl(1598.4, 100%, 50%), 5px 297px hsl(1603.8, 100%, 50%), 3px 298px hsl(1609.2, 100%, 50%), 1px 299px hsl(1614.6, 100%, 50%), 2px 300px hsl(1620, 100%, 50%), -1px 301px hsl(1625.4, 100%, 50%), -3px 302px hsl(1630.8, 100%, 50%), -5px 303px hsl(1636.2, 100%, 50%), -7px 304px hsl(1641.6, 100%, 50%), -9px 305px hsl(1647, 100%, 50%), -11px 306px hsl(1652.4, 100%, 50%), -13px 307px hsl(1657.8, 100%, 50%), -14px 308px hsl(1663.2, 100%, 50%), -16px 309px hsl(1668.6, 100%, 50%), -18px 310px hsl(1674, 100%, 50%), -20px 311px hsl(1679.4, 100%, 50%), -22px 312px hsl(1684.8, 100%, 50%), -23px 313px hsl(1690.2, 100%, 50%), -25px 314px hsl(1695.6, 100%, 50%), -27px 315px hsl(1701, 100%, 50%), -28px 316px hsl(1706.4, 100%, 50%), -30px 317px hsl(1711.8, 100%, 50%), -32px 318px hsl(1717.2, 100%, 50%), -33px 319px hsl(1722.6, 100%, 50%), -35px 320px hsl(1728, 100%, 50%), -36px 321px hsl(1733.4, 100%, 50%), -38px 322px hsl(1738.8, 100%, 50%), -39px 323px hsl(1744.2, 100%, 50%), -41px 324px hsl(1749.6, 100%, 50%), -42px 325px hsl(1755, 100%, 50%), -43px 326px hsl(1760.4, 100%, 50%), -45px 327px hsl(1765.8, 100%, 50%), -46px 328px hsl(1771.2, 100%, 50%), -47px 329px hsl(1776.6, 100%, 50%), -48px 330px hsl(1782, 100%, 50%), -49px 331px hsl(1787.4, 100%, 50%), -50px 332px hsl(1792.8, 100%, 50%), -51px 333px hsl(1798.2, 100%, 50%), -52px 334px hsl(1803.6, 100%, 50%), -53px 335px hsl(1809, 100%, 50%), -54px 336px hsl(1814.4, 100%, 50%), -55px 337px hsl(1819.8, 100%, 50%), -55px 338px hsl(1825.2, 100%, 50%), -56px 339px hsl(1830.6, 100%, 50%), -57px 340px hsl(1836, 100%, 50%), -57px 341px hsl(1841.4, 100%, 50%), -58px 342px hsl(1846.8, 100%, 50%), -58px 343px hsl(1852.2, 100%, 50%), -58px 344px hsl(1857.6, 100%, 50%), -59px 345px hsl(1863, 100%, 50%), -59px 346px hsl(1868.4, 100%, 50%), -59px 347px hsl(1873.8, 100%, 50%), -59px 348px hsl(1879.2, 100%, 50%), -59px 349px hsl(1884.6, 100%, 50%), -60px 350px hsl(1890, 100%, 50%), -59px 351px hsl(1895.4, 100%, 50%), -59px 352px hsl(1900.8, 100%, 50%), -59px 353px hsl(1906.2, 100%, 50%), -59px 354px hsl(1911.6, 100%, 50%), -59px 355px hsl(1917, 100%, 50%), -58px 356px hsl(1922.4, 100%, 50%), -58px 357px hsl(1927.8, 100%, 50%), -58px 358px hsl(1933.2, 100%, 50%), -57px 359px hsl(1938.6, 100%, 50%), -57px 360px hsl(1944, 100%, 50%), -56px 361px hsl(1949.4, 100%, 50%), -55px 362px hsl(1954.8, 100%, 50%), -55px 363px hsl(1960.2, 100%, 50%), -54px 364px hsl(1965.6, 100%, 50%), -53px 365px hsl(1971, 100%, 50%), -52px 366px hsl(1976.4, 100%, 50%), -51px 367px hsl(1981.8, 100%, 50%), -50px 368px hsl(1987.2, 100%, 50%), -49px 369px hsl(1992.6, 100%, 50%), -48px 370px hsl(1998, 100%, 50%), -47px 371px hsl(2003.4, 100%, 50%), -46px 372px hsl(2008.8, 100%, 50%), -45px 373px hsl(2014.2, 100%, 50%), -43px 374px hsl(2019.6, 100%, 50%), -42px 375px hsl(2025, 100%, 50%), -41px 376px hsl(2030.4, 100%, 50%), -39px 377px hsl(2035.8, 100%, 50%), -38px 378px hsl(2041.2, 100%, 50%), -36px 379px hsl(2046.6, 100%, 50%), -35px 380px hsl(2052, 100%, 50%), -33px 381px hsl(2057.4, 100%, 50%), -32px 382px hsl(2062.8, 100%, 50%), -30px 383px hsl(2068.2, 100%, 50%), -28px 384px hsl(2073.6, 100%, 50%), -27px 385px hsl(2079, 100%, 50%), -25px 386px hsl(2084.4, 100%, 50%), -23px 387px hsl(2089.8, 100%, 50%), -22px 388px hsl(2095.2, 100%, 50%), -20px 389px hsl(2100.6, 100%, 50%), -18px 390px hsl(2106, 100%, 50%), -16px 391px hsl(2111.4, 100%, 50%), -14px 392px hsl(2116.8, 100%, 50%), -13px 393px hsl(2122.2, 100%, 50%), -11px 394px hsl(2127.6, 100%, 50%), -9px 395px hsl(2133, 100%, 50%), -7px 396px hsl(2138.4, 100%, 50%), -5px 397px hsl(2143.8, 100%, 50%), -3px 398px hsl(2149.2, 100%, 50%), -1px 399px hsl(2154.6, 100%, 50%); font-size: 40px;";
 
     //start init thingamajigs
-    console.log("StateFarm: startUp()");
+    console.log("StateFarm: startUp()",attemptedInjection);
     startUp();
-    console.log("StateFarm: after startUp()");
+    console.log("StateFarm: after startUp()",attemptedInjection);
 })();
-console.log("StateFarm: after function");
+console.log("StateFarm: after function",attemptedInjection);
