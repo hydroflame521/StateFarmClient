@@ -146,6 +146,7 @@ console.log("StateFarm: running (before function)");
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
+    let despawnIfNoPath = false;
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     let configNotSet = true;
@@ -1581,7 +1582,7 @@ sniping and someone sneaks up on you
 
     const broadcastToBots = function(command) {
         const commandTime = Date.now();
-        console.log("StateFarm: doing command set:", command, "| at time:", commandTime);
+        console.log("StateFarm: sending command to bots:", command, "| at time:", commandTime);
         GM_setValue("StateFarm_Command", command);
         GM_setValue("StateFarm_CommandTime", commandTime);
     };
@@ -2027,12 +2028,41 @@ sniping and someone sneaks up on you
                         if (x && y && z) {
                             pathfindingTargetOverride = { x: x, y: y, z: z };
                         } else {
-                            alert("Invalid coordinates");
+                            sendChatMessage("Invalid pathtarget coordinates")
                         };
                     };
                 };
                 break;
-            };
+            
+            case "clearpath":
+                clearPath();
+                break;
+            case "clearpath_t":
+                clearPath_andTarget();
+                break;
+            case "repeat":
+                if (args[1]) {
+                    sendChatMessage(args.slice(1).join(" "));
+                } else {
+                    sendChatMessage("Invalid repeat message");
+                }
+                break;
+            case "setpathdespawn":
+                if (args[1]) {
+                    if (args[1] === "true") {
+                        despawnIfNoPath = true;
+                    } else if (args[1] === "false") {
+                        despawnIfNoPath = false;
+                    } else if (args[1] === "toggle") {
+                        despawnIfNoPath = !despawnIfNoPath;
+                    } else {
+                        sendChatMessage("Invalid setpathdespawn argument");
+                    }
+                } else {
+                    sendChatMessage("Invalid setpathdespawn message");
+                }
+            
+        }
     };
     const clearPath = function() {
         activePath = undefined;
@@ -3676,92 +3706,96 @@ sniping and someone sneaks up on you
             initVars();
             updateLinesESP();
 
-            // if (!map_data_created) {
-            //     new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
-            //     map_data_created = true;
-            // }
+            if (!map_data_created) {
+                new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
+                map_data_created = true;
+            }
 
-            // if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
-            //     let player_pos = get_player_position(ss.MYPLAYER);
-            //     let player_node = get_node_at(player_pos);
-            //     if (player_node) {
-            //         let position = {
-            //             x: player_pos.x + Math.floor(Math.random() * 5) - 1,
-            //             y: player_pos.y,
-            //             z: player_pos.z + Math.floor(Math.random() * 5) - 1
-            //         }
-            //         // check if node at position exists
-            //         let random_node = get_node_at(position);
+            if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
+                let player_pos = get_player_position(ss.MYPLAYER);
+                let player_node = get_node_at(player_pos);
+                if (player_node) {
+                    let position = {
+                        x: player_pos.x + Math.floor(Math.random() * 5) - 1,
+                        y: player_pos.y,
+                        z: player_pos.z + Math.floor(Math.random() * 5) - 1
+                    }
+                    // check if node at position exists
+                    let random_node = get_node_at(position);
                     
-            //         if (!(player_node === random_node) && random_node) {
-            //             console.log("location, target:")
-            //             print_node_list([player_node, random_node])
-            //             activePath = AStar(player_node, random_node);
-            //             if (activePath) {
-            //                 console.log("setting active node target");
-            //                 print_node_list(activePath);
-            //                 activeNodeTarget = activePath[0];
-            //                 console.log("list printed, target set, creating pathfinding lines")
-            //                 create_pathfinding_lines(ss, activePath);
-            //                 findNewPath = false; 
-            //                 console.log("found path to random node")                 
-            //             } else {
-            //                 console.log("unable to find path to random node")
-            //             }
-            //         } else {
-            //             console.log("player node / random node not air")
-            //         }
-            //     } else {
-            //         console.log("player not on air node currently")
-            //     }
-            // }
+                    if (!(player_node === random_node) && random_node) {
+                        console.log("location, target:")
+                        print_node_list([player_node, random_node])
+                        activePath = AStar(player_node, random_node);
+                        if (activePath) {
+                            console.log("setting active node target");
+                            print_node_list(activePath);
+                            activeNodeTarget = activePath[0];
+                            console.log("list printed, target set, creating pathfinding lines")
+                            create_pathfinding_lines(ss, activePath);
+                            findNewPath = false; 
+                            console.log("found path to random node")                 
+                        } else {
+                            console.log("unable to find path to random node")
+                        }
+                    } else {
+                        console.log("player node / random node not air")
+                    }
+                } else {
+                    console.log("player not on air node currently")
+                }
+            }
 
-            // if (AUTOMATED && pathfindingTargetOverride !== undefined) {
-            //     player_node = get_player_linked_nodes(ss.MYPLAYER);
-            //     target_node = get_node_at(pathfindingTargetOverride);
-            //     if (player_node && target_node) {
-            //         path = AStar(player_node, target_node);
-            //         if (path) {
-            //             activePath = path;
-            //             activeNodeTarget = path[0];
-            //         }
-            //     }
-            // }
+            if (AUTOMATED && pathfindingTargetOverride !== undefined) {
+                player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                target_node = get_node_at(pathfindingTargetOverride);
+                if (player_node && target_node) {
+                    path = AStar(player_node, target_node);
+                    if (path) {
+                        activePath = path;
+                        activeNodeTarget = path[0];
+                    } else {
+                        if (despawnIfNoPath) {
+                            sendChatMessage("despawnIfNoPath");
+                        }
+                    }
+                }
+            }
 
-            // if (activeNodeTarget && activePath) {
-            //     console.log("found target and path");
-            //     let player_node = get_node_at(get_player_position(ss.MYPLAYER));
-            //     if (player_node == activeNodeTarget) {
-            //         activeNodeTarget = activePath.shift();
-            //         console.log("update target");
-            //         if (activePath.length == 0) {
-            //             console.log("path completed");
-            //             activePath = null;
-            //             activeNodeTarget = null;
-            //         }
-            //     } else {
-            //         console.log("not at target");
-            //     }
-            //     /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
-            //         findNewPath = true;
-            //         activePath = null;
-            //         activeNodeTarget = null;
-            //         console.log("went off path, finding new path")
-            //     } */
-            // }
+            if (activeNodeTarget && activePath) {
+                console.log("found target and path");
+                let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                if (player_node == activeNodeTarget) {
+                    activeNodeTarget = activePath.shift();
+                    console.log("update target");
+                    if (activePath.length == 0) {
+                        console.log("path completed");
+                        activePath = null;
+                        activeNodeTarget = null;
+                    }
+                } else {
+                    console.log("not at target");
+                }
+                /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
+                    findNewPath = true;
+                    activePath = null;
+                    activeNodeTarget = null;
+                    console.log("went off path, finding new path")
+                } */
+            }
 
-            // if (activeNodeTarget) {
-            //     // look towards the node
-            //     console.log("looking towards node")
-            //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
-            //     let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
-            //     console.log("vector obtained: ", directionVector);
-            //     ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
-            //     ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
-            //     console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
-            //     forceControlKeys = ss.CONTROLKEYSENUM.up;
-            //     console.log("done with looking & window forward set")
-            // };
+            if (activeNodeTarget) {
+                // look towards the node
+                console.log("looking towards node")
+                let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
+                let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
+                console.log("vector obtained: ", directionVector);
+                ss.MYPLAYER.yaw = setPrecision(calculateYaw(directionVector));
+                ss.MYPLAYER.pitch = setPrecision(calculatePitch(forwardVector));
+                console.log("pitch and yaw set: ", ss.MYPLAYER.pitch, ss.MYPLAYER.yaw);
+                forceControlKeys = ss.CONTROLKEYSENUM.up;
+                console.log("done with looking & window forward set")
+            };
 
             let isVisible;
             const player=currentlyTargeting||playerLookingAt||undefined;
