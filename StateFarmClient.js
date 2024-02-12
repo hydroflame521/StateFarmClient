@@ -13,6 +13,7 @@
 // @grant        GM_info
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 
 // version naming:
     //3.#.#-pre[number] for development versions, increment for every commit (not full release)
@@ -2772,47 +2773,49 @@ sniping and someone sneaks up on you
             attemptedInjection = true;
             const allFuncName={};
             // let vars=[];
-            let injectionString="";
             let match;
-            const getVar=function(name,regex){
-                try {
-                    const varName=eval(new RegExp(regex)+`.exec(js)[1]`);
-                    // vars[name]=varName;
-                    injectionString=injectionString+name+": ("+varName+")||undefined,";
-                    console.log('%cFound var! Saved '+varName+' as '+name, 'color: green; font-weight: bold;');
-                } catch (err) {
-                    injectionString=injectionString+name+": ('not found')||undefined,";
-                    console.log('%cCould not find var. Saved "not found" as '+name, 'color: red; font-weight: bold;');
-                };
-            };
-            console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
-            try {
-                getVar("PLAYERS", ',([a-zA-Z]+)\\[[a-zA-Z]+\\]\\.hp=100');
-                getVar("MYPLAYER", '\\),([a-zA-Z]+)\\.[a-zA-Z]+=Math\\.clamp\\([a-zA-Z]+\.[a-zA-Z]+\\+');
-                getVar("WEAPONS", ';([a-zA-Z]+)\\.classes=\\[\\{name:"Soldier"');
-                getVar("BABYLONJS", '\\),this\\.range=([a-zA-Z]+)\\.');
-                getVar("OBJECTSVAR", '&&([a-zA-Z]+)\\.getShadowMap\\(\\)');
-                getVar("GAMEMAP", ',([a-zA-Z]+)\\.width-\\.1\\),');
-                getVar("TEAMCOLORS", '\\{([a-zA-Z_$]+)\\.themClass\\[');
-                getVar("CAMERA", '200/([a-zA-Z]+)\\.fov\\);this\\.shotReticle');
-                getVar("RAYS", "mesh:([a-zA-Z])\.fullCollisionMesh"); //+
-                getVar("GAMECODE", '\\{crazyShare:([a-zA-Z]+)\\}');
-                getVar("SETTINGS", 'localStore\\.setItem\\("highRes",([a-zA-Z]+)\\.highRes\\)');
-                getVar("CONTROLKEYSENUM","&([a-zA-Z]+)\\.up&&\\(this")
-                getVar("USERDATA", ',firebaseId:([a-zA-Z]+)\\.[a-zA-Z]+\\.firebaseId\\},');
-                getVar("CONTROLKEYS", '\\(-1\\),([a-zA-Z]+)=');
-                // getVar("SERVERSYNC", '\\.OPEN&&[a-zA-Z]+\\.[a-zA-Z]+&&![a-zA-Z]+&&([a-zA-Z]+)\\(\\)\\}');
-                getVar("SERVERCODES", 'case ([a-zA-Z]+)\.die');
 
-                createPopup("StateFarm Script injected!","success");
-                createPopup("May currently be unstable.");
-                console.log(injectionString,allFuncName);
-            } catch (err) {
-                createPopup("Error! Script injection failed! See console.","error")
-                alert( 'Oh bollocks! Looks like the script is out of date. Report this data to the original developers and any errors in the console.\n' + JSON.stringify( allFuncName, undefined, 2 ) );
-                console.log(err);
-                return js;
+            let hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex);
+            let clientKeys;
+
+            let onlineClientKeys = fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
+
+            if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
+                let userInput = prompt('Valid keys could not be retrieved online. Enter keys if you have them. Join the StateFarm Network Discord server to generate keys! https://discord.gg/HYJG3jXVJF', '');
+                if (userInput !== null && userInput !== '') {
+                    alert('Aight, let\'s try this. If it is invalid, it will just crash.');
+                    clientKeys = JSON.parse(userInput);
+                } else {
+                    alert('You did not enter anything, this is gonna crash lmao.');
+                };
+            } else {
+                clientKeys = JSON.parse(onlineClientKeys);
             };
+    
+            H = clientKeys.vars;
+    
+            let injectionString=""; 
+
+            for (let name in H) {
+                deobf = H[name];
+                injectionString = `${injectionString}${name}: (() => { try { return ${deobf}; } catch (error) { return "value_undefined"; } })(),`;
+            }
+    
+            
+            console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+
+            const fetchTextContent = function (url) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, false);
+                xhr.send();
+                if (xhr.status === 200) {
+                    return xhr.responseText;
+                } else {
+                    console.error("Error fetching "+url);
+                    return null;
+                }
+            }
+
 
             const modifyJS = function(find,replace) {
                 let oldJS = js;
@@ -2838,7 +2841,7 @@ sniping and someone sneaks up on you
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
             match=js.match(/&&!([a-zA-Z]+)&&function\(\)\{if\(/);
-            modifyJS(`{if(${match[1]})`,`{if(true)`);
+            modifyJS(`{if(${H.CULL}})`,`{if(true)`);
             console.log('%cSuccess! Cull inhibition hooked '+match[1], 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
@@ -2894,16 +2897,16 @@ sniping and someone sneaks up on you
             console.log("DEATHARGS",DEATHARGS);
             modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
-            H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z])\(this\.x,this\.y,this\.z\)\},/)[1]; //+
-            H.playing = js.match(/this\.hp=[a-zA-Z]+\.hp,this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
-            H.MeshBuilder = js.match(/\.([a-zA-Z]+)\.CreateLineSystem\("/)[1];
-            H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
-            H.rayCollidesWithMap = js.match(/\.([a-zA-Z]+)\([a-zA-Z]+\.forwardRay\.origin,[a-zA-Z]+\.forwardRay/)[1];
-            H.renderList = js.match(/getShadowMap\(\)\.([a-zA-Z]+)\.push/)[1];
-            H.pitch = js.match(/\),[a-zA-Z]+\.([a-zA-Z]+)=Math\.clamp\([a-zA-Z]+\.[a-zA-Z]+\+/)[1];
-            H.yaw = js.match(/Math\.radAdd\([a-zA-Z]+\.([a-zA-Z]+),[a-zA-Z]+\*[a-zA-Z]+\)/)[1];
-            H.mesh = js.match(/=1\),this\.([a-zA-Z]+)\./)[1];
-            H.bodyMesh = js.match(/\.([a-zA-Z]+)\.renderOverlay/)[1];
+            // H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z])\(this\.x,this\.y,this\.z\)\},/)[1]; //+
+            // H.playing = js.match(/this\.hp=[a-zA-Z]+\.hp,this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
+            // H.MeshBuilder = js.match(/\.([a-zA-Z]+)\.CreateLineSystem\("/)[1];
+            // H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
+            // H.rayCollidesWithMap = js.match(/\.([a-zA-Z]+)\([a-zA-Z]+\.forwardRay\.origin,[a-zA-Z]+\.forwardRay/)[1];
+            // H.renderList = js.match(/getShadowMap\(\)\.([a-zA-Z]+)\.push/)[1];
+            // H.pitch = js.match(/\),[a-zA-Z]+\.([a-zA-Z]+)=Math\.clamp\([a-zA-Z]+\.[a-zA-Z]+\+/)[1];
+            // H.yaw = js.match(/Math\.radAdd\([a-zA-Z]+\.([a-zA-Z]+),[a-zA-Z]+\*[a-zA-Z]+\)/)[1];
+            // H.mesh = js.match(/=1\),this\.([a-zA-Z]+)\./)[1];
+            // H.bodyMesh = js.match(/\.([a-zA-Z]+)\.renderOverlay/)[1];
             // H.capVector3 = js.match(/\),Math\.([a-zA-Z]+)\([a-zA-Z]+,\.29\)/)[1];
 
             console.log(H);
