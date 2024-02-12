@@ -20,7 +20,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.3.3-pre40
+// @version      3.4.0-pre1
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -140,9 +140,9 @@ console.log("StateFarm: running (before function)");
     let ESPArray=[];
     let onlinePlayersArray=[];
     let bindsArray={};
-    const H={}; // obfuscated shit lol
+    let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,didStateFarm,menuInitiated,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -701,7 +701,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.automationTab.pages[0], title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE", enableConditions: [["autoJoin", true]],});
-                initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",ss.GAMECODE)}, enableConditions: [["autoJoin", true]],});
+                initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",GAMECODE)}, enableConditions: [["autoJoin", true]],});
                 tp.autoJoinFolder.addSeparator();
                 initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useCustomName", bindLocation: tp.automationTab.pages[1], enableConditions: [["autoJoin", true]],});
                 initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer", enableConditions: [["autoJoin", true], ["useCustomName", true]],});
@@ -865,7 +865,7 @@ sniping and someone sneaks up on you
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCodeBots", button: "Retrieve", clickFunction: function(){change("botJoinCode",ss.GAMECODE)}, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCodeBots", button: "Retrieve", clickFunction: function(){change("botJoinCode",GAMECODE)}, botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "GameType", storeAs: "autoGamemodeBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
         initModule({ location: tp.botTabs.pages[1], title: "AutoRegion", storeAs: "autoRegionBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
@@ -1543,6 +1543,17 @@ sniping and someone sneaks up on you
         const queryParams = new URLSearchParams(unsafeWindow.location.search);
         return queryParams.get(param);
     };
+    const fetchTextContent = function (url) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, false);
+        xhr.send();
+        if (xhr.status === 200) {
+            return xhr.responseText;
+        } else {
+            console.error("Error fetching "+url);
+            return null;
+        };
+    };
     const findKeyByValue = function(obj, value) {
         for (const key in obj) {
             if (obj[key] === value) {
@@ -1778,7 +1789,7 @@ sniping and someone sneaks up on you
                     username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + ss.GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
                         (errorString||"idle")),
                 };
 
@@ -1837,7 +1848,7 @@ sniping and someone sneaks up on you
                 };
             };
             if (extract("gameInfo")) {
-                let gameInfoText=ss.GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName;
+                let gameInfoText=GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName;
                 gameInfoElement.innerText = gameInfoText;
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
@@ -1858,6 +1869,7 @@ sniping and someone sneaks up on you
                 };
             };
             if (!ss.MYPLAYER[H.playing]) {
+                GAMECODE = unsafeWindow.vueApp.game.shareLinkPopup.url.slice(-7);
                 if (extract("autoRespawn")) {
                     var button = document.querySelector('.ss_button.btn_big.btn-dark-bevel.btn-respawn.ss_button.btn_green.bevel_green');
                     if (button) {
@@ -2445,20 +2457,20 @@ sniping and someone sneaks up on you
         //     console.log(arr)
         // };
 
-        if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
-            if (extract("grenadeMax")) {
-                arr[1] = 255;
-                console.log("StateFarm: modified a grenade packet to be at full power");
-                return arr.buffer;
-            } else {
-                console.log("StateFarm: didn't modify grenade packet")
-            };
-        } else if (arr[0] == ss.SERVERCODES.chat) {
-            console.log('%c Chat packet sent, chat handler!!!', css);
-            return chatPacketHandler(data);
-        } else {
+        // if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
+        //     if (extract("grenadeMax")) {
+        //         arr[1] = 255;
+        //         console.log("StateFarm: modified a grenade packet to be at full power");
+        //         return arr.buffer;
+        //     } else {
+        //         console.log("StateFarm: didn't modify grenade packet")
+        //     };
+        // } else if (arr[0] == ss.SERVERCODES.chat) {
+        //     console.log('%c Chat packet sent, chat handler!!!', css);
+        //     return chatPacketHandler(data);
+        // } else {
 
-        };
+        // };
 
         return data;
     };
@@ -2771,8 +2783,6 @@ sniping and someone sneaks up on you
         const applyStateFarm = function(js) {
             console.log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
             attemptedInjection = true;
-            const allFuncName={};
-            // let vars=[];
             let match;
 
             let hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex);
@@ -2790,32 +2800,33 @@ sniping and someone sneaks up on you
                 };
             } else {
                 clientKeys = JSON.parse(onlineClientKeys);
+                if (GM_getValue("StateFarm_KeyCache")) {
+                    GM_setValue("StateFarm_KeyCache", GM_getValue("StateFarm_KeyCache")[onlineClientKeys.hash] = onlineClientKeys);
+                } else {
+                    GM_setValue("StateFarm_KeyCache", {[onlineClientKeys.hash]: GM_getValue("StateFarm_KeyCache")});
+                };
             };
+
+            console.log(GM_getValue("StateFarm_KeyCache"));
     
             H = clientKeys.vars;
     
             let injectionString=""; 
 
+            const variableNameRegex = /^[a-zA-Z_$][a-zA-Z0-9_$]*$/;
             for (let name in H) {
                 deobf = H[name];
-                injectionString = `${injectionString}${name}: (() => { try { return ${deobf}; } catch (error) { return "value_undefined"; } })(),`;
-            }
-    
+                if (variableNameRegex.test(deobf)) {
+                    injectionString = `${injectionString}${name}: (() => { try { return ${deobf}; } catch (error) { return "value_undefined"; } })(),`;
+                } else {
+                    alert("Message from the StateFarm Devs: WARNING! The keys inputted contain non-variable characters! There is a possibility that this could run code unintended by the StateFarm team, although possibly there is also a mistake. Do NOT proceed with using this, and report to the StateFarm developers what is printed in the console.");
+                    console.log("REPORT THIS IN THE DISCORD SERVER:", clientKeys);
+                    const crashplease = "balls";
+                    crashplease = "balls2";
+                };
+            };
             
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
-
-            const fetchTextContent = function (url) {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', url, false);
-                xhr.send();
-                if (xhr.status === 200) {
-                    return xhr.responseText;
-                } else {
-                    console.error("Error fetching "+url);
-                    return null;
-                }
-            }
-
 
             const modifyJS = function(find,replace) {
                 let oldJS = js;
@@ -2841,7 +2852,7 @@ sniping and someone sneaks up on you
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
             match=js.match(/&&!([a-zA-Z]+)&&function\(\)\{if\(/);
-            modifyJS(`{if(${H.CULL}})`,`{if(true)`);
+            modifyJS(`{if(${H.CULL})`,`{if(true)`);
             console.log('%cSuccess! Cull inhibition hooked '+match[1], 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
@@ -3459,13 +3470,13 @@ sniping and someone sneaks up on you
                         open_heap.push(neighbor);
                     } else {
                         open_heap.rescoreElement(neighbor);
-                    }
-                }
+                    };
+                };
             
 
-            }
+            };
             
-        }
+        };
 
 
         console.log("done with astar - no path found")
@@ -3473,7 +3484,7 @@ sniping and someone sneaks up on you
         return null
 
 
-    }
+    };
 
     function print_node_list(list) {
         var output = "";
@@ -3755,96 +3766,96 @@ sniping and someone sneaks up on you
             initVars();
             updateLinesESP();
 
-            if (!map_data_created) {
-                new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
-                map_data_created = true;
-            }
+            // if (!map_data_created) {
+            //     new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
+            //     map_data_created = true;
+            // }
 
-            if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
-                let player_pos = get_player_position(ss.MYPLAYER);
-                let player_node = get_node_at(player_pos);
-                if (player_node) {
-                    let position = {
-                        x: player_pos.x + Math.floor(Math.random() * 5) - 1,
-                        y: player_pos.y,
-                        z: player_pos.z + Math.floor(Math.random() * 5) - 1
-                    }
-                    // check if node at position exists
-                    let random_node = get_node_at(position);
+            // if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
+            //     let player_pos = get_player_position(ss.MYPLAYER);
+            //     let player_node = get_node_at(player_pos);
+            //     if (player_node) {
+            //         let position = {
+            //             x: player_pos.x + Math.floor(Math.random() * 5) - 1,
+            //             y: player_pos.y,
+            //             z: player_pos.z + Math.floor(Math.random() * 5) - 1
+            //         }
+            //         // check if node at position exists
+            //         let random_node = get_node_at(position);
                     
-                    if (!(player_node === random_node) && random_node) {
-                        console.log("location, target:")
-                        print_node_list([player_node, random_node])
-                        activePath = AStar(player_node, random_node);
-                        if (activePath) {
-                            console.log("setting active node target");
-                            print_node_list(activePath);
-                            activeNodeTarget = activePath[0];
-                            console.log("list printed, target set, creating pathfinding lines")
-                            create_pathfinding_lines(ss, activePath);
-                            findNewPath = false; 
-                            console.log("found path to random node")                 
-                        } else {
-                            console.log("unable to find path to random node")
-                        }
-                    } else {
-                        console.log("player node / random node not air")
-                    }
-                } else {
-                    console.log("player not on air node currently")
-                }
-            }
+            //         if (!(player_node === random_node) && random_node) {
+            //             console.log("location, target:")
+            //             print_node_list([player_node, random_node])
+            //             activePath = AStar(player_node, random_node);
+            //             if (activePath) {
+            //                 console.log("setting active node target");
+            //                 print_node_list(activePath);
+            //                 activeNodeTarget = activePath[0];
+            //                 console.log("list printed, target set, creating pathfinding lines")
+            //                 create_pathfinding_lines(ss, activePath);
+            //                 findNewPath = false; 
+            //                 console.log("found path to random node")                 
+            //             } else {
+            //                 console.log("unable to find path to random node")
+            //             }
+            //         } else {
+            //             console.log("player node / random node not air")
+            //         }
+            //     } else {
+            //         console.log("player not on air node currently")
+            //     }
+            // }
 
-            if (AUTOMATED && pathfindingTargetOverride !== undefined) {
-                player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                target_node = get_node_at(pathfindingTargetOverride);
-                if (player_node && target_node) {
-                    path = AStar(player_node, target_node);
-                    if (path) {
-                        activePath = path;
-                        activeNodeTarget = path[0];
-                    } else {
-                        if (despawnIfNoPath) {
-                            sendChatMessage("despawnIfNoPath");
-                        }
-                    }
-                }
-            }
+            // if (AUTOMATED && pathfindingTargetOverride !== undefined) {
+            //     player_node = get_node_at(get_player_position(ss.MYPLAYER));
+            //     target_node = get_node_at(pathfindingTargetOverride);
+            //     if (player_node && target_node) {
+            //         path = AStar(player_node, target_node);
+            //         if (path) {
+            //             activePath = path;
+            //             activeNodeTarget = path[0];
+            //         } else {
+            //             if (despawnIfNoPath) {
+            //                 sendChatMessage("despawnIfNoPath");
+            //             }
+            //         }
+            //     }
+            // }
 
-            if (activeNodeTarget && activePath) {
-                console.log("found target and path");
-                let player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                if (player_node == activeNodeTarget) {
-                    activeNodeTarget = activePath.shift();
-                    console.log("update target");
-                    if (activePath.length == 0) {
-                        console.log("path completed");
-                        activePath = null;
-                        activeNodeTarget = null;
-                    }
-                } else {
-                    console.log("not at target");
-                }
-                /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
-                    findNewPath = true;
-                    activePath = null;
-                    activeNodeTarget = null;
-                    console.log("went off path, finding new path")
-                } */
-            }
+            // if (activeNodeTarget && activePath) {
+            //     console.log("found target and path");
+            //     let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+            //     if (player_node == activeNodeTarget) {
+            //         activeNodeTarget = activePath.shift();
+            //         console.log("update target");
+            //         if (activePath.length == 0) {
+            //             console.log("path completed");
+            //             activePath = null;
+            //             activeNodeTarget = null;
+            //         }
+            //     } else {
+            //         console.log("not at target");
+            //     }
+            //     /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
+            //         findNewPath = true;
+            //         activePath = null;
+            //         activeNodeTarget = null;
+            //         console.log("went off path, finding new path")
+            //     } */
+            // }
 
-            if (activeNodeTarget) {
-                // look towards the node
-                console.log("looking towards node")
-                let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
-                let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
-                console.log("vector obtained: ", directionVector);
-                ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
-                ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
-                console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
-                forceControlKeys = ss.CONTROLKEYSENUM.up;
-                console.log("done with looking & window forward set")
-            };
+            // if (activeNodeTarget) {
+            //     // look towards the node
+            //     console.log("looking towards node")
+            //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
+            //     let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
+            //     console.log("vector obtained: ", directionVector);
+            //     ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
+            //     ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
+            //     console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
+            //     forceControlKeys = ss.CONTROLKEYSENUM.up;
+            //     console.log("done with looking & window forward set")
+            // };
 
             let isVisible;
             const player=currentlyTargeting||playerLookingAt||undefined;
