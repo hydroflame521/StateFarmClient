@@ -1,4 +1,4 @@
-/// ==UserScript==
+// ==UserScript==
 // @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
 // @description  Fixed for 0.47.0! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
@@ -20,7 +20,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre1
+// @version      3.4.0-pre2
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -132,6 +132,7 @@ console.log("StateFarm: running (before function)");
     let targetingComplete=false;
     let username = "";
     let autoStrafeValue=[0,0,"left"];
+    let TEAMCOLORS = ["playerSlot-them","playerSlot-them-blue","playerSlot-them-red"];
     const allModules=[];
     const allFolders=[];
     const F=[];
@@ -1478,8 +1479,8 @@ sniping and someone sneaks up on you
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         // Check if a player dot with the unique ID already exists, then do flow of control
-        let xPosition = (player.x / 100) * windowWidth;xPosition += (windowWidth + xPosition)/2;
-        let yPosition = (player.z / 100) * windowHeight;yPosition += (windowHeight + yPosition)/2;
+        let xPosition = (player[H.x] / 100) * windowWidth;xPosition += (windowWidth + xPosition)/2;
+        let yPosition = (player[H.z] / 100) * windowHeight;yPosition += (windowHeight + yPosition)/2;
         if (!player[H.playing] || !player) {
             if (playerDotsMap.has(player.uniqueId)) {
                 const playerDotToRemove = playerDotsMap.get(player.uniqueId);
@@ -1633,8 +1634,8 @@ sniping and someone sneaks up on you
     const calculatePitch = function (pos) {
         return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
     };
-    const getAngularDifference = function (obj1,obj2) {
-        return Math.abs(obj1.yawReal-obj2.yawReal)+Math.abs(obj1.pitchReal-obj2.pitchReal);
+    const getAngularDifference = function (obj1,obj2) { //this is super scuffed
+        return Math.abs(obj1[H.yaw]-obj2.yawReal)+Math.abs(obj1[H.pitch]-obj2.pitchReal);
     };
     const getDirectionVectorFacingTarget = function (target,vectorPassed,offsetY) {
         target = vectorPassed ? target : target[H.actor][H.mesh].position;
@@ -1688,7 +1689,7 @@ sniping and someone sneaks up on you
         playerNameSpan.classList.add("chat-player-name", "ss_marginright_xs");
         playerNameSpan.textContent = playerName + " ";
 
-        playerInfoContainer.style.color = ss.TEAMCOLORS.text[playerTeam];
+        playerInfoContainer.style.color = TEAMCOLORS[playerTeam];
         playerInfoContainer.appendChild(serverIcon);
         playerInfoContainer.appendChild(playerNameSpan);
 
@@ -1750,7 +1751,7 @@ sniping and someone sneaks up on you
                 lines.push([vertices[i + 4], vertices[(i + 1) % 4 + 4]]);
                 lines.push([vertices[i], vertices[i + 4]]);
             };
-            const box = ss.BABYLONJS[H.MeshBuilder].CreateLineSystem('boxLines', { lines }, newScene);
+            const box = ss.BABYLONJS[H.MeshBuilder].CreateLineSystem(getScrambled(), { lines }, newScene);
             box.color = new ss.BABYLONJS.Color3(1, 1, 1);
             box.position.y=boxOffset[type];
             box.renderingGroupId = 1;
@@ -1948,7 +1949,7 @@ sniping and someone sneaks up on you
                 banPopup.style.display = "none";
             }, 15000);
         };
-        if (extract("debug")) {
+        if (extract("debug") || 1 === 1) {
             globalSS={};
             globalSS.ss=ss;
             globalSS.H=H;
@@ -2107,8 +2108,8 @@ sniping and someone sneaks up on you
             if (extract("playerStats")) {
                 let playerStates="";
                 ss.PLAYERS.forEach(player=>{
-                    if (player && (player!==ss.MYPLAYER) && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                        playerStates=playerStates+player.name+": "+Math.round(player.hp)+" HP\n";
+                    if (player && (player!==ss.MYPLAYER) && (player[H.hp]>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+                        playerStates=playerStates+player.name+": "+Math.round(player[H.hp])+" HP\n";
                     };
                 });
                 if (playerStates=="") {playerStates="No Enemy Players"};
@@ -2121,7 +2122,7 @@ sniping and someone sneaks up on you
                 const player=currentlyTargeting||playerLookingAt||undefined
                 if (player && player.distance && player[H.playing]) {
                     playerInfoString=playerInfoString+player.name+"\n"
-                    playerInfoString=playerInfoString+"HP: "+Math.round(player.hp)+"\n"
+                    playerInfoString=playerInfoString+"HP: "+Math.round(player[H.hp])+"\n"
                     playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
                     playerInfoString=playerInfoString+"AngleDiff: "+player.angleDiff.toFixed(3)+"\n"
                 };
@@ -2270,10 +2271,10 @@ sniping and someone sneaks up on you
     const highlightTargetOnLeaderboard = function (target, aimbot) {
         let playerArray = [];
         ss.PLAYERS.forEach(player=>{
-            if (player && (target!==ss.MYPLAYER) && player[H.playing] && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+            if (player && (target!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
-                const hp = player.hp
+                const hp = player[H.hp]
                 playerArray.push({ player, uniqueId, name, hp });
             };
         });
@@ -2283,7 +2284,7 @@ sniping and someone sneaks up on you
             } else {
                 playerListItem.style.backgroundColor = '';
             };
-            // console.log(playerArray.find(player => player.name === playerListItem.textContent.slice(0, -3))?.hp);
+            // console.log(playerArray.find(player => player.name === playerListItem.textContent.slice(0, -3))?[H.hp]);
         });
     };
     const highlightCrossHairReticleDot = function (bool) {
@@ -2453,24 +2454,24 @@ sniping and someone sneaks up on you
 
         var arr = new Uint8Array(data);
 
-        // if (arr[0]!==17) {
-        //     console.log(arr)
-        // };
+        if (arr[0]!==17) {
+            console.log(arr)
+        };
 
-        // if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
-        //     if (extract("grenadeMax")) {
-        //         arr[1] = 255;
-        //         console.log("StateFarm: modified a grenade packet to be at full power");
-        //         return arr.buffer;
-        //     } else {
-        //         console.log("StateFarm: didn't modify grenade packet")
-        //     };
-        // } else if (arr[0] == ss.SERVERCODES.chat) {
-        //     console.log('%c Chat packet sent, chat handler!!!', css);
-        //     return chatPacketHandler(data);
-        // } else {
+        if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
+            if (extract("grenadeMax")) {
+                arr[1] = 255;
+                console.log("StateFarm: modified a grenade packet to be at full power");
+                return arr.buffer;
+            } else {
+                console.log("StateFarm: didn't modify grenade packet")
+            };
+        } else if (arr[0] == ss.SERVERCODES.chat) {
+            console.log('%c Chat packet sent, chat handler!!!', css);
+            return chatPacketHandler(data);
+        } else {
 
-        // };
+        };
 
         return data;
     };
@@ -2539,9 +2540,9 @@ sniping and someone sneaks up on you
     const predictPosition = function(player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
         let velocityVector = new ss.BABYLONJS.Vector3(player.dx, player.dy, player.dz);
         const bulletSpeed=ss.MYPLAYER.weapon.constructor.velocity;
-        const timeDiff = ss.BABYLONJS.Vector3.Distance(ss.MYPLAYER,player) / bulletSpeed + 1;
-        let newPos = new ss.BABYLONJS.Vector3(player.x,player.y,player.z).add(velocityVector.scale(timeDiff));
-        newPos.y = player.y;
+        const timeDiff = distancePlayers(player, 1) / bulletSpeed + 1;
+        let newPos = new ss.BABYLONJS.Vector3(player[H.x],player[H.y],player[H.z]).add(velocityVector.scale(timeDiff));
+        newPos.y = player[H.y];
         const cappedVector = new ss.BABYLONJS.Vector3(velocityVector.x, 0.29, velocityVector.z);
         Math.capVector3(cappedVector);
         const terminalVelocity = -cappedVector.y;
@@ -2549,6 +2550,7 @@ sniping and someone sneaks up on you
         const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
         const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos,new ss.BABYLONJS.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
         newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
+        // console.log(velocityVector, bulletSpeed, timeDiff, cappedVector, terminalVelocity, timeAccelerating, predictedY, rayToGround, newPos);
         return newPos;
     };
     const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
@@ -2807,7 +2809,7 @@ sniping and someone sneaks up on you
                 };
             };
 
-            console.log(GM_getValue("StateFarm_KeyCache"));
+            console.log(hash, onlineClientKeys);
     
             H = clientKeys.vars;
     
@@ -2909,7 +2911,7 @@ sniping and someone sneaks up on you
             modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
             // H.RotationYawPitchRoll = js.match(/Quaternion\.([a-zA-Z])\(this\.x,this\.y,this\.z\)\},/)[1]; //+
-            // H.playing = js.match(/this\.hp=[a-zA-Z]+\.hp,this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
+            // H.playing = js.match(/this\[H.hp]=[a-zA-Z]+\[H.hp],this\.([a-zA-Z]+)=[a-zA-Z]+\.[a-zA-Z]+,this/)[1];
             // H.MeshBuilder = js.match(/\.([a-zA-Z]+)\.CreateLineSystem\("/)[1];
             // H.CreateLines = js.match(/\.([a-zA-Z]+)\("yPosMesh",\{points/)[1];
             // H.rayCollidesWithMap = js.match(/\.([a-zA-Z]+)\([a-zA-Z]+\.forwardRay\.origin,[a-zA-Z]+\.forwardRay/)[1];
@@ -3610,7 +3612,7 @@ sniping and someone sneaks up on you
 
             //update playerESP boxes, tracer lines, colors
             ss.PLAYERS.forEach(player=>{
-                if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player.hp>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+                if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
                     const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
                     const passedLists=whitelisted&&(!blacklisted);
@@ -3637,7 +3639,6 @@ sniping and someone sneaks up on you
                     } else if (tracersType == "visibility") {
                         color = getLineOfSight(player) ? hexToRgb(extract("tracersColor2")) : hexToRgb(extract("tracersColor1"))
                     };
-
                     updateOrCreateLinesESP(player,"playerESP",color);
 
                     player.tracerLines.visibility = player[H.playing] && extract("tracers") && passedLists;
@@ -3657,7 +3658,7 @@ sniping and someone sneaks up on you
                     if (extract("nametags") && player[H.actor] && player[H.actor].nameSprite) { //taken from shellshock.js, so var names are weird
                         player[H.actor].nameSprite._manager.renderingGroupId = 1;
                         player[H.actor].nameSprite.renderingGroupId = 1;
-                        var h = Math.length3(player.x - ss.MYPLAYER.x, player.y - ss.MYPLAYER.y, player.z - ss.MYPLAYER.z),
+                        var h = Math.length3(player[H.x] - ss.MYPLAYER[H.x], player[H.y] - ss.MYPLAYER[H.y], player[H.z] - ss.MYPLAYER[H.z]),
                         d = Math.pow(h, 1.25)*2;
                         player[H.actor].nameSprite.width = d / 10 + .6, player[H.actor].nameSprite.height = d / 20 + .3;
                         ss.MYPLAYER[H.actor].scene.activeCamera.fov=0.75
@@ -3963,7 +3964,7 @@ sniping and someone sneaks up on you
             let amountVisible=0;
 
             ss.PLAYERS.forEach(player=>{ //iterate over all players to
-                if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player.hp>0)) {
+                if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0)) {
                     const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
                     const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
                     const passedLists=whitelisted&&(!blacklisted);
@@ -3998,7 +3999,7 @@ sniping and someone sneaks up on you
                 let visibleValue;
                 if (visibilityMode=="disabled") { //we dont care about that shit
                     visibleValue = true; //go ahead
-                } else if (amountVisible<1) { //none of candidates are visible
+                } else if (amountVisible<1) { //none of candidates are visibS
                     visibleValue = (visibilityMode=="onlyvisible" ? false : true); //there are no visible candidates, so either select none if "onlyvisible" or ignore this altogether
                 } else { //some are visible
                     visibleValue = player.isVisible; //assuming now that either "prioritise" or "onlyvisible" are enabled, as "onlyvisible"'s use case fulfilled in previous statement
@@ -4007,13 +4008,12 @@ sniping and someone sneaks up on you
                     if (valueToUse < enemyMinimumValue ) {
                         enemyMinimumValue = valueToUse;
                         currentlyTargeting = player;
-                        console.log("SET",player.name);
                     };
                 };
             });
 
             if (isDoingAimbot) {
-                console.log(currentlyTargeting.name);
+                //globalSS.currentlyTargeting = currentlyTargeting;
                 if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
                     didAimbot=true;
                     if (extract("tracers")) {
