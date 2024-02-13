@@ -20,7 +20,7 @@
         //3.#.#-release for release
     //this ensures that each version of the script is counted as different
 
-    // @version      3.4.0-pre5
+    // @version      3.4.0-pre6
 
     // @match        *://*.shellshock.io/*
     // @match        *://*.algebra.best/*
@@ -1761,7 +1761,7 @@
                 //TARGETS
                 let target
                 if (type=="playerESP") {
-                    target = ss.BABYLONJS[H.MeshBuilder].CreateSphere("sphere", { diameter: 0.05 }, newScene);
+                    target = ss.BABYLONJS[H.MeshBuilder][H.CreateSphere]("sphere", { diameter: 0.05 }, newScene);
                     target.material = new ss.BABYLONJS.StandardMaterial("sphereMaterial", newScene);
                     target.material.diffuseColor = new ss.BABYLONJS.Color3(1, 0, 0);
                     target.material.alpha = 0.5;
@@ -2846,16 +2846,13 @@
 
                 console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                 //hook for main loop function in render loop
-                match=js.match(/\|\(([a-zA-Z]+)\.sh/)[1];
-                console.log(match);
-                modifyJS(match+'.render',`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${match}.render`);
+                modifyJS(H.SCENE+'.'+H.render,`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${H.SCENE}.render`);
                 modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
                 console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
                 console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                 //stop removal of objects
-                match=js.match(/&&!([a-zA-Z]+)&&function\(\)\{if\(/);
-                modifyJS(`{if(${H.CULL})`,`{if(true)`);
-                console.log('%cSuccess! Cull inhibition hooked '+match[1], 'color: green; font-weight: bold;');
+                modifyJS(`${H.CULL})r`,`true)r`);
+                console.log('%cSuccess! Cull inhibition hooked '+H.CULL, 'color: green; font-weight: bold;');
                 console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                 //hook for modifications just before firing
                 modifyJS('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
@@ -2863,49 +2860,42 @@
                 modifyJS(/\.fov\s*=\s*1\.25/g, '.fov = window.'+functionNames.fixCamera+'()');
                 modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
                 //chat mods: disable chat culling
-                const somethingLength=/\.length>4&&([a-zA-Z]+)\[0\]\.remove\(\),/.exec(js)[1];
-                modifyJS(new RegExp(`\\.length>4&&${somethingLength}\\[0\\]\\.remove\\(\\),`),`.length>window.${functionNames.getChatLimit}()&&${somethingLength}[0].remove(),`);
+                const chatCull=/;[a-zA-Z$_]+\.length>4/.exec(js)[0];
+                modifyJS(chatCull,chatCull.replace('4', `window.${functionNames.getChatLimit}()`));
                 //chat mods: disable filter (credit to A3+++ for this finding)
-                const filterFunction=/\|\|([a-zA-Z]+)\([a-zA-Z]+.normalName/.exec(js)[1];
-                const thingInsideFilterFunction=new RegExp(`!${filterFunction}\\(([a-zA-Z]+)\\)`).exec(js)[1];
-                modifyJS(`!${filterFunction}(${thingInsideFilterFunction})`,`((!${filterFunction}(${thingInsideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
+                modifyJS(`!${H._filterFunction}(${H._insideFilterFunction})`,`((!${H._filterFunction}(${H._insideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
                 //chat mods: make filtered text red
-                let [_, elm, str] = js.match(/\)\),([a-zA-Z]+)\.innerHTML=([a-zA-Z]+),/);
-                modifyJS(_, _ + `${filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
+                let [_, elm, str] = js.match(/\)\),([a-zA-Z$_]+)\.innerHTML=([a-zA-Z$_]+),/);
+                modifyJS(_, _ + `${H._filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
                 //skins
                 match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/)[1];
                 if (match) {modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`)};
                 //reset join/leave msgs
                 modifyJS(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
                 //bypass chat filter
-                match = js.match(/([a-zA-Z]+)\.indexOf\("<"\)<0&&/)[1];
-                modifyJS('.value.trim()','.value.trim();'+match+'=window.'+functionNames.modifyChat+'('+match+')')
+                modifyJS('.trim();','.trim();'+H._chat+'=window.'+functionNames.modifyChat+'('+H._chat+');')
                 //hook for control interception
-                const UPDATETHING=js.match(/\.equip\(\)\},([a-zA-Z]+)\.prototype\.([a-zA-Z]+)=function\(([a-zA-Z]+)\)\{/)[0];
-                // console.log("PLAYERTHING:",PLAYERTHING);
+                const UPDATETHING=js.match(/\.equip\(\)\},([a-zA-Z$_]+)\.prototype\.([a-zA-Z$_]+)=function\(([a-zA-Z$_]+)\)\{/)[0];
                 console.log("UPDATETHING:",UPDATETHING);
-                // console.log("ARGTHING:",ARGTHING);
-                const CONTROLKEYS=js.match(/holdToAim\?([a-zA-Z]+)\|=/)[1];
+                const CONTROLKEYS=js.match(/holdToAim\?([a-zA-Z$_]+)\|=/)[1];
                 console.log("CONTROLKEYS:",CONTROLKEYS);
                 modifyJS(UPDATETHING,UPDATETHING+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
                 //admin spoof lol
                 modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
                 modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
                 //grab reason for connect fail
-                const FUNCTIONPARAM = new RegExp('function '+H._connectFail+'\\(([a-zA-Z]+)\\)').exec(js)[1];
-                // const ERRORARRAY = js.match(/\.code===([a-zA-Z]+)\.sessionNotFound\?\(console\.log\(`/)[1];
-                console.log("CONNECTFAIL",H._connectFail);
+                const FUNCTIONPARAM = new RegExp('function '+H._connectFail+'\\(([a-zA-Z$_]+)\\)').exec(js)[1];
+                // const ERRORARRAY = js.match(/\.code===([a-zA-Z$_]+)\.sessionNotFound\?\(console\.log\(`/)[1];
                 console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
-                console.log("ERRORARRAY:",H.ERRORARRAY);
                 modifyJS('function '+H._connectFail+'('+FUNCTIONPARAM+'){','function '+H._connectFail+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+H.ERRORARRAY+');')
                 //get rid of tutorial popup because its a stupid piece of shit
                 modifyJS(',vueApp.onTutorialPopupClick()','');
                 //pointer escape
                 modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
                 //death hook
-                const DEATHFUNCTION = js.match(/&&([a-zA-Z]+)\([a-zA-Z]+,[a-zA-Z]+\),/)[1];
+                const DEATHFUNCTION = js.match(/&&([a-zA-Z$_]+)\([a-zA-Z$_]+,[a-zA-Z$_]+\),/)[1];
                 console.log("DEATHFUNCTION",DEATHFUNCTION);
-                const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
+                const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
                 console.log("DEATHARGS",DEATHARGS);
                 modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
@@ -3495,6 +3485,7 @@
                             return extract("wireframe");
                         }
                     });
+
                     ranOneTime=true;
                 };
             };
@@ -3833,7 +3824,7 @@
                     ss.MYPLAYER[H.actor][H.mesh].position.y = ss.MYPLAYER[H.actor][H.mesh].position.y + 1;
                 };
                 if (extract("spamChat")) {
-                    if (ss.MYPLAYER.chatLines<2) {
+                    if (document.getElementById("chatIn").style.visibility == 'visible') {
                         if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
                             sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
                             lastSpamMessage=Date.now()
