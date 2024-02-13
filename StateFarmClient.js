@@ -20,7 +20,7 @@
         //3.#.#-release for release
     //this ensures that each version of the script is counted as different
 
-    // @version      3.4.0-pre4
+    // @version      3.4.0-pre5
 
     // @match        *://*.shellshock.io/*
     // @match        *://*.algebra.best/*
@@ -2892,13 +2892,12 @@
                 modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
                 modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
                 //grab reason for connect fail
-                const CONNECTFAILFUNCTION = js.match(/,1e3\)\):([a-zA-Z]+)\(/)[1];
-                const FUNCTIONPARAM = new RegExp('function '+CONNECTFAILFUNCTION+'\\(([a-zA-Z]+)\\)').exec(js)[1];
-                const ERRORARRAY = js.match(/\.code===([a-zA-Z]+)\.sessionNotFound\?\(console\.log\(`/)[1];
-                console.log("CONNECTFAILFUNCTION:",CONNECTFAILFUNCTION);
+                const FUNCTIONPARAM = new RegExp('function '+H._connectFail+'\\(([a-zA-Z]+)\\)').exec(js)[1];
+                // const ERRORARRAY = js.match(/\.code===([a-zA-Z]+)\.sessionNotFound\?\(console\.log\(`/)[1];
+                console.log("CONNECTFAIL",H._connectFail);
                 console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
-                console.log("ERRORARRAY:",ERRORARRAY);
-                modifyJS('function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){','function '+CONNECTFAILFUNCTION+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+ERRORARRAY+');')
+                console.log("ERRORARRAY:",H.ERRORARRAY);
+                modifyJS('function '+H._connectFail+'('+FUNCTIONPARAM+'){','function '+H._connectFail+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+H.ERRORARRAY+');')
                 //get rid of tutorial popup because its a stupid piece of shit
                 modifyJS(',vueApp.onTutorialPopupClick()','');
                 //pointer escape
@@ -2909,7 +2908,6 @@
                 const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z]+,[a-zA-Z]+)\\)').exec(js)[1];
                 console.log("DEATHARGS",DEATHARGS);
                 modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
-
 
                 modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
                 console.log(H);
