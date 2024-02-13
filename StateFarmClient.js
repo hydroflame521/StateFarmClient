@@ -2454,9 +2454,9 @@ sniping and someone sneaks up on you
 
         var arr = new Uint8Array(data);
 
-        if (arr[0]!==17) {
+        /* if (arr[0]!==17) {
             console.log(arr)
-        };
+        }; */
 
         if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
             if (extract("grenadeMax")) {
