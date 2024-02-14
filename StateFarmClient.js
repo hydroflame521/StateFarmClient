@@ -21,7 +21,7 @@
         //3.#.#-release for release
     //this ensures that each version of the script is counted as different
 
-    // @version      3.4.0-pre8
+    // @version      3.4.0-pre9
 
     // @match        *://*.shellshock.io/*
     // @match        *://*.algebra.best/*
@@ -115,6 +115,7 @@
         const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
         const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
         const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
+        const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
         //INIT VARS
         const inbuiltPresets = {
             onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
@@ -2134,7 +2135,7 @@
                     void playerinfoElement.offsetWidth;
                     playerinfoElement.style.display = '';
                 };
-                if (extract("showCoordinates")) {
+                if (ss.MYPLAYER && ss.MYPLAYER[H.actor] && ss.MYPLAYER[H.actor][H.mesh] && extract("showCoordinates")) {
                     const fonx = Number((ss.MYPLAYER[H.actor][H.mesh].position.x).toFixed(3));
                     const fony = Number((ss.MYPLAYER[H.actor][H.mesh].position.y).toFixed(3));
                     const fonz = Number((ss.MYPLAYER[H.actor][H.mesh].position.z).toFixed(3));
@@ -3469,7 +3470,7 @@
                 if (ss.MYPLAYER) {
                     console.log('%cSTATEFARM IS ATTEMPTING TO LOAD L.BABYLON', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                     var script = document.createElement("script");
-                    script.src = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
+                    script.src = babylonURL;
                     script.onload = function() {
                         if (unsafeWindow.BABYLON) {
                             L.BABYLON = unsafeWindow.BABYLON;
@@ -3478,7 +3479,7 @@
                             console.log("Babylon.js loaded successfully");
                             console.log(L.BABYLON.Engine.Version);
 
-                            console.log('%cSTATEFARM SUCCESSFULLY LOADED L.BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                            console.log('%cSTATEFARM SUCCESSFULLY LOADED BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                             
                             H.actor = findKeyWithProperty(ss.MYPLAYER, H.mesh);
                             // Math.capVector3 = Math[H.capVector3];
