@@ -21,7 +21,7 @@
         //3.#.#-release for release
     //this ensures that each version of the script is counted as different
 
-    // @version      3.4.0-pre7
+    // @version      3.4.0-pre8
 
     // @match        *://*.shellshock.io/*
     // @match        *://*.algebra.best/*
@@ -137,6 +137,7 @@
         const allModules=[];
         const allFolders=[];
         const F=[];
+        const L={};
         const functionNames=[];
         const isKeyToggled={};
         let ESPArray=[];
@@ -144,7 +145,7 @@
         let bindsArray={};
         let H={}; // obfuscated shit lol
         const tp={}; // <-- tp = tweakpane
-        let ss,msgElement,clientID,SFBABYLON,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+        let ss,msgElement,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
         let whitelistPlayers,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
         let cachedCommand = "", cachedCommandTime = Date.now();
         let activePath, findNewPath, activeNodeTarget;
@@ -1690,7 +1691,6 @@
             playerNameSpan.classList.add("chat-player-name", "ss_marginright_xs");
             playerNameSpan.textContent = playerName + " ";
 
-            console.log(TEAMCOLORS[playerTeam]);
             playerInfoContainer.style.color = TEAMCOLORS[playerTeam];
             playerInfoContainer.appendChild(serverIcon);
             playerInfoContainer.appendChild(playerNameSpan);
@@ -1723,8 +1723,8 @@
             };
             if (!object.generatedESP) {
                 //tracers
-                const tracerLines = SFBABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
-                tracerLines.color=new SFBABYLON.Color3(1, 1, 1);
+                const tracerLines = L.BABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+                tracerLines.color=new L.BABYLON.Color3(1, 1, 1);
                 tracerLines.renderingGroupId=1;
                 object.tracerLines = tracerLines;
                 //ESP
@@ -1738,14 +1738,14 @@
                     ammoESP: -0.05,
                 };
                 const vertices = [
-                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
-                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
-                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
-                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
-                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
-                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
-                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
-                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+                    new L.BABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
                 ];
                 const lines = [];
                 for (let i = 0; i < 4; i++) {
@@ -1753,8 +1753,8 @@
                     lines.push([vertices[i + 4], vertices[(i + 1) % 4 + 4]]);
                     lines.push([vertices[i], vertices[i + 4]]);
                 };
-                const box = SFBABYLON.MeshBuilder.CreateLineSystem(getScrambled(), { lines }, newScene);
-                box.color = new SFBABYLON.Color3(1, 1, 1);
+                const box = L.BABYLON.MeshBuilder.CreateLineSystem(getScrambled(), { lines }, newScene);
+                box.color = new L.BABYLON.Color3(1, 1, 1);
                 box.position.y=boxOffset[type];
                 box.renderingGroupId = 1;
                 box.parent=newParent;
@@ -1762,9 +1762,9 @@
                 //TARGETS
                 let target
                 if (type=="playerESP") {
-                    target = SFBABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.05 }, newScene);
-                    target.material = new SFBABYLON.StandardMaterial("sphereMaterial", newScene);
-                    target.material.diffuseColor = new SFBABYLON.Color3(1, 0, 0);
+                    target = L.BABYLON.MeshBuilder.CreateSphere(getScrambled(), { diameter: 0.05 }, newScene);
+                    target.material = new L.BABYLON.StandardMaterial(getScrambled(), newScene);
+                    target.material.diffuseColor = new L.BABYLON.Color3(1, 0, 0);
                     target.material.alpha = 0.5;
                     target.position.y = 0.3;
                     target.renderingGroupId = 1;
@@ -1775,9 +1775,9 @@
                 object.generatedESP=true;
                 ESPArray.push([object,tracerLines,box,target]);
             };
-            object.tracerLines.setVerticesData(SFBABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-            object.tracerLines.color = new SFBABYLON.Color3(...color);
-            object.box.color = new SFBABYLON.Color3(...color);
+            object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
+            object.tracerLines.color = new L.BABYLON.Color3(...color);
+            object.box.color = new L.BABYLON.Color3(...color);
         };
         const everySecond = function () {
             startUpComplete = (!document.getElementById("progressBar"));
@@ -1953,7 +1953,7 @@
             };
             if (extract("debug")) {
                 globalSS={};
-                globalSS.BABYLON=SFBABYLON;
+                if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
                 globalSS.ss=ss;
                 globalSS.H=H;
                 globalSS.tp=tp;
@@ -2513,10 +2513,10 @@
                 numbers.push(((seed/233280)-0.5)*accuracy);
             };
             const range = ss.MYPLAYER.weapon.constructor.range;
-            const playerRotationMatrix = SFBABYLON.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
-            const rangeMatrix = SFBABYLON.Matrix.Translation(0, 0, range);
+            const playerRotationMatrix = L.BABYLON.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
+            const rangeMatrix = L.BABYLON.Matrix.Translation(0, 0, range);
             const playerAndRangeMatrix = rangeMatrix.multiply(playerRotationMatrix);
-            const bloomMatrix = SFBABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
+            const bloomMatrix = L.BABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
             const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
             const finalBulletTranslation = finalBulletMatrix.getTranslation();
             const bulletYaw = calculateYaw(finalBulletTranslation);
@@ -2541,17 +2541,17 @@
             };
         };
         const predictPosition = function(player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
-            let velocityVector = new SFBABYLON.Vector3(player.dx, player.dy, player.dz);
+            let velocityVector = new L.BABYLON.Vector3(player.dx, player.dy, player.dz);
             const bulletSpeed=ss.MYPLAYER.weapon.constructor.velocity;
             const timeDiff = distancePlayers(player, 1) / bulletSpeed + 1;
-            let newPos = new SFBABYLON.Vector3(player[H.x],player[H.y],player[H.z]).add(velocityVector.scale(timeDiff));
+            let newPos = new L.BABYLON.Vector3(player[H.x],player[H.y],player[H.z]).add(velocityVector.scale(timeDiff));
             newPos.y = player[H.y];
-            const cappedVector = new SFBABYLON.Vector3(velocityVector.x, 0.29, velocityVector.z);
+            const cappedVector = new L.BABYLON.Vector3(velocityVector.x, 0.29, velocityVector.z);
             Math.capVector3(cappedVector);
             const terminalVelocity = -cappedVector.y;
             const timeAccelerating = Math.min(timeDiff, (terminalVelocity - velocityVector.y) / -0.012);
             const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
-            const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos,new SFBABYLON.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
+            const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos,new L.BABYLON.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
             newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
             // console.log(velocityVector, bulletSpeed, timeDiff, cappedVector, terminalVelocity, timeAccelerating, predictedY, rayToGround, newPos);
             return newPos;
@@ -2565,14 +2565,14 @@
             // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor][H.mesh].position;
 
             let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
-            let rotationMatrix = SFBABYLON.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
-            let directionMatrix = SFBABYLON.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
+            let rotationMatrix = L.BABYLON.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
+            let directionMatrix = L.BABYLON.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
             directionVector = directionMatrix.getTranslation();
-            let position = SFBABYLON.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(SFBABYLON.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
+            let position = L.BABYLON.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(L.BABYLON.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
 
             let rayCollidesWithMap = ss.RAYS[H.rayCollidesWithMap](position, directionVector, ss.RAYS.projectileCollidesWithCell);
-            let distanceToMap = rayCollidesWithMap ? SFBABYLON.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
-            let distanceToTarget = SFBABYLON.Vector3.DistanceSquared(position, targetPosition)
+            let distanceToMap = rayCollidesWithMap ? L.BABYLON.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
+            let distanceToTarget = L.BABYLON.Vector3.DistanceSquared(position, targetPosition)
             return distanceToTarget < distanceToMap
         };
         const getAimbot = function(target) {
@@ -3426,17 +3426,17 @@
         }
 
         function create_red_line_between_nodes(ss, node1, node2) {
-            // const tracerLines = SFBABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+            // const tracerLines = L.BABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
             pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
             pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
             if (window.pathLines === undefined) {
-                let node_lines = SFBABYLON.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
-                node_lines.color = new SFBABYLON.Color3(1, 0, 0);
+                let node_lines = L.BABYLON.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
+                node_lines.color = new L.BABYLON.Color3(1, 0, 0);
                 node_lines.renderingGroupId = 1;
                 window.pathLines = [node_lines];
             } else {
-                let node_lines = SFBABYLON.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
-                node_lines.color = new SFBABYLON.Color3(1, 0, 0);
+                let node_lines = L.BABYLON.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
+                node_lines.color = new L.BABYLON.Color3(1, 0, 0);
                 node_lines.renderingGroupId = 1;
                 window.pathLines.push(node_lines);
             }
@@ -3467,25 +3467,25 @@
             const oneTime = function () {
                 //xd lmao
                 if (ss.MYPLAYER) {
-                console.log('%cSTATEFARM IS ATTEMPTING TO LOAD BABYLON', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
-                var script = document.createElement("script");
+                    console.log('%cSTATEFARM IS ATTEMPTING TO LOAD L.BABYLON', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                    var script = document.createElement("script");
                     script.src = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
                     script.onload = function() {
-                        if (BABYLON) {
-                            SFBABYLON = unsafeWindow.BABYLON;
+                        if (unsafeWindow.BABYLON) {
+                            L.BABYLON = unsafeWindow.BABYLON;
                             delete unsafeWindow.BABYLON;
 
                             console.log("Babylon.js loaded successfully");
-                            console.log(SFBABYLON.Engine.Version);
+                            console.log(L.BABYLON.Engine.Version);
 
-                            console.log('%cSTATEFARM SUCCESSFULLY LOADED BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                            console.log('%cSTATEFARM SUCCESSFULLY LOADED L.BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                             
                             H.actor = findKeyWithProperty(ss.MYPLAYER, H.mesh);
                             // Math.capVector3 = Math[H.capVector3];
                 
                             console.log("StateFarm: found vars:", H);
                 
-                            crosshairsPosition=new SFBABYLON.Vector3();
+                            crosshairsPosition=new L.BABYLON.Vector3();
                             Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
                                 get: () => {
                                     return extract("wireframe");
@@ -3493,7 +3493,7 @@
                             });
         
                         } else {
-                            console.log('%cSTATEFARM COULD NOT LOAD BABYLON', 'color: red; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                            console.log('%cSTATEFARM COULD NOT LOAD L.BABYLON', 'color: red; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                         };
                     };
                     document.body.appendChild(script);
@@ -3588,7 +3588,8 @@
 
                         player.tracerLines.visibility = player[H.playing] && extract("tracers") && passedLists;
                         player.box.visibility = extract("playerESP") && passedLists;
-                        player.target.visibility = extract("targets") && passedLists;
+                        // player.target.visibility = extract("targets") && passedLists;
+                        player.target.visibility = false;
 
                         if (player[H.actor]) {
                             eggSize=extract("eggSize")
@@ -3706,10 +3707,14 @@
                 };
             });
             createAnonFunction("STATEFARM",function(){
-
+                ss.PLAYERS.forEach(PLAYER=>{
+                    if (PLAYER.hasOwnProperty("ws")) {
+                        ss.MYPLAYER = PLAYER
+                    };
+                });
                 if ( !ranOneTime ) {
                     oneTime();
-                } else if ( typeof(SFBABYLON) !== 'undefined' ) {
+                } else if ( typeof(L.BABYLON) !== 'undefined' ) {
                     initVars();
                     updateLinesESP();
 
@@ -3795,7 +3800,7 @@
                     //     // look towards the node
                     //     console.log("looking towards node")
                     //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
-                    //     let forwardVector = new SFBABYLON.Vector3(0, 0, 1);
+                    //     let forwardVector = new L.BABYLON.Vector3(0, 0, 1);
                     //     console.log("vector obtained: ", directionVector);
                     //     ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
                     //     ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
@@ -3963,10 +3968,10 @@
                         if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
                             didAimbot=true;
                             if (extract("tracers")) {
-                                currentlyTargeting.tracerLines.color = new SFBABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                                currentlyTargeting.tracerLines.color = new L.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                             };
                             if (extract("playerESP")) {
-                                currentlyTargeting.box.color = new SFBABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                                currentlyTargeting.box.color = new L.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                             };
                             if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
                                 const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
