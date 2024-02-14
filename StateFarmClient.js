@@ -12,6 +12,7 @@
     // @grant        GM_listValues
     // @grant        GM_info
     // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
+
     // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
     // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 
@@ -20,7 +21,7 @@
         //3.#.#-release for release
     //this ensures that each version of the script is counted as different
 
-    // @version      3.4.0-pre6
+    // @version      3.4.0-pre7
 
     // @match        *://*.shellshock.io/*
     // @match        *://*.algebra.best/*
@@ -143,7 +144,7 @@
         let bindsArray={};
         let H={}; // obfuscated shit lol
         const tp={}; // <-- tp = tweakpane
-        let ss,msgElement,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+        let ss,msgElement,clientID,SFBABYLON,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
         let whitelistPlayers,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
         let cachedCommand = "", cachedCommandTime = Date.now();
         let activePath, findNewPath, activeNodeTarget;
@@ -1722,8 +1723,8 @@
             };
             if (!object.generatedESP) {
                 //tracers
-                const tracerLines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines]("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
-                tracerLines.color=new ss.BABYLONJS.Color3(1, 1, 1);
+                const tracerLines = SFBABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+                tracerLines.color=new SFBABYLON.Color3(1, 1, 1);
                 tracerLines.renderingGroupId=1;
                 object.tracerLines = tracerLines;
                 //ESP
@@ -1737,14 +1738,14 @@
                     ammoESP: -0.05,
                 };
                 const vertices = [
-                    new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
-                    new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
-                    new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
-                    new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
-                    new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
-                    new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
-                    new ss.BABYLONJS.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
-                    new ss.BABYLONJS.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type], -boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, -boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type], boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
+                    new SFBABYLON.Vector3(-boxSize[type].width / 2, boxOffset[type] + boxSize[type].height, boxSize[type].depth / 2),
                 ];
                 const lines = [];
                 for (let i = 0; i < 4; i++) {
@@ -1752,8 +1753,8 @@
                     lines.push([vertices[i + 4], vertices[(i + 1) % 4 + 4]]);
                     lines.push([vertices[i], vertices[i + 4]]);
                 };
-                const box = ss.BABYLONJS[H.MeshBuilder].CreateLineSystem(getScrambled(), { lines }, newScene);
-                box.color = new ss.BABYLONJS.Color3(1, 1, 1);
+                const box = SFBABYLON.MeshBuilder.CreateLineSystem(getScrambled(), { lines }, newScene);
+                box.color = new SFBABYLON.Color3(1, 1, 1);
                 box.position.y=boxOffset[type];
                 box.renderingGroupId = 1;
                 box.parent=newParent;
@@ -1761,9 +1762,9 @@
                 //TARGETS
                 let target
                 if (type=="playerESP") {
-                    target = ss.BABYLONJS[H.MeshBuilder][H.CreateSphere]("sphere", { diameter: 0.05 }, newScene);
-                    target.material = new ss.BABYLONJS.StandardMaterial("sphereMaterial", newScene);
-                    target.material.diffuseColor = new ss.BABYLONJS.Color3(1, 0, 0);
+                    target = SFBABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 0.05 }, newScene);
+                    target.material = new SFBABYLON.StandardMaterial("sphereMaterial", newScene);
+                    target.material.diffuseColor = new SFBABYLON.Color3(1, 0, 0);
                     target.material.alpha = 0.5;
                     target.position.y = 0.3;
                     target.renderingGroupId = 1;
@@ -1774,9 +1775,9 @@
                 object.generatedESP=true;
                 ESPArray.push([object,tracerLines,box,target]);
             };
-            object.tracerLines.setVerticesData(ss.BABYLONJS.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-            object.tracerLines.color = new ss.BABYLONJS.Color3(...color);
-            object.box.color = new ss.BABYLONJS.Color3(...color);
+            object.tracerLines.setVerticesData(SFBABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
+            object.tracerLines.color = new SFBABYLON.Color3(...color);
+            object.box.color = new SFBABYLON.Color3(...color);
         };
         const everySecond = function () {
             startUpComplete = (!document.getElementById("progressBar"));
@@ -1952,6 +1953,7 @@
             };
             if (extract("debug")) {
                 globalSS={};
+                globalSS.BABYLON=SFBABYLON;
                 globalSS.ss=ss;
                 globalSS.H=H;
                 globalSS.tp=tp;
@@ -2511,10 +2513,10 @@
                 numbers.push(((seed/233280)-0.5)*accuracy);
             };
             const range = ss.MYPLAYER.weapon.constructor.range;
-            const playerRotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
-            const rangeMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, range);
+            const playerRotationMatrix = SFBABYLON.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
+            const rangeMatrix = SFBABYLON.Matrix.Translation(0, 0, range);
             const playerAndRangeMatrix = rangeMatrix.multiply(playerRotationMatrix);
-            const bloomMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
+            const bloomMatrix = SFBABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
             const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
             const finalBulletTranslation = finalBulletMatrix.getTranslation();
             const bulletYaw = calculateYaw(finalBulletTranslation);
@@ -2539,17 +2541,17 @@
             };
         };
         const predictPosition = function(player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
-            let velocityVector = new ss.BABYLONJS.Vector3(player.dx, player.dy, player.dz);
+            let velocityVector = new SFBABYLON.Vector3(player.dx, player.dy, player.dz);
             const bulletSpeed=ss.MYPLAYER.weapon.constructor.velocity;
             const timeDiff = distancePlayers(player, 1) / bulletSpeed + 1;
-            let newPos = new ss.BABYLONJS.Vector3(player[H.x],player[H.y],player[H.z]).add(velocityVector.scale(timeDiff));
+            let newPos = new SFBABYLON.Vector3(player[H.x],player[H.y],player[H.z]).add(velocityVector.scale(timeDiff));
             newPos.y = player[H.y];
-            const cappedVector = new ss.BABYLONJS.Vector3(velocityVector.x, 0.29, velocityVector.z);
+            const cappedVector = new SFBABYLON.Vector3(velocityVector.x, 0.29, velocityVector.z);
             Math.capVector3(cappedVector);
             const terminalVelocity = -cappedVector.y;
             const timeAccelerating = Math.min(timeDiff, (terminalVelocity - velocityVector.y) / -0.012);
             const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
-            const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos,new ss.BABYLONJS.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
+            const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos,new SFBABYLON.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
             newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
             // console.log(velocityVector, bulletSpeed, timeDiff, cappedVector, terminalVelocity, timeAccelerating, predictedY, rayToGround, newPos);
             return newPos;
@@ -2563,14 +2565,14 @@
             // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor][H.mesh].position;
 
             let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
-            let rotationMatrix = ss.BABYLONJS.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
-            let directionMatrix = ss.BABYLONJS.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
+            let rotationMatrix = SFBABYLON.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
+            let directionMatrix = SFBABYLON.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
             directionVector = directionMatrix.getTranslation();
-            let position = ss.BABYLONJS.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(ss.BABYLONJS.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
+            let position = SFBABYLON.Matrix.Translation(0, .1, 0).multiply(rotationMatrix).add(SFBABYLON.Matrix.Translation(myPlayerPosition.x, myPlayerPosition.y + 0.3, myPlayerPosition.z)).getTranslation();
 
             let rayCollidesWithMap = ss.RAYS[H.rayCollidesWithMap](position, directionVector, ss.RAYS.projectileCollidesWithCell);
-            let distanceToMap = rayCollidesWithMap ? ss.BABYLONJS.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
-            let distanceToTarget = ss.BABYLONJS.Vector3.DistanceSquared(position, targetPosition)
+            let distanceToMap = rayCollidesWithMap ? SFBABYLON.Vector3.DistanceSquared(position, rayCollidesWithMap.pick.pickedPoint) : Infinity;
+            let distanceToTarget = SFBABYLON.Vector3.DistanceSquared(position, targetPosition)
             return distanceToTarget < distanceToMap
         };
         const getAimbot = function(target) {
@@ -2793,7 +2795,7 @@
                 let onlineClientKeys = fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
 
                 if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
-                    let userInput = prompt('Valid keys could not be retrieved online. Enter keys if you have them. Join the StateFarm Network Discord server to generate keys! https://discord.gg/HYJG3jXVJF', '');
+                    let userInput = prompt('Valid VarData could not be retrieved online. Enter VarData if you have it. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command sf.vardata in the bot channel.', '');
                     if (userInput !== null && userInput !== '') {
                         alert('Aight, let\'s try this. If it is invalid, it will just crash.');
                         clientKeys = JSON.parse(userInput);
@@ -2875,17 +2877,12 @@
                 //bypass chat filter
                 modifyJS('.trim();','.trim();'+H._chat+'=window.'+functionNames.modifyChat+'('+H._chat+');')
                 //hook for control interception
-                const UPDATETHING=js.match(/\.equip\(\)\},([a-zA-Z$_]+)\.prototype\.([a-zA-Z$_]+)=function\(([a-zA-Z$_]+)\)\{/)[0];
-                console.log("UPDATETHING:",UPDATETHING);
-                const CONTROLKEYS=js.match(/holdToAim\?([a-zA-Z$_]+)\|=/)[1];
-                console.log("CONTROLKEYS:",CONTROLKEYS);
-                modifyJS(UPDATETHING,UPDATETHING+CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+CONTROLKEYS+');');
+                // modifyJS(H._updateThing,H._updateThing+H.CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+H.CONTROLKEYS+');');
                 //admin spoof lol
                 modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
                 modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
                 //grab reason for connect fail
                 const FUNCTIONPARAM = new RegExp('function '+H._connectFail+'\\(([a-zA-Z$_]+)\\)').exec(js)[1];
-                // const ERRORARRAY = js.match(/\.code===([a-zA-Z$_]+)\.sessionNotFound\?\(console\.log\(`/)[1];
                 console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
                 modifyJS('function '+H._connectFail+'('+FUNCTIONPARAM+'){','function '+H._connectFail+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+H.ERRORARRAY+');')
                 //get rid of tutorial popup because its a stupid piece of shit
@@ -2893,11 +2890,9 @@
                 //pointer escape
                 modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
                 //death hook
-                const DEATHFUNCTION = js.match(/&&([a-zA-Z$_]+)\([a-zA-Z$_]+,[a-zA-Z$_]+\),/)[1];
-                console.log("DEATHFUNCTION",DEATHFUNCTION);
-                const DEATHARGS = new RegExp('function '+DEATHFUNCTION+'\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
+                const DEATHARGS = new RegExp('function '+H._deathFunction+'\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
                 console.log("DEATHARGS",DEATHARGS);
-                modifyJS('function '+DEATHFUNCTION+'('+DEATHARGS+'){','function '+DEATHFUNCTION+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
+                // modifyJS('function '+H._deathFunction+'('+DEATHARGS+'){','function '+H._deathFunction+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
                 modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
                 console.log(H);
@@ -3431,17 +3426,17 @@
         }
 
         function create_red_line_between_nodes(ss, node1, node2) {
-            // const tracerLines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines]("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
+            // const tracerLines = SFBABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
             pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
             pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
             if (window.pathLines === undefined) {
-                let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
-                node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
+                let node_lines = SFBABYLON.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
+                node_lines.color = new SFBABYLON.Color3(1, 0, 0);
                 node_lines.renderingGroupId = 1;
                 window.pathLines = [node_lines];
             } else {
-                let node_lines = ss.BABYLONJS[H.MeshBuilder][H.CreateLines](new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
-                node_lines.color = new ss.BABYLONJS.Color3(1, 0, 0);
+                let node_lines = SFBABYLON.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
+                node_lines.color = new SFBABYLON.Color3(1, 0, 0);
                 node_lines.renderingGroupId = 1;
                 window.pathLines.push(node_lines);
             }
@@ -3472,20 +3467,36 @@
             const oneTime = function () {
                 //xd lmao
                 if (ss.MYPLAYER) {
-                    ss.BABYLONJS.Vector3 = ss.MYPLAYER.constructor.v1.constructor;
-                    ss.BABYLONJS.Matrix.RotationYawPitchRoll = ss.BABYLONJS.Matrix[H.RotationYawPitchRoll];
-                    H.actor = findKeyWithProperty(ss.MYPLAYER,H.mesh);
-                    // Math.capVector3 = Math[H.capVector3];
-        
-                    console.log("StateFarm: found vars:", H);
-        
-                    crosshairsPosition=new ss.BABYLONJS.Vector3();
-                    Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
-                        get: () => {
-                            return extract("wireframe");
-                        }
-                    });
+                console.log('%cSTATEFARM IS ATTEMPTING TO LOAD BABYLON', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                var script = document.createElement("script");
+                    script.src = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
+                    script.onload = function() {
+                        if (BABYLON) {
+                            SFBABYLON = unsafeWindow.BABYLON;
+                            delete unsafeWindow.BABYLON;
 
+                            console.log("Babylon.js loaded successfully");
+                            console.log(SFBABYLON.Engine.Version);
+
+                            console.log('%cSTATEFARM SUCCESSFULLY LOADED BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                            
+                            H.actor = findKeyWithProperty(ss.MYPLAYER, H.mesh);
+                            // Math.capVector3 = Math[H.capVector3];
+                
+                            console.log("StateFarm: found vars:", H);
+                
+                            crosshairsPosition=new SFBABYLON.Vector3();
+                            Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
+                                get: () => {
+                                    return extract("wireframe");
+                                }
+                            });
+        
+                        } else {
+                            console.log('%cSTATEFARM COULD NOT LOAD BABYLON', 'color: red; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                        };
+                    };
+                    document.body.appendChild(script);
                     ranOneTime=true;
                 };
             };
@@ -3696,367 +3707,363 @@
             });
             createAnonFunction("STATEFARM",function(){
 
-                ss.PLAYERS.forEach(PLAYER=>{
-                    if (PLAYER.hasOwnProperty("ws")) {
-                        ss.MYPLAYER = PLAYER
+                if ( !ranOneTime ) {
+                    oneTime();
+                } else if ( typeof(SFBABYLON) !== 'undefined' ) {
+                    initVars();
+                    updateLinesESP();
+
+                    // if (!map_data_created) {
+                    //     new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
+                    //     map_data_created = true;
+                    // }
+
+                    // if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
+                    //     let player_pos = get_player_position(ss.MYPLAYER);
+                    //     let player_node = get_node_at(player_pos);
+                    //     if (player_node) {
+                    //         let position = {
+                    //             x: player_pos.x + Math.floor(Math.random() * 5) - 1,
+                    //             y: player_pos.y,
+                    //             z: player_pos.z + Math.floor(Math.random() * 5) - 1
+                    //         }
+                    //         // check if node at position exists
+                    //         let random_node = get_node_at(position);
+                            
+                    //         if (!(player_node === random_node) && random_node) {
+                    //             console.log("location, target:")
+                    //             print_node_list([player_node, random_node])
+                    //             activePath = AStar(player_node, random_node);
+                    //             if (activePath) {
+                    //                 console.log("setting active node target");
+                    //                 print_node_list(activePath);
+                    //                 activeNodeTarget = activePath[0];
+                    //                 console.log("list printed, target set, creating pathfinding lines")
+                    //                 create_pathfinding_lines(ss, activePath);
+                    //                 findNewPath = false; 
+                    //                 console.log("found path to random node")                 
+                    //             } else {
+                    //                 console.log("unable to find path to random node")
+                    //             }
+                    //         } else {
+                    //             console.log("player node / random node not air")
+                    //         }
+                    //     } else {
+                    //         console.log("player not on air node currently")
+                    //     }
+                    // }
+
+                    // if (AUTOMATED && pathfindingTargetOverride !== undefined) {
+                    //     player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                    //     target_node = get_node_at(pathfindingTargetOverride);
+                    //     if (player_node && target_node) {
+                    //         path = AStar(player_node, target_node);
+                    //         if (path) {
+                    //             activePath = path;
+                    //             activeNodeTarget = path[0];
+                    //         } else {
+                    //             if (despawnIfNoPath) {
+                    //                 sendChatMessage("despawnIfNoPath");
+                    //             }
+                    //         }
+                    //     }
+                    // }
+
+                    // if (activeNodeTarget && activePath) {
+                    //     console.log("found target and path");
+                    //     let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                    //     if (player_node == activeNodeTarget) {
+                    //         activeNodeTarget = activePath.shift();
+                    //         console.log("update target");
+                    //         if (activePath.length == 0) {
+                    //             console.log("path completed");
+                    //             activePath = null;
+                    //             activeNodeTarget = null;
+                    //         }
+                    //     } else {
+                    //         console.log("not at target");
+                    //     }
+                    //     /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
+                    //         findNewPath = true;
+                    //         activePath = null;
+                    //         activeNodeTarget = null;
+                    //         console.log("went off path, finding new path")
+                    //     } */
+                    // }
+
+                    // if (activeNodeTarget) {
+                    //     // look towards the node
+                    //     console.log("looking towards node")
+                    //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
+                    //     let forwardVector = new SFBABYLON.Vector3(0, 0, 1);
+                    //     console.log("vector obtained: ", directionVector);
+                    //     ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
+                    //     ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
+                    //     console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
+                    //     forceControlKeys = ss.CONTROLKEYSENUM.up;
+                    //     console.log("done with looking & window forward set")
+                    // };
+
+                    let isVisible;
+                    const player=currentlyTargeting||playerLookingAt||undefined;
+                    if (player && player[H.playing]) {
+                        isVisible=getLineOfSight(player);
                     };
-                });
+                    highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
 
-                if ( !ranOneTime ) { oneTime() };
+                    if (extract("radar")){
+                        myPlayerDot.style.display = 'block';
+                        ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
+                    }
+                    else {
+                        ss.PLAYERS.forEach(player=>{
+                            if (playerDotsMap.has(player.uniqueId)) {
+                                const playerDotToRemove = playerDotsMap.get(player.uniqueId);
+                                mapEl.removeChild(playerDotToRemove);
+                                playerDotsMap.delete(player.uniqueId);
+                            }
+                        });
+                        myPlayerDot.style.display = 'none';
+                    }
 
-                initVars();
-                updateLinesESP();
-
-                // if (!map_data_created) {
-                //     new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
-                //     map_data_created = true;
-                // }
-
-                // if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
-                //     let player_pos = get_player_position(ss.MYPLAYER);
-                //     let player_node = get_node_at(player_pos);
-                //     if (player_node) {
-                //         let position = {
-                //             x: player_pos.x + Math.floor(Math.random() * 5) - 1,
-                //             y: player_pos.y,
-                //             z: player_pos.z + Math.floor(Math.random() * 5) - 1
-                //         }
-                //         // check if node at position exists
-                //         let random_node = get_node_at(position);
-                        
-                //         if (!(player_node === random_node) && random_node) {
-                //             console.log("location, target:")
-                //             print_node_list([player_node, random_node])
-                //             activePath = AStar(player_node, random_node);
-                //             if (activePath) {
-                //                 console.log("setting active node target");
-                //                 print_node_list(activePath);
-                //                 activeNodeTarget = activePath[0];
-                //                 console.log("list printed, target set, creating pathfinding lines")
-                //                 create_pathfinding_lines(ss, activePath);
-                //                 findNewPath = false; 
-                //                 console.log("found path to random node")                 
-                //             } else {
-                //                 console.log("unable to find path to random node")
-                //             }
-                //         } else {
-                //             console.log("player node / random node not air")
-                //         }
-                //     } else {
-                //         console.log("player not on air node currently")
-                //     }
-                // }
-
-                // if (AUTOMATED && pathfindingTargetOverride !== undefined) {
-                //     player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                //     target_node = get_node_at(pathfindingTargetOverride);
-                //     if (player_node && target_node) {
-                //         path = AStar(player_node, target_node);
-                //         if (path) {
-                //             activePath = path;
-                //             activeNodeTarget = path[0];
-                //         } else {
-                //             if (despawnIfNoPath) {
-                //                 sendChatMessage("despawnIfNoPath");
-                //             }
-                //         }
-                //     }
-                // }
-
-                // if (activeNodeTarget && activePath) {
-                //     console.log("found target and path");
-                //     let player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                //     if (player_node == activeNodeTarget) {
-                //         activeNodeTarget = activePath.shift();
-                //         console.log("update target");
-                //         if (activePath.length == 0) {
-                //             console.log("path completed");
-                //             activePath = null;
-                //             activeNodeTarget = null;
-                //         }
-                //     } else {
-                //         console.log("not at target");
-                //     }
-                //     /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
-                //         findNewPath = true;
-                //         activePath = null;
-                //         activeNodeTarget = null;
-                //         console.log("went off path, finding new path")
-                //     } */
-                // }
-
-                // if (activeNodeTarget) {
-                //     // look towards the node
-                //     console.log("looking towards node")
-                //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
-                //     let forwardVector = new ss.BABYLONJS.Vector3(0, 0, 1);
-                //     console.log("vector obtained: ", directionVector);
-                //     ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
-                //     ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
-                //     console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
-                //     forceControlKeys = ss.CONTROLKEYSENUM.up;
-                //     console.log("done with looking & window forward set")
-                // };
-
-                let isVisible;
-                const player=currentlyTargeting||playerLookingAt||undefined;
-                if (player && player[H.playing]) {
-                    isVisible=getLineOfSight(player);
-                };
-                highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
-
-                if (extract("radar")){
-                    myPlayerDot.style.display = 'block';
-                    ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
-                }
-                else {
-                    ss.PLAYERS.forEach(player=>{
-                        if (playerDotsMap.has(player.uniqueId)) {
-                            const playerDotToRemove = playerDotsMap.get(player.uniqueId);
-                            mapEl.removeChild(playerDotToRemove);
-                            playerDotsMap.delete(player.uniqueId);
-                        }
-                    });
-                    myPlayerDot.style.display = 'none';
-                }
-
-                if ( extract("freecam") ) {
-                    ss.MYPLAYER[H.actor][H.mesh].position.y = ss.MYPLAYER[H.actor][H.mesh].position.y + 1;
-                };
-                if (extract("spamChat")) {
-                    if (document.getElementById("chatIn").style.visibility == 'visible') {
-                        if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
-                            sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
-                            lastSpamMessage=Date.now()
+                    if ( extract("freecam") ) {
+                        ss.MYPLAYER[H.actor][H.mesh].position.y = ss.MYPLAYER[H.actor][H.mesh].position.y + 1;
+                    };
+                    if (extract("spamChat")) {
+                        if (document.getElementById("chatIn").style.visibility == 'visible') {
+                            if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
+                                sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
+                                lastSpamMessage=Date.now()
+                            };
                         };
                     };
-                };
-                if ( extract("chatHighlight") ) {
-                    document.getElementById("chatOut").style.userSelect="text"
-                };
-                if ( extract("autoRefill") ) {
-                    //console.log(ss.MYPLAYER.weapon);
-                    if (ammo.rounds==0) {
-                        ss.MYPLAYER.reload();
-                    } else if (extract("smartRefill")) {
-                        let smartRefillMinAmmo = {
-                            eggk47:1,
-                            dozenGauge:0,
-                            csg1:1,
-                            rpegg:0,
-                            smg:1,
-                            m24:0,
-                            aug:3,
-                            cluck9mm:1
-                        };
-                        if (ammo.rounds <= smartRefillMinAmmo[ss.MYPLAYER.weapon.constructor.standardMeshName]) {
+                    if ( extract("chatHighlight") ) {
+                        document.getElementById("chatOut").style.userSelect="text"
+                    };
+                    if ( extract("autoRefill") ) {
+                        //console.log(ss.MYPLAYER.weapon);
+                        if (ammo.rounds==0) {
                             ss.MYPLAYER.reload();
-                        };
-                    };
-                };
-                if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount>0)) {
-                    ss.MYPLAYER.throwGrenade();
-                };
-                if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER[H.playing])) {
-                    weaponArray.random = randomInt(0,6);
-                    document.querySelectorAll('.weapon_img')[weaponArray[extract("autoWeapon")]].parentNode.click();
-                };
-                if (extract("revealBloom")) {
-                    redCircle.style.display='';
-                    const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
-                    const bloomValues=predictBloom(ss.MYPLAYER[H.yaw],ss.MYPLAYER[H.pitch]);
-                    // Set the new position of the circle
-                    const centerX = (unsafeWindow.innerWidth / 2);
-                    const centerY = (unsafeWindow.innerHeight / 2);
-                    const offsettedX = centerX + (2 * distCenterToOuter * bloomValues[0]);
-                    const offsettedY = centerY + (2 * distCenterToOuter * bloomValues[1]);
-                    redCircle.style.bottom = offsettedY + 'px';
-                    redCircle.style.right = offsettedX + 'px';
-                } else {
-                    redCircle.style.display='none';
-                };
-
-                // playerNearest=undefined; //currently unused and not defined
-                // enemyLookingAt=undefined; //currently unused and not defined
-
-                let playerLookingAtMinimum = 999999;
-                playerLookingAt=undefined; //used for player info
-
-                let enemyMinimumDistance = 999999;
-                enemyNearest=undefined; //used for antisneak
-
-                let previousTarget=currentlyTargeting;
-                let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
-                let isDoingAimbot=(extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
-                // console.log(targetingComplete);
-
-                const targetType = extract("aimbotTargetMode");
-                const visibilityMode = extract("aimbotVisibilityMode");
-
-                function deg2rad(deg) {
-                    return deg * (Math.PI / 180);
-                }
-
-                let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? deg2rad(extract("aimbotMinAngle")) : 10000; //used for selecting target (either pointingat or nearest)
-
-                let didAimbot
-                const candidates=[];
-                let amountVisible=0;
-
-                ss.PLAYERS.forEach(player=>{ //iterate over all players to
-                    if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0)) {
-                        const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
-                        const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
-                        const passedLists=whitelisted&&(!blacklisted);
-                        player.distance=distancePlayers(player);
-                        player.adjustedDistance=distancePlayers(player,2);
-                        const directionVector=getDirectionVectorFacingTarget(player);
-                        player.angleDiff=getAngularDifference(ss.MYPLAYER, {yawReal: calculateYaw(directionVector), pitchReal: calculatePitch(directionVector)});
-                        player.isVisible=getLineOfSight(player,extract("prediction"));
-
-                        if (player.angleDiff < playerLookingAtMinimum) {
-                            playerLookingAtMinimum = player.angleDiff;
-                            playerLookingAt = player;
-                        };
-
-                        if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
-                            if (isDoingAimbot) { //is doing aimbot and we care about getting a new target
-                                if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
-                                    enemyMinimumDistance = player.adjustedDistance;
-                                    enemyNearest = player;
-                                };
-                                if (selectNewTarget) {
-                                    candidates.push(player);
-                                    if (player.isVisible) { amountVisible+=1 };
-                                };
+                        } else if (extract("smartRefill")) {
+                            let smartRefillMinAmmo = {
+                                eggk47:1,
+                                dozenGauge:0,
+                                csg1:1,
+                                rpegg:0,
+                                smg:1,
+                                m24:0,
+                                aug:3,
+                                cluck9mm:1
+                            };
+                            if (ammo.rounds <= smartRefillMinAmmo[ss.MYPLAYER.weapon.constructor.standardMeshName]) {
+                                ss.MYPLAYER.reload();
                             };
                         };
                     };
-                });
-
-                candidates.forEach(player=>{
-                    const valueToUse=((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.angleDiff));
-                    let visibleValue;
-                    if (visibilityMode=="disabled") { //we dont care about that shit
-                        visibleValue = true; //go ahead
-                    } else if (amountVisible<1) { //none of candidates are visibS
-                        visibleValue = (visibilityMode=="onlyvisible" ? false : true); //there are no visible candidates, so either select none if "onlyvisible" or ignore this altogether
-                    } else { //some are visible
-                        visibleValue = player.isVisible; //assuming now that either "prioritise" or "onlyvisible" are enabled, as "onlyvisible"'s use case fulfilled in previous statement
+                    if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount>0)) {
+                        ss.MYPLAYER.throwGrenade();
                     };
-                    if (visibleValue) {
-                        if (valueToUse < enemyMinimumValue ) {
-                            enemyMinimumValue = valueToUse;
-                            currentlyTargeting = player;
-                        };
+                    if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER[H.playing])) {
+                        weaponArray.random = randomInt(0,6);
+                        document.querySelectorAll('.weapon_img')[weaponArray[extract("autoWeapon")]].parentNode.click();
                     };
-                });
+                    if (extract("revealBloom")) {
+                        redCircle.style.display='';
+                        const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
+                        const bloomValues=predictBloom(ss.MYPLAYER[H.yaw],ss.MYPLAYER[H.pitch]);
+                        // Set the new position of the circle
+                        const centerX = (unsafeWindow.innerWidth / 2);
+                        const centerY = (unsafeWindow.innerHeight / 2);
+                        const offsettedX = centerX + (2 * distCenterToOuter * bloomValues[0]);
+                        const offsettedY = centerY + (2 * distCenterToOuter * bloomValues[1]);
+                        redCircle.style.bottom = offsettedY + 'px';
+                        redCircle.style.right = offsettedX + 'px';
+                    } else {
+                        redCircle.style.display='none';
+                    };
 
-                if (isDoingAimbot) {
-                    //globalSS.currentlyTargeting = currentlyTargeting;
-                    if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
-                        didAimbot=true;
-                        if (extract("tracers")) {
-                            currentlyTargeting.tracerLines.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
-                        };
-                        if (extract("playerESP")) {
-                            currentlyTargeting.box.color = new ss.BABYLONJS.Color3(...hexToRgb(extract("aimbotColor")));
-                        };
-                        if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
-                            const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
+                    // playerNearest=undefined; //currently unused and not defined
+                    // enemyLookingAt=undefined; //currently unused and not defined
 
-                            const aimbot=getAimbot(currentlyTargeting);
+                    let playerLookingAtMinimum = 999999;
+                    playerLookingAt=undefined; //used for player info
 
-                            const antiSnap=(1-(extract("aimbotAntiSnap")||0));
+                    let enemyMinimumDistance = 999999;
+                    enemyNearest=undefined; //used for antisneak
 
-                            if (previousTarget!==currentlyTargeting) { targetingComplete=false };
+                    let previousTarget=currentlyTargeting;
+                    let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
+                    let isDoingAimbot=(extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
+                    // console.log(targetingComplete);
 
-                            const lerp = function(start, end, alpha) {
-                                let value = (1 - alpha ) * start + alpha * end;
-                                if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
-                                    value = end; targetingComplete=true;
+                    const targetType = extract("aimbotTargetMode");
+                    const visibilityMode = extract("aimbotVisibilityMode");
+
+                    function deg2rad(deg) {
+                        return deg * (Math.PI / 180);
+                    }
+
+                    let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? deg2rad(extract("aimbotMinAngle")) : 10000; //used for selecting target (either pointingat or nearest)
+
+                    let didAimbot
+                    const candidates=[];
+                    let amountVisible=0;
+
+                    ss.PLAYERS.forEach(player=>{ //iterate over all players to
+                        if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0)) {
+                            const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
+                            const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
+                            const passedLists=whitelisted&&(!blacklisted);
+                            player.distance=distancePlayers(player);
+                            player.adjustedDistance=distancePlayers(player,2);
+                            const directionVector=getDirectionVectorFacingTarget(player);
+                            player.angleDiff=getAngularDifference(ss.MYPLAYER, {yawReal: calculateYaw(directionVector), pitchReal: calculatePitch(directionVector)});
+                            player.isVisible=getLineOfSight(player,extract("prediction"));
+
+                            if (player.angleDiff < playerLookingAtMinimum) {
+                                playerLookingAtMinimum = player.angleDiff;
+                                playerLookingAt = player;
+                            };
+
+                            if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
+                                if (isDoingAimbot) { //is doing aimbot and we care about getting a new target
+                                    if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
+                                        enemyMinimumDistance = player.adjustedDistance;
+                                        enemyNearest = player;
+                                    };
+                                    if (selectNewTarget) {
+                                        candidates.push(player);
+                                        if (player.isVisible) { amountVisible+=1 };
+                                    };
                                 };
-                                return value;
                             };
-
-                            // Exponential lerp towards the target rotation
-                            ss.MYPLAYER[H.yaw] = setPrecision(lerp(ss.MYPLAYER[H.yaw], aimbot.yawReal, antiSnap));
-                            ss.MYPLAYER[H.pitch] = setPrecision(lerp(ss.MYPLAYER[H.pitch], aimbot.pitchReal, antiSnap));
                         };
-                        if ( enemyMinimumDistance < extract("antiSneak")) {
-                            currentlyTargeting = enemyNearest;
-                            if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
-                                if (ss.MYPLAYER.weaponIdx === 0){ss.MYPLAYER.swapWeapon(1);}
-                                else {ss.MYPLAYER.reload();}
+                    });
+
+                    candidates.forEach(player=>{
+                        const valueToUse=((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.angleDiff));
+                        let visibleValue;
+                        if (visibilityMode=="disabled") { //we dont care about that shit
+                            visibleValue = true; //go ahead
+                        } else if (amountVisible<1) { //none of candidates are visibS
+                            visibleValue = (visibilityMode=="onlyvisible" ? false : true); //there are no visible candidates, so either select none if "onlyvisible" or ignore this altogether
+                        } else { //some are visible
+                            visibleValue = player.isVisible; //assuming now that either "prioritise" or "onlyvisible" are enabled, as "onlyvisible"'s use case fulfilled in previous statement
+                        };
+                        if (visibleValue) {
+                            if (valueToUse < enemyMinimumValue ) {
+                                enemyMinimumValue = valueToUse;
+                                currentlyTargeting = player;
                             };
-                            ss.MYPLAYER.pullTrigger();
-                            // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
+                        };
+                    });
+
+                    if (isDoingAimbot) {
+                        //globalSS.currentlyTargeting = currentlyTargeting;
+                        if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
+                            didAimbot=true;
+                            if (extract("tracers")) {
+                                currentlyTargeting.tracerLines.color = new SFBABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                            };
+                            if (extract("playerESP")) {
+                                currentlyTargeting.box.color = new SFBABYLON.Color3(...hexToRgb(extract("aimbotColor")));
+                            };
+                            if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
+                                const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
+
+                                const aimbot=getAimbot(currentlyTargeting);
+
+                                const antiSnap=(1-(extract("aimbotAntiSnap")||0));
+
+                                if (previousTarget!==currentlyTargeting) { targetingComplete=false };
+
+                                const lerp = function(start, end, alpha) {
+                                    let value = (1 - alpha ) * start + alpha * end;
+                                    if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
+                                        value = end; targetingComplete=true;
+                                    };
+                                    return value;
+                                };
+
+                                // Exponential lerp towards the target rotation
+                                ss.MYPLAYER[H.yaw] = setPrecision(lerp(ss.MYPLAYER[H.yaw], aimbot.yawReal, antiSnap));
+                                ss.MYPLAYER[H.pitch] = setPrecision(lerp(ss.MYPLAYER[H.pitch], aimbot.pitchReal, antiSnap));
+                            };
+                            if ( enemyMinimumDistance < extract("antiSneak")) {
+                                currentlyTargeting = enemyNearest;
+                                if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
+                                    if (ss.MYPLAYER.weaponIdx === 0){ss.MYPLAYER.swapWeapon(1);}
+                                    else {ss.MYPLAYER.reload();}
+                                };
+                                ss.MYPLAYER.pullTrigger();
+                                // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
+                            };
+                        } else {
+                            if (extract("oneKill")) {
+                                currentlyTargeting="dead";
+                            } else {
+                                currentlyTargeting=false;
+                            };
                         };
                     } else {
-                        if (extract("oneKill")) {
-                            currentlyTargeting="dead";
-                        } else {
-                            currentlyTargeting=false;
+                        currentlyTargeting=false;
+                        targetingComplete=false;
+                        if (extract("enableSeizureX")) {
+                            ss.MYPLAYER[H.yaw]+=extract("amountSeizureX")
+                        };
+                        if (extract("enableSeizureY")) {
+                            ss.MYPLAYER[H.pitch]+=extract("amountSeizureY")
                         };
                     };
-                } else {
-                    currentlyTargeting=false;
-                    targetingComplete=false;
-                    if (extract("enableSeizureX")) {
-                        ss.MYPLAYER[H.yaw]+=extract("amountSeizureX")
-                    };
-                    if (extract("enableSeizureY")) {
-                        ss.MYPLAYER[H.pitch]+=extract("amountSeizureY")
-                    };
-                };
-                highlightTargetOnLeaderboard(currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
-                if (extract("upsideDown")) { //sorta useless
-                    if (ss.MYPLAYER[H.pitch]<1.5 && ss.MYPLAYER[H.pitch]>-1.5) {
-                        ss.MYPLAYER[H.pitch]=Math.PI;
-                    };
-                };
-                if (extract("silentRoll")) {
-                    ss.MYPLAYER[H.pitch]+=2*Math.PI;
-                };
-
-                if (extract("enableAutoFire")) {
-                    let autoFireType=extract("autoFireType");
-                    let doAutoFire=false
-                    if (autoFireType=="always") {
-                        doAutoFire=true;
-                    } else if (autoFireType=="whileAimbot" && didAimbot) {
-                        doAutoFire=true;
-                    } else if (autoFireType=="whileVisible" && isVisible) {
-                        doAutoFire=true;
-                    };
-                    if (doAutoFire) {
-                        if ((ammo.rounds>0)||(ammo.store>0)) {
-                            ss.MYPLAYER.pullTrigger();
-                        } else {
-                            ss.MYPLAYER.melee();
+                    highlightTargetOnLeaderboard(currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
+                    if (extract("upsideDown")) { //sorta useless
+                        if (ss.MYPLAYER[H.pitch]<1.5 && ss.MYPLAYER[H.pitch]>-1.5) {
+                            ss.MYPLAYER[H.pitch]=Math.PI;
                         };
                     };
-                    //method by de_Neuublue
-                    if ( autoFireType=="forceAutomatic" ) {
-                        if (ss.MYPLAYER.weapon.constructor.originallySemi == null) {
-                            ss.MYPLAYER.weapon.constructor.originallySemi = !ss.MYPLAYER.weapon.constructor.automatic;
-                        };
-                        ss.MYPLAYER.weapon.constructor.automatic = true;
-                    } else if (ss.MYPLAYER.weapon.constructor.originallySemi) {
-                        ss.MYPLAYER.weapon.constructor.originallySemi = null;
-                        ss.MYPLAYER.weapon.constructor.automatic = false;
+                    if (extract("silentRoll")) {
+                        ss.MYPLAYER[H.pitch]+=2*Math.PI;
                     };
+
+                    if (extract("enableAutoFire")) {
+                        let autoFireType=extract("autoFireType");
+                        let doAutoFire=false
+                        if (autoFireType=="always") {
+                            doAutoFire=true;
+                        } else if (autoFireType=="whileAimbot" && didAimbot) {
+                            doAutoFire=true;
+                        } else if (autoFireType=="whileVisible" && isVisible) {
+                            doAutoFire=true;
+                        };
+                        if (doAutoFire) {
+                            if ((ammo.rounds>0)||(ammo.store>0)) {
+                                ss.MYPLAYER.pullTrigger();
+                            } else {
+                                ss.MYPLAYER.melee();
+                            };
+                        };
+                        //method by de_Neuublue
+                        if ( autoFireType=="forceAutomatic" ) {
+                            if (ss.MYPLAYER.weapon.constructor.originallySemi == null) {
+                                ss.MYPLAYER.weapon.constructor.originallySemi = !ss.MYPLAYER.weapon.constructor.automatic;
+                            };
+                            ss.MYPLAYER.weapon.constructor.automatic = true;
+                        } else if (ss.MYPLAYER.weapon.constructor.originallySemi) {
+                            ss.MYPLAYER.weapon.constructor.originallySemi = null;
+                            ss.MYPLAYER.weapon.constructor.automatic = false;
+                        };
+                    };
+
+                    let doRender = true;
+
+                    if ((extract("renderDelay")>10) && (Date.now()<(previousFrame+extract("renderDelay")))) { //because bots lmao
+                        doRender = false;
+                    } else {
+                        previousFrame = Date.now();
+                    };
+
+                    return (!doRender);
                 };
-
-                let doRender = true;
-
-                if ((extract("renderDelay")>10) && (Date.now()<(previousFrame+extract("renderDelay")))) { //because bots lmao
-                    doRender = false;
-                } else {
-                    previousFrame = Date.now();
-                };
-
-                return (!doRender);
             });
         };
 
