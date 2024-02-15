@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre11
+// @version      3.4.0-pre12
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2899,6 +2899,7 @@ z-index: 999999;
             // modifyJS('function '+H._deathFunction+'('+DEATHARGS+'){','function '+H._deathFunction+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
+            modifyJS('tp-', ``);
             console.log(H);
             console.log(js);
             return js;
