@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre10
+// @version      3.4.0-pre11
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -147,7 +147,7 @@ console.log("StateFarm: running (before function)");
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
     let ss,msgElement,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -931,7 +931,7 @@ sniping and someone sneaks up on you
         try {
             if (extract("popups")) {
                 const messageContainer = document.getElementById('message-container');
-                const messages = messageContainer.getElementsByClassName('msg');
+                const messages = messageContainer.getElementsByClassName(scrambledMsgEl);
                 if (messages.length > 5) {
                     messageContainer.removeChild(messages[0]);
                 };
@@ -974,7 +974,7 @@ sniping and someone sneaks up on you
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
                 url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
             }
-            .tp-dfwv, .tp-sglv_i, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-txtv_i, .tp-lblv_l, .tp-tbiv_t, .msg, .coords, .gameinfo, .playerstats, .playerinfo, .automated {
+            .tp-dfwv, .tp-sglv_i, .tp-rotv_t, .tp-fldv_t, .tp-ckbv_l, .tp-txtv_i, .tp-lblv_l, .tp-tbiv_t, .coords, .gameinfo, .playerstats, .playerinfo, .automated {
                 font-family: 'Bahnschrift', sans-serif !important;
                 font-size: 16px;
                 z-index: 9999 !important;
@@ -1040,7 +1040,8 @@ sniping and someone sneaks up on you
 
         //initiate message div and css and shit
         msgElement = document.createElement('div'); // create the element directly
-        msgElement.classList.add('msg');
+        scrambledMsgEl = getScrambled();
+        msgElement.classList.add(scrambledMsgEl);
         msgElement.setAttribute('style', `
             position: absolute;
             left: 10px;
@@ -1052,10 +1053,12 @@ sniping and someone sneaks up on you
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             border: 2px solid rgba(255, 255, 255, 0.5);
             animation: msg 0.5s forwards, msg 0.5s reverse forwards 3s;
-            z-index: 999999;
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            font-family: 'Bahnschrift', sans-serif !important;
+            font-size: 16px;
+            z-index: 9999 !important;
         `);
         document.body.appendChild(msgElement);
         msgElement.style.display = 'none';
@@ -3501,8 +3504,99 @@ z-index: 999999;
                 ranOneTime=true;
             };
         };
+        const mapStuff = function () {
+            if (!map_data_created) {
+                new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
+                map_data_created = true;
+            };
+
+            if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
+                let player_pos = get_player_position(ss.MYPLAYER);
+                let player_node = get_node_at(player_pos);
+                if (player_node) {
+                    let position = {
+                        x: player_pos.x + Math.floor(Math.random() * 5) - 1,
+                        y: player_pos.y,
+                        z: player_pos.z + Math.floor(Math.random() * 5) - 1
+                    }
+                    // check if node at position exists
+                    let random_node = get_node_at(position);
+                    
+                    if (!(player_node === random_node) && random_node) {
+                        console.log("location, target:")
+                        print_node_list([player_node, random_node])
+                        activePath = AStar(player_node, random_node);
+                        if (activePath) {
+                            console.log("setting active node target");
+                            print_node_list(activePath);
+                            activeNodeTarget = activePath[0];
+                            console.log("list printed, target set, creating pathfinding lines")
+                            create_pathfinding_lines(ss, activePath);
+                            findNewPath = false; 
+                            console.log("found path to random node")                 
+                        } else {
+                            console.log("unable to find path to random node")
+                        }
+                    } else {
+                        console.log("player node / random node not air")
+                    }
+                } else {
+                    console.log("player not on air node currently")
+                }
+            }
+
+            if (AUTOMATED && pathfindingTargetOverride !== undefined) {
+                player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                target_node = get_node_at(pathfindingTargetOverride);
+                if (player_node && target_node) {
+                    path = AStar(player_node, target_node);
+                    if (path) {
+                        activePath = path;
+                        activeNodeTarget = path[0];
+                    } else {
+                        if (despawnIfNoPath) {
+                            sendChatMessage("despawnIfNoPath");
+                        }
+                    }
+                }
+            }
+
+            if (activeNodeTarget && activePath) {
+                console.log("found target and path");
+                let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                if (player_node == activeNodeTarget) {
+                    activeNodeTarget = activePath.shift();
+                    console.log("update target");
+                    if (activePath.length == 0) {
+                        console.log("path completed");
+                        activePath = null;
+                        activeNodeTarget = null;
+                    }
+                } else {
+                    console.log("not at target");
+                }
+                /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
+                    findNewPath = true;
+                    activePath = null;
+                    activeNodeTarget = null;
+                    console.log("went off path, finding new path")
+                } */
+            }
+
+            if (activeNodeTarget) {
+                // look towards the node
+                console.log("looking towards node")
+                let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
+                let forwardVector = new L.BABYLON.Vector3(0, 0, 1);
+                console.log("vector obtained: ", directionVector);
+                ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
+                ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
+                console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
+                forceControlKeys = ss.CONTROLKEYSENUM.up;
+                console.log("done with looking & window forward set")
+            };
+        };
         const initVars = function () {
-            everySecond(); //REMOVE
 
             isBanned=false; //cant be banned if in a game /shrug
             errorString=undefined; //no error if ur playing
@@ -3720,97 +3814,8 @@ z-index: 999999;
             } else if ( typeof(L.BABYLON) !== 'undefined' ) {
                 initVars();
                 updateLinesESP();
+                // mapStuff();
 
-                // if (!map_data_created) {
-                //     new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
-                //     map_data_created = true;
-                // }
-
-                // if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
-                //     let player_pos = get_player_position(ss.MYPLAYER);
-                //     let player_node = get_node_at(player_pos);
-                //     if (player_node) {
-                //         let position = {
-                //             x: player_pos.x + Math.floor(Math.random() * 5) - 1,
-                //             y: player_pos.y,
-                //             z: player_pos.z + Math.floor(Math.random() * 5) - 1
-                //         }
-                //         // check if node at position exists
-                //         let random_node = get_node_at(position);
-                        
-                //         if (!(player_node === random_node) && random_node) {
-                //             console.log("location, target:")
-                //             print_node_list([player_node, random_node])
-                //             activePath = AStar(player_node, random_node);
-                //             if (activePath) {
-                //                 console.log("setting active node target");
-                //                 print_node_list(activePath);
-                //                 activeNodeTarget = activePath[0];
-                //                 console.log("list printed, target set, creating pathfinding lines")
-                //                 create_pathfinding_lines(ss, activePath);
-                //                 findNewPath = false; 
-                //                 console.log("found path to random node")                 
-                //             } else {
-                //                 console.log("unable to find path to random node")
-                //             }
-                //         } else {
-                //             console.log("player node / random node not air")
-                //         }
-                //     } else {
-                //         console.log("player not on air node currently")
-                //     }
-                // }
-
-                // if (AUTOMATED && pathfindingTargetOverride !== undefined) {
-                //     player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                //     target_node = get_node_at(pathfindingTargetOverride);
-                //     if (player_node && target_node) {
-                //         path = AStar(player_node, target_node);
-                //         if (path) {
-                //             activePath = path;
-                //             activeNodeTarget = path[0];
-                //         } else {
-                //             if (despawnIfNoPath) {
-                //                 sendChatMessage("despawnIfNoPath");
-                //             }
-                //         }
-                //     }
-                // }
-
-                // if (activeNodeTarget && activePath) {
-                //     console.log("found target and path");
-                //     let player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                //     if (player_node == activeNodeTarget) {
-                //         activeNodeTarget = activePath.shift();
-                //         console.log("update target");
-                //         if (activePath.length == 0) {
-                //             console.log("path completed");
-                //             activePath = null;
-                //             activeNodeTarget = null;
-                //         }
-                //     } else {
-                //         console.log("not at target");
-                //     }
-                //     /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
-                //         findNewPath = true;
-                //         activePath = null;
-                //         activeNodeTarget = null;
-                //         console.log("went off path, finding new path")
-                //     } */
-                // }
-
-                // if (activeNodeTarget) {
-                //     // look towards the node
-                //     console.log("looking towards node")
-                //     let directionVector = getDirectionVectorFacingTarget(activeNodeTarget.position, true, 0);
-                //     let forwardVector = new L.BABYLON.Vector3(0, 0, 1);
-                //     console.log("vector obtained: ", directionVector);
-                //     ss.MYPLAYER[H.yaw] = setPrecision(calculateYaw(directionVector));
-                //     ss.MYPLAYER[H.pitch] = setPrecision(calculatePitch(forwardVector));
-                //     console.log("pitch and yaw set: ", ss.MYPLAYER[H.pitch], ss.MYPLAYER[H.yaw]);
-                //     forceControlKeys = ss.CONTROLKEYSENUM.up;
-                //     console.log("done with looking & window forward set")
-                // };
 
                 let isVisible;
                 const player=currentlyTargeting||playerLookingAt||undefined;
