@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre13
+// @version      3.4.0-pre14
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -84,6 +84,7 @@ let attemptedInjection = true;
 console.log("StateFarm: running (before function)");
 
 (function () {
+    document.getElementById("loadSS").innerHTML=(document.getElementById("loadSS").innerHTML).replace(/>/g,"=");
     console.log("StateFarm: running (after function)");
     //script info
     const name="ЅtateFarm Client";
