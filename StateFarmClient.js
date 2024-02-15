@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre14
+// @version      3.4.0-pre15
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -84,7 +84,12 @@ let attemptedInjection = true;
 console.log("StateFarm: running (before function)");
 
 (function () {
-    document.getElementById("loadSS").innerHTML=(document.getElementById("loadSS").innerHTML).replace(/>/g,"=");
+    let originalReplace = String.prototype.replace;
+
+    String.prototype.originalReplace = function() {
+        return originalReplace.apply(this, arguments);
+    };
+
     console.log("StateFarm: running (after function)");
     //script info
     const name="ЅtateFarm Client";
@@ -340,12 +345,12 @@ console.log("StateFarm: running (before function)");
     });
     //menu
     document.addEventListener("keydown", function (event) {
-        event=(event.code.replace("Key",""));
+        event=(event.code.originalReplace("Key",""));
         isKeyToggled[event]=true;
         if (event=="Escape") { noPointerPause=false; unsafeWindow.document.onpointerlockchange() };
     });
     document.addEventListener("keyup", function (event) {
-        event=(event.code.replace("Key",""));
+        event=(event.code.originalReplace("Key",""));
         isKeyToggled[event]=false;
         if (document.activeElement&&document.activeElement.tagName==='INPUT' ) {
             return;
@@ -2840,7 +2845,7 @@ z-index: 999999;
             const modifyJS = function(find,replace) {
                 let oldJS = js;
                 try {
-                    js = js.replace(find,replace);
+                    js = js.originalReplace(find,replace);
                 } catch (err) {
                     console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
@@ -2868,7 +2873,7 @@ z-index: 999999;
             modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
             //chat mods: disable chat culling
             const chatCull=/;[a-zA-Z$_]+\.length>4/.exec(js)[0];
-            modifyJS(chatCull,chatCull.replace('4', `window.${functionNames.getChatLimit}()`));
+            modifyJS(chatCull,chatCull.originalReplace('4', `window.${functionNames.getChatLimit}()`));
             //chat mods: disable filter (credit to A3+++ for this finding)
             modifyJS(`!${H._filterFunction}(${H._insideFilterFunction})`,`((!${H._filterFunction}(${H._insideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
