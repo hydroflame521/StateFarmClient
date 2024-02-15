@@ -345,6 +345,8 @@ With the exception of the color pickers and some links, these should all be bind
 -   _**Creator's Links**_: to stay up to date.
 -   _**Presets**_: preset configs to make your life easier
 -   _**Apply Presets**_: apply presets
+-   _**Save Preset**_: Save you current settings as a preset
+-   _**Remove Preset**_: Deletes preset. Can not delete hardcoded presets.
 -   _**Reset**_: deletes all locally stored variables, resetting the client config to defaults.  _Warning_: some are used by the game too so you may lose your saved username and some stats.
 -  _**Debug**_ debug for devs
 

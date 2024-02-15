@@ -857,7 +857,7 @@ sniping and someone sneaks up on you
             });
             initModule({
             location: tp.clientTab.pages[0],
-            title: "Remove",
+            title: "Remove Preset",
             storeAs: "removePrest",
             button: "Remove Preset",
             clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
