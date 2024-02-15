@@ -84,6 +84,12 @@ let attemptedInjection = true;
 console.log("StateFarm: running (before function)");
 
 (function () {
+    let originalReplace = String.prototype.replace;
+
+    String.prototype.originalReplace = function() {
+        return originalReplace.apply(this, arguments);
+    };
+
     console.log("StateFarm: running (after function)");
     //script info
     const name="ЅtateFarm Client";
@@ -340,12 +346,12 @@ console.log("StateFarm: running (before function)");
     });
     //menu
     document.addEventListener("keydown", function (event) {
-        event=(event.code.replace("Key",""));
+        event=(event.code.originalReplace("Key",""));
         isKeyToggled[event]=true;
         if (event=="Escape") { noPointerPause=false; unsafeWindow.document.onpointerlockchange() };
     });
     document.addEventListener("keyup", function (event) {
-        event=(event.code.replace("Key",""));
+        event=(event.code.originalReplace("Key",""));
         isKeyToggled[event]=false;
         if (document.activeElement&&document.activeElement.tagName==='INPUT' ) {
             return;
@@ -800,75 +806,15 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/", enableConditions: [["enablePanic",true]],});
             tp.clientTab.pages[0].addSeparator();
-            let presetList = [];
-            Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var 
-            let options = {};
-            options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
-            options["value"] = key;
-            presetList.push(options);
-            });
-            initModule({
-            location: tp.clientTab.pages[0],
-            title: "Presets",
-            storeAs: "selectedPreset",
-            defaultValue: "onlypuppy7's Config",
-            bindLocation: tp.clientTab.pages[1],
-            dropdown: presetList,
-            });
-            initModule({
-            location: tp.clientTab.pages[0],
-            title: "Apply",
-            storeAs: "applyPreset",
-            button: "Apply Preset",
-            clickFunction: function () {
-                const userConfirmed = confirm(
-                "Are you sure you want to continue? This will replace most of your current config."
-                );
+            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", defaultValue: "onlypuppy7", bindLocation: tp.clientTab.pages[1], dropdown: [
+                {text: "onlypuppy7's Config", value: "onlypuppy7"},
+            ]});
+            initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
+                const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
                 if (userConfirmed) {
                     applySettings(inbuiltPresets[extract("selectedPreset")], true);
-                }
-            },
-            });
-            initModule({
-            location: tp.clientTab.pages[0],
-            title: "Save Preset",
-            storeAs: "savePreset",
-            button: "Save As Preset",
-            clickFunction: function () {
-                console.log("Config Main: ", configMain);
-                let saveString = ""; 
-                Object.entries(configMain).forEach(([key, value]) => { //gets every setting and saves it to a string
-                saveString += key + ">";
-                saveString += value + "<";
-                });
-                let presetName = prompt("Name of preset:"); // asks user for name of preset
-                if (presetName == "" || presetName == null) {
-                    console.log("User canceled save");
-                } else {
-                    let result = saveUserPreset(presetName, saveString);//saves user preset
-                    addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                    console.log("Saved Preset: ", saveString);
-                    console.log("User Preset Result: ", result);
-                }
-                console.log("InbuiltPrests:");
-                console.log(inbuiltPresets);
-                initMenu(false); //Reloads menu to add to dropdown list
-            },
-            });
-            initModule({
-            location: tp.clientTab.pages[0],
-            title: "Remove Preset",
-            storeAs: "removePrest",
-            button: "Remove Preset",
-            clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
-                let currUserPresets = loadUserPresets(); //gets current presets from storage
-                delete currUserPresets[extract("selectedPreset")];//deletes 
-                delete inbuiltPresets[extract("selectedPreset")];//deletes
-                save(presetStorageLocation, currUserPresets); // saves cnages to file.
-                console.log("Current User Presets: ",currUserPresets);
-                initMenu(false); //reloads menu
-            },
-            });
+                };
+            },});
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
                 initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){unsafeWindow.open(discordURL)},});
@@ -2280,33 +2226,6 @@ z-index: 999999;
         GM_deleteValue(storageKey+key);
         if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //legacy
     };
-    const addUserPresets = function (presets) {//adds presets from dict to inbilt presets, can be called multiple times to update
-        if (presets != null) {
-          Object.entries(presets).forEach(([key, value]) => {
-            inbuiltPresets[key] = value;
-          });
-        }
-      };
-      const loadUserPresets = function () {//gets user presets 
-        let result = load(presetStorageLocation);
-        console.log("Loaded StateFarmUserPresets: ", result);
-        return load(presetStorageLocation);
-      };
-      const saveUserPreset = function (presetName, preset) {
-        let currentPresets = loadUserPresets(); //gets current saved presets
-        if (currentPresets == null) { // if it does not exist, makes it
-          let presets = {};
-          presets[presetName] = preset;
-          save(presetStorageLocation, presets);
-          return presets;
-        } else {//otherwise it appends it
-          currentPresets[presetName] = preset;
-          save(presetStorageLocation, currentPresets);
-          return currentPresets;
-        }
-      };
-      //Updates inbuiltPresets to include user presets
-      addUserPresets(loadUserPresets());
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         if (ss.MYPLAYER.chatLines<2) {
             try {
@@ -2927,7 +2846,7 @@ z-index: 999999;
             const modifyJS = function(find,replace) {
                 let oldJS = js;
                 try {
-                    js = js.replace(find,replace);
+                    js = js.originalReplace(find,replace);
                 } catch (err) {
                     console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
@@ -2955,7 +2874,7 @@ z-index: 999999;
             modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
             //chat mods: disable chat culling
             const chatCull=/;[a-zA-Z$_]+\.length>4/.exec(js)[0];
-            modifyJS(chatCull,chatCull.replace('4', `window.${functionNames.getChatLimit}()`));
+            modifyJS(chatCull,chatCull.originalReplace('4', `window.${functionNames.getChatLimit}()`));
             //chat mods: disable filter (credit to A3+++ for this finding)
             modifyJS(`!${H._filterFunction}(${H._insideFilterFunction})`,`((!${H._filterFunction}(${H._insideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
@@ -2987,6 +2906,7 @@ z-index: 999999;
             // modifyJS('function '+H._deathFunction+'('+DEATHARGS+'){','function '+H._deathFunction+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
+            modifyJS(/tp-/g,'');
             console.log(H);
             console.log(js);
             return js;
