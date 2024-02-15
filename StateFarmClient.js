@@ -21,7 +21,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre11
+// @version      3.4.0-pre11  //userPresets fork
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
