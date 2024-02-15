@@ -118,8 +118,9 @@ console.log("StateFarm: running (before function)");
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     //INIT VARS
     const inbuiltPresets = {
-        onlypuppy7: `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
+        "onlypuppy7's Config": `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
     };
+    const presetStorageLocation = "StateFarmUserPresets";
     const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
     console.log("Save key:",storageKey);
     let binding=false;
@@ -799,15 +800,75 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/", enableConditions: [["enablePanic",true]],});
             tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", defaultValue: "onlypuppy7", bindLocation: tp.clientTab.pages[1], dropdown: [
-                {text: "onlypuppy7's Config", value: "onlypuppy7"},
-            ]});
-            initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function(){
-                const userConfirmed=confirm("Are you sure you want to continue? This will replace most of your current config.");
+            let presetList = [];
+            Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var 
+            let options = {};
+            options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
+            options["value"] = key;
+            presetList.push(options);
+            });
+            initModule({
+            location: tp.clientTab.pages[0],
+            title: "Presets",
+            storeAs: "selectedPreset",
+            defaultValue: "onlypuppy7's Config",
+            bindLocation: tp.clientTab.pages[1],
+            dropdown: presetList,
+            });
+            initModule({
+            location: tp.clientTab.pages[0],
+            title: "Apply",
+            storeAs: "applyPreset",
+            button: "Apply Preset",
+            clickFunction: function () {
+                const userConfirmed = confirm(
+                "Are you sure you want to continue? This will replace most of your current config."
+                );
                 if (userConfirmed) {
                     applySettings(inbuiltPresets[extract("selectedPreset")], true);
-                };
-            },});
+                }
+            },
+            });
+            initModule({
+            location: tp.clientTab.pages[0],
+            title: "Save Preset",
+            storeAs: "savePreset",
+            button: "Save As Preset",
+            clickFunction: function () {
+                console.log("Config Main: ", configMain);
+                let saveString = ""; 
+                Object.entries(configMain).forEach(([key, value]) => { //gets every setting and saves it to a string
+                saveString += key + ">";
+                saveString += value + "<";
+                });
+                let presetName = prompt("Name of preset:"); // asks user for name of preset
+                if (presetName == "" || presetName == null) {
+                    console.log("User canceled save");
+                } else {
+                    let result = saveUserPreset(presetName, saveString);//saves user preset
+                    addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                    console.log("Saved Preset: ", saveString);
+                    console.log("User Preset Result: ", result);
+                }
+                console.log("InbuiltPrests:");
+                console.log(inbuiltPresets);
+                initMenu(false); //Reloads menu to add to dropdown list
+            },
+            });
+            initModule({
+            location: tp.clientTab.pages[0],
+            title: "Remove",
+            storeAs: "removePrest",
+            button: "Remove Preset",
+            clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
+                let currUserPresets = loadUserPresets(); //gets current presets from storage
+                delete currUserPresets[extract("selectedPreset")];//deletes 
+                delete inbuiltPresets[extract("selectedPreset")];//deletes
+                save(presetStorageLocation, currUserPresets); // saves cnages to file.
+                console.log("Current User Presets: ",currUserPresets);
+                initMenu(false); //reloads menu
+            },
+            });
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
                 initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){unsafeWindow.open(discordURL)},});
@@ -2219,6 +2280,33 @@ z-index: 999999;
         GM_deleteValue(storageKey+key);
         if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //legacy
     };
+    const addUserPresets = function (presets) {//adds presets from dict to inbilt presets, can be called multiple times to update
+        if (presets != null) {
+          Object.entries(presets).forEach(([key, value]) => {
+            inbuiltPresets[key] = value;
+          });
+        }
+      };
+      const loadUserPresets = function () {//gets user presets 
+        let result = load(presetStorageLocation);
+        console.log("Loaded StateFarmUserPresets: ", result);
+        return load(presetStorageLocation);
+      };
+      const saveUserPreset = function (presetName, preset) {
+        let currentPresets = loadUserPresets(); //gets current saved presets
+        if (currentPresets == null) { // if it does not exist, makes it
+          let presets = {};
+          presets[presetName] = preset;
+          save(presetStorageLocation, presets);
+          return presets;
+        } else {//otherwise it appends it
+          currentPresets[presetName] = preset;
+          save(presetStorageLocation, currentPresets);
+          return currentPresets;
+        }
+      };
+      //Updates inbuiltPresets to include user presets
+      addUserPresets(loadUserPresets());
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         if (ss.MYPLAYER.chatLines<2) {
             try {
