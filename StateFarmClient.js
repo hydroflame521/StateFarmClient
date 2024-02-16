@@ -11,6 +11,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_info
+// @grant        GM_setClipboard
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
@@ -847,6 +848,38 @@ sniping and someone sneaks up on you
                 save(presetStorageLocation, currUserPresets); // saves cnages to file.
                 console.log("Current User Presets: ",currUserPresets);
                 initMenu(false); //reloads menu
+            },});
+            initModule({ location: tp.clientTab.pages[0], title: "Copy Preset", storeAs: "copyPreset", button: "Copy To Clipboard", clickFunction: function () {
+                let saveString = ""; 
+                Object.entries(configMain).forEach(([key, value]) => {
+                    saveString += key + ">";
+                    saveString += value + "<";
+                });
+                GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
+                createPopup("Copied to clipboard...")
+            },});
+            initModule({ location: tp.clientTab.pages[0], title: "Import Preset", storeAs: "importPreset", button: "Import Preset", clickFunction: function () {
+                let preset = prompt("Paste preset here:"); // asks user to paste preset
+                if (preset == "" || preset == null) {
+                    console.log("User canceled save");
+                } else {
+                    const pattern = /([a-zA-Z]*>[^<]*<)+[a-zA-Z]*>[^<]*/;
+                    if (pattern.test(preset)){
+                        let presetName = prompt("Name of preset:"); // asks user for name of preset
+                        if (presetName == "" || presetName == null) {
+                            console.log("User canceled save");
+                        } else {
+                            let result = saveUserPreset(presetName, preset);//saves user preset
+                            addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                            console.log("Saved Preset: ", preset);
+                            console.log("User Preset Result: ", result);
+                        }
+                    }else{
+                        alert("Not A Valid Preset!");
+                        console.log("Preset Not Valid");
+                    }
+                    initMenu(false);
+                }
             },});
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
