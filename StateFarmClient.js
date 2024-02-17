@@ -823,11 +823,12 @@ sniping and someone sneaks up on you
             });
             initModule({ location: tp.clientTab.pages[0], title: "Save Preset", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
                 console.log("Config Main: ", configMain);
-                let saveString = ""; 
-                Object.entries(configMain).forEach(([key, value]) => { //gets every setting and saves it to a string
-                    saveString += key + ">";
-                    saveString += value + "<";
+                let saveString = ''; 
+                const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
+                Object.entries(configMain).forEach(([key, value]) => {
+                    addParam(key, value);
                 });
+                saveString = saveString.substring(0, saveString.length - 1);
                 let presetName = prompt("Name of preset:"); // asks user for name of preset
                 if (presetName == "" || presetName == null) {
                     console.log("User canceled save");
@@ -850,11 +851,12 @@ sniping and someone sneaks up on you
                 initMenu(false); //reloads menu
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Copy Preset", storeAs: "copyPreset", button: "Copy To Clipboard", clickFunction: function () {
-                let saveString = ""; 
+                let saveString = ''; 
+                const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
                 Object.entries(configMain).forEach(([key, value]) => {
-                    saveString += key + ">";
-                    saveString += value + "<";
+                    addParam(key, value);
                 });
+                saveString = saveString.substring(0, saveString.length - 1);
                 GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
                 createPopup("Copied to clipboard...")
             },});
@@ -3158,14 +3160,10 @@ z-index: 999999;
     const applySettings = function(settings,reset) {
         console.log(AUTOMATED,settings);
         settings=settings.split("<");
-        if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings");}
+        if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings")};
         settings.forEach(element=>{
             element=element.split(">");
-            value = element[1];
-            if (element[0]!=""){
-                try {value =JSON.parse(element[1]);}catch (err){value=value;}
-                change(element[0],value);
-            }
+            change(element[0],JSON.parse(element[1]));
         });
         createPopup("Custom StateFarm Settings Applying...");
     };
