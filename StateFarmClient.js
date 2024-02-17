@@ -125,7 +125,7 @@ console.log("StateFarm: running (before function)");
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
-        "onlypuppy7's Config": `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
+        "onlypuppy7's Config": `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true<enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
     };
     const presetStorageLocation = "StateFarmUserPresets";
     const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
@@ -3158,10 +3158,14 @@ z-index: 999999;
     const applySettings = function(settings,reset) {
         console.log(AUTOMATED,settings);
         settings=settings.split("<");
-        if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings")};
+        if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings");}
         settings.forEach(element=>{
             element=element.split(">");
-            change(element[0],JSON.parse(element[1]));
+            value = element[1];
+            if (element[0]!=""){
+                try {value =JSON.parse(element[1]);}catch (err){value=value;}
+                change(element[0],value);
+            }
         });
         createPopup("Custom StateFarm Settings Applying...");
     };
