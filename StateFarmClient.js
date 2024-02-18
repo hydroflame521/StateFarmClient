@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre19
+// @version      3.4.0-pre20
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -1308,43 +1308,44 @@ sniping and someone sneaks up on you
 
     const makeHudElementDragable = function (element) {
         if (element.getAttribute("drag-true") != "true") {
-        element.addEventListener("mousedown", function (e) {
-            let offsetX = e.clientX - parseInt(window.getComputedStyle(this).left);
-            let offsetY = e.clientY - parseInt(window.getComputedStyle(this).top);
+            element.addEventListener("mousedown", function (e) {
+                let offsetX = e.clientX - parseInt(window.getComputedStyle(this).left);
+                let offsetY = e.clientY - parseInt(window.getComputedStyle(this).top);
 
-            function mouseMoveHandler(e) {
-            let newX = e.clientX - offsetX;
-            let newY = e.clientY - offsetY;
-            if (newX >= 0 && newX + element.getBoundingClientRect().width <= window.innerWidth) {
-                element.style.left = newX + "px";
-            }
-            if (newY >= 0 && newY + element.getBoundingClientRect().height <= window.innerHeight) {
-                element.style.top = newY + "px";
-            }
-            }
+                function mouseMoveHandler(e) {
+                    let newX = e.clientX - offsetX;
+                    let newY = e.clientY - offsetY;
+                    if (newX >= 0 && newX + element.getBoundingClientRect().width <= window.innerWidth) {
+                        element.style.left = newX + "px";
+                    };
+                    if (newY >= 0 && newY + element.getBoundingClientRect().height <= window.innerHeight) {
+                        element.style.top = newY + "px";
+                    };
+                };
 
-            function reset() {
-                window.removeEventListener("mousemove", mouseMoveHandler);
-                window.removeEventListener("mouseup", reset);
+                function reset() {
+                    window.removeEventListener("mousemove", mouseMoveHandler);
+                    window.removeEventListener("mouseup", reset);
 
-                //saves new positions
-                hudElementPositions["coordElement"] = {"top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left};
-                hudElementPositions["gameInfoElement"] = {"top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left};
-                hudElementPositions["playerstatsElement"] = {"top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left};
-                hudElementPositions["playerinfoElement"] = {"top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left};
-                save("HUD-Positions", hudElementPositions);
-            }
+                    //saves new positions
+                    hudElementPositions["coordElement"] = {"top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left};
+                    hudElementPositions["gameInfoElement"] = {"top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left};
+                    hudElementPositions["playerstatsElement"] = {"top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left};
+                    hudElementPositions["playerinfoElement"] = {"top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left};
+                    save("HUD-Positions", hudElementPositions);
+                };
 
-            window.addEventListener("mousemove", mouseMoveHandler);
-            window.addEventListener("mouseup", reset);
-        });
+                window.addEventListener("mousemove", mouseMoveHandler);
+                window.addEventListener("mouseup", reset);
+            });
 
-        element.setAttribute("drag-true", "true");
-        }
+            element.setAttribute("drag-true", "true");
+        };
     };
 
     const applyTheme = function(setTheme) {
         setTheme = (setTheme||extract("themeType")||"defaultTheme");
+        let rootTheme
         switch (setTheme) {
             case ("defaultTheme"):
                 rootTheme = `
@@ -2429,7 +2430,7 @@ z-index: 999999;
                 return false
             };
         } else {
-            createPopup("Chat Cooldown: "+(globalSS.ss.MYPLAYER.chatLines-2)+" remaining.","error");
+            // createPopup("Chat Cooldown: "+(globalSS.ss.MYPLAYER.chatLines-2)+" remaining.","error");
         };
     };
     const addStreamsToInGameUI = function () {
