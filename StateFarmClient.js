@@ -125,9 +125,10 @@ console.log("StateFarm: running (before function)");
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
-        "onlypuppy7's Config": `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true<enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
+        "onlypuppy7's Config": `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
     };
     const presetStorageLocation = "StateFarmUserPresets";
+    let hudElementPositions = {};
     const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
     console.log("Save key:",storageKey);
     let binding=false;
@@ -815,40 +816,77 @@ sniping and someone sneaks up on you
             presetList.push(options);
             });
             //PRESETS: OakSwingZZZ 😎
-            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", defaultValue: "onlypuppy7's Config", bindLocation: tp.clientTab.pages[1], dropdown: presetList, });
-            initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function () {
-                const userConfirmed = confirm( "Are you sure you want to continue? This will replace most of your current config." );
-                    if (userConfirmed) { applySettings(inbuiltPresets[extract("selectedPreset")], true); };
-                },
-            });
-            initModule({ location: tp.clientTab.pages[0], title: "Save Preset", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
-                console.log("Config Main: ", configMain);
-                let saveString = ""; 
-                Object.entries(configMain).forEach(([key, value]) => { //gets every setting and saves it to a string
-                    saveString += key + ">";
-                    saveString += value + "<";
+            initFolder({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presetFolder",});
+                initModule({ location: tp.presetFolder, title: "Preset List", storeAs: "selectedPreset", defaultValue: "onlypuppy7's Config", bindLocation: tp.clientTab.pages[1], dropdown: presetList, });
+                initModule({ location: tp.presetFolder, title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function () {
+                    const userConfirmed = confirm( "Are you sure you want to continue? This will replace most of your current config." );
+                        if (userConfirmed) { applySettings(inbuiltPresets[extract("selectedPreset")], true); };
+                    },
                 });
-                let presetName = prompt("Name of preset:"); // asks user for name of preset
-                if (presetName == "" || presetName == null) {
-                    console.log("User canceled save");
-                } else {
-                    let result = saveUserPreset(presetName, saveString);//saves user preset
-                    addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                    console.log("Saved Preset: ", saveString);
-                    console.log("User Preset Result: ", result);
-                };
-                console.log("InbuiltPrests:");
-                console.log(inbuiltPresets);
-                initMenu(false); //Reloads menu to add to dropdown list
-            },});
-            initModule({ location: tp.clientTab.pages[0], title: "Remove Preset", storeAs: "removePrest", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
-                let currUserPresets = loadUserPresets(); //gets current presets from storage
-                delete currUserPresets[extract("selectedPreset")];//deletes 
-                delete inbuiltPresets[extract("selectedPreset")];//deletes
-                save(presetStorageLocation, currUserPresets); // saves cnages to file.
-                console.log("Current User Presets: ",currUserPresets);
-                initMenu(false); //reloads menu
-            },});
+                tp.presetFolder.addSeparator();
+                initModule({ location: tp.presetFolder, title: "Save", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
+                    console.log("Config Main: ", configMain);
+                    let saveString = ''; 
+                    const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
+                    Object.entries(configMain).forEach(([key, value]) => {
+                        addParam(key, value);
+                    });
+                    saveString = saveString.substring(0, saveString.length - 1);
+                    let presetName = prompt("Name of preset:"); // asks user for name of preset
+                    if (presetName == "" || presetName == null) {
+                        console.log("User cancelled save");
+                    } else {
+                        let result = saveUserPreset(presetName, saveString);//saves user preset
+                        addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                        console.log("Saved Preset: ", saveString);
+                        console.log("User Preset Result: ", result);
+                    };
+                    console.log("InbuiltPrests:");
+                    console.log(inbuiltPresets);
+                    initMenu(false); //Reloads menu to add to dropdown list
+                },});
+                initModule({ location: tp.presetFolder, title: "Delete", storeAs: "deletePreset", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
+                    let currUserPresets = loadUserPresets(); //gets current presets from storage
+                    delete currUserPresets[extract("selectedPreset")];//deletes 
+                    delete inbuiltPresets[extract("selectedPreset")];//deletes
+                    save(presetStorageLocation, currUserPresets); // saves cnages to file.
+                    console.log("Current User Presets: ",currUserPresets);
+                    initMenu(false); //reloads menu
+                },});
+                tp.presetFolder.addSeparator();
+                initModule({ location: tp.presetFolder, title: "Import", storeAs: "importPreset", button: "Import Preset", clickFunction: function () {
+                    let preset = prompt("Paste preset here:"); // asks user to paste preset
+                    if (preset == "" || preset == null) {
+                        console.log("User cancelled save");
+                    } else {
+                        const pattern = /([a-zA-Z]*>[^<]*<)+[a-zA-Z]*>[^<]*/;
+                        if (pattern.test(preset)){
+                            let presetName = prompt("Name of preset:"); // asks user for name of preset
+                            if (presetName == "" || presetName == null) {
+                                console.log("User cancelled save");
+                            } else {
+                                let result = saveUserPreset(presetName, preset);//saves user preset
+                                addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                                console.log("Saved Preset: ", preset);
+                                console.log("User Preset Result: ", result);
+                            }
+                        } else {
+                            alert("Not A Valid Preset!");
+                            console.log("Preset Not Valid");
+                        };
+                        initMenu(false);
+                    };
+                },});
+                initModule({ location: tp.presetFolder, title: "Export", storeAs: "exportPreset", button: "Copy To Clipboard", clickFunction: function () {
+                    let saveString = ''; 
+                    const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
+                    Object.entries(configMain).forEach(([key, value]) => {
+                        addParam(key, value);
+                    });
+                    saveString = saveString.substring(0, saveString.length - 1);
+                    GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
+                    createPopup("Preset copied to clipboard...")
+                },});
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
                 initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){unsafeWindow.open(discordURL)},});
@@ -1111,8 +1149,12 @@ sniping and someone sneaks up on you
         coordElement.classList.add('coords');
         coordElement.setAttribute('style', `
             position: fixed;
-            top: -2px;
-            left: -2px;
+            top: 0px;
+            left: 0px;
+            height: auto;
+            max-height: 30px;
+            min-height: 30px;
+            text-wrap: nowrap;
             color: #fff;
             background: rgba(0, 0, 0, 0.6);
             font-weight: bolder;
@@ -1129,8 +1171,12 @@ sniping and someone sneaks up on you
         gameInfoElement.classList.add('gameinfo');
         gameInfoElement.setAttribute('style', `
             position: fixed;
-            bottom: -2px;
-            left: -2px;
+            bottom: 0px;
+            left: 0px;
+            height: auto;
+            max-height: 30px;
+            min-height: 30px;
+            text-wrap: nowrap;
             color: #fff;
             background: rgba(0, 0, 0, 0.6);
             font-weight: bolder;
@@ -1165,9 +1211,12 @@ sniping and someone sneaks up on you
         playerstatsElement = document.createElement('div'); // create the element directly
         playerstatsElement.classList.add('playerstats');
         playerstatsElement.setAttribute('style', `
-            position: fixed;
+            position: absolute;
             top: 20px;
             left: 280px;
+            height: auto;
+            min-height: 30px;
+            text-wrap: nowrap;
             color: #fff;
             background: rgba(0, 0, 0, 0.6);
             font-weight: bolder;
@@ -1183,9 +1232,12 @@ sniping and someone sneaks up on you
         playerinfoElement = document.createElement('div'); // create the element directly
         playerinfoElement.classList.add('playerinfo');
         playerinfoElement.setAttribute('style', `
-            position: fixed;
-            right: 20px;
-            bottom: 180px;
+            position: absolute;
+            top: 80%;
+            left: 90%;
+            height: auto;
+            max-height: 102;
+            text-wrap: nowrap;
             color: #fff;
             background: rgba(0, 0, 0, 0.6);
             font-weight: bolder;
@@ -1207,6 +1259,27 @@ sniping and someone sneaks up on you
         redCircle.style.backgroundColor = 'red';
         redCircle.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(redCircle);
+
+        if (load("HUD-Positions") == null){
+            hudElementPositions["coordElement"] = {"top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left};
+            hudElementPositions["gameInfoElement"] = {"top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left};
+            hudElementPositions["playerstatsElement"] = {"top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left};
+            hudElementPositions["playerinfoElement"] = {"top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left};
+            save("HUD-Positions", hudElementPositions);
+        }else{
+            hudElementPositions = load("HUD-Positions");
+
+            coordElement.style.top = hudElementPositions["coordElement"]["top"] + "px";
+            gameInfoElement.style.top = hudElementPositions["gameInfoElement"]["top"] + "px";
+            playerstatsElement.style.top = hudElementPositions["playerstatsElement"]["top"] + "px";
+            playerinfoElement.style.top = hudElementPositions["playerinfoElement"]["top"] + "px";
+
+            coordElement.style.left = hudElementPositions["coordElement"]["left"] + "px";
+            gameInfoElement.style.left = hudElementPositions["gameInfoElement"]["left"] + "px";
+            playerstatsElement.style.left = hudElementPositions["playerstatsElement"]["left"] + "px";
+            playerinfoElement.style.left = hudElementPositions["playerinfoElement"]["left"] + "px";
+        }
+
     };
     const makeDraggable = function(element,notMenu) {
         if (element) {
@@ -1232,6 +1305,44 @@ sniping and someone sneaks up on you
             });
         };
     };
+
+    const makeHudElementDragable = function (element) {
+        if (element.getAttribute("drag-true") != "true") {
+        element.addEventListener("mousedown", function (e) {
+            let offsetX = e.clientX - parseInt(window.getComputedStyle(this).left);
+            let offsetY = e.clientY - parseInt(window.getComputedStyle(this).top);
+
+            function mouseMoveHandler(e) {
+            let newX = e.clientX - offsetX;
+            let newY = e.clientY - offsetY;
+            if (newX >= 0 && newX + element.getBoundingClientRect().width <= window.innerWidth) {
+                element.style.left = newX + "px";
+            }
+            if (newY >= 0 && newY + element.getBoundingClientRect().height <= window.innerHeight) {
+                element.style.top = newY + "px";
+            }
+            }
+
+            function reset() {
+                window.removeEventListener("mousemove", mouseMoveHandler);
+                window.removeEventListener("mouseup", reset);
+
+                //saves new positions
+                hudElementPositions["coordElement"] = {"top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left};
+                hudElementPositions["gameInfoElement"] = {"top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left};
+                hudElementPositions["playerstatsElement"] = {"top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left};
+                hudElementPositions["playerinfoElement"] = {"top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left};
+                save("HUD-Positions", hudElementPositions);
+            }
+
+            window.addEventListener("mousemove", mouseMoveHandler);
+            window.addEventListener("mouseup", reset);
+        });
+
+        element.setAttribute("drag-true", "true");
+        }
+    };
+
     const applyTheme = function(setTheme) {
         setTheme = (setTheme||extract("themeType")||"defaultTheme");
         switch (setTheme) {
@@ -1889,11 +2000,15 @@ z-index: 999999;
             save(name,tp[name].expanded);
         });
 
-        coordElement.style.display = 'none';
-        gameInfoElement.style.display = 'none';
-        playerstatsElement.style.display = 'none';
-        playerinfoElement.style.display = 'none';
-        redCircle.style.display = 'none';
+        coordElement.style.display = "none";
+        gameInfoElement.style.display = "none";
+        playerstatsElement.style.display = "none";
+        playerinfoElement.style.display = "none";
+        redCircle.style.display = "none";
+        makeHudElementDragable(coordElement);
+        makeHudElementDragable(gameInfoElement);
+        makeHudElementDragable(playerstatsElement);
+        makeHudElementDragable(playerinfoElement);
 
         if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
