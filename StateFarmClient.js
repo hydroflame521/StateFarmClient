@@ -11,6 +11,7 @@
 // @grant        GM_deleteValue
 // @grant        GM_listValues
 // @grant        GM_info
+// @grant        GM_setClipboard
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
@@ -21,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre18
+// @version      3.4.0-pre19
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -814,40 +815,77 @@ sniping and someone sneaks up on you
             presetList.push(options);
             });
             //PRESETS: OakSwingZZZ 😎
-            initModule({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "selectedPreset", defaultValue: "onlypuppy7's Config", bindLocation: tp.clientTab.pages[1], dropdown: presetList, });
-            initModule({ location: tp.clientTab.pages[0], title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function () {
-                const userConfirmed = confirm( "Are you sure you want to continue? This will replace most of your current config." );
-                    if (userConfirmed) { applySettings(inbuiltPresets[extract("selectedPreset")], true); };
-                },
-            });
-            initModule({ location: tp.clientTab.pages[0], title: "Save Preset", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
-                console.log("Config Main: ", configMain);
-                let saveString = ""; 
-                Object.entries(configMain).forEach(([key, value]) => { //gets every setting and saves it to a string
-                    saveString += key + ">";
-                    saveString += value + "<";
+            initFolder({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presetFolder",});
+                initModule({ location: tp.presetFolder, title: "Preset List", storeAs: "selectedPreset", defaultValue: "onlypuppy7's Config", bindLocation: tp.clientTab.pages[1], dropdown: presetList, });
+                initModule({ location: tp.presetFolder, title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function () {
+                    const userConfirmed = confirm( "Are you sure you want to continue? This will replace most of your current config." );
+                        if (userConfirmed) { applySettings(inbuiltPresets[extract("selectedPreset")], true); };
+                    },
                 });
-                let presetName = prompt("Name of preset:"); // asks user for name of preset
-                if (presetName == "" || presetName == null) {
-                    console.log("User canceled save");
-                } else {
-                    let result = saveUserPreset(presetName, saveString);//saves user preset
-                    addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                    console.log("Saved Preset: ", saveString);
-                    console.log("User Preset Result: ", result);
-                };
-                console.log("InbuiltPrests:");
-                console.log(inbuiltPresets);
-                initMenu(false); //Reloads menu to add to dropdown list
-            },});
-            initModule({ location: tp.clientTab.pages[0], title: "Remove Preset", storeAs: "removePrest", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
-                let currUserPresets = loadUserPresets(); //gets current presets from storage
-                delete currUserPresets[extract("selectedPreset")];//deletes 
-                delete inbuiltPresets[extract("selectedPreset")];//deletes
-                save(presetStorageLocation, currUserPresets); // saves cnages to file.
-                console.log("Current User Presets: ",currUserPresets);
-                initMenu(false); //reloads menu
-            },});
+                tp.presetFolder.addSeparator();
+                initModule({ location: tp.presetFolder, title: "Save", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
+                    console.log("Config Main: ", configMain);
+                    let saveString = ''; 
+                    const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
+                    Object.entries(configMain).forEach(([key, value]) => {
+                        addParam(key, value);
+                    });
+                    saveString = saveString.substring(0, saveString.length - 1);
+                    let presetName = prompt("Name of preset:"); // asks user for name of preset
+                    if (presetName == "" || presetName == null) {
+                        console.log("User cancelled save");
+                    } else {
+                        let result = saveUserPreset(presetName, saveString);//saves user preset
+                        addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                        console.log("Saved Preset: ", saveString);
+                        console.log("User Preset Result: ", result);
+                    };
+                    console.log("InbuiltPrests:");
+                    console.log(inbuiltPresets);
+                    initMenu(false); //Reloads menu to add to dropdown list
+                },});
+                initModule({ location: tp.presetFolder, title: "Delete", storeAs: "deletePreset", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
+                    let currUserPresets = loadUserPresets(); //gets current presets from storage
+                    delete currUserPresets[extract("selectedPreset")];//deletes 
+                    delete inbuiltPresets[extract("selectedPreset")];//deletes
+                    save(presetStorageLocation, currUserPresets); // saves cnages to file.
+                    console.log("Current User Presets: ",currUserPresets);
+                    initMenu(false); //reloads menu
+                },});
+                tp.presetFolder.addSeparator();
+                initModule({ location: tp.presetFolder, title: "Import", storeAs: "importPreset", button: "Import Preset", clickFunction: function () {
+                    let preset = prompt("Paste preset here:"); // asks user to paste preset
+                    if (preset == "" || preset == null) {
+                        console.log("User cancelled save");
+                    } else {
+                        const pattern = /([a-zA-Z]*>[^<]*<)+[a-zA-Z]*>[^<]*/;
+                        if (pattern.test(preset)){
+                            let presetName = prompt("Name of preset:"); // asks user for name of preset
+                            if (presetName == "" || presetName == null) {
+                                console.log("User cancelled save");
+                            } else {
+                                let result = saveUserPreset(presetName, preset);//saves user preset
+                                addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                                console.log("Saved Preset: ", preset);
+                                console.log("User Preset Result: ", result);
+                            }
+                        } else {
+                            alert("Not A Valid Preset!");
+                            console.log("Preset Not Valid");
+                        };
+                        initMenu(false);
+                    };
+                },});
+                initModule({ location: tp.presetFolder, title: "Export", storeAs: "exportPreset", button: "Copy To Clipboard", clickFunction: function () {
+                    let saveString = ''; 
+                    const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
+                    Object.entries(configMain).forEach(([key, value]) => {
+                        addParam(key, value);
+                    });
+                    saveString = saveString.substring(0, saveString.length - 1);
+                    GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
+                    createPopup("Preset copied to clipboard...")
+                },});
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
                 initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){unsafeWindow.open(discordURL)},});
