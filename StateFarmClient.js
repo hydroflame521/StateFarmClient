@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre16
+// @version      3.4.0-pre19
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -581,7 +581,7 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: 360, step: 1}, defaultValue: Math.PI*2, enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: 360, step: 1}, defaultValue: 360, enableConditions: [["aimbot",true]],});
                 initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
                 initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
@@ -705,7 +705,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 0, max: 10000, step: 1}, defaultValue: 0, showConditions: [["autoJump", true]],});
+            initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 1, max: 10000, step: 1}, defaultValue: 1, showConditions: [["autoJump", true]],});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
@@ -823,12 +823,11 @@ sniping and someone sneaks up on you
             });
             initModule({ location: tp.clientTab.pages[0], title: "Save Preset", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
                 console.log("Config Main: ", configMain);
-                let saveString = ''; 
-                const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
-                Object.entries(configMain).forEach(([key, value]) => {
-                    addParam(key, value);
+                let saveString = ""; 
+                Object.entries(configMain).forEach(([key, value]) => { //gets every setting and saves it to a string
+                    saveString += key + ">";
+                    saveString += value + "<";
                 });
-                saveString = saveString.substring(0, saveString.length - 1);
                 let presetName = prompt("Name of preset:"); // asks user for name of preset
                 if (presetName == "" || presetName == null) {
                     console.log("User canceled save");
@@ -849,39 +848,6 @@ sniping and someone sneaks up on you
                 save(presetStorageLocation, currUserPresets); // saves cnages to file.
                 console.log("Current User Presets: ",currUserPresets);
                 initMenu(false); //reloads menu
-            },});
-            initModule({ location: tp.clientTab.pages[0], title: "Copy Preset", storeAs: "copyPreset", button: "Copy To Clipboard", clickFunction: function () {
-                let saveString = ''; 
-                const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
-                Object.entries(configMain).forEach(([key, value]) => {
-                    addParam(key, value);
-                });
-                saveString = saveString.substring(0, saveString.length - 1);
-                GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
-                createPopup("Copied to clipboard...")
-            },});
-            initModule({ location: tp.clientTab.pages[0], title: "Import Preset", storeAs: "importPreset", button: "Import Preset", clickFunction: function () {
-                let preset = prompt("Paste preset here:"); // asks user to paste preset
-                if (preset == "" || preset == null) {
-                    console.log("User canceled save");
-                } else {
-                    const pattern = /([a-zA-Z]*>[^<]*<)+[a-zA-Z]*>[^<]*/;
-                    if (pattern.test(preset)){
-                        let presetName = prompt("Name of preset:"); // asks user for name of preset
-                        if (presetName == "" || presetName == null) {
-                            console.log("User canceled save");
-                        } else {
-                            let result = saveUserPreset(presetName, preset);//saves user preset
-                            addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                            console.log("Saved Preset: ", preset);
-                            console.log("User Preset Result: ", result);
-                        }
-                    }else{
-                        alert("Not A Valid Preset!");
-                        console.log("Preset Not Valid");
-                    }
-                    initMenu(false);
-                }
             },});
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
@@ -2088,6 +2054,9 @@ z-index: 999999;
                 if (URLParams !== "") { receivedConfig = URLParams + "<" + receivedConfig };
                 console.log("StateFarm: Change in Bot Panel detected.", receivedConfig);
                 applySettings(receivedConfig);
+                setTimeout(() => {
+                    applySettings(receivedConfig);
+                }, 150);
                 configNotSet = false;
                 break;
             case "ping":
@@ -2983,7 +2952,9 @@ z-index: 999999;
             //bypass chat filter
             modifyJS('.trim();','.trim();'+H._chat+'=window.'+functionNames.modifyChat+'('+H._chat+');')
             //hook for control interception
-            // modifyJS(H._updateThing,H._updateThing+H.CONTROLKEYS+'=window.'+functionNames.modifyControls+'('+H.CONTROLKEYS+');');
+            match = new RegExp(`${H._playerThing}\\.prototype\\.${H._update}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
+            console.log("player update function:",match);
+            modifyJS(match,`${match}${H.CONTROLKEYS}=window.${functionNames.modifyControls}(${H.CONTROLKEYS});`);
             //admin spoof lol
             modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
             modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
