@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre21
+// @version      3.4.0-pre22
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -139,6 +139,7 @@ console.log("StateFarm: running (before function)");
     let currentFrameIndex = 0;
     let deciSecondsPassed = 0;
     let lastSentMessage="";
+    let spamDelay=0;
     let URLParams="";
     let targetingComplete=false;
     let username = "";
@@ -174,6 +175,10 @@ console.log("StateFarm: running (before function)");
         trihard: 6,
         random: 3, // :trol_fancy:
     };
+    const antiAFKString = "AntiAFK Message. This message is not visible to others. || ";
+    const filteredList = [ //a selection of filtered words for antiafk. brimslate reports afk messages, so have fun reporting this and trying to explain this to the "eggforcers"
+        'date', 'dick', 'fuck', 'fuk', 'suck', 'piss', 'hate', 'nude', 'fux', 'hate',
+    ]; //filteredList[randomInt(0,filteredList.length-1)]
     let proxyList = [
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
         'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
@@ -664,7 +669,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
-                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 10, max: 60000, step: 10}, defaultValue: 500, enableConditions: [["spamChat",true]],});
+                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 250, max: 60000, step: 10}, defaultValue: 500, enableConditions: [["spamChat",true]],});
                 initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ", enableConditions: [["spamChat",true]],});
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
@@ -2022,7 +2027,7 @@ z-index: 999999;
             };
             if (extract("antiAFK")) {
                 if (Date.now()>(lastAntiAFKMessage+270000)) {
-                    if (sendChatMessage("Anti AFK Message. Censored Words: DATE, SUCK")) {
+                    if (sendChatMessage(antiAFKString+filteredList[randomInt(0,filteredList.length-1)])) {
                         lastAntiAFKMessage=Date.now();
                     };
                 };
@@ -2601,15 +2606,15 @@ z-index: 999999;
         };
 
         var arr = new Uint8Array(2 * str.length + 2);
-        arr[0] = 4;
+        arr[0] = ss.SERVERCODES.chat;
         arr[1] = str.length;
 
         for (var i = 0; i < str.length; i++) {
             arr[2 * i + 2] = str[i].charCodeAt(0) & 255;
             arr[2 * i + 3] = str[i].charCodeAt(0) >> 8 & 255; // ripped straight outta packInt16
         };
-        //console.log(arr);
-        return arr.buffer;
+        // console.log(arr);
+        return arr;
     };
     const extractChatPacket = function (packet) {
         if (!(packet instanceof ArrayBuffer)) {
@@ -2624,17 +2629,15 @@ z-index: 999999;
         return str;
     };
     const chatPacketHandler = function (packet) {
-        /* if (extract("chatFilterBypass")) {
-            string = extractChatPacket(packet);
-            if ('AntiAFK' in string) {
-                return packet;
-            };
-            new_str = ([UNICODE_RTL_OVERRIDE,].concat(reverseString(string).split(""))).join("");
-            var constructed =  constructChatPacket(new_str);
-            //console.log('%c Chat packet sent: original str %s, reversed %s, list %s', css, string, reverseString(string), new_str);
+        string = extractChatPacket(packet);
+        if (string.includes(antiAFKString)) {
+            console.log(packet)
+            console.log("AntiAFK replacement...", string.originalReplace(antiAFKString,""));
+            var constructed = constructChatPacket(string.originalReplace(antiAFKString,""));
+            console.log(constructed)
             return constructed;
-        }; */
-        return packet
+        };
+        return packet;
     };
     const modifyPacket = function (data) {
         if (!ss || (data instanceof String)) { // avoid server comm, ping, etc. necessary to load
@@ -4034,9 +4037,13 @@ z-index: 999999;
                 };
                 if (extract("spamChat")) {
                     if (document.getElementById("chatIn").style.visibility == 'visible') {
-                        if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
-                            sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
-                            lastSpamMessage=Date.now()
+                        if (spamDelay < Date.now()) {
+                            if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
+                                sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
+                                lastSpamMessage=Date.now()
+                            };
+                        } else if (spamDelay < Date.now()-250) {
+                            spamDelay = Date.now()+250;
                         };
                     };
                 };
