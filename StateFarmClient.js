@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre20
+// @version      3.4.0-pre21
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -3031,7 +3031,7 @@ z-index: 999999;
                     console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
                 if (oldJS !== js) {
-                    console.log("%cReplacement successful! Injected code: "+replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    console.log("%cReplacement successful! Injected code: replaced: "+find+" with: "+replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 } else {
                     console.log("%cReplacement failed! Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
