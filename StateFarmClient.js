@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre22
+// @version      3.4.0-pre23
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -85,10 +85,15 @@ let attemptedInjection = true;
 console.log("StateFarm: running (before function)");
 
 (function () {
+
     let originalReplace = String.prototype.replace;
+    let originalReplaceAll = String.prototype.replaceAll;
 
     String.prototype.originalReplace = function() {
         return originalReplace.apply(this, arguments);
+    };
+    String.prototype.originalReplaceAll = function() {
+        return originalReplaceAll.apply(this, arguments);
     };
 
     console.log("StateFarm: running (after function)");
@@ -748,6 +753,7 @@ sniping and someone sneaks up on you
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
+            initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
@@ -2960,6 +2966,18 @@ z-index: 999999;
                 return CONTROLKEYS;
             };
         });
+        createAnonFunction('spoofVIP', function(input) {
+            if (extract("spoofVIP")) {
+                if (typeof(input) == 'boolean') {
+                    return true;
+                } else if (input == "user-has-adblock") {
+                    return getScrambled();
+                } else if (input == "adsBlocked") {
+                    return false;
+                };
+            };
+            return input;
+        });
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
         let shellshockjs
@@ -3029,7 +3047,7 @@ z-index: 999999;
             const modifyJS = function(find,replace) {
                 let oldJS = js;
                 try {
-                    js = js.originalReplace(find,replace);
+                    js = js.originalReplaceAll(find,replace);
                 } catch (err) {
                     console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
@@ -3088,7 +3106,12 @@ z-index: 999999;
             //death hook
             const DEATHARGS = new RegExp('function '+H._deathFunction+'\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
             console.log("DEATHARGS",DEATHARGS);
-            // modifyJS('function '+H._deathFunction+'('+DEATHARGS+'){','function '+H._deathFunction+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
+            modifyJS('function '+H._deathFunction+'('+DEATHARGS+'){','function '+H._deathFunction+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
+            //vip spoof/no ads credit absolutely goes to OakSwingZZZ
+            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.spoofVIP+'("adsBlocked")');
+            modifyJS('"user-has-adblock"', functionNames.spoofVIP+'("user-has-adblock")');
+            modifyJS('layed=!1', 'layed=window.'+functionNames.spoofVIP+'(!1)');
+            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.spoofVIP+'('+H.USERDATA+'.playerAccount.isUpgraded())');
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g,'');
