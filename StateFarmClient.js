@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre23
+// @version      3.4.0-pre24
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -161,7 +161,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -1052,6 +1052,25 @@ sniping and someone sneaks up on you
     };
     const applyStylesAddElements = function (themeToApply = "null") {
         const head = document.head || document.getElementsByTagName('head').pages[0];
+
+        if (AUTOMATED) {
+            automatedBorder = document.createElement('div');
+            automatedBorder.setAttribute('id', 'automated-border');
+            document.body.appendChild(automatedBorder);
+        
+            const automatedBorderStyle = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: 5px solid rgba(255, 0, 0, 1);
+                pointer-events: none;
+                z-index: 999999999;
+            `;
+            automatedBorder.style.cssText = automatedBorderStyle;
+        };
+
         //menu customisation (apply font, button widths, adjust checkbox right slightly, make menu appear on top, add anim to message)
         const styleElement = document.createElement('style');
         styleElement.textContent = `
@@ -1199,25 +1218,6 @@ sniping and someone sneaks up on you
         `);
         document.body.appendChild(gameInfoElement);
         gameInfoElement.style.display = 'none';
-        //initiate automated div and css and shit
-        automatedElement = document.createElement('div'); // create the element directly
-        automatedElement.classList.add('automated');
-        automatedElement.setAttribute('style', `
-            position: fixed;
-            top: -2px;
-            right: -2px;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.6);
-            font-weight: bolder;
-            padding: 2px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            z-index: 999999;
-        `);
-        document.body.appendChild(automatedElement);
-        automatedElement.style.display = 'none';
-        automatedElement.innerText = 'AUTOMATED WINDOW, KEEP THIS FOCUSED!';
         //initiate hp div and css and shit
         playerstatsElement = document.createElement('div'); // create the element directly
         playerstatsElement.classList.add('playerstats');
@@ -1967,7 +1967,6 @@ z-index: 999999;
         startUpComplete = (!document.getElementById("progressBar"));
         const botsArray = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
-            automatedElement.style.display=(automatedElement.style.display=='') ? 'none' : '';
             if (clientID) {
                 const newArray = {
                     noConfig: ((botsArray[clientID] && configNotSet) ? (
@@ -1987,7 +1986,6 @@ z-index: 999999;
                 botsArray[clientID] = newArray;
             };
         } else {
-            automatedElement.style.display='none';
             monitorObjects.botOnline="";
             amountOnline = 0;
             for (const botID in botsArray) {
@@ -3117,6 +3115,10 @@ z-index: 999999;
             modifyJS(/tp-/g,'');
             console.log(H);
             console.log(js);
+            
+            if (AUTOMATED) {
+                automatedBorder.style.borderColor = 'rgba(0, 255, 0, 1)';
+            };
             return js;
         };
     };
@@ -3251,6 +3253,7 @@ z-index: 999999;
     };
 
     const detectURLParams = function() {
+
         if (getSearchParam("AUTOMATED")=="true") {
             console.log("Automated Window!");
             AUTOMATED=true;
@@ -3711,6 +3714,10 @@ z-index: 999999;
                                 return extract("wireframe");
                             }
                         });
+
+                        if (AUTOMATED) {
+                            automatedBorder.style.borderColor = 'rgba(0, 0, 255, 1)';
+                        };
     
                     } else {
                         console.log('%cSTATEFARM COULD NOT LOAD L.BABYLON', 'color: red; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
@@ -4306,5 +4313,12 @@ z-index: 999999;
     console.log("StateFarm: startUp()",attemptedInjection);
     startUp();
     console.log("StateFarm: after startUp()",attemptedInjection);
+
+    setTimeout(() => {
+        if (!attemptedInjection) {
+            console.log("Injection didn't work for whatever reason, let's try again.");
+            reloadPage();
+        };
+    }, 10000);
 })();
 console.log("StateFarm: after function",attemptedInjection);
