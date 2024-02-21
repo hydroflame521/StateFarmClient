@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre25
+// @version      3.4.0-pre26
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2717,7 +2717,7 @@ z-index: 999999;
         };
     };
     const predictBloom = function(yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
-        let seed = ss.MYPLAYER.randomGen.seed;
+        let seed = ss.MYPLAYER[H.randomGen].seed;
         let numbers = [];
         const accuracy=ss.MYPLAYER.weapon.accuracy;
         for (var i = 0; i < 3; i++) { //generate from seed the values used to scatter shot
