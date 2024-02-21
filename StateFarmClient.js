@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre24
+// @version      3.4.0-pre25
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -77,6 +77,8 @@
 // @match        *://*.yolk.quest/*
 // @match        *://*.yolk.today/*
 // @match        *://*.zygote.cafe/*
+// @match        *://*.shellshockers.best/*
+// @match        *://*.eggboy.me/*
 // @downloadURL https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3%20-%20Combat%2C%20Bloom%2C%20ESP%2C%20Rendering%2C%20Chat%2C%20Automation%2C%20Botting%2C%20Unbanning%20and%20more.user.js
 // @updateURL https://update.greasyfork.org/scripts/482982/StateFarm%20Client%20V3%20-%20Combat%2C%20Bloom%2C%20ESP%2C%20Rendering%2C%20Chat%2C%20Automation%2C%20Botting%2C%20Unbanning%20and%20more.meta.js
 // ==/UserScript==
@@ -130,7 +132,7 @@ console.log("StateFarm: running (before function)");
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
-        "onlypuppy7's Config": `aimbot>true<aimbotRightClick>true<silentAimbot>false<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<noWallTrack>false<aimbotMinAngle>20<aimbotAntiSnap>0.75<antiSneak>1.8<autoRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>false<ammoESP>true<ammoESPRegime>1<grenadeESP>true<grenadeESPRegime>2<fov>120<revealBloom>true<showLOS>true<highlightLeaderboard>true<showCoordinates>true<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<maxChat>10<disableChatFilter>true<antiAFK>true<joinMessages>true<leaveMessages>true<replaceLogo>true>enablePanic>false<botAntiDupe>true<botAutoJoin>true<botRespawn>true<botSeizure>false<botTallChat>true<botMock>true<botAutoEZ>true<botCheatAccuse>true<botAutoMove>true<botAutoShoot>true<botAimbot>true<botLowRes>true<botNoKillMe>true`,
+        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<spoofVIP>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
     };
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
@@ -190,7 +192,7 @@ console.log("StateFarm: running (before function)");
         'hardshell.life', 'humanorganising.org', 'mathactivity.xyz', 'mathactivity.club', 'mathdrills.info', 'mathdrills.life', 'mathfun.rocks', 'mathgames.world', 'math.international',
         'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.life', 'shellshockers.site',
         'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
-        'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe'
+        'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe', 'shellshockers.best', 'eggboy.me'
     ];
     proxyList=proxyList.filter(item=>item!==unsafeWindow.location.hostname);
     proxyList=[...proxyList].sort(() => Math.random() - 0.5);
@@ -892,6 +894,15 @@ sniping and someone sneaks up on you
                     let saveString = ''; 
                     const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
                     Object.entries(configMain).forEach(([key, value]) => {
+                        console.log(key, value);
+                        if (typeof(value) == 'string') {
+                            try {
+                                let dropdown = extractAsDropdownInt(key)
+                                value = dropdown;
+                            } catch (error) {
+                                //dont care lmaoooo
+                            };
+                        };
                         addParam(key, value);
                     });
                     saveString = saveString.substring(0, saveString.length - 1);
@@ -1820,6 +1831,11 @@ z-index: 999999;
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
+    const playerMatchesList = function (array, player) {
+        let nameMatched = isPartialMatch(array,player.name);
+        let idMatched = isPartialMatch(array,player.uniqueId);
+        return nameMatched||idMatched;
+    };
     const randomInt = function(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
@@ -2124,10 +2140,11 @@ z-index: 999999;
         };
 
         const banPopup = document.getElementById("bannedPopup");
-        if (banPopup?.style.display!=='none') {
+        if (attemptedInjection && vueApp.bannedPopup.expire!=="") {
             isBanned=true;
         };
         if (isBanned && extract("autoUnban") && (!attemptedAutoUnban)) {
+            console.log("eep!", `!${banPopup.style.display}!`);
             banPopup.textContent='StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
             unban();
             attemptedAutoUnban=true;
@@ -2179,9 +2196,6 @@ z-index: 999999;
                 if (URLParams !== "") { receivedConfig = URLParams + "<" + receivedConfig };
                 console.log("StateFarm: Change in Bot Panel detected.", receivedConfig);
                 applySettings(receivedConfig);
-                setTimeout(() => {
-                    applySettings(receivedConfig);
-                }, 150);
                 configNotSet = false;
                 break;
             case "ping":
@@ -3005,7 +3019,7 @@ z-index: 999999;
             let onlineClientKeys = fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
-                let userInput = prompt('Valid VarData could not be retrieved online. Enter VarData if you have it. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command sf.vardata in the bot channel.', '');
+                let userInput = prompt('Valid VarData could not be retrieved online. Enter VarData if you have it. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command sf.vardata in the bot channel. Hash: '+hash, '');
                 if (userInput !== null && userInput !== '') {
                     alert('Aight, let\'s try this. If it is invalid, it will just crash.');
                     clientKeys = JSON.parse(userInput);
@@ -3273,7 +3287,7 @@ z-index: 999999;
         };
     };
 
-    const applySettings = function(settings,reset) {
+    const applySettings = function(settings,reset,secondPassThru) {
         console.log(AUTOMATED,settings);
         settings=settings.split("<");
         if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings")};
@@ -3282,6 +3296,11 @@ z-index: 999999;
             change(element[0],JSON.parse(element[1]));
         });
         createPopup("Custom StateFarm Settings Applying...");
+        if (!secondPassThru) {
+            setTimeout(() => {
+                applySettings(receivedConfig,false,true);
+            }, 150);
+        };
     };
 
     const updateBotParams = function() {
@@ -3866,8 +3885,8 @@ z-index: 999999;
     
                 ammo=ss.MYPLAYER.weapon.ammo;
     
-                whitelistPlayers=extract("whitelist").split(',');
-                blacklistPlayers=extract("blacklist").split(',');
+                whitelistPlayers=(extract("whitelist")||"").split(',');
+                blacklistPlayers=(extract("blacklist")||"").split(',');
     
                 ss.MYPLAYER[H.actor].scene.texturesEnabled=extract("enableTextures");
             };
@@ -3878,15 +3897,15 @@ z-index: 999999;
             //update playerESP boxes, tracer lines, colors
             ss.PLAYERS.forEach(player=>{
                 if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                    const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||isPartialMatch(whitelistPlayers,player.name));
-                    const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&isPartialMatch(blacklistPlayers,player.name));
+                    const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||playerMatchesList(whitelistPlayers,player));
+                    const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&playerMatchesList(blacklistPlayers,player));
                     const passedLists=whitelisted&&(!blacklisted);
                     const tracersType=extract("tracersType");
 
                     let color,progress;
-                    if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && isPartialMatch(whitelistPlayers,player.name) ) {
+                    if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && playerMatchesList(whitelistPlayers,player) ) {
                         color=hexToRgb(extract("whitelistColor"));
-                    } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && isPartialMatch(blacklistPlayers,player.name) ) {
+                    } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && playerMatchesList(blacklistPlayers,player) ) {
                         color=hexToRgb(extract("blacklistColor"));
                     } else if ( tracersType=="proximity" ) {
                         const distance = distancePlayers(player);
@@ -4151,8 +4170,8 @@ z-index: 999999;
 
                 ss.PLAYERS.forEach(player=>{ //iterate over all players to
                     if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0)) {
-                        const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&isPartialMatch(whitelistPlayers,player.name));
-                        const blacklisted=(extract("enableBlacklistAimbot")&&isPartialMatch(blacklistPlayers,player.name));
+                        const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&playerMatchesList(whitelistPlayers,player));
+                        const blacklisted=(extract("enableBlacklistAimbot")&&playerMatchesList(blacklistPlayers,player));
                         const passedLists=whitelisted&&(!blacklisted);
                         player.distance=distancePlayers(player);
                         player.adjustedDistance=distancePlayers(player,2);
