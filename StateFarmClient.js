@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre26
+// @version      3.4.0-pre27
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -3101,7 +3101,7 @@ z-index: 999999;
             //bypass chat filter
             modifyJS('.trim();','.trim();'+H._chat+'=window.'+functionNames.modifyChat+'('+H._chat+');')
             //hook for control interception
-            match = new RegExp(`${H._playerThing}\\.prototype\\.${H._update}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
+            match = new RegExp(`${H._update}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
             console.log("player update function:",match);
             modifyJS(match,`${match}${H.CONTROLKEYS}=window.${functionNames.modifyControls}(${H.CONTROLKEYS});`);
             //admin spoof lol
