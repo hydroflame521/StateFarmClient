@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre29
+// @version      3.4.0-pre30
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -124,7 +124,7 @@ console.log("StateFarm: running (before function)");
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
-    const discordURL = "https://discord.gg/mPa95HB7Q6";
+    const discordURL = "https://discord.gg/Vf5qtxAmvU";
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
     const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
     const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
@@ -149,6 +149,7 @@ console.log("StateFarm: running (before function)");
     let lastSentMessage="";
     let spamDelay=0;
     let URLParams="";
+    let soundsSFC = {};
     let targetingComplete=false;
     let username = "";
     let autoStrafeValue=[0,0,"left"];
@@ -156,6 +157,7 @@ console.log("StateFarm: running (before function)");
     const allModules=[];
     const allFolders=[];
     const F=[];
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const L={};
     const functionNames=[];
     const isKeyToggled={};
@@ -164,7 +166,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -830,7 +832,12 @@ sniping and someone sneaks up on you
             }});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Mute Game", storeAs: "muteGame", bindLocation: tp.clientTab.pages[1],});
-            // initModule({ location: tp.clientTab.pages[0], title: "Custom SFX", storeAs: "customSFX", bindLocation: tp.clientTab.pages[1], enableConditions: [["muteGame", false]],});
+            initModule({ location: tp.clientTab.pages[0], title: "Custom SFX", storeAs: "customSFX", bindLocation: tp.clientTab.pages[1], enableConditions: [["muteGame", false]], dropdown: [
+                {text: "Default", value: "default"},
+                {text: "Minecraft", value: "Hydroflame522/StateFarmClient/contents/soundpacks/minecraft"},
+            ], defaultValue: "default", changeFunction: function(value) {
+                applyTheme(value.value);
+            }});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X", enableConditions: [["enablePanic",true]],});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
@@ -839,10 +846,10 @@ sniping and someone sneaks up on you
             tp.clientTab.pages[0].addSeparator();
             let presetList = [];
             Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var 
-            let options = {};
-            options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
-            options["value"] = key;
-            presetList.push(options);
+                let options = {};
+                options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
+                options["value"] = key;
+                presetList.push(options);
             });
             //PRESETS: OakSwingZZZ 😎
             initFolder({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presetFolder",});
@@ -1857,6 +1864,37 @@ z-index: 999999;
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
+    const playAudio = function(name, panner) {
+        const source = audioContext.createBufferSource();
+        source.buffer = soundsSFC[name];
+    
+        // Create a new panner node in the new audio context
+        const newPanner = audioContext.createPanner();
+        audioContext.listener.setPosition(0,0,0);
+    
+        // Copy over relevant properties from the original panner to the new panner
+        if (panner) {
+            audioContext.listener.setPosition(ss.MYPLAYER[H.x], ss.MYPLAYER[H.y], ss.MYPLAYER[H.z]);
+            newPanner.setPosition(panner.positionX.value, panner.positionY.value, panner.positionZ.value);
+            newPanner.setOrientation(panner.orientationX.value, panner.orientationY.value, panner.orientationZ.value);
+            newPanner.refDistance = panner.refDistance;
+            newPanner.maxDistance = panner.maxDistance;
+            newPanner.rolloffFactor = panner.rolloffFactor;
+            newPanner.coneInnerAngle = panner.coneInnerAngle;
+            newPanner.coneOuterAngle = panner.coneOuterAngle;
+            newPanner.coneOuterGain = panner.coneOuterGain;
+            // Copy other relevant properties as needed
+        };
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        };
+        // Connect nodes
+        source.connect(newPanner);
+        newPanner.connect(audioContext.destination);
+    
+        // Start playing audio
+        source.start();
+    };
     const playerMatchesList = function (array, player) {
         let nameMatched = isPartialMatch(array,player.name);
         let idMatched = isPartialMatch(array,player.uniqueId);
@@ -2069,7 +2107,69 @@ z-index: 999999;
                     blacklistedGameCodes.push(code);
                 }
             });
-        }
+        };
+
+        if (initialisedCustomSFX !== extract("customSFX")) {
+            initialisedCustomSFX = extract("customSFX");
+            console.log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
+            if (initialisedCustomSFX == "default") {
+                soundsSFC = {};
+            } else {
+                createPopup("Loading Custom SFX...");
+                // Define function to fetch and process audio data
+                async function fetchAndProcessAudio(key, downloadURL, totalRequests) {
+                    try {
+                        console.log(key, downloadURL);
+                        const expectedURL = downloadURL;
+                        console.log(expectedURL);
+                        const response = await fetch(expectedURL);
+                        
+                        // Check if the request was successful
+                        if (response.ok) {
+                            const arrayBuffer = await response.arrayBuffer();
+                            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                            soundsSFC[key] = audioBuffer;
+                            console.log("Loaded sound for:", key);
+                            
+                            // Check if all requests are completed
+                            if (Object.keys(soundsSFC).length === totalRequests) {
+                                createPopup("Loaded Custom SFX!", "success");
+                                console.log("LOADED!");
+                            };
+                        } else {
+                            throw new Error('Failed to fetch MP3:', response.statusText);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching/decoding MP3:', error);
+                    };
+                };
+        
+                // Make the request to fetch folder contents
+                fetch('https://api.github.com/repos/'+initialisedCustomSFX)
+                .then(response => {
+                    // Check if the request was successful
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to fetch folder contents');
+                    }
+                })
+                .then(data => {
+                    const totalRequests = data.length;
+                    // Iterate over each file in the folder and fetch audio data
+                    data.forEach((file, index) => {
+                        // Introduce a delay of 50 milliseconds between each fetch request
+                        setTimeout(() => {
+                            fetchAndProcessAudio(file.name.replace(".mp3",""), file.download_url, totalRequests);
+                        }, index * 150);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            };
+        };
+        
 
         if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
@@ -2874,7 +2974,10 @@ z-index: 999999;
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
             console.log(name, panner, somethingelse);
-            if (extract("muteGame")) {
+            if (soundsSFC[name]) {
+                playAudio(name, panner);
+                return "silence";
+            } else if (extract("muteGame")) {
                 return "silence";
             };
             return name;
@@ -3186,9 +3289,9 @@ z-index: 999999;
                 modifyJS('region,', `region,window.${functionNames.gameBlacklisted}(${match[2]})?(${match[2]}.uuid="${getScrambled()}",${match[1]}(${match[2]}),vueApp.hideSpinner()):`);
             };
             //intercept and replace audio
-            match = js.match(/static play\(([a-zA-Z$_,]+)\){/);
+            match = js.match(/static play\(([a-zA-Z$_]+)([a-zA-Z$_,]+)\){/);
             console.log("AUDIO INTERCEPTION", match);
-            modifyJS(match[0], `${match[0]}e = window.${functionNames.interceptAudio}(${match[1]});`);
+            modifyJS(match[0], `${match[0]}${match[1]} = window.${functionNames.interceptAudio}(${match[1]}${match[2]});`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g,'');
@@ -3810,8 +3913,6 @@ z-index: 999999;
                     };
                 };
                 document.body.appendChild(script);
-                unsafeWindow.BAWK.sounds.silence = Object.assign({}, unsafeWindow.BAWK.sounds.ammo);
-                unsafeWindow.BAWK.sounds.silence.end = 0.001;
                 ranOneTime=true;
             };
         };
@@ -4112,6 +4213,10 @@ z-index: 999999;
             if (doStateFarm) {
                 didStateFarm = true;
                 return F.STATEFARM();
+            } else {
+                console.log("StateFarm: creating silence audio");
+                unsafeWindow.BAWK.sounds.silence = Object.assign({}, unsafeWindow.BAWK.sounds.ammo);
+                unsafeWindow.BAWK.sounds.silence.end = 0.001;
             };
         });
         createAnonFunction("STATEFARM",function(){
