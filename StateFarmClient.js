@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre28
+// @version      3.4.0-pre29
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -829,6 +829,9 @@ sniping and someone sneaks up on you
                 applyTheme(value.value);
             }});
             tp.clientTab.pages[0].addSeparator();
+            initModule({ location: tp.clientTab.pages[0], title: "Mute Game", storeAs: "muteGame", bindLocation: tp.clientTab.pages[1],});
+            // initModule({ location: tp.clientTab.pages[0], title: "Custom SFX", storeAs: "customSFX", bindLocation: tp.clientTab.pages[1], enableConditions: [["muteGame", false]],});
+            tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X", enableConditions: [["enablePanic",true]],});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
@@ -1002,6 +1005,7 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,})
         initModule({ location: tp.botTabs.pages[2], title: "RenderDelay", storeAs: "renderDelayBots", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0, botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "MuteGame", storeAs: "botMuteGame", botParam: true,})
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true, enableConditions: [["botRespawn",true]],});
         tp.botTabs.pages[2].addSeparator();
@@ -2868,6 +2872,13 @@ z-index: 999999;
                 };
             };
         });
+        createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
+            console.log(name, panner, somethingelse);
+            if (extract("muteGame")) {
+                return "silence";
+            };
+            return name;
+        });
         createAnonFunction('beforeFiring', function (MYPLAYER) {
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER[H.playing] && currentlyTargeting && currentlyTargeting[H.playing]) {
                 const aimbot = getAimbot(currentlyTargeting);
@@ -3174,9 +3185,14 @@ z-index: 999999;
             if (match) {
                 modifyJS('region,', `region,window.${functionNames.gameBlacklisted}(${match[2]})?(${match[2]}.uuid="${getScrambled()}",${match[1]}(${match[2]}),vueApp.hideSpinner()):`);
             };
+            //intercept and replace audio
+            match = js.match(/static play\(([a-zA-Z$_,]+)\){/);
+            console.log("AUDIO INTERCEPTION", match);
+            modifyJS(match[0], `${match[0]}e = window.${functionNames.interceptAudio}(${match[1]});`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g,'');
+
             console.log(H);
             console.log(js);
             
@@ -3296,6 +3312,7 @@ z-index: 999999;
         addParam("enableSeizureY",extract("botSeizure"));
 
         addParam("renderDelay",extract("renderDelayBots"));
+        addParam("muteGame",extract("botMuteGame"));
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
@@ -3793,6 +3810,8 @@ z-index: 999999;
                     };
                 };
                 document.body.appendChild(script);
+                unsafeWindow.BAWK.sounds.silence = Object.assign({}, unsafeWindow.BAWK.sounds.ammo);
+                unsafeWindow.BAWK.sounds.silence.end = 0.001;
                 ranOneTime=true;
             };
         };
