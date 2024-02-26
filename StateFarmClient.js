@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre26
+// @version      3.4.0-pre30
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -124,7 +124,7 @@ console.log("StateFarm: running (before function)");
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
-    const discordURL = "https://discord.gg/mPa95HB7Q6";
+    const discordURL = "https://discord.gg/Vf5qtxAmvU";
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
     const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
     const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
@@ -149,6 +149,7 @@ console.log("StateFarm: running (before function)");
     let lastSentMessage="";
     let spamDelay=0;
     let URLParams="";
+    let soundsSFC = {};
     let targetingComplete=false;
     let username = "";
     let autoStrafeValue=[0,0,"left"];
@@ -156,6 +157,7 @@ console.log("StateFarm: running (before function)");
     const allModules=[];
     const allFolders=[];
     const F=[];
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     const L={};
     const functionNames=[];
     const isKeyToggled={};
@@ -164,7 +166,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -595,9 +597,9 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", bindLocation: tp.combatTab.pages[1], slider: {min: 0.05, max: 360, step: 1}, defaultValue: 360, enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", bindLocation: tp.combatTab.pages[1], slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", slider: {min: 0.05, max: 360, step: 1}, defaultValue: 360, enableConditions: [["aimbot",true]],});
+                initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
+                initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff", enableConditions: [["aimbot",true]]});
             tp.combatTab.pages[0].addSeparator();
@@ -749,8 +751,6 @@ sniping and someone sneaks up on you
                 },});
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
-            initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
-            initModule({ location: tp.automationTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Gamemode", storeAs: "autoGamemode", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Region", storeAs: "autoRegion", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
@@ -795,6 +795,20 @@ sniping and someone sneaks up on you
                     noPointerPause=false; canvas.requestPointerLock();
                 };
             },});
+            tp.miscTab.pages[0].addSeparator();
+            initFolder({ location: tp.miscTab.pages[0], title: "Game Blacklist Settings", storeAs: "gameBlacklistFolder",});//Game Blacklist Folder
+                initModule({ location: tp.gameBlacklistFolder, title: "Blacklist On", storeAs: "gameBlacklist", bindLocation: tp.miscTab.pages[1],});
+                initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "",});
+                initModule({ location: tp.gameBlacklistFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){
+                    if (GAMECODE != undefined && GAMECODE != null){
+                        extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
+                    } else {
+                        createPopup("Join a game first");
+                    };
+                },});
+            initModule({ location: tp.miscTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.miscTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
+            initModule({ location: tp.miscTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.miscTab.pages[1],});
+            tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
                 findNewPath = true;
             },});
@@ -825,6 +839,14 @@ sniping and someone sneaks up on you
                 {text: "Blurple", value: "blurpleTheme"},
                 {text: "ShellFarm", value: "shellFarmTheme"},
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
+                applyTheme(value.value);
+            }});
+            tp.clientTab.pages[0].addSeparator();
+            initModule({ location: tp.clientTab.pages[0], title: "Mute Game", storeAs: "muteGame", bindLocation: tp.clientTab.pages[1],});
+            initModule({ location: tp.clientTab.pages[0], title: "Custom SFX", storeAs: "customSFX", bindLocation: tp.clientTab.pages[1], enableConditions: [["muteGame", false]], dropdown: [
+                {text: "Default", value: "default"},
+                {text: "Minecraft", value: "Hydroflame522/StateFarmClient/contents/soundpacks/minecraft"},
+            ], defaultValue: "default", changeFunction: function(value) {
                 applyTheme(value.value);
             }});
             tp.clientTab.pages[0].addSeparator();
@@ -1001,6 +1023,7 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
         initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,})
         initModule({ location: tp.botTabs.pages[2], title: "RenderDelay", storeAs: "renderDelayBots", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0, botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "MuteGame", storeAs: "botMuteGame", botParam: true,})
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true, enableConditions: [["botRespawn",true]],});
         tp.botTabs.pages[2].addSeparator();
@@ -1852,11 +1875,6 @@ z-index: 999999;
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
-    const playerMatchesList = function (array, player) {
-        let nameMatched = isPartialMatch(array,player.name);
-        let idMatched = isPartialMatch(array,player.uniqueId);
-        return nameMatched||idMatched;
-    };
     const randomInt = function(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
@@ -2056,15 +2074,6 @@ z-index: 999999;
         makeHudElementDragable(gameInfoElement);
         makeHudElementDragable(playerstatsElement);
         makeHudElementDragable(playerinfoElement);
-        if (extract("gameBlacklistCodes")!="" && extract("gameBlacklistCodes") != undefined){
-            let input = extract("gameBlacklistCodes");
-            input = input.split(",");
-            input.forEach(function (code) {
-                if (code != "" && code.length == 7){
-                    blacklistedGameCodes.push(code);
-                }
-            });
-        }
 
         if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
@@ -2867,6 +2876,16 @@ z-index: 999999;
                 };
             };
         });
+        createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
+            console.log(name, panner, somethingelse);
+            if (soundsSFC[name]) {
+                playAudio(name, panner);
+                return "silence";
+            } else if (extract("muteGame")) {
+                return "silence";
+            };
+            return name;
+        });
         createAnonFunction('beforeFiring', function (MYPLAYER) {
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER[H.playing] && currentlyTargeting && currentlyTargeting[H.playing]) {
                 const aimbot = getAimbot(currentlyTargeting);
@@ -3138,14 +3157,14 @@ z-index: 999999;
             let [_, elm, str] = js.match(/\)\),([a-zA-Z$_]+)\.innerHTML=([a-zA-Z$_]+),/);
             modifyJS(_, _ + `${H._filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
-            match = js.match(/inventory\[[A-z]\].id===[A-z].id\)return!0;return!1/)[1];
+            match = js.match(/inventory\[[a-zA-Z$_]+\].id===[a-zA-Z$_]+.id\)return!0;return!1/);
             if (match) {modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`)};
             //reset join/leave msgs
             modifyJS(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
             //bypass chat filter
             modifyJS('.trim();','.trim();'+H._chat+'=window.'+functionNames.modifyChat+'('+H._chat+');')
             //hook for control interception
-            match = new RegExp(`${H._playerThing}\\.prototype\\.${H._update}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
+            match = new RegExp(`${H._update}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
             console.log("player update function:",match);
             modifyJS(match,`${match}${H.CONTROLKEYS}=window.${functionNames.modifyControls}(${H.CONTROLKEYS});`);
             //admin spoof lol
@@ -3168,11 +3187,10 @@ z-index: 999999;
             modifyJS('"user-has-adblock"', functionNames.spoofVIP+'("user-has-adblock")');
             modifyJS('layed=!1', 'layed=window.'+functionNames.spoofVIP+'(!1)');
             modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.spoofVIP+'('+H.USERDATA+'.playerAccount.isUpgraded())');
-            //Modifies matchmaker JS to block gamecodes.
-            modifyJS('t.uuid=e.uuid,vueApp.currentRegionId=e.region,ir(t)})).catch((t=>{io.', 't.uuid=e.uuid,vueApp.currentRegionId=e.region,'+functionNames.gameBlacklisted+'(t)? (t.uuid="statefarm", ir(t), vueApp.hideSpinner()): ir(t)})).catch((t=>{io.')
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g,'');
+
             console.log(H);
             console.log(js);
             
@@ -3292,6 +3310,7 @@ z-index: 999999;
         addParam("enableSeizureY",extract("botSeizure"));
 
         addParam("renderDelay",extract("renderDelayBots"));
+        addParam("muteGame",extract("botMuteGame"));
         addParam("autoJoin",extract("botAutoJoin"));
         addParam("mockMode",extract("botMock"));
         addParam("autoRespawn",extract("botRespawn"));
@@ -4089,6 +4108,10 @@ z-index: 999999;
             if (doStateFarm) {
                 didStateFarm = true;
                 return F.STATEFARM();
+            } else {
+                console.log("StateFarm: creating silence audio");
+                unsafeWindow.BAWK.sounds.silence = Object.assign({}, unsafeWindow.BAWK.sounds.ammo);
+                unsafeWindow.BAWK.sounds.silence.end = 0.001;
             };
         });
         createAnonFunction("STATEFARM",function(){
