@@ -22,7 +22,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre30
+// @version      3.4.0-pre31
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -753,6 +753,17 @@ sniping and someone sneaks up on you
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function(){tp.botPanel.hidden=!tp.botPanel.hidden}, defaultBind:"J",});
             tp.bottingTab.pages[0].addSeparator();
             initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(bottingGuideURL)},});
+        //THEMING MODULES
+        initFolder({ location: tp.mainPanel, title: "Theming", storeAs: "themingFolder",});
+        initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
+            initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder",});
+                initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1],});
+                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: [
+                    {text: "Default", value: "default"},
+                    {text: "Minecraft", value: "Hydroflame522/StateFarmClient/contents/soundpacks/minecraft"},
+                ], });
+                initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
+            // tp.audioFolder.addSeparator();
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -828,14 +839,6 @@ sniping and someone sneaks up on you
                 {text: "Blurple", value: "blurpleTheme"},
                 {text: "ShellFarm", value: "shellFarmTheme"},
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
-                applyTheme(value.value);
-            }});
-            tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Mute Game", storeAs: "muteGame", bindLocation: tp.clientTab.pages[1],});
-            initModule({ location: tp.clientTab.pages[0], title: "Custom SFX", storeAs: "customSFX", bindLocation: tp.clientTab.pages[1], enableConditions: [["muteGame", false]], dropdown: [
-                {text: "Default", value: "default"},
-                {text: "Minecraft", value: "Hydroflame522/StateFarmClient/contents/soundpacks/minecraft"},
-            ], defaultValue: "default", changeFunction: function(value) {
                 applyTheme(value.value);
             }});
             tp.clientTab.pages[0].addSeparator();
@@ -1868,14 +1871,16 @@ z-index: 999999;
         const source = audioContext.createBufferSource();
         source.buffer = soundsSFC[name];
     
-        // Create a new panner node in the new audio context
         const newPanner = audioContext.createPanner();
         audioContext.listener.setPosition(0,0,0);
     
-        // Copy over relevant properties from the original panner to the new panner
         if (panner) {
-            audioContext.listener.setPosition(ss.MYPLAYER[H.x], ss.MYPLAYER[H.y], ss.MYPLAYER[H.z]);
-            newPanner.setPosition(panner.positionX.value, panner.positionY.value, panner.positionZ.value);
+            newPanner.context.listener.setPosition(panner.context.listener.positionX.value,panner.context.listener.positionY.value,panner.context.listener.positionZ.value);
+            newPanner.setPosition(
+                panner.context.listener.positionX.value - ((panner.context.listener.positionX.value - panner.positionX.value) * extract("distanceMult")),
+                panner.context.listener.positionY.value - ((panner.context.listener.positionY.value - panner.positionY.value) * extract("distanceMult")),
+                panner.context.listener.positionZ.value - ((panner.context.listener.positionZ.value - panner.positionZ.value) * extract("distanceMult")),
+            );
             newPanner.setOrientation(panner.orientationX.value, panner.orientationY.value, panner.orientationZ.value);
             newPanner.refDistance = panner.refDistance;
             newPanner.maxDistance = panner.maxDistance;
@@ -1883,7 +1888,7 @@ z-index: 999999;
             newPanner.coneInnerAngle = panner.coneInnerAngle;
             newPanner.coneOuterAngle = panner.coneOuterAngle;
             newPanner.coneOuterGain = panner.coneOuterGain;
-            // Copy other relevant properties as needed
+            console.log("shit",panner,newPanner)
         };
         if (audioContext.state === 'suspended') {
             audioContext.resume();
@@ -2973,14 +2978,21 @@ z-index: 999999;
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
-            console.log(name, panner, somethingelse);
-            if (soundsSFC[name]) {
-                playAudio(name, panner);
-                return "silence";
-            } else if (extract("muteGame")) {
-                return "silence";
+            console.log(0, name, panner, somethingelse);
+            if (panner && panner.positionX && extract("distanceMult") !== 1) {
+                panner.setPosition(
+                    panner.context.listener.positionX.value - ((panner.context.listener.positionX.value - panner.positionX.value) * extract("distanceMult")),
+                    panner.context.listener.positionY.value - ((panner.context.listener.positionY.value - panner.positionY.value) * extract("distanceMult")),
+                    panner.context.listener.positionZ.value - ((panner.context.listener.positionZ.value - panner.positionZ.value) * extract("distanceMult")),
+                );
             };
-            return name;
+            if (extract("muteGame")) {
+                name = "silence";
+            } else if (soundsSFC[name]) {
+                playAudio(name, panner);
+                name = "silence";
+            };
+            return [name, panner, somethingelse];
         });
         createAnonFunction('beforeFiring', function (MYPLAYER) {
             if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER[H.playing] && currentlyTargeting && currentlyTargeting[H.playing]) {
@@ -3289,9 +3301,9 @@ z-index: 999999;
                 modifyJS('region,', `region,window.${functionNames.gameBlacklisted}(${match[2]})?(${match[2]}.uuid="${getScrambled()}",${match[1]}(${match[2]}),vueApp.hideSpinner()):`);
             };
             //intercept and replace audio
-            match = js.match(/static play\(([a-zA-Z$_]+)([a-zA-Z$_,]+)\){/);
+            match = js.match(/static play\(([a-zA-Z$_,]+)\){/);
             console.log("AUDIO INTERCEPTION", match);
-            modifyJS(match[0], `${match[0]}${match[1]} = window.${functionNames.interceptAudio}(${match[1]}${match[2]});`);
+            modifyJS(match[0], `${match[0]}[${match[1]}] = window.${functionNames.interceptAudio}(${match[1]});`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g,'');
