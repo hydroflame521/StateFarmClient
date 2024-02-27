@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre32
+// @version      3.4.0-pre33
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -3240,15 +3240,17 @@ z-index: 999999;
                 };
             };
 
+            const f = function(varName) { return varName.replace("$", "\\$") };
+
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
-            modifyJS(H.SCENE+'.'+H.render,`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${H.SCENE}.render`);
+            modifyJS(f(H.SCENE)+'.'+f(H.render),`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
             modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
-            modifyJS(`${H.CULL})r`,`true)r`);
-            console.log('%cSuccess! Cull inhibition hooked '+H.CULL, 'color: green; font-weight: bold;');
+            modifyJS(`${f(H.CULL)})r`,`true)r`);
+            console.log('%cSuccess! Cull inhibition hooked '+f(H.CULL), 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
             modifyJS('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
@@ -3259,41 +3261,41 @@ z-index: 999999;
             const chatCull=/;[a-zA-Z$_]+\.length>4/.exec(js)[0];
             modifyJS(chatCull,chatCull.originalReplace('4', `window.${functionNames.getChatLimit}()`));
             //chat mods: disable filter (credit to A3+++ for this finding)
-            modifyJS(`!${H._filterFunction}(${H._insideFilterFunction})`,`((!${H._filterFunction}(${H._insideFilterFunction}))||window.${functionNames.getDisableChatFilter}())`);
+            modifyJS(`!${f(H._filterFunction)}(${f(H._insideFilterFunction)})`,`((!${f(H._filterFunction)}(${f(H._insideFilterFunction)}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
             let [_, elm, str] = js.match(/\)\),([a-zA-Z$_]+)\.innerHTML=([a-zA-Z$_]+),/);
-            modifyJS(_, _ + `${H._filterFunction}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
+            modifyJS(_, _ + `${f(H._filterFunction)}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
             match = js.match(/inventory\[[a-zA-Z$_]+\].id===[a-zA-Z$_]+.id\)return!0;return!1/);
             if (match) {modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`)};
             //reset join/leave msgs
             modifyJS(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
             //bypass chat filter
-            modifyJS('.trim();','.trim();'+H._chat+'=window.'+functionNames.modifyChat+'('+H._chat+');')
+            modifyJS('.trim();','.trim();'+f(H._chat)+'=window.'+functionNames.modifyChat+'('+f(H._chat)+');')
             //hook for control interception
-            match = new RegExp(`${H._update}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
+            match = new RegExp(`${f(H._update)}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
             console.log("player update function:",match);
-            modifyJS(match,`${match}${H.CONTROLKEYS}=window.${functionNames.modifyControls}(${H.CONTROLKEYS});`);
+            modifyJS(match,`${match}${f(H.CONTROLKEYS)}=window.${functionNames.modifyControls}(${f(H.CONTROLKEYS)});`);
             //admin spoof lol
             modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
             modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
             //grab reason for connect fail
-            const FUNCTIONPARAM = new RegExp('function '+H._connectFail+'\\(([a-zA-Z$_]+)\\)').exec(js)[1];
+            const FUNCTIONPARAM = new RegExp('function '+f(H._connectFail)+'\\(([a-zA-Z$_]+)\\)').exec(js)[1];
             console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
-            modifyJS('function '+H._connectFail+'('+FUNCTIONPARAM+'){','function '+H._connectFail+'('+FUNCTIONPARAM+'){window.'+functionNames.onConnectFail+'('+FUNCTIONPARAM+','+H.ERRORARRAY+');')
+            modifyJS('function '+f(H._connectFail)+'('+f(FUNCTIONPARAM)+'){','function '+f(H._connectFail)+'('+f(FUNCTIONPARAM)+'){window.'+functionNames.onConnectFail+'('+f(FUNCTIONPARAM)+','+f(H.ERRORARRAY)+');')
             //get rid of tutorial popup because its a stupid piece of shit
             modifyJS(',vueApp.onTutorialPopupClick()','');
             //pointer escape
             modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
             //death hook
-            const DEATHARGS = new RegExp('function '+H._deathFunction+'\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
+            const DEATHARGS = new RegExp('function '+f(H._deathFunction)+'\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
             console.log("DEATHARGS",DEATHARGS);
-            modifyJS('function '+H._deathFunction+'('+DEATHARGS+'){','function '+H._deathFunction+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
+            modifyJS('function '+f(H._deathFunction)+'('+DEATHARGS+'){','function '+f(H._deathFunction)+'('+f(DEATHARGS)+'){window.'+functionNames.interceptDeath+'('+f(DEATHARGS)+');');
             //vip spoof/no ads credit absolutely goes to OakSwingZZZ
             modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.spoofVIP+'("adsBlocked")');
             modifyJS('"user-has-adblock"', functionNames.spoofVIP+'("user-has-adblock")');
             modifyJS('layed=!1', 'layed=window.'+functionNames.spoofVIP+'(!1)');
-            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.spoofVIP+'('+H.USERDATA+'.playerAccount.isUpgraded())');
+            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.spoofVIP+'('+f(H.USERDATA)+'.playerAccount.isUpgraded())');
             //Modifies matchmaker JS to block gamecodes.
             match = js.match(/ion,([a-zA-Z$_]+)\(([a-zA-Z$_]+)/);
             if (match) {
