@@ -16,13 +16,14 @@
 
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
 
 // version naming:
     //3.#.#-pre[number] for development versions, increment for every commit (not full release)
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre31
+// @version      3.4.0-pre32
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -112,15 +113,25 @@ console.log("StateFarm: running (before function)");
         console.log("StateFarm: injectScript()");
         injectScript();
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("StateFarm: initMenu()");
-            initMenu();
-            console.log("StateFarm: applyStylesAddElements()");
-            applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
-            const intervalId1 = setInterval(everySecond, 1000);
-            const intervalId2 = setInterval(everyDecisecond, 100);
-            applyStateFarmLogo();
-            const observer = new MutationObserver(applyStateFarmLogo);
-            observer.observe(document.body, { subtree: true, childList: true });
+            console.log("StateFarm: DOMContentLoaded, fetching sfx");
+            fetch(sfxURL)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to fetch folder contents');
+                };
+            })
+            .then(data => {
+                data.forEach((file, index) => {
+                    retrievedSFX.push({text: file.name.replace(".zip",""), value: JSON.stringify(file.download_url)})
+                });
+                onContentLoaded();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                onContentLoaded();
+            });
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
@@ -130,9 +141,10 @@ console.log("StateFarm: running (before function)");
     const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
     const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
+    const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
-        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<spoofVIP>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
+        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<adBlock>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
     };
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
@@ -149,6 +161,7 @@ console.log("StateFarm: running (before function)");
     let lastSentMessage="";
     let spamDelay=0;
     let URLParams="";
+    let retrievedSFX = [{text: "Default", value: "default"}];
     let soundsSFC = {};
     let targetingComplete=false;
     let username = "";
@@ -166,7 +179,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,automatedElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -726,17 +739,6 @@ sniping and someone sneaks up on you
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
-            initFolder({ location: tp.automationTab.pages[0], title: "Game Blacklist Settings", storeAs: "gameBlacklistFolder",});//Game Blacklist Folder
-                initModule({ location: tp.gameBlacklistFolder, title: "Blacklist On", storeAs: "gameBlacklist", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "",});
-                initModule({ location: tp.gameBlacklistFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){
-                    if (GAMECODE != undefined && GAMECODE != null){
-                        extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
-                    }else{
-                        createPopup("Join a game first");
-                    }
-                },});
-            tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE", enableConditions: [["autoJoin", true]],});
@@ -769,16 +771,14 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder",});
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1],});
-                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: [
-                    {text: "Default", value: "default"},
-                    {text: "Minecraft", value: "Hydroflame522/StateFarmClient/contents/soundpacks/minecraft"},
-                ], });
+                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
             // tp.audioFolder.addSeparator();
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1],});
+            initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
@@ -1072,6 +1072,17 @@ sniping and someone sneaks up on you
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
+    };
+    const onContentLoaded = function() {
+        console.log("StateFarm: initMenu()");
+        initMenu();
+        console.log("StateFarm: applyStylesAddElements()");
+        applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
+        const intervalId1 = setInterval(everySecond, 1000);
+        const intervalId2 = setInterval(everyDecisecond, 100);
+        applyStateFarmLogo();
+        const observer = new MutationObserver(applyStateFarmLogo);
+        observer.observe(document.body, { subtree: true, childList: true });
     };
     //visual functions
     const createPopup = function (text,type) {
@@ -2115,6 +2126,57 @@ z-index: 999999;
         makeHudElementDragable(gameInfoElement);
         makeHudElementDragable(playerstatsElement);
         makeHudElementDragable(playerinfoElement);
+        if (extract("gameBlacklistCodes")!="" && extract("gameBlacklistCodes") != undefined){
+            let input = extract("gameBlacklistCodes");
+            input = input.split(",");
+            input.forEach(function (code) {
+                if (code != "" && code.length == 7){
+                    blacklistedGameCodes.push(code);
+                }
+            });
+        };
+
+        extract('spoofVIP') && document.getElementById("chickenBadge") ? document.getElementById("chickenBadge").style.display = "block" : document.getElementById("chickenBadge").style.display = "none"; //VIP Badge Spoof by OakSwingZZZ
+
+        async function fetchAndProcessAudioFromZip(zipURL) {
+            try {
+                const response = await fetch(zipURL);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch ZIP:', response.statusText);
+                }
+                const arrayBuffer = await response.arrayBuffer();
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                const mp3Files = Object.keys(zip.files).filter(fileName => fileName.endsWith('.mp3'));
+                const totalRequests = mp3Files.length;
+                
+                mp3Files.forEach(async (fileName, index) => {
+                    const fileData = await zip.file(fileName).async('arraybuffer');
+                    const audioBuffer = await audioContext.decodeAudioData(fileData);
+                    const key = fileName.replace('.mp3', '');
+                    soundsSFC[key] = audioBuffer;
+                    console.log("Loaded sound for:", key);
+                    
+                    if (Object.keys(soundsSFC).length === totalRequests) {
+                        createPopup("Loaded Custom SFX!", "success");
+                        console.log("LOADED!");
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching/decoding audio from ZIP:', error);
+            };
+        };
+        
+        if (initialisedCustomSFX !== extract("customSFX")) {
+            initialisedCustomSFX = extract("customSFX");
+            console.log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
+            soundsSFC = {};
+            if (initialisedCustomSFX !== true && initialisedCustomSFX !== "default") {
+                createPopup("Loading Custom SFX...");
+                
+                // Make the request to fetch and process audio data from the ZIP file
+                fetchAndProcessAudioFromZip(JSON.parse(initialisedCustomSFX));
+            };
+        };
 
         if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
@@ -2918,7 +2980,7 @@ z-index: 999999;
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
-            console.log(0, name, panner, somethingelse);
+            // console.log(0, name, panner, somethingelse);
             if (panner && panner.positionX && extract("distanceMult") !== 1) {
                 panner.setPosition(
                     panner.context.listener.positionX.value - ((panner.context.listener.positionX.value - panner.positionX.value) * extract("distanceMult")),
@@ -3075,8 +3137,8 @@ z-index: 999999;
                 return CONTROLKEYS;
             };
         });
-        createAnonFunction('spoofVIP', function(input) {
-            if (extract("spoofVIP")) {
+        createAnonFunction('adBlocker', function(input) {
+            if (extract("adBlock")) {
                 if (typeof(input) == 'boolean') {
                     return true;
                 } else if (input == "user-has-adblock") {
@@ -3231,10 +3293,10 @@ z-index: 999999;
             console.log("DEATHARGS",DEATHARGS);
             modifyJS('function '+H._deathFunction+'('+DEATHARGS+'){','function '+H._deathFunction+'('+DEATHARGS+'){window.'+functionNames.interceptDeath+'('+DEATHARGS+');');
             //vip spoof/no ads credit absolutely goes to OakSwingZZZ
-            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.spoofVIP+'("adsBlocked")');
-            modifyJS('"user-has-adblock"', functionNames.spoofVIP+'("user-has-adblock")');
-            modifyJS('layed=!1', 'layed=window.'+functionNames.spoofVIP+'(!1)');
-            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.spoofVIP+'('+H.USERDATA+'.playerAccount.isUpgraded())');
+            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.adBlocker+'("adsBlocked")');
+            modifyJS('"user-has-adblock"', functionNames.adBlocker+'("user-has-adblock")');
+            modifyJS('layed=!1', 'layed=window.'+functionNames.adBlocker+'(!1)');
+            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.adBlocker+'('+H.USERDATA+'.playerAccount.isUpgraded())');
             //Modifies matchmaker JS to block gamecodes.
             match = js.match(/ion,([a-zA-Z$_]+)\(([a-zA-Z$_]+)/);
             if (match) {
