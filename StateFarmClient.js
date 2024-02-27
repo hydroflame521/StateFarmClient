@@ -16,13 +16,14 @@
 
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
+// @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
 
 // version naming:
     //3.#.#-pre[number] for development versions, increment for every commit (not full release)
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre31
+// @version      3.4.0-pre32
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -112,15 +113,25 @@ console.log("StateFarm: running (before function)");
         console.log("StateFarm: injectScript()");
         injectScript();
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("StateFarm: initMenu()");
-            initMenu();
-            console.log("StateFarm: applyStylesAddElements()");
-            applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
-            const intervalId1 = setInterval(everySecond, 1000);
-            const intervalId2 = setInterval(everyDecisecond, 100);
-            applyStateFarmLogo();
-            const observer = new MutationObserver(applyStateFarmLogo);
-            observer.observe(document.body, { subtree: true, childList: true });
+            console.log("StateFarm: DOMContentLoaded, fetching sfx");
+            fetch(sfxURL)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to fetch folder contents');
+                };
+            })
+            .then(data => {
+                data.forEach((file, index) => {
+                    retrievedSFX.push({text: file.name.replace(".zip",""), value: JSON.stringify(file.download_url)})
+                });
+                onContentLoaded();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                onContentLoaded();
+            });
         });
     };
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
@@ -130,6 +141,7 @@ console.log("StateFarm: running (before function)");
     const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
     const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
+    const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
         "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<spoofVIP>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
@@ -149,6 +161,7 @@ console.log("StateFarm: running (before function)");
     let lastSentMessage="";
     let spamDelay=0;
     let URLParams="";
+    let retrievedSFX = [{text: "Default", value: "default"}];
     let soundsSFC = {};
     let targetingComplete=false;
     let username = "";
@@ -758,10 +771,7 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder",});
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1],});
-                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: [
-                    {text: "Default", value: "default"},
-                    {text: "Minecraft", value: "Hydroflame522/StateFarmClient/contents/soundpacks/minecraft"},
-                ], });
+                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
             // tp.audioFolder.addSeparator();
         //MISC MODULES
@@ -1061,6 +1071,17 @@ sniping and someone sneaks up on you
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
+    };
+    const onContentLoaded = function() {
+        console.log("StateFarm: initMenu()");
+        initMenu();
+        console.log("StateFarm: applyStylesAddElements()");
+        applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
+        const intervalId1 = setInterval(everySecond, 1000);
+        const intervalId2 = setInterval(everyDecisecond, 100);
+        applyStateFarmLogo();
+        const observer = new MutationObserver(applyStateFarmLogo);
+        observer.observe(document.body, { subtree: true, childList: true });
     };
     //visual functions
     const createPopup = function (text,type) {
@@ -2114,67 +2135,45 @@ z-index: 999999;
             });
         };
 
-        if (initialisedCustomSFX !== extract("customSFX")) {
-            initialisedCustomSFX = extract("customSFX");
-            console.log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
-            if (initialisedCustomSFX == "default") {
-                soundsSFC = {};
-            } else {
-                createPopup("Loading Custom SFX...");
-                // Define function to fetch and process audio data
-                async function fetchAndProcessAudio(key, downloadURL, totalRequests) {
-                    try {
-                        console.log(key, downloadURL);
-                        const expectedURL = downloadURL;
-                        console.log(expectedURL);
-                        const response = await fetch(expectedURL);
-                        
-                        // Check if the request was successful
-                        if (response.ok) {
-                            const arrayBuffer = await response.arrayBuffer();
-                            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                            soundsSFC[key] = audioBuffer;
-                            console.log("Loaded sound for:", key);
-                            
-                            // Check if all requests are completed
-                            if (Object.keys(soundsSFC).length === totalRequests) {
-                                createPopup("Loaded Custom SFX!", "success");
-                                console.log("LOADED!");
-                            };
-                        } else {
-                            throw new Error('Failed to fetch MP3:', response.statusText);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching/decoding MP3:', error);
-                    };
-                };
-        
-                // Make the request to fetch folder contents
-                fetch('https://api.github.com/repos/'+initialisedCustomSFX)
-                .then(response => {
-                    // Check if the request was successful
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Failed to fetch folder contents');
+        async function fetchAndProcessAudioFromZip(zipURL) {
+            try {
+                const response = await fetch(zipURL);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch ZIP:', response.statusText);
+                }
+                const arrayBuffer = await response.arrayBuffer();
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                const mp3Files = Object.keys(zip.files).filter(fileName => fileName.endsWith('.mp3'));
+                const totalRequests = mp3Files.length;
+                
+                mp3Files.forEach(async (fileName, index) => {
+                    const fileData = await zip.file(fileName).async('arraybuffer');
+                    const audioBuffer = await audioContext.decodeAudioData(fileData);
+                    const key = fileName.replace('.mp3', '');
+                    soundsSFC[key] = audioBuffer;
+                    console.log("Loaded sound for:", key);
+                    
+                    if (Object.keys(soundsSFC).length === totalRequests) {
+                        createPopup("Loaded Custom SFX!", "success");
+                        console.log("LOADED!");
                     }
-                })
-                .then(data => {
-                    const totalRequests = data.length;
-                    // Iterate over each file in the folder and fetch audio data
-                    data.forEach((file, index) => {
-                        // Introduce a delay of 50 milliseconds between each fetch request
-                        setTimeout(() => {
-                            fetchAndProcessAudio(file.name.replace(".mp3",""), file.download_url, totalRequests);
-                        }, index * 150);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
                 });
+            } catch (error) {
+                console.error('Error fetching/decoding audio from ZIP:', error);
             };
         };
         
+        if (initialisedCustomSFX !== extract("customSFX")) {
+            initialisedCustomSFX = extract("customSFX");
+            console.log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
+            soundsSFC = {};
+            if (initialisedCustomSFX !== true && initialisedCustomSFX !== "default") {
+                createPopup("Loading Custom SFX...");
+                
+                // Make the request to fetch and process audio data from the ZIP file
+                fetchAndProcessAudioFromZip(JSON.parse(initialisedCustomSFX));
+            };
+        };
 
         if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
@@ -2978,7 +2977,7 @@ z-index: 999999;
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
-            console.log(0, name, panner, somethingelse);
+            // console.log(0, name, panner, somethingelse);
             if (panner && panner.positionX && extract("distanceMult") !== 1) {
                 panner.setPosition(
                     panner.context.listener.positionX.value - ((panner.context.listener.positionX.value - panner.positionX.value) * extract("distanceMult")),
