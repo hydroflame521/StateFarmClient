@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre33
+// @version      3.4.0-pre34
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -771,9 +771,9 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder",});
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1],});
-                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
-            // tp.audioFolder.addSeparator();
+                tp.audioFolder.addSeparator();
+                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -2068,6 +2068,7 @@ z-index: 999999;
             globalSS.remove=remove;
             globalSS.change=change;
             globalSS.list=GM_listValues;
+            globalSS.soundsSFC=soundsSFC;
             // if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
         };
         startUpComplete = (!document.getElementById("progressBar"));
@@ -2135,33 +2136,44 @@ z-index: 999999;
             });
         };
 
-        async function fetchAndProcessAudioFromZip(zipURL) {
+        const fetchAndProcessAudioFromZip = async function (zipURL) {
             try {
                 const response = await fetch(zipURL);
                 if (!response.ok) {
                     throw new Error('Failed to fetch ZIP:', response.statusText);
-                }
+                };
                 const arrayBuffer = await response.arrayBuffer();
                 const zip = await JSZip.loadAsync(arrayBuffer);
                 const mp3Files = Object.keys(zip.files).filter(fileName => fileName.endsWith('.mp3'));
-                const totalRequests = mp3Files.length;
-                
+                const jsonFiles = Object.keys(zip.files).filter(fileName => fileName.endsWith('.json'));
+                const totalRequests = mp3Files.length + jsonFiles.length;
+                let config = {};
+
+                if (jsonFiles.length > 0) {
+                    const jsonFileData = await zip.file(jsonFiles[0]).async('string');
+                    config = {...config, ...JSON.parse(jsonFileData)};
+                };
+        
+                let loadedCount = 0;
+        
                 mp3Files.forEach(async (fileName, index) => {
                     const fileData = await zip.file(fileName).async('arraybuffer');
                     const audioBuffer = await audioContext.decodeAudioData(fileData);
                     const key = fileName.replace('.mp3', '');
+                    audioBuffer.disablePanning = !!config.disablePanning;
                     soundsSFC[key] = audioBuffer;
                     console.log("Loaded sound for:", key);
-                    
-                    if (Object.keys(soundsSFC).length === totalRequests) {
+                    loadedCount++;
+        
+                    if (loadedCount === totalRequests) {
                         createPopup("Loaded Custom SFX!", "success");
                         console.log("LOADED!");
-                    }
+                    };
                 });
             } catch (error) {
                 console.error('Error fetching/decoding audio from ZIP:', error);
             };
-        };
+        };        
         
         if (initialisedCustomSFX !== extract("customSFX")) {
             initialisedCustomSFX = extract("customSFX");
@@ -2978,6 +2990,7 @@ z-index: 999999;
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
             // console.log(0, name, panner, somethingelse);
+            let customAudio = soundsSFC[name];
             if (panner && panner.positionX && extract("distanceMult") !== 1) {
                 panner.setPosition(
                     panner.context.listener.positionX.value - ((panner.context.listener.positionX.value - panner.positionX.value) * extract("distanceMult")),
@@ -2987,8 +3000,12 @@ z-index: 999999;
             };
             if (extract("muteGame")) {
                 name = "silence";
-            } else if (soundsSFC[name]) {
-                playAudio(name, panner);
+            } else if (customAudio) {
+                if (customAudio.disablePanning) {
+                    playAudio(name);
+                } else {
+                    playAudio(name, panner);
+                };
                 name = "silence";
             };
             return [name, panner, somethingelse];
