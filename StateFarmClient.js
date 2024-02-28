@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre34
+// @version      3.4.0-pre35
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2983,6 +2983,7 @@ z-index: 999999;
                     sendChatMessage(`are you cheating ${KILLER.name}? everyone report`);
                 };
             } else if (KILLER.name == ss.MYPLAYER.name) { //you killed someone
+                unsafeWindow.BAWK.play("on_killed_enemy");
                 if (extract("autoEZ")) {
                     sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
                 };
