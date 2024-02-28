@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre35
+// @version      3.4.0-pre36
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -158,6 +158,7 @@ console.log("StateFarm: running (before function)");
     let lastAntiAFKMessage=0;
     let currentFrameIndex = 0;
     let deciSecondsPassed = 0;
+    let timeJoinedGame = 0;
     let lastSentMessage="";
     let spamDelay=0;
     let URLParams="";
@@ -754,6 +755,22 @@ sniping and someone sneaks up on you
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
             tp.automationTab.pages[0].addSeparator();
+            initFolder({ location: tp.automationTab.pages[0], title: "Game Blacklist Settings", storeAs: "gameBlacklistFolder",});//Game Blacklist Folder
+                initModule({ location: tp.gameBlacklistFolder, title: "Blacklist On", storeAs: "gameBlacklist", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "",});
+                initModule({ location: tp.gameBlacklistFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){
+                    if (GAMECODE != undefined && GAMECODE != null){
+                        extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
+                    } else {
+                        createPopup("Join a game first");
+                    };
+                },});
+            tp.automationTab.pages[0].addSeparator();
+            initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
+            initModule({ location: tp.automationTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Auto Leave", storeAs: "autoLeave", bindLocation: tp.automationTab.pages[1],});
+            initModule({ location: tp.automationTab.pages[0], title: "Delay (s)", storeAs: "autoLeaveDelay", slider: {min: 0, max: 3600, step: 1}, defaultValue: 300, enableConditions: [["autoLeave",true]]});
+            tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "Gamemode", storeAs: "autoGamemode", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Region", storeAs: "autoRegion", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             tp.automationTab.pages[0].addSeparator();
@@ -805,19 +822,6 @@ sniping and someone sneaks up on you
                     noPointerPause=false; canvas.requestPointerLock();
                 };
             },});
-            tp.miscTab.pages[0].addSeparator();
-            initFolder({ location: tp.miscTab.pages[0], title: "Game Blacklist Settings", storeAs: "gameBlacklistFolder",});//Game Blacklist Folder
-                initModule({ location: tp.gameBlacklistFolder, title: "Blacklist On", storeAs: "gameBlacklist", bindLocation: tp.miscTab.pages[1],});
-                initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "",});
-                initModule({ location: tp.gameBlacklistFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){
-                    if (GAMECODE != undefined && GAMECODE != null){
-                        extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
-                    } else {
-                        createPopup("Join a game first");
-                    };
-                },});
-            initModule({ location: tp.miscTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.miscTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
-            initModule({ location: tp.miscTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
                 findNewPath = true;
@@ -1011,6 +1015,9 @@ sniping and someone sneaks up on you
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("leave") },});
         initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "AutoLeave", storeAs: "autoLeaveBots", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Delay (s)", storeAs: "autoLeaveDelayBots", slider: {min: 0, max: 3600, step: 1}, defaultValue: 300, enableConditions: [["autoLeaveBots",true]], botParam: true,});
+        tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("report") },});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
@@ -2216,6 +2223,12 @@ z-index: 999999;
                     playersInGame=0;
                 };
             };
+            if (extract("autoLeave")) {
+                if ((timeJoinedGame+(1000*extract("autoLeaveDelay"))) < Date.now()) {
+                    change("leaveGame");
+                };
+            };
+
             //credits: @2lars and @macintosh2 in the discord :)
             if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
                 if ((extract("autoTeam")=="random") ||
@@ -2975,6 +2988,7 @@ z-index: 999999;
         });
         createAnonFunction('setNewGame', function () {
             newGame = true;
+            timeJoinedGame = Date.now();
         });
         createAnonFunction('interceptDeath', function (KILLER,DEAD) {
             // console.log("dead:",DEAD.name,"killed by:",KILLER.name);
@@ -3420,6 +3434,7 @@ z-index: 999999;
         let params="";
 
         addParam("autoFireType",1); //while visible
+        addParam("spoofVIP",true);
 
         //do aimbot
         addParam("aimbotTargetMode",1);
@@ -3460,6 +3475,8 @@ z-index: 999999;
         addParam("autoGamemode",extractAsDropdownInt("autoGamemodeBots"));
         addParam("useCustomName",extract("useCustomNameBots"));
         addParam("leaveEmpty",extract("leaveEmptyBots"));
+        addParam("autoLeave",extract("autoLeaveBots"));
+        addParam("autoLeaveDelay",extract("autoLeaveDelayBots"));
         addParam("spamChat",extract("botSpam"));
         addParam("spamChatText",extract("spamChatTextBot"));
         addParam("tallChat",extract("botTallChat"),true);
