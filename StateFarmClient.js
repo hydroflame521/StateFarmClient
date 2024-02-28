@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre37
+// @version      3.4.0-pre38
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -4560,6 +4560,6 @@ z-index: 999999;
             console.log("Injection didn't work for whatever reason, let's try again.");
             reloadPage();
         };
-    }, 10000);
+    }, 30000);
 })();
 console.log("StateFarm: after function",attemptedInjection);
