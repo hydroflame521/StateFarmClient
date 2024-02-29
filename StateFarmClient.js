@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre40
+// @version      3.4.0-pre41
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -3268,7 +3268,7 @@ z-index: 999999;
 
             //SERVERSYNC
             match = new RegExp(`!${H.CULL}&&(.+?\\}\\})`).exec(js);
-            H.SERVERSYNC = match ? match[1] : "function(){console.log('no serversync womp womp')}";
+            H.SERVERSYNC = match ? match[1].replace(/[a-zA-Z$_\.\[\]]+shots/, 0) : "function(){console.log('no serversync womp womp')}";
             console.log("SERVERSYNC:",  match);
 
             const variableNameRegex = /^[a-zA-Z0-9_$\[\]"\\]*$/;
