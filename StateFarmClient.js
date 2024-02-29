@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre38
+// @version      3.4.0-pre39
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -154,6 +154,7 @@ console.log("StateFarm: running (before function)");
     let binding=false;
     let previousFrame=0;
     let lastSpamMessage=0;
+    let startTime = Date.now();
     let lastAutoJump=0;
     let lastAntiAFKMessage=0;
     let currentFrameIndex = 0;
@@ -180,7 +181,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,botBlacklist,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -994,13 +995,10 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
         initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()},});
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useCustomNameBots", defaultValue: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useCustomNameBots", defaultValue: true, botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", enableConditions: [["useCustomNameBots",true]],});
         initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", enableConditions: [["useCustomNameBots",true]],});
         initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", enableConditions: [["useCustomNameBots",true]],});
-        tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillMe", storeAs: "botNoKillMe",});
-        initModule({ location: tp.botTabs.pages[0], title: "Don'tKillBot", storeAs: "botNoKillBots",});
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, {text: "Randomised", value: "random"}], defaultValue: "darkesteggshell",});
         initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}, {text: "Randomised", value: "random"}], defaultValue: "pablosmile",});
@@ -1012,6 +1010,9 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function(){ broadcastToBots("newproxy") },});
         initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("unban") },});
         initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true,});
+        tp.botTabs.pages[1].addSeparator();
+        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("leave") },});
         initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true,});
@@ -2079,46 +2080,65 @@ z-index: 999999;
             // if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
         };
         startUpComplete = (!document.getElementById("progressBar"));
-        const botsArray = GM_getValue("StateFarm_BotStatus");
+        const botsDict = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
             if (clientID) {
                 const newArray = {
-                    noConfig: ((botsArray[clientID] && configNotSet) ? (
-                        (botsArray[clientID].noConfig>Date.now()) ? botsArray[clientID].noConfig : Date.now()
+                    noConfig: ((botsDict[clientID] && configNotSet) ? (
+                        (botsDict[clientID].noConfig>Date.now()) ? botsDict[clientID].noConfig : Date.now()
                         ) : 0),
                     username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
+                    uniqueId: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.uniqueId)||"value_undefined"),
+                    startTime: startTime,
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
                         (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
                         (errorString||"idle")),
                 };
 
-                delete botsArray[clientID];
+                delete botsDict[clientID];
 
                 clientID = (unsafeWindow.vueData.firebaseId||clientID);
 
-                botsArray[clientID] = newArray;
+                botsDict[clientID] = newArray;
             };
         } else {
+            let oldBlacklist = botBlacklist;
+            botBlacklist = "";
+            if (extract("botNoKillMe")) {
+                botBlacklist += botBlacklist + ((ss&&ss.MYPLAYER&&ss.MYPLAYER.uniqueId)||"value_undefined") + ",";
+            };
             monitorObjects.botOnline="";
             amountOnline = 0;
-            for (const botID in botsArray) {
-                const data=botsArray[botID];
-                if (data.noConfig) {
-                    updateBotParams();
-                    botsArray[botID].noConfig = Date.now()+5000;
+            const botsArray = Object.keys(botsDict).sort();
+            for (i in botsArray) {
+                if (i!=="shallowClone") {
+                    i = Number(i);
+                    const botID = botsArray[i];
+                    const data = botsDict[botID];
+                    if (data.noConfig) {
+                        updateBotParams();
+                        botsDict[botID].noConfig = Date.now()+5000;
+                    };
+                    if (extract("botNoKillBots") && data.uniqueId !== "value_undefined") {
+                        botBlacklist += data.uniqueId + ",";
+                    };
+                    if ((data.timecode+10000)<Date.now()) { //give up on this bot lmao
+                        delete botsDict[botID];
+                    } else if ((data.timecode+4000)<Date.now()) { //maybe it will come back
+                        botsDict[botID].status="not responding " + (Date.now()-data.timecode) + "ms elapsed";
+                    }; //bot is doing fine... hopefully
+                    amountOnline+=1;
+                    monitorObjects.botOnline = monitorObjects.botOnline + "\n" + data.username + " [" + "..." + botID.slice(-4) + "]: " + data.status;
                 };
-                if ((data.timecode+10000)<Date.now()) { //give up on this bot lmao
-                    delete botsArray[botID];
-                } else if ((data.timecode+4000)<Date.now()) { //maybe it will come back
-                    botsArray[botID].status="not responding " + (Date.now()-data.timecode) + "ms elapsed";
-                }; //bot is doing fine... hopefully
-                amountOnline+=1;
-                monitorObjects.botOnline = monitorObjects.botOnline + "\n" + data.username + " [" + "..." + botID.slice(-4) + "]: " + data.status;
+            };
+            if (oldBlacklist !== botBlacklist) {
+                console.log("old:", oldBlacklist, "new:", botBlacklist);
+                updateBotParams();
             };
             monitorObjects.botOnline = ((amountOnline) + " bots online.")+monitorObjects.botOnline;
         };
-        GM_setValue("StateFarm_BotStatus",botsArray);
+        GM_setValue("StateFarm_BotStatus",botsDict);
 
         allFolders.forEach(function (name) {
             save(name,tp[name].expanded);
@@ -3391,16 +3411,6 @@ z-index: 999999;
             botNames.push(name);
         };
 
-        let BLACKLIST="";
-        if (extract("botNoKillMe")) {
-            BLACKLIST=BLACKLIST+unsafeWindow.vueApp.playerName+","
-        };
-        if (extract("botNoKillBots")) {
-            BLACKLIST=BLACKLIST+botNames.join(",")+","
-        };
-        BLACKLIST=BLACKLIST.endsWith(',') ? BLACKLIST.slice(0, -1) : BLACKLIST;
-        console.log("blacklist:",BLACKLIST);
-
         for (let i = 0; i < extract("numberBots"); i++) {
             let leftOffset=((i%15)*100);
             // let topOffset=((i%3)*100);
@@ -3412,11 +3422,6 @@ z-index: 999999;
             if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
 
             const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
-
-            if (BLACKLIST!=="") {
-                addParam("blacklist",BLACKLIST);
-                addParam("enableBlacklistAimbot",true);
-            };
 
             addParam("eggColour",extract("eggColourBots")=="random" ? randomInt(1,7) : extractAsDropdownInt("eggColourBots"));
             addParam("autoStamp",extract("autoStampBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoStampBots"));
@@ -3436,6 +3441,9 @@ z-index: 999999;
         addParam("autoFireType",1); //while visible
         addParam("spoofVIP",true);
 
+        //blacklist stuff
+        addParam("blacklist",botBlacklist);
+        addParam("enableBlacklistAimbot",true);
         //do aimbot
         addParam("aimbotTargetMode",1);
         addParam("aimbotVisibilityMode",1);
@@ -3516,7 +3524,9 @@ z-index: 999999;
         createPopup("Custom StateFarm Settings Applying...");
         if (!secondPassThru) {
             setTimeout(() => {
-                applySettings(receivedConfig,false,true);
+                if (receivedConfig) {
+                    applySettings(receivedConfig,false,true);
+                };
             }, 150);
         };
     };
@@ -3527,7 +3537,7 @@ z-index: 999999;
         } else {
             const botParams = constructBotParams();
             broadcastToBots("setconfig "+btoa(unsafeWindow.unescape(encodeURIComponent(botParams))));
-            console.log("StateFarm: attempted to set bot params to.");
+            console.log("StateFarm: attempted to set bot params.");
         };
     };
 
