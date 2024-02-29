@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
-// @description  Fixed for 0.47.0! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @description  Fixed for 0.47.1! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre39
+// @version      3.4.0-pre40
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2102,6 +2102,9 @@ z-index: 999999;
 
                 botsDict[clientID] = newArray;
             };
+            if (attemptedInjection && automatedBorder && automatedBorder.style && automatedBorder.style.borderColor=="rgb(255, 0, 0)") {
+                automatedBorder.style.borderColor = 'rgba(0, 255, 0, 1)';
+            };
         } else {
             let oldBlacklist = botBlacklist;
             botBlacklist = "";
@@ -3103,7 +3106,8 @@ z-index: 999999;
                     state[H.pitch] = setPrecision(aimbot.pitchReal);
                     ss.MYPLAYER[H.stateBuffer][Math.mod(ss.MYPLAYER.stateIdx - i, 256)] = state;
                 };
-                // ss.SERVERSYNC();
+                console.log("force update?");
+                ss.SERVERSYNC();
             };
         });
         createAnonFunction('onConnectFail', function (ERRORCODE,ERRORARRAY) {
@@ -3232,7 +3236,6 @@ z-index: 999999;
         });
         const applyStateFarm = function(js) {
             console.log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
-            attemptedInjection = true;
             let match;
 
             let hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex);
@@ -3261,16 +3264,21 @@ z-index: 999999;
     
             H = clientKeys.vars;
     
-            let injectionString=""; 
+            let injectionString="";
+
+            //SERVERSYNC
+            match = new RegExp(`!${H.CULL}&&(.+?\\}\\})`).exec(js);
+            H.SERVERSYNC = match ? match[1] : "function(){console.log('no serversync womp womp')}";
+            console.log("SERVERSYNC:",  match);
 
             const variableNameRegex = /^[a-zA-Z0-9_$\[\]"\\]*$/;
             for (let name in H) {
                 deobf = H[name];
-                if (variableNameRegex.test(deobf)) {
+                if (name == "SERVERSYNC" || variableNameRegex.test(deobf)) { //serversync should only be defined just before...
                     injectionString = `${injectionString}${name}: (() => { try { return ${deobf}; } catch (error) { return "value_undefined"; } })(),`;
                 } else {
                     alert("Message from the StateFarm Devs: WARNING! The keys inputted contain non-variable characters! There is a possibility that this could run code unintended by the StateFarm team, although possibly there is also a mistake. Do NOT proceed with using this, and report to the StateFarm developers what is printed in the console.");
-                    console.log("REPORT THIS IN THE DISCORD SERVER:", clientKeys);
+                    console.log("REPORT THIS IN THE DISCORD SERVER:", name, deobf, clientKeys);
                     const crashplease = "balls";
                     crashplease = "balls2";
                 };
@@ -3364,9 +3372,7 @@ z-index: 999999;
             console.log(H);
             console.log(js);
             
-            if (AUTOMATED) {
-                automatedBorder.style.borderColor = 'rgba(0, 255, 0, 1)';
-            };
+            attemptedInjection = true;
             return js;
         };
     };
