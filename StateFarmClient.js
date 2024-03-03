@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre43
+// @version      3.4.0-pre44
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -2099,6 +2099,7 @@ z-index: 999999;
         const botsDict = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
             if (clientID) {
+                const autoLeave = extract("autoLeave") ? " AL: "+Math.round(((timeJoinedGame+(1000*extract("autoLeaveDelay"))) - Date.now())/100)/10 : "";
                 const newArray = {
                     noConfig: ((botsDict[clientID] && configNotSet) ? (
                         (botsDict[clientID].noConfig>Date.now()) ? botsDict[clientID].noConfig : Date.now()
@@ -2108,7 +2109,7 @@ z-index: 999999;
                     startTime: startTime,
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + autoLeave + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
                         (errorString||"idle")),
                 };
 
