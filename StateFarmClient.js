@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
-// @description  Fixed for 0.47.1! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @description  Fixed for 0.47.2! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre41
+// @version      3.4.0-pre42
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -102,7 +102,7 @@ console.log("StateFarm: running (before function)");
     console.log("StateFarm: running (after function)");
     //script info
     const name="ЅtateFarm Client";
-    const version=GM_info.script.version;
+    const version = GM_info ? GM_info.script.version : "3";
     const menuTitle=name + " v" + version;
     //startup sequence
     const startUp=function () {
@@ -142,9 +142,10 @@ console.log("StateFarm: running (before function)");
     const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
+    const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
-        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<spoofVIP>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
+        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<adBlock>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
     };
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
@@ -181,7 +182,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,botBlacklist,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,botBlacklist,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,minangleCircle,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -202,7 +203,7 @@ console.log("StateFarm: running (before function)");
     };
     const antiAFKString = "AntiAFK Message. This message is not visible to others. || ";
     const filteredList = [ //a selection of filtered words for antiafk. brimslate reports afk messages, so have fun reporting this and trying to explain this to the "eggforcers"
-        'date', 'dick', 'fuck', 'fuk', 'suck', 'piss', 'hate', 'nude', 'fux', 'hate',
+        'date', 'dick', 'fuck', 'fuk', 'suck', 'piss', 'hate', 'nude', 'fux', 'hate', 'pussy',
     ]; //filteredList[randomInt(0,filteredList.length-1)]
     let proxyList = [
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
@@ -672,6 +673,7 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
             initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1],});
             initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1],});
+            initModule({ location: tp.hudTab.pages[0], title: "Show MinAngle", storeAs: "showMinAngle", bindLocation: tp.hudTab.pages[1],});
             initModule({ showConditions: [["disabledlmao",true]], location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1], enableConditions: [["aimbot",true]],});
             tp.hudTab.pages[0].addSeparator();
             initModule({ location: tp.hudTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.hudTab.pages[1],});
@@ -795,6 +797,7 @@ sniping and someone sneaks up on you
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
+            initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
@@ -1167,6 +1170,9 @@ sniping and someone sneaks up on you
             .tp-rotv_m, .tp-fldv_m {
                 display: none;
             }
+            .tp-dfwv {
+                min-width: 300px;
+            }
             .tp-rotv_t {
                 cursor: move;
                 user-select: none;
@@ -1336,7 +1342,6 @@ sniping and someone sneaks up on you
         `);
         document.body.appendChild(playerinfoElement);
         playerinfoElement.style.display = 'none';
-        // makeDraggable(playerinfoElement,true); //cba
         //initiate bloom indicator div and css and shit
         redCircle = document.createElement('div');
         redCircle.style.position = 'fixed';
@@ -1346,6 +1351,14 @@ sniping and someone sneaks up on you
         redCircle.style.backgroundColor = 'red';
         redCircle.style.transform = 'translate(-50%, -50%)';
         document.body.appendChild(redCircle);
+        //initiate minangle indicator div and css and shit
+        minangleCircle = document.createElement('div');
+        minangleCircle.style.position = 'fixed';
+        minangleCircle.style.borderRadius = '100%';
+        minangleCircle.style.border = 'thin solid red'
+        minangleCircle.style.transform = 'translate(50%, 50%)';
+        minangleCircle.style.pointerEvents = 'none';
+        document.body.appendChild(minangleCircle);
 
         if (load("HUD-Positions") == null){
             hudElementPositions["coordElement"] = {"top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left};
@@ -1353,7 +1366,7 @@ sniping and someone sneaks up on you
             hudElementPositions["playerstatsElement"] = {"top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left};
             hudElementPositions["playerinfoElement"] = {"top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left};
             save("HUD-Positions", hudElementPositions);
-        }else{
+        } else {
             hudElementPositions = load("HUD-Positions");
 
             coordElement.style.top = hudElementPositions["coordElement"]["top"] + "px";
@@ -1892,6 +1905,9 @@ z-index: 999999;
             z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
         };
     };
+    const deg2rad = function(deg) {
+        return deg * (Math.PI / 180);
+    };
     const reverseString = function (str) { return str.split("").reverse().join("") };
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
@@ -2166,6 +2182,8 @@ z-index: 999999;
             });
         };
 
+        extract('spoofVIP') && document.getElementById("chickenBadge") ? document.getElementById("chickenBadge").style.display = "block" : document.getElementById("chickenBadge").style.display = "none"; //VIP Badge Spoof by OakSwingZZZ
+
         const fetchAndProcessAudioFromZip = async function (zipURL) {
             try {
                 const response = await fetch(zipURL);
@@ -2317,7 +2335,7 @@ z-index: 999999;
                 favicon.type = 'image/x-icon';
                 favicon.rel = 'shortcut icon';
                 if (extract("titleAnimation")) {
-                    favicon.href = GM_info.script.icon;
+                    favicon.href = (GM_info?.script?.icon || iconURL);
                 } else {
                     favicon.href = 'https://www.google.com/s2/favicons?domain=shellshock.io';
                 };
@@ -2327,11 +2345,11 @@ z-index: 999999;
         };
 
         const banPopup = document.getElementById("bannedPopup");
-        if (attemptedInjection && vueApp.bannedPopup.expire!=="") {
+        if (attemptedInjection && banPopup && vueApp.bannedPopup.expire!=="") {
             isBanned=true;
         };
         if (isBanned && extract("autoUnban") && (!attemptedAutoUnban)) {
-            console.log("eep!", `!${banPopup.style.display}!`);
+            console.log("eep!");
             banPopup.textContent='StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
             unban();
             attemptedAutoUnban=true;
@@ -3190,8 +3208,8 @@ z-index: 999999;
                 return CONTROLKEYS;
             };
         });
-        createAnonFunction('spoofVIP', function(input) {
-            if (extract("spoofVIP")) {
+        createAnonFunction('adBlocker', function(input) {
+            if (extract("adBlock")) {
                 if (typeof(input) == 'boolean') {
                     return true;
                 } else if (input == "user-has-adblock") {
@@ -3352,10 +3370,10 @@ z-index: 999999;
             console.log("DEATHARGS",DEATHARGS);
             modifyJS('function '+f(H._deathFunction)+'('+DEATHARGS+'){','function '+f(H._deathFunction)+'('+f(DEATHARGS)+'){window.'+functionNames.interceptDeath+'('+f(DEATHARGS)+');');
             //vip spoof/no ads credit absolutely goes to OakSwingZZZ
-            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.spoofVIP+'("adsBlocked")');
-            modifyJS('"user-has-adblock"', functionNames.spoofVIP+'("user-has-adblock")');
-            modifyJS('layed=!1', 'layed=window.'+functionNames.spoofVIP+'(!1)');
-            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.spoofVIP+'('+f(H.USERDATA)+'.playerAccount.isUpgraded())');
+            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.adBlocker+'("adsBlocked")');
+            modifyJS('"user-has-adblock"', functionNames.adBlocker+'("user-has-adblock")');
+            modifyJS('layed=!1', 'layed=window.'+functionNames.adBlocker+'(!1)');
+            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.adBlocker+'('+f(H.USERDATA)+'.playerAccount.isUpgraded())');
             //Modifies matchmaker JS to block gamecodes.
             match = js.match(/ion,([a-zA-Z$_]+)\(([a-zA-Z$_]+)/);
             if (match) {
@@ -3445,7 +3463,7 @@ z-index: 999999;
         let params="";
 
         addParam("autoFireType",1); //while visible
-        addParam("spoofVIP",true);
+        addParam("adBlock",true);
 
         //blacklist stuff
         addParam("blacklist",botBlacklist);
@@ -4364,8 +4382,7 @@ z-index: 999999;
                     weaponArray.random = randomInt(0,6);
                     document.querySelectorAll('.weapon_img')[weaponArray[extract("autoWeapon")]].parentNode.click();
                 };
-                if (extract("revealBloom")) {
-                    redCircle.style.display='';
+                if (extract("revealBloom") || extract("showMinAngle")) {
                     const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
                     const bloomValues=predictBloom(ss.MYPLAYER[H.yaw],ss.MYPLAYER[H.pitch]);
                     // Set the new position of the circle
@@ -4373,10 +4390,23 @@ z-index: 999999;
                     const centerY = (unsafeWindow.innerHeight / 2);
                     const offsettedX = centerX + (2 * distCenterToOuter * bloomValues[0]);
                     const offsettedY = centerY + (2 * distCenterToOuter * bloomValues[1]);
-                    redCircle.style.bottom = offsettedY + 'px';
-                    redCircle.style.right = offsettedX + 'px';
-                } else {
-                    redCircle.style.display='none';
+                    if (extract("revealBloom")) {
+                        redCircle.style.display='';
+                        redCircle.style.bottom = offsettedY + 'px';
+                        redCircle.style.right = offsettedX + 'px';
+                    } else {
+                        redCircle.style.display='none';
+                    };
+                    if (extract("showMinAngle")) {
+                        minangleCircle.style.display = '';
+                        let idkWhatThisIs = 25*(1.25/ss.CAMERA.fov);
+                        minangleCircle.style.width = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
+                        minangleCircle.style.height = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
+                        minangleCircle.style.bottom = offsettedY + 'px';
+                        minangleCircle.style.right = offsettedX + 'px';
+                    } else {
+                        minangleCircle.style.display='none';
+                    };
                 };
 
                 // playerNearest=undefined; //currently unused and not defined
@@ -4395,10 +4425,6 @@ z-index: 999999;
 
                 const targetType = extract("aimbotTargetMode");
                 const visibilityMode = extract("aimbotVisibilityMode");
-
-                function deg2rad(deg) {
-                    return deg * (Math.PI / 180);
-                }
 
                 let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? deg2rad(extract("aimbotMinAngle")) : 10000; //used for selecting target (either pointingat or nearest)
 
