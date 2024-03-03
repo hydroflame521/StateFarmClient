@@ -3013,17 +3013,14 @@ z-index: 999999;
             newGame = true;
             timeJoinedGame = Date.now();
         });
-        createAnonFunction('interceptDeath', function (KILLER,DEAD) {
-            // console.log("dead:",DEAD.name,"killed by:",KILLER.name);
-            if (DEAD.name == ss.MYPLAYER.name) { //you died
-                if (extract("cheatAccuse")) {
-                    sendChatMessage(`are you cheating ${KILLER.name}? everyone report`);
-                };
-            } else if (KILLER.name == ss.MYPLAYER.name) { //you killed someone
+        createAnonFunction('interceptDeath', (KILLER, DEAD) => {
+            if (DEAD.name === KILLER.name === ss.MYPLAYER.name) return; // killed self (with grenade)
+
+            if (DEAD.name == ss.MYPLAYER.name) { // you died
+                if (extract("cheatAccuse")) sendChatMessage(`${KILLER.name} might be cheating, everyone report`);
+            } else if (KILLER.name == ss.MYPLAYER.name) { // you killed someone
                 unsafeWindow.BAWK.play("on_killed_enemy");
-                if (extract("autoEZ")) {
-                    sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
-                };
+                if (extract("autoEZ")) sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
