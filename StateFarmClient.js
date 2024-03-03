@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre42
+// @version      3.4.0-pre43
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.algebra.best/*
@@ -102,7 +102,7 @@ console.log("StateFarm: running (before function)");
     console.log("StateFarm: running (after function)");
     //script info
     const name="ЅtateFarm Client";
-    const version = GM_info ? GM_info.script.version : "3";
+    const version = typeof(GM_info) !== 'undefined' ? GM_info.script.version : "3";
     const menuTitle=name + " v" + version;
     //startup sequence
     const startUp=function () {
