@@ -23,9 +23,10 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre45
+// @version      3.4.0-pre46
 
 // @match        *://*.shellshock.io/*
+// @match        *://*.shell.onlypuppy7.online/*
 // @match        *://*.algebra.best/*
 // @match        *://*.algebra.vip/*
 // @match        *://*.biologyclass.club/*
