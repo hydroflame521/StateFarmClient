@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre46
+// @version      3.4.0-pre47
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -443,8 +443,8 @@ console.log("StateFarm: running (before function)");
                 initModule({ location: tp[tab.storeAs+"Guide"].pages[i], storeAs: storeAs, monitor: (text.split('\n').length + 0.25),});
                 monitorObjects[storeAs]=text;
                 const infoElement = tp[storeAs+"Button"].controller_.view.element.children[1].children[0];
-                infoElement.style.width = "226px";
-                infoElement.style.setProperty("margin-left", "-66px", "important");
+                infoElement.style.width = "270px";
+                infoElement.style.setProperty("margin-left", "-110px", "important");
             };
         };
     };
@@ -1190,8 +1190,8 @@ sniping and someone sneaks up on you
                 font-family: 'Bahnschrift';
                 font-size: 12px;
                 letter-spacing: -1px;
-                width: 246px;
-                margin-left: -86px !important;
+                width: 290px;
+                margin-left: -130px !important;
             }
             .tp-mllv_i::-webkit-scrollbar-thumb {
                 background-color: #888; /* Adjust the color as needed */
