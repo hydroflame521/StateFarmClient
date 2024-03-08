@@ -23,9 +23,10 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre43
+// @version      3.4.0-pre47
 
 // @match        *://*.shellshock.io/*
+// @match        *://*.shell.onlypuppy7.online/*
 // @match        *://*.algebra.best/*
 // @match        *://*.algebra.vip/*
 // @match        *://*.biologyclass.club/*
@@ -145,7 +146,7 @@ console.log("StateFarm: running (before function)");
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
-        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<adBlock>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
+        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfnetwork: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<adBlock>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
     };
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
@@ -442,8 +443,8 @@ console.log("StateFarm: running (before function)");
                 initModule({ location: tp[tab.storeAs+"Guide"].pages[i], storeAs: storeAs, monitor: (text.split('\n').length + 0.25),});
                 monitorObjects[storeAs]=text;
                 const infoElement = tp[storeAs+"Button"].controller_.view.element.children[1].children[0];
-                infoElement.style.width = "226px";
-                infoElement.style.setProperty("margin-left", "-66px", "important");
+                infoElement.style.width = "270px";
+                infoElement.style.setProperty("margin-left", "-110px", "important");
             };
         };
     };
@@ -1075,7 +1076,7 @@ sniping and someone sneaks up on you
         }, 500);
 
         menuInitiated = true;
-        const defaultSpamText = ("dsc.gg/sfclient: "+menuTitle+" On Top! ");
+        const defaultSpamText = ("dsc.gg/sfnetwork: "+menuTitle+" On Top! ");
 
         if (extract("spamChatText").includes("On Top!")) { change("spamChatText",defaultSpamText) };
         if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot",defaultSpamText) };
@@ -1189,8 +1190,8 @@ sniping and someone sneaks up on you
                 font-family: 'Bahnschrift';
                 font-size: 12px;
                 letter-spacing: -1px;
-                width: 246px;
-                margin-left: -86px !important;
+                width: 290px;
+                margin-left: -130px !important;
             }
             .tp-mllv_i::-webkit-scrollbar-thumb {
                 background-color: #888; /* Adjust the color as needed */
@@ -2099,6 +2100,7 @@ z-index: 999999;
         const botsDict = GM_getValue("StateFarm_BotStatus");
         if (AUTOMATED) {
             if (clientID) {
+                const autoLeave = extract("autoLeave") ? " AL: "+Math.round(((timeJoinedGame+(1000*extract("autoLeaveDelay"))) - Date.now())/100)/10 : "";
                 const newArray = {
                     noConfig: ((botsDict[clientID] && configNotSet) ? (
                         (botsDict[clientID].noConfig>Date.now()) ? botsDict[clientID].noConfig : Date.now()
@@ -2108,7 +2110,7 @@ z-index: 999999;
                     startTime: startTime,
                     timecode: Date.now(),
                     status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
+                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + autoLeave + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
                         (errorString||"idle")),
                 };
 
