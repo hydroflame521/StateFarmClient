@@ -413,9 +413,11 @@ With the exception of the color pickers and some links, these should all be bind
 
 - **Hydroflame521**, **onlypuppy7**, **porcupane**, and **not_food**. for development.
 
+- **de_Neuublue**, **OakSwingZZZ** and **1ust/VillainsRules** for contributed code.
+
 - **susdung** for README additions.
 
-- **Zertalious**: code that used to be present.
+- **Zertalious**: code that used to be present in significantly outdated versions.
 
 
 ## Disclaimer:
