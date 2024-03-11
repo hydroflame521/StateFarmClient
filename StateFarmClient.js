@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre50
+// @version      3.4.0-pre51
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -751,18 +751,24 @@ sniping and someone sneaks up on you
             initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
             initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
             tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
             initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
+                initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
                 initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE", enableConditions: [["autoJoin", true]],});
                 initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",GAMECODE)}, enableConditions: [["autoJoin", true]],});
-                tp.autoJoinFolder.addSeparator();
-                initModule({ location: tp.autoJoinFolder, title: "Use Name", storeAs: "useCustomName", bindLocation: tp.automationTab.pages[1], enableConditions: [["autoJoin", true]],});
-                initModule({ location: tp.autoJoinFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer", enableConditions: [["autoJoin", true], ["useCustomName", true]],});
-                initModule({ location: tp.autoJoinFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", enableConditions: [["autoJoin", true], ["useCustomName", true]], clickFunction: function(){
+            initFolder({ location: tp.automationTab.pages[0], title: "Auto Name Options", storeAs: "autoNamesFolder",});
+                initModule({ location: tp.autoNamesFolder, title: "Use Name", storeAs: "useCustomName", bindLocation: tp.automationTab.pages[1],});
+                initModule({ location: tp.autoNamesFolder, title: "New Name", storeAs: "usernameAutoJoin" , defaultValue: "ЅtateFarmer", enableConditions: [["useCustomName", true]],});
+                //the name usernameAutoJoin is only kept for compatability
+                initModule({ location: tp.autoNamesFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", enableConditions: [["useCustomName", true]], clickFunction: function(){
                     const copiedName = retrieveCopiedName();
                     console.log("Retrieved copied name:",copiedName);
                     change("usernameAutoJoin",(copiedName||"ЅtateFarmer"));
                 },});
+                initModule({ location: tp.autoNamesFolder, title: "Random Name", storeAs: "randomName", button: "Randomise Name", enableConditions: [["useCustomName", true]], clickFunction: function(){
+                    const randomisedName = unsafeWindow.extern.generateRandomName();
+                    change("usernameAutoJoin",(randomisedName||"ЅtateFarmer"));
+                },});
+            tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
             initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
             tp.automationTab.pages[0].addSeparator();
@@ -2308,7 +2314,7 @@ z-index: 999999;
         } else {
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
-                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,( ((extract("usernameAutoJoin")=="")||(!extract("useCustomName"))) ? vueApp.playerName : extract("usernameAutoJoin")),-1,extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,(vueApp.playerName),-1,extract("joinCode"));
                 };
             };
             if (extract("autoRegion")!=="disabled") {
@@ -2401,6 +2407,9 @@ z-index: 999999;
                     vueApp.onBackClick();
                 };
             };
+        };
+        if (extract("useCustomName")) {
+            unsafeWindow.vueApp.setPlayerName(extract("usernameAutoJoin"));
         };
         if ((!ranEverySecond) && startUpComplete) {
             ranEverySecond = true;
