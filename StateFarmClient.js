@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre49
+// @version      3.4.0-pre50
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -177,6 +177,7 @@ console.log("StateFarm: running (before function)");
     let username = "";
     let autoStrafeValue=[0,0,"left"];
     let TEAMCOLORS = ["#fed838","#40e0ff","#ffc0a0"];
+    let autoLeaveReminder = 9999;
     const allModules=[];
     const allFolders=[];
     const F=[];
@@ -1940,7 +1941,6 @@ z-index: 999999;
             newPanner.coneInnerAngle = panner.coneInnerAngle;
             newPanner.coneOuterAngle = panner.coneOuterAngle;
             newPanner.coneOuterGain = panner.coneOuterGain;
-            console.log("shit",panner,newPanner)
         };
         if (audioContext.state === 'suspended') {
             audioContext.resume();
@@ -2261,7 +2261,7 @@ z-index: 999999;
                 };
             };
             if (extract("gameInfo")) {
-                let gameInfoText=GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName;
+                let gameInfoText=GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName+" | Time in game: "+(Math.floor((Date.now()-timeJoinedGame)/1000))+"s"+(extract("autoLeave") ? " | AutoLeave: "+(Math.ceil(((timeJoinedGame+(1000*extract("autoLeaveDelay"))) - Date.now())/1000))+"s" : "");
                 gameInfoElement.innerText = gameInfoText;
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
@@ -2274,9 +2274,17 @@ z-index: 999999;
                 };
             };
             if (extract("autoLeave")) {
-                if ((timeJoinedGame+(1000*extract("autoLeaveDelay"))) < Date.now()) {
+                const remaining = ((timeJoinedGame+(1000*extract("autoLeaveDelay"))) - Date.now())/1000;
+                if (remaining <= 0) {
+                    createPopup("AutoLeave: Leaving now...");
                     change("leaveGame");
+                } else if (autoLeaveReminder > 5 && remaining <= 5) {
+                    createPopup("AutoLeave: 5 seconds remaining!");
+                } else if (autoLeaveReminder > 10 && remaining <= 10) {
+                    createPopup("AutoLeave: 10 seconds remaining");
                 };
+                // console.log(autoLeaveReminder, remaining);
+                autoLeaveReminder = remaining;
             };
 
             //credits: @2lars and @macintosh2 in the discord :)
@@ -3262,7 +3270,7 @@ z-index: 999999;
             console.log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
             let match;
             let clientKeys;
-          
+
             let originalJS = js;
             if (typeof isCrackedShell !== 'undefined') originalJS = fetchTextContent('/js/shellshock.og.js');
           
