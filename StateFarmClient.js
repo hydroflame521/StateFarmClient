@@ -150,16 +150,12 @@ console.log("StateFarm: running (before function)");
             });
         });
     };
-    //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
-    const discordURL = "https://discord.gg/Vf5qtxAmvU";
-    const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
-    const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
-    const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
-    const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
-    const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     //INIT VARS
     const inbuiltPresets = { //Don't delete onlypuppy7's Config
-        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfclient: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<leaveEmpty>false<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<spoofVIP>true<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
+        "onlypuppy7's Config": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<showMinAngle>false<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfnetwork: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<gameBlacklist>false<gameBlacklistCodes>""<leaveEmpty>false<autoLeave>false<autoLeaveDelay>300<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<muteGame>false<distanceMult>1<customSFX>0<adBlock>true<spoofVIP>false<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
+        "onlypuppy7's Silent Config": `aimbot>true<aimbotTargetMode>1<aimbotVisibilityMode>1<aimbotRightClick>true<silentAimbot>true<noWallTrack>false<prediction>true<antiBloom>true<antiSwitch>false<oneKill>false<aimbotMinAngle>360<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>3<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<showMinAngle>false<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>500<spamChatText>"dsc.gg/sfnetwork: ЅtateFarm Client v3.4.0-pre19 On Top! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"ЅtateFarmer"<autoRespawn>false<autoTeam>0<gameBlacklist>false<gameBlacklistCodes>""<leaveEmpty>false<autoLeave>false<autoLeaveDelay>300<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<muteGame>false<distanceMult>1<customSFX>0<adBlock>true<spoofVIP>false<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>2<popups>true<replaceLogo>true<titleAnimation>true<themeType>5<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
+        "Server Hopper + Non-Silent": `aimbot>true<aimbotTargetMode>0<aimbotVisibilityMode>0<aimbotRightClick>true<silentAimbot>false<noWallTrack>true<prediction>true<antiBloom>true<antiSwitch>true<oneKill>true<aimbotMinAngle>30<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>0<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<showMinAngle>false<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>1440<spamChatText>"Live now at twitch.tv/ЅtateFarmNetwork! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"CaptainShell74"<autoRespawn>false<autoTeam>0<gameBlacklist>false<gameBlacklistCodes>""<leaveEmpty>false<autoLeave>true<autoLeaveDelay>240<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<muteGame>false<distanceMult>0.59<customSFX>0<adBlock>true<spoofVIP>false<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>0.04772456526919999<popups>true<replaceLogo>true<titleAnimation>true<themeType>2<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
+        "Server Hopper + Silent": `aimbot>true<aimbotTargetMode>1<aimbotVisibilityMode>1<aimbotRightClick>true<silentAimbot>true<noWallTrack>false<prediction>true<antiBloom>true<antiSwitch>false<oneKill>false<aimbotMinAngle>360<aimbotAntiSnap>0.77<antiSneak>1.8<aimbotColor>"#0000ff"<autoRefill>true<smartRefill>true<enableAutoFire>true<autoFireType>3<grenadeMax>true<playerESP>true<tracers>true<chams>false<nametags>true<targets>true<tracersType>0<tracersColor1>"#ff0000"<tracersColor2>"#00ff00"<tracersColor3>"#ffffff"<tracersColor1to2>5<tracersColor2to3>15<ammoESP>true<ammoTracers>false<ammoESPRegime>1<ammoESPColor>"#ffff00"<grenadeESP>true<grenadeTracers>false<grenadeESPRegime>0<grenadeESPColor>"#00ffff"<fov>120<zoom>15<freecam>false<wireframe>false<eggSize>1<setDetail>0<enableTextures>true<renderDelay>0<revealBloom>true<showLOS>true<showMinAngle>false<highlightLeaderboard>false<showCoordinates>true<radar>false<playerStats>true<playerInfo>true<gameInfo>true<showStreams>true<chatExtend>true<chatHighlight>false<maxChat>10<disableChatFilter>true<chatFilterBypass>false<tallChat>false<antiAFK>true<spamChat>false<spamChatDelay>1440<spamChatText>"Live now at twitch.tv/ЅtateFarmNetwork! "<mockMode>false<announcer>false<autoEZ>false<cheatAccuse>false<joinMessages>true<leaveMessages>true<publicBroadcast>false<joinLeaveBranding>false<whitelist>"User-1, User-2"<enableWhitelistAimbot>false<enableWhitelistTracers>false<whitelistESPType>0<whitelistColor>"#e80aac"<blacklist>"User-1, User-2"<enableBlacklistAimbot>false<enableBlacklistTracers>false<blacklistESPType>0<blacklistColor>"#00ff00"<bunnyhop>true<autoWalk>false<autoStrafe>false<autoJump>false<autoJumpDelay>1<autoWeapon>0<autoGrenade>false<autoJoin>false<joinCode>"CODE"<useCustomName>false<usernameAutoJoin>"CaptainShell74"<autoRespawn>false<autoTeam>0<gameBlacklist>false<gameBlacklistCodes>""<leaveEmpty>false<autoLeave>true<autoLeaveDelay>240<autoGamemode>0<autoRegion>0<eggColour>0<autoStamp>0<autoHat>0<muteGame>false<distanceMult>0.59<customSFX>true<adBlock>true<spoofVIP>false<unlockSkins>false<adminSpoof>false<autoUnban>true<silentRoll>false<enableSeizureX>false<amountSeizureX>2<enableSeizureY>false<amountSeizureY>0.04772456526919999<popups>true<replaceLogo>true<titleAnimation>true<themeType>2<enablePanic>false<panicURL>"https://classroom.google.com/"<selectedPreset>0<debug>false`,
     };
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
@@ -812,10 +808,6 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder",});
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1],});
-                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: [
-                    {text: "Default", value: "default"},
-                    {text: "Minecraft", value: "Hydroflame522/StateFarmClient/contents/soundpacks/minecraft"},
-                ], });
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
                 tp.audioFolder.addSeparator();
                 initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
@@ -824,7 +816,6 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
             initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1],});
-            initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
@@ -2209,64 +2200,56 @@ z-index: 999999;
             });
         };
 
+        extract('spoofVIP') && document.getElementById("chickenBadge") ? document.getElementById("chickenBadge").style.display = "block" : document.getElementById("chickenBadge").style.display = "none"; //VIP Badge Spoof by OakSwingZZZ
+
+        const fetchAndProcessAudioFromZip = async function (zipURL) {
+            try {
+                const response = await fetch(zipURL);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch ZIP:', response.statusText);
+                };
+                const arrayBuffer = await response.arrayBuffer();
+                const zip = await JSZip.loadAsync(arrayBuffer);
+                const mp3Files = Object.keys(zip.files).filter(fileName => fileName.endsWith('.mp3'));
+                const jsonFiles = Object.keys(zip.files).filter(fileName => fileName.endsWith('.json'));
+                const totalRequests = mp3Files.length + jsonFiles.length;
+                let config = {};
+
+                if (jsonFiles.length > 0) {
+                    const jsonFileData = await zip.file(jsonFiles[0]).async('string');
+                    config = {...config, ...JSON.parse(jsonFileData)};
+                };
+        
+                let loadedCount = 0;
+        
+                mp3Files.forEach(async (fileName, index) => {
+                    const fileData = await zip.file(fileName).async('arraybuffer');
+                    const audioBuffer = await audioContext.decodeAudioData(fileData);
+                    const key = fileName.replace('.mp3', '');
+                    audioBuffer.disablePanning = !!config.disablePanning;
+                    soundsSFC[key] = audioBuffer;
+                    console.log("Loaded sound for:", key);
+                    loadedCount++;
+        
+                    if (loadedCount === totalRequests) {
+                        createPopup("Loaded Custom SFX!", "success");
+                        console.log("LOADED!");
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching/decoding audio from ZIP:', error);
+            };
+        };        
+        
         if (initialisedCustomSFX !== extract("customSFX")) {
             initialisedCustomSFX = extract("customSFX");
             console.log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
-            if (initialisedCustomSFX == "default") {
-                soundsSFC = {};
-            } else {
+            soundsSFC = {};
+            if (initialisedCustomSFX !== true && initialisedCustomSFX !== "default") {
                 createPopup("Loading Custom SFX...");
-                // Define function to fetch and process audio data
-                async function fetchAndProcessAudio(key, downloadURL, totalRequests) {
-                    try {
-                        console.log(key, downloadURL);
-                        const expectedURL = downloadURL;
-                        console.log(expectedURL);
-                        const response = await fetch(expectedURL);
-                        
-                        // Check if the request was successful
-                        if (response.ok) {
-                            const arrayBuffer = await response.arrayBuffer();
-                            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                            soundsSFC[key] = audioBuffer;
-                            console.log("Loaded sound for:", key);
-                            
-                            // Check if all requests are completed
-                            if (Object.keys(soundsSFC).length === totalRequests) {
-                                createPopup("Loaded Custom SFX!", "success");
-                                console.log("LOADED!");
-                            };
-                        } else {
-                            throw new Error('Failed to fetch MP3:', response.statusText);
-                        }
-                    } catch (error) {
-                        console.error('Error fetching/decoding MP3:', error);
-                    };
-                };
-        
-                // Make the request to fetch folder contents
-                fetch('https://api.github.com/repos/'+initialisedCustomSFX)
-                .then(response => {
-                    // Check if the request was successful
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Failed to fetch folder contents');
-                    }
-                })
-                .then(data => {
-                    const totalRequests = data.length;
-                    // Iterate over each file in the folder and fetch audio data
-                    data.forEach((file, index) => {
-                        // Introduce a delay of 50 milliseconds between each fetch request
-                        setTimeout(() => {
-                            fetchAndProcessAudio(file.name.replace(".mp3",""), file.download_url, totalRequests);
-                        }, index * 150);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+                
+                // Make the request to fetch and process audio data from the ZIP file
+                fetchAndProcessAudioFromZip(JSON.parse(initialisedCustomSFX));
             };
         };
 
@@ -3088,7 +3071,8 @@ z-index: 999999;
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
-            console.log(0, name, panner, somethingelse);
+            // console.log(0, name, panner, somethingelse);
+            let customAudio = soundsSFC[name];
             if (panner && panner.positionX && extract("distanceMult") !== 1) {
                 panner.setPosition(
                     panner.context.listener.positionX.value - ((panner.context.listener.positionX.value - panner.positionX.value) * extract("distanceMult")),
@@ -3415,10 +3399,10 @@ z-index: 999999;
             console.log("DEATHARGS",DEATHARGS);
             modifyJS('function '+f(H._deathFunction)+'('+DEATHARGS+'){','function '+f(H._deathFunction)+'('+f(DEATHARGS)+'){window.'+functionNames.interceptDeath+'('+f(DEATHARGS)+');');
             //vip spoof/no ads credit absolutely goes to OakSwingZZZ
-            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.spoofVIP+'("adsBlocked")');
-            modifyJS('"user-has-adblock"', functionNames.spoofVIP+'("user-has-adblock")');
-            modifyJS('layed=!1', 'layed=window.'+functionNames.spoofVIP+'(!1)');
-            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.spoofVIP+'('+H.USERDATA+'.playerAccount.isUpgraded())');
+            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.adBlocker+'("adsBlocked")');
+            modifyJS('"user-has-adblock"', functionNames.adBlocker+'("user-has-adblock")');
+            modifyJS('layed=!1', 'layed=window.'+functionNames.adBlocker+'(!1)');
+            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.adBlocker+'('+f(H.USERDATA)+'.playerAccount.isUpgraded())');
             //Modifies matchmaker JS to block gamecodes.
             match = js.match(/ion,([a-zA-Z$_]+)\(([a-zA-Z$_]+)/);
             if (match) {
