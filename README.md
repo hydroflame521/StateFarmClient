@@ -348,7 +348,7 @@ With the exception of the color pickers and some links, these should all be bind
 -   _**Save Preset**_: Save you current settings as a preset
 -   _**Remove Preset**_: Deletes preset. Can not delete hardcoded presets.
 -   _**Reset**_: deletes all locally stored variables, resetting the client config to defaults.  _Warning_: some are used by the game too so you may lose your saved username and some stats.
--  _**Debug**_ debug for devs
+-  _**Debug**_: debug for devs. Warning: exposes some variables to the global scope.
 
 ![client tab](https://cdn.discordapp.com/attachments/898816619344699436/1201515431324823664/image.png)
 
@@ -413,9 +413,11 @@ With the exception of the color pickers and some links, these should all be bind
 
 - **Hydroflame521**, **onlypuppy7**, **porcupane**, and **not_food**. for development.
 
+- **de_Neuublue**, **OakSwingZZZ** and **1ust/VillainsRules** for contributed code.
+
 - **susdung** for README additions.
 
-- **Zertalious**: code that used to be present.
+- **Zertalious**: code that used to be present in significantly outdated versions.
 
 
 ## Disclaimer:
