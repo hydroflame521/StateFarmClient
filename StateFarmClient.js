@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre53
+// @version      3.4.0-pre55
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1931,7 +1931,6 @@ z-index: 999999;
     };
     const playAudio = function(name, panner) {
         let source = audioContext.createBufferSource();
-        source.isPlaying = true;
         source.buffer = soundsSFC[name];
     
         const newPanner = audioContext.createPanner();
@@ -3069,7 +3068,7 @@ z-index: 999999;
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
-            console.log(0, name, panner, somethingelse);
+            // console.log(0, name, panner, somethingelse);
             let customAudio = soundsSFC[name];
             if (panner && panner.positionX && extract("distanceMult") !== 1) {
                 panner.setPosition(
