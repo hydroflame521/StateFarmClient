@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre52
+// @version      3.4.0-pre53
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -634,7 +634,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1], showConditions: [["autoRefill",true]],});
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "While Visible+Aimbotting", value: "whileVisAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse", showConditions: [["enableAutoFire",true]]});
+            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Visible and Aimbotting", value: "whileVisAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse", showConditions: [["enableAutoFire",true]]});
             tp.combatTab.pages[0].addSeparator();
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
@@ -3566,21 +3566,25 @@ z-index: 999999;
         };
     };
 
-    const applySettings = function(settings,reset,secondPassThru) {
-        console.log(AUTOMATED,settings);
-        settings=settings.split("<");
+    const applySettings = function(receivedConfig,reset,secondPassThru) {
+        console.log(AUTOMATED,receivedConfig);
+        let settings=receivedConfig.split("<");
         if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings")};
         settings.forEach(element=>{
             element=element.split(">");
-            change(element[0],JSON.parse(element[1]));
+            console.log(change(element[0],JSON.parse(element[1])));
         });
         createPopup("Custom StateFarm Settings Applying...");
+        console.log("try again1");
         if (!secondPassThru) {
+            console.log("try again2");
             setTimeout(() => {
+                console.log("try again3");
                 if (receivedConfig) {
+                    console.log("try again4");
                     applySettings(receivedConfig,false,true);
                 };
-            }, 150);
+            }, 1500);
         };
     };
 
