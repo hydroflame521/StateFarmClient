@@ -1930,7 +1930,8 @@ z-index: 999999;
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
     const playAudio = function(name, panner) {
-        const source = audioContext.createBufferSource();
+        let source = audioContext.createBufferSource();
+        source.isPlaying = true;
         source.buffer = soundsSFC[name];
     
         const newPanner = audioContext.createPanner();
@@ -1954,11 +1955,8 @@ z-index: 999999;
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         };
-        // Connect nodes
         source.connect(newPanner);
         newPanner.connect(audioContext.destination);
-    
-        // Start playing audio
         source.start();
     };
     const playerMatchesList = function (array, player) {
@@ -3071,7 +3069,7 @@ z-index: 999999;
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
-            // console.log(0, name, panner, somethingelse);
+            console.log(0, name, panner, somethingelse);
             let customAudio = soundsSFC[name];
             if (panner && panner.positionX && extract("distanceMult") !== 1) {
                 panner.setPosition(
@@ -3575,16 +3573,12 @@ z-index: 999999;
             console.log(change(element[0],JSON.parse(element[1])));
         });
         createPopup("Custom StateFarm Settings Applying...");
-        console.log("try again1");
         if (!secondPassThru) {
-            console.log("try again2");
             setTimeout(() => {
-                console.log("try again3");
                 if (receivedConfig) {
-                    console.log("try again4");
                     applySettings(receivedConfig,false,true);
                 };
-            }, 1500);
+            }, 150);
         };
     };
 
