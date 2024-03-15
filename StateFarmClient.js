@@ -23,7 +23,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre55
+// @version      3.4.0-pre56
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -184,7 +184,16 @@ console.log("StateFarm: running (before function)");
     const allModules=[];
     const allFolders=[];
     const F=[];
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const createAudioContext = function () {return new (window.AudioContext || window.webkitAudioContext)()};
+    const audioContexts = {
+        "BGM": createAudioContext(),
+        "KOTC": createAudioContext(),
+        "OTHER": createAudioContext(),
+        "SOUNDS": createAudioContext(),
+    };
+    const divertContexts = {
+        "KOTC": ["kotc_capture", "kotc_capturing_opponents", "kotc_capturing_player", "kotc_contested", "kotc_pointscore", "kotc_roundend", "kotc_zonespawn"],
+    };
     const L={};
     const functionNames=[];
     const isKeyToggled={};
@@ -1929,7 +1938,10 @@ z-index: 999999;
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
-    const playAudio = function(name, panner) {
+    const playAudio = function(name, panner, contextName) {
+        contextName = findStringInLists(divertContexts, name) || "OTHER";
+        let audioContext;
+        audioContext = audioContexts[contextName];
         let source = audioContext.createBufferSource();
         source.buffer = soundsSFC[name];
     
@@ -1954,6 +1966,7 @@ z-index: 999999;
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         };
+        console.log(contextName);
         source.connect(newPanner);
         newPanner.connect(audioContext.destination);
         source.start();
@@ -2221,7 +2234,7 @@ z-index: 999999;
         
                 mp3Files.forEach(async (fileName, index) => {
                     const fileData = await zip.file(fileName).async('arraybuffer');
-                    const audioBuffer = await audioContext.decodeAudioData(fileData);
+                    const audioBuffer = await audioContexts.SOUNDS.decodeAudioData(fileData);
                     const key = fileName.replace('.mp3', '');
                     audioBuffer.disablePanning = !!config.disablePanning;
                     soundsSFC[key] = audioBuffer;
@@ -3938,7 +3951,7 @@ z-index: 999999;
 
     function print_node_list(list) {
         var output = "";
-        console.log("printing node list, length:", list.length, "list:", list)
+        console.log("printing node list, length:", list.length, "list:", list);
         for (var i = 0; i < list.length; i++) {
             output += list[i].position.x + ", " + list[i].position.y + ", " + list[i].position.z + "\n";
         }
@@ -3981,6 +3994,18 @@ z-index: 999999;
         };
         // Property not found
         return null;
+    };
+
+    const findStringInLists = function(dictWithLists, str) {
+        for (const key in dictWithLists) {
+            if (dictWithLists.hasOwnProperty(key)) {
+                const list = dictWithLists[key];
+                if (list.includes(str)) {
+                    return key; // Return the key where the string is found
+                };
+            };
+        };
+        return null; // Return null if the string is not found in any list
     };
 
     const mainLoop = function () {
