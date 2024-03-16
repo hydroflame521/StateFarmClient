@@ -1,8 +1,7 @@
 [
 	{
 		"content": "Welcome to the StateFarm News Feed!",
-		"imageExt": ".png",
-		"id": "news_ltt7e5m50",
+		"externalImg": "https://i.ytimg.com/vi/YpLTjBnDiRk/hqdefault.jpg"
 		"elId": "jPCUyl",
 		"active": true,
 		"linksToChangeLog": "1"
