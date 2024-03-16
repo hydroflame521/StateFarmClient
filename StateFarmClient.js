@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre57
+// @version      3.4.0-pre58
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -165,10 +165,11 @@ console.log("StateFarm: running (before function)");
     console.log("Save key:",storageKey);
     let binding=false;
     let previousFrame=0;
-    let lastSpamMessage=0;
+    let lastSpamMessage=[0,""];
     let startTime = Date.now();
     let lastAutoJump=0;
     let lastAntiAFKMessage=0;
+    let spamMessageCount=0;
     let currentFrameIndex = 0;
     let deciSecondsPassed = 0;
     let timeJoinedGame = 0;
@@ -718,7 +719,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
                 initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 250, max: 60000, step: 10}, defaultValue: 500, enableConditions: [["spamChat",true]],});
-                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ", enableConditions: [["spamChat",true]],});
+                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ",});
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
                 initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
@@ -1073,7 +1074,7 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "DoSpam", storeAs: "botSpam", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true, enableConditions: [["botSpam",true]],});
+        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true,});
         tp.botTabs.pages[2].addSeparator();
         initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47", enableConditions: [["botRespawn",true]],});
         initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true, enableConditions: [["botRespawn",true]],});
@@ -4397,9 +4398,13 @@ z-index: 999999;
                 if (extract("spamChat")) {
                     if (document.getElementById("chatIn").style.visibility == 'visible') {
                         if (spamDelay < Date.now()) {
-                            if (Date.now()>(lastSpamMessage+extract("spamChatDelay"))) {
-                                sendChatMessage(extract("spamChatText")+String.fromCharCode(97 + Math.floor(Math.random() * 26)));
-                                lastSpamMessage=Date.now()
+                            if (Date.now()>(lastSpamMessage[0]+extract("spamChatDelay"))) {
+                                let possibleMessages = extract("spamChatText").split("|");
+                                let chosenMessage = possibleMessages[spamMessageCount%possibleMessages.length];
+                                if (chosenMessage == lastSpamMessage[1]) {chosenMessage += String.fromCharCode(97 + Math.floor(Math.random() * 26))};
+                                sendChatMessage(chosenMessage);
+                                lastSpamMessage=[Date.now(),chosenMessage];
+                                spamMessageCount+=1;
                             };
                         } else if (spamDelay < Date.now()-250) {
                             spamDelay = Date.now()+250;
