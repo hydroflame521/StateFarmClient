@@ -15,6 +15,7 @@
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
+// @require      https://cdn.jsdelivr.net/npm/@tweakpane/plugin-essentials@0.1.8/dist/tweakpane-plugin-essentials.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
 
@@ -23,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre56
+// @version      3.4.0-pre57
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -3358,7 +3359,7 @@ z-index: 999999;
             };
 
             const f = function(varName) { return varName.replace("$", "\\$") };
-
+            
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
             modifyJS(f(H.SCENE)+'.'+f(H.render),`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
@@ -3402,6 +3403,8 @@ z-index: 999999;
             modifyJS('function '+f(H._connectFail)+'('+f(FUNCTIONPARAM)+'){','function '+f(H._connectFail)+'('+f(FUNCTIONPARAM)+'){window.'+functionNames.onConnectFail+'('+f(FUNCTIONPARAM)+','+f(H.ERRORARRAY)+');')
             //get rid of tutorial popup because its a stupid piece of shit
             modifyJS(',vueApp.onTutorialPopupClick()','');
+            //annoying shit
+            modifyJS('alert','console.log');
             //pointer escape
             modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
             //death hook
@@ -3409,7 +3412,7 @@ z-index: 999999;
             console.log("DEATHARGS",DEATHARGS);
             modifyJS('function '+f(H._deathFunction)+'('+DEATHARGS+'){','function '+f(H._deathFunction)+'('+f(DEATHARGS)+'){window.'+functionNames.interceptDeath+'('+f(DEATHARGS)+');');
             //vip spoof/no ads credit absolutely goes to OakSwingZZZ
-            modifyJS('adsBlocked=t', 'adsBlocked='+functionNames.adBlocker+'("adsBlocked")');
+            modifyJS('adsBlocked='+FUNCTIONPARAM, 'adsBlocked='+functionNames.adBlocker+'("adsBlocked")');
             modifyJS('"user-has-adblock"', functionNames.adBlocker+'("user-has-adblock")');
             modifyJS('layed=!1', 'layed=window.'+functionNames.adBlocker+'(!1)');
             modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.adBlocker+'('+f(H.USERDATA)+'.playerAccount.isUpgraded())');
