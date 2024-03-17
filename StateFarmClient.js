@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
-// @description  Fixed for 0.47.2! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @description  Fixed for 0.47.3! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte and notfood
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre58
+// @version      3.4.0-pre60
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1025,6 +1025,9 @@ sniping and someone sneaks up on you
         //DEPLOY STUFF
         initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
         initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()},});
+        tp.botTabs.pages[0].addSeparator();
+        initModule({ location: tp.botTabs.pages[0], title: "Window Width", storeAs: "botWindowWidth", slider: {min: 0, max: 10000, step: 1}, defaultValue: 450, botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Window Height", storeAs: "botWindowHeight", slider: {min: 0, max: 10000, step: 1}, defaultValue: 300, botParam: true,});
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useCustomNameBots", defaultValue: true, botParam: true,});
         initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", enableConditions: [["useCustomNameBots",true]],});
@@ -3303,7 +3306,7 @@ z-index: 999999;
             let onlineClientKeys = fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
-                let userInput = prompt('Valid VarData could not be retrieved online. Enter VarData if you have it. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command sf.vardata in the bot channel. Hash: '+hash, '');
+                let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: '+hash, '');
                 if (userInput !== null && userInput !== '') {
                     alert('Aight, let\'s try this. If it is invalid, it will just crash.');
                     clientKeys = JSON.parse(userInput);
@@ -3497,7 +3500,7 @@ z-index: 999999;
             addParam("usernameAutoJoin",name,true);
 
             console.log("PARAMS:",params)
-            unsafeWindow.open("https://"+proxyURL+"/"+params, '_blank', 'width=450,height=300,left='+leftOffset+',top='+topOffset);
+            unsafeWindow.open("https://"+proxyURL+"/"+params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=`+leftOffset+',top='+topOffset);
         };
     };
 
