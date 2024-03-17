@@ -4,10 +4,14 @@
     <script src="
 https://cdn.jsdelivr.net/npm/reconnecting-websocket@4.4.0/dist/reconnecting-websocket-iife.min.js
 "></script>
+<script src="
+https://cdn.jsdelivr.net/npm/device-uuid@1.0.4/lib/device-uuid.min.js
+"></script>
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="text/javascript" src="https://raw.githack.com/OakSwingZZZ/StateFarmClient-PresetCreator/main/chat/websocketChat.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://raw.githack.com/OakSwingZZZ/StateFarmClient-PresetCreator/main/chat/chat-style.css" />
+    <script defer type="text/javascript" src="chat.js"></script>
+    <link rel="stylesheet" type="text/css" href="chat-style.css" />
     <title>WebSocket Chatbot</title>
   </head>
   
@@ -16,7 +20,6 @@ https://cdn.jsdelivr.net/npm/reconnecting-websocket@4.4.0/dist/reconnecting-webs
       <div id="status-div" style="max-width: 93vw;">
         <span id="Status-label" class="status">Status:</span>
         <span id="status"class="status" style="padding-left: 1%;">Disconnected</span>
-        <i id="close" style="float: right;">X</i>
       </div>
     </header>
     <div id="chat">
