@@ -26,6 +26,7 @@ if (inIframe) {
       }
       main(settings);
     }
+    window.parent.postMessage("SFCHAT-REQUEST");
     getUpdateSettings(e);
   });
 } else {
