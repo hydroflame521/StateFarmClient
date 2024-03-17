@@ -230,20 +230,19 @@ function main() {
     message: "test",
   };
 
-
-  window.addEventListener("load", (event) => {
-    if (inIframe){
-      document.getElementById("messageInput").onkeydown = function (e) {
-        if (e.code == "Enter") {
-          sendMessage();
-        }
+  if (document.readyState == "complete") {
+    document.getElementById("messageInput").addEventListener("keydown", (e) => {
+      if (e.code == "Enter") {
+        sendMessage();
       }
-    }else{
+    });
+  }else{
+    window.addEventListener("load", (event) => {
       document.getElementById("messageInput").addEventListener("keydown", (e) => {
         if (e.code == "Enter") {
           sendMessage();
         }
       });
+    });
     }
-  });
 }
