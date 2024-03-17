@@ -15,9 +15,14 @@ let settings;
 if (inIframe) {
   window.addEventListener("message", (e) => {
     if (e.data.startsWith(settingsLoc)) {
-      settings = JSON.parse(e.data.replace(/SFCHAT-SETTINGS/gm, ""));
-      if (settings.length == 0) {
+      let string = e.data.replace(/SFCHAT-SETTINGS/gm, "");
+      if (string.length == 0){
         settings = defaultSettings;
+      }else {
+        settings = JSON.parse(string);
+        if (settings.length == 0) {
+          settings = defaultSettings;
+        }
       }
       main(settings);
     }
