@@ -1,6 +1,6 @@
 let inIframe = window.location !== window.parent.location;
 console.log(`StateFarm Chat in iframe? ${inIframe}`);
-let debug = true;
+let debug = false;
 let url = debug ? "ws://localhost:3069":"ws://statefarmchat.onlypuppy7.online";
 var key = new DeviceUUID().get();
 console.log(key);
@@ -26,7 +26,6 @@ if (inIframe) {
       }
       main(settings);
     }
-    window.parent.postMessage("SFCHAT-REQUEST");
     getUpdateSettings(e);
   });
 } else {
