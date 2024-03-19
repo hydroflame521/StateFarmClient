@@ -700,7 +700,7 @@ sniping and someone sneaks up on you
         initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder",});
         initTabs({ location: tp.chatFolder, storeAs: "chatTab" });
             initFolder({ location: tp.chatTab.pages[0], title: "State Farm Chat", storeAs: "sfChatFolder",}); //StateFarmChat
-                initModule({ location: tp.sfChatFolder, title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest"+ (Math.randomInt(1000, 99999))),});
+                initModule({ location: tp.sfChatFolder, title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest"+(Math.floor(Math.random() * 8999) + 1000)),});
                 initModule({ location: tp.sfChatFolder, title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.chatTab.pages[1], clickFunction: function(){
                     if (sfChatIframe){
                         createPopup("Already Started. Try Showing it.");
@@ -1168,9 +1168,9 @@ sniping and someone sneaks up on you
         }
     };
     function sfChatUsernameSet() {
-        if (sfChatUsername != extract("sfChatUsername")){
+        if (sfChatUsername != extract("sfChatUsername") && sfChatIframe){
             sfChatUsername =  extract("sfChatUsername");
-            chatIFrame.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({name: sfChatUsername}), "*");
+            sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({name: sfChatUsername}), "*");
         }
     }
     //StateFarmChat
@@ -1223,9 +1223,9 @@ sniping and someone sneaks up on you
         let sendSettings = function(){
             let settings = GM_getValue("SFCHAT-SETTINGS");
             if (settings){
-                chatIFrame.contentWindow.postMessage("SFCHAT-SETTINGS" + settings, "*");
+                sfChatIframe.contentWindow.postMessage("SFCHAT-SETTINGS" + settings, "*");
             }else{
-                chatIFrame.contentWindow.postMessage("SFCHAT-SETTINGS", "*");
+                sfChatIframe.contentWindow.postMessage("SFCHAT-SETTINGS", "*");
             }
         }
 

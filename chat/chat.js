@@ -53,9 +53,6 @@ function getUpdateSettings(e) { // updates settings based on an event (iframes)
       }
     );
   }
-  if (settings.name != undefined){
-    my_user['name'] = settings.name;
-  }
 }
 
 function main() {
@@ -66,7 +63,7 @@ function main() {
 
   console.log(socket);
   if (settings.name == undefined){
-    settings.name = "Guest#"+ (Math.floor(Math.random() * 8999) + 1000);
+    settings.name = "Guest"+ (Math.floor(Math.random() * 8999) + 1000);
     updateSettings();
   }
   let my_user = {name: settings.name};
@@ -252,5 +249,10 @@ function main() {
         }
       });
     });
+  }
+  let everySecond = setInterval(function(){
+    if (settings.name != undefined){
+      my_user['name'] = settings.name;
     }
+  },1000)
 }
