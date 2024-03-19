@@ -702,18 +702,20 @@ sniping and someone sneaks up on you
             initFolder({ location: tp.chatTab.pages[0], title: "State Farm Chat", storeAs: "sfChatFolder",}); //StateFarmChat
                 initModule({ location: tp.sfChatFolder, title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest"+(Math.floor(Math.random() * 8999) + 1000)),});
                 initModule({ location: tp.sfChatFolder, title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.chatTab.pages[1], clickFunction: function(){
-                    if (sfChatIframe){
+                    if (sfChatIframe != undefined){
                         createPopup("Already Started. Try Showing it.");
                     }else{
                         startStateFarmChat();
                     }
                 },});
                 tp.sfChatFolder.addSeparator();
-                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], defaultBind:"V", clickFunction: function(){
-                    if(sfChatContainer.style.display == "none"){
-                        sfChatContainer.style.display = "block";
-                    }else{
-                        sfChatContainer.style.display = "none";
+                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], defaultBind:"/", clickFunction: function(){
+                    if (sfChatContainer != undefined){
+                        if(sfChatContainer.style.display == "none"){
+                            sfChatContainer.style.display = "block";
+                        }else{
+                            sfChatContainer.style.display = "none";
+                        }
                     }
                 },});
             tp.chatTab.pages[0].addSeparator();
@@ -1168,8 +1170,8 @@ sniping and someone sneaks up on you
         }
     };
     function sfChatUsernameSet() {
-        if (sfChatUsername != extract("sfChatUsername") && sfChatIframe){
-            sfChatUsername =  extract("sfChatUsername");
+        if (sfChatUsername != extract("sfChatUsername") && sfChatIframe != undefined){
+            sfChatUsername = extract("sfChatUsername");
             sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({name: sfChatUsername}), "*");
         }
     }
@@ -1230,7 +1232,7 @@ sniping and someone sneaks up on you
         }
 
         makeChatDragable(sfChatContainer);
-        let sfChatIframe = document.createElement("iframe");
+        sfChatIframe = document.createElement("iframe");
         sfChatIframe.setAttribute(
             "src",
             "https://raw.githack.com/OakSwingZZZ/StateFarmClient-PresetCreator/main/chat/index.html"

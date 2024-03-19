@@ -47,9 +47,10 @@ function updateSettings() { //send update to localstorage OR parent window (used
 }
 function getUpdateSettings(e) { // updates settings based on an event (iframes)
   if (e.data.startsWith("SFCHAT-UPDATE")) {
-    Object.keys(JSON.parse(e.data.replace(/SFCHAT-UPDATE/gm, ""))).forEach(
+    let data = JSON.parse(e.data.replace(/SFCHAT-UPDATE/gm, ""));
+    Object.keys(data).forEach(
       (setting) => {
-        settings[setting] = e.data[setting];
+        settings[setting] = data[setting];
       }
     );
   }
