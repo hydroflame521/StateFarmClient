@@ -160,6 +160,9 @@ console.log("StateFarm: running (before function)");
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
     let blacklistedGameCodes = [];
+    let sfChatIframe;
+    let sfChatContainer;
+    let sfChatUsername;
     const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
     console.log("Save key:",storageKey);
     let binding=false;
@@ -696,6 +699,24 @@ sniping and someone sneaks up on you
         //CHAT MODULES
         initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder",});
         initTabs({ location: tp.chatFolder, storeAs: "chatTab" });
+            initFolder({ location: tp.chatTab.pages[0], title: "State Farm Chat", storeAs: "sfChatFolder",}); //StateFarmChat
+                initModule({ location: tp.sfChatFolder, title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest"+ (Math.randomInt(1000, 99999))),});
+                initModule({ location: tp.sfChatFolder, title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.chatTab.pages[1], clickFunction: function(){
+                    if (sfChatIframe){
+                        createPopup("Already Started. Try Showing it.");
+                    }else{
+                        startStateFarmChat();
+                    }
+                },});
+                tp.sfChatFolder.addSeparator();
+                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], defaultBind:"V", clickFunction: function(){
+                    if(sfChatContainer.style.display == "none"){
+                        sfChatContainer.style.display = "block";
+                    }else{
+                        sfChatContainer.style.display = "none";
+                    }
+                },});
+            tp.chatTab.pages[0].addSeparator();
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
@@ -1146,6 +1167,94 @@ sniping and someone sneaks up on you
             alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the developers.");
         }
     };
+    function sfChatUsernameSet() {
+        if (sfChatUsername != extract("sfChatUsername")){
+            sfChatUsername =  extract("sfChatUsername");
+            chatIFrame.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({name: sfChatUsername}), "*");
+        }
+    }
+    //StateFarmChat
+    function startStateFarmChat(){
+        //UnsafewindowVars
+        const makeChatDragable = function (element) {
+            if (element.getAttribute("drag-true") != "true") {
+                element.addEventListener("mousedown", function (e) {
+                    let offsetX = e.clientX - parseInt(window.getComputedStyle(this).left);
+                    let offsetY = e.clientY - parseInt(window.getComputedStyle(this).top);
+                    function mouseMoveHandler(e) {
+                    let newX = e.clientX - offsetX;
+                    let newY = e.clientY - offsetY;
+                    if (newX >= 0 && newX + element.getBoundingClientRect().width <= window.innerWidth) {
+                        element.style.left = newX + "px";
+                    }
+                    if (newY >= 0 && newY + element.getBoundingClientRect().height <= window.innerHeight) {
+                        element.style.top = newY + "px";
+                    }
+                    }
+
+                    function reset() {
+                        window.removeEventListener("mousemove", mouseMoveHandler);
+                        window.removeEventListener("mouseup", reset);
+                    }
+
+                    window.addEventListener("mousemove", mouseMoveHandler);
+                    window.addEventListener("mouseup", reset);
+                });
+
+                element.setAttribute("drag-true", "true");
+            }
+        };
+        
+        sfChatContainer = document.createElement("div");
+        sfChatContainer.style.padding = "1px";
+        let title = document.createElement("p");
+        title.style.fontSize = "medium";
+        title.style.color = "#D6D6D6";
+        title.innerHTML = "Statefarm Chat";
+        sfChatContainer.appendChild(title);
+        sfChatContainer.style.backgroundColor = "#555";
+        sfChatContainer.style.position = "absolute";
+        sfChatContainer.style.borderRadius = "10px";
+        sfChatContainer.style.textAlign = "center";
+        sfChatContainer.style.top = "20px";
+        sfChatContainer.style.left = "20px";
+        sfChatContainer.style.zIndex = 1000;
+
+        let sendSettings = function(){
+            let settings = GM_getValue("SFCHAT-SETTINGS");
+            if (settings){
+                chatIFrame.contentWindow.postMessage("SFCHAT-SETTINGS" + settings, "*");
+            }else{
+                chatIFrame.contentWindow.postMessage("SFCHAT-SETTINGS", "*");
+            }
+        }
+
+        makeChatDragable(sfChatContainer);
+        let sfChatIframe = document.createElement("iframe");
+        sfChatIframe.setAttribute(
+            "src",
+            "https://raw.githack.com/OakSwingZZZ/StateFarmClient-PresetCreator/main/chat/index.html"
+        );
+        sfChatIframe.id = "chat-iframe";
+        sfChatIframe.setAttribute("style", "width: 600px; height:700px; z-index: 10000;");
+        sfChatContainer.appendChild(sfChatIframe);
+        document.getElementsByTagName("body")[0].appendChild(sfChatContainer);
+        
+        const startTimeout = setTimeout(function(){
+            console.log("settings");
+            sendSettings();
+        }, 1000);
+
+        unsafeWindow.addEventListener("message", (e)=>{
+            if (e.data.startsWith("SFCHAT-UPDATE")){
+                GM_setValue("SFCHAT-SETTINGS", e.data.replace(/SFCHAT-UPDATE/gm, ""));
+            }
+            if (e.data.startsWith("SFCHAT-REQUEST")){
+                sendSettings();
+            }
+        });
+    }
+
     const applyStylesAddElements = function (themeToApply = "null") {
         const head = document.head || document.getElementsByTagName('head').pages[0];
 
@@ -2113,6 +2222,7 @@ z-index: 999999;
         };
         startUpComplete = (!document.getElementById("progressBar"));
         let botsDict = GM_getValue("StateFarm_BotStatus");
+        sfChatUsernameSet();
         if (!botsDict) botsDict = {};
         if (AUTOMATED) {
             if (clientID) {

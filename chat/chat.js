@@ -53,6 +53,9 @@ function getUpdateSettings(e) { // updates settings based on an event (iframes)
       }
     );
   }
+  if (settings.name != undefined){
+    my_user['name'] = settings.name;
+  }
 }
 
 function main() {
@@ -62,7 +65,11 @@ function main() {
   let isAuthed = false;
 
   console.log(socket);
-  let my_user = {name: "User" + (Math.random() * 100).toPrecision(2)};
+  if (settings.name == undefined){
+    settings.name = "Guest#"+ (Math.floor(Math.random() * 8999) + 1000);
+    updateSettings();
+  }
+  let my_user = {name: settings.name};
 
   socket.addEventListener("open", (event) => {
     console.log("WebSocket connection opened:", event);
