@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre60
+// @version      3.4.0-pre61
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2398,6 +2398,9 @@ z-index: 999999;
             setTimeout(() => {
                 createPopup("AutoUnban: Removed ban message.");
                 banPopup.style.display = "none";
+                attemptedAutoUnban = false;
+                isBanned = false;
+                vueApp.bannedPopup.expire = "";
             }, 15000);
         };
 
@@ -3178,17 +3181,18 @@ z-index: 999999;
                 document.getElementById("genericPopup").children[0].children[1].textContent = 'MAKE NEW AUTOJOIN CODE';
             };
             if ((!attemptedAutoUnban) && extract("autoUnban")&&(errorString=="sessionNotFound")) {
-                console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
-                createPopup("AutoUnban: Reloading page in 5 seconds...");
-                attemptedAutoUnban = true;
-                setTimeout(() => {
-                    if (extract("autoUnban")) { //you get a bit of time to stop it
-                        createPopup("AutoUnban: Reloading page now.");
-                        reloadPage(); attemptedAutoUnban = false;
-                    } else {
-                        createPopup("AutoUnban: Reload page cancelled.");
-                    };
-                }, 5000);
+                // console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
+                // createPopup("AutoUnban: Reloading page in 5 seconds...");
+                // attemptedAutoUnban = true;
+                // setTimeout(() => {
+                //     if (extract("autoUnban")) { //you get a bit of time to stop it
+                //         createPopup("AutoUnban: Reloading page now.");
+                //         reloadPage(); attemptedAutoUnban = false;
+                //     } else {
+                //         createPopup("AutoUnban: Reload page cancelled.");
+                //     };
+                // }, 5000);
+                isBanned = true;
             };
         });
         createAnonFunction('modifyChat', function(msg) {
