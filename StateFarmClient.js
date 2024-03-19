@@ -709,7 +709,7 @@ sniping and someone sneaks up on you
                     }
                 },});
                 tp.sfChatFolder.addSeparator();
-                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], defaultBind:"/", clickFunction: function(){
+                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], defaultBind:"K", clickFunction: function(){
                     if (sfChatContainer != undefined){
                         if(sfChatContainer.style.display == "none"){
                             sfChatContainer.style.display = "block";
@@ -1245,6 +1245,10 @@ sniping and someone sneaks up on you
         const startTimeout = setTimeout(function(){
             console.log("settings");
             sendSettings();
+            let nameChange = setTimeout(function(){
+                sfChatUsername = extract("sfChatUsername");
+                sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({name: sfChatUsername}), "*");
+            }, 500);
         }, 1000);
 
         unsafeWindow.addEventListener("message", (e)=>{
@@ -3524,6 +3528,7 @@ z-index: 999999;
             match = js.match(/static play\(([a-zA-Z$_,]+)\){/);
             console.log("AUDIO INTERCEPTION", match);
             modifyJS(match[0], `${match[0]}[${match[1]}] = window.${functionNames.interceptAudio}(${match[1]});`);
+            modifyJS('"IFRAME" == document.ac', `"MFRAME" == document.ac`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g,'');
