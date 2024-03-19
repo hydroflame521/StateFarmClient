@@ -1,7 +1,7 @@
-let inIframe = window.location !== window.parent.location;
-console.log(`StateFarm Chat in iframe? ${inIframe}`);
+let inIframe = window.location !== window.parent.location;//
+console.log(`StateFarm Chat in iframe? ${inIframe}.`);
 let debug = false;
-let url = debug ? "ws://localhost:3069":"ws://statefarmchat.onlypuppy7.online";
+let url = debug ? "ws://localhost:3069":"wss://statefarmchat.onlypuppy7.online";
 var key = new DeviceUUID().get();
 console.log(key);
 let defaultSettings = {
@@ -57,7 +57,7 @@ function getUpdateSettings(e) { // updates settings based on an event (iframes)
 
 function main() {
   console.log("Remove. Settings: " + JSON.stringify(settings));
-  let socket = new ReconnectingWebSocket(url, null , {debug: true, reconnectInterval: 3000}); // Replace with your server's WebSocket URL
+  let socket = new ReconnectingWebSocket(url, null , {debug: debug, reconnectInterval: 3000}); // Replace with your server's WebSocket URL
   let connected = false;
   let isAuthed = false;
 
@@ -121,6 +121,8 @@ function main() {
       }
     } else if (message.type == "close") {
         socket.close();
+    } else if (message.type == "heartbeat") {
+      console.log("Heartbeat");
     }
   });
   socket.addEventListener("close", (event) => {
