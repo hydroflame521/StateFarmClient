@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre63
+// @version      3.4.0-pre61
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -58,7 +58,6 @@
 // @match        *://*.mathlete.fun/*
 // @match        *://*.mathlete.pro/*
 // @match        *://*.overeasy.club/*
-// @match        *://*.risenegg.com/*
 // @match        *://*.scrambled.tech/*
 // @match        *://*.scrambled.today/*
 // @match        *://*.scrambled.us/*
@@ -181,6 +180,7 @@ console.log("StateFarm: running (before function)");
     let retrievedSFX = [{text: "Default", value: "default"}];
     let soundsSFC = {};
     let targetingComplete=false;
+    let firstExecution=false;
     let username = "";
     let autoStrafeValue=[0,0,"left"];
     let TEAMCOLORS = ["#fed838","#40e0ff","#ffc0a0"];
@@ -206,7 +206,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray={};
     let H={}; // obfuscated shit lol
     const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,botBlacklist,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,minangleCircle,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
+    let ss,msgElement,botBlacklist,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,firstUseElement,minangleCircle,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
     let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -233,7 +233,7 @@ console.log("StateFarm: running (before function)");
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
         'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
         'hardshell.life', 'humanorganising.org', 'mathactivity.xyz', 'mathactivity.club', 'mathdrills.info', 'mathdrills.life', 'mathfun.rocks', 'mathgames.world', 'math.international',
-        'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'risenegg.com', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.life', 'shellshockers.site',
+        'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.life', 'shellshockers.site',
         'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
         'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe', 'shellshockers.best', 'eggboy.me'
     ];
@@ -565,7 +565,7 @@ console.log("StateFarm: running (before function)");
         //COMBAT MODULES
         initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder",});
         initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
-            {title: "Basics", content: 
+            {title: "Basics", content:
 `This is the combat tab. Here you will find
 options relating to aimbotting, and other
 useful macros. Aimbot is made active by
@@ -586,7 +586,7 @@ mode allows you to refill at the moment
 when you will not have a long
 reload time. GrenadeMAX makes all
 grenades get thrown at max strength.`},
-        {title: "Visibility", content: 
+        {title: "Visibility", content:
 `There are a couple of options related to
 visibility (Line-of-Sight). First is
 TargetVisible. This tunes the aimbot to
@@ -596,7 +596,7 @@ targeted player goes behind a wall, you
 stop aimlocking them. There is also an
 AutoFire mode with this sort of
 functionality.`},
-        {title: "Advanced", content: 
+        {title: "Advanced", content:
 `If you want to increase stealthiness,
 make use of MinAngle and AntiSnap. The
 first will make it so that you have to
@@ -622,7 +622,7 @@ the pistol. Ideal use case is when you are
 sniping and someone sneaks up on you
 (...hence it is called... AntiSneak).`},
         ]);
-        //COMBAT MODULES
+            // COMBAT MODULES
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat", enableConditions: [["aimbot",true]],});
@@ -825,22 +825,6 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
                 tp.audioFolder.addSeparator();
                 initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
-            tp.themingTab.pages[0].addSeparator();
-            initModule({ location: tp.themingTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.themingTab.pages[1],});
-            initModule({ location: tp.themingTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.themingTab.pages[1],});
-            initModule({ location: tp.themingTab.pages[0], title: "Client Theme", storeAs: "themeType", bindLocation: tp.themingTab.pages[1], dropdown: [
-                {text: "Default", value: "defaultTheme"},
-                {text: "Iceberg", value: "icebergTheme"},
-                {text: "Jet Black", value: "jetblackTheme"},
-                {text: "Light", value: "lightTheme"},
-                {text: "Retro", value: "retroTheme"},
-                {text: "Translucent", value: "translucentTheme"},
-                {text: "StateFarmer", value: "statefarmerTheme"},
-                {text: "Blurple", value: "blurpleTheme"},
-                {text: "ShellFarm", value: "shellFarmTheme"},
-            ], defaultValue: "defaultTheme", changeFunction: function(value) {
-                applyTheme(value.value);
-            }});
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -891,13 +875,29 @@ sniping and someone sneaks up on you
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.mainPanel.hidden=!tp.mainPanel.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
             tp.clientTab.pages[0].addSeparator();
+            initModule({ location: tp.clientTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.clientTab.pages[1],});
+            initModule({ location: tp.clientTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.clientTab.pages[1],});
+            initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
+                {text: "Default", value: "defaultTheme"},
+                {text: "Iceberg", value: "icebergTheme"},
+                {text: "Jet Black", value: "jetblackTheme"},
+                {text: "Light", value: "lightTheme"},
+                {text: "Retro", value: "retroTheme"},
+                {text: "Translucent", value: "translucentTheme"},
+                {text: "StateFarmer", value: "statefarmerTheme"},
+                {text: "Blurple", value: "blurpleTheme"},
+                {text: "ShellFarm", value: "shellFarmTheme"},
+            ], defaultValue: "defaultTheme", changeFunction: function(value) {
+                applyTheme(value.value);
+            }});
+            tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X", enableConditions: [["enablePanic",true]],});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
                 initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/", enableConditions: [["enablePanic",true]],});
             tp.clientTab.pages[0].addSeparator();
             let presetList = [];
-            Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var 
+            Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var
                 let options = {};
                 options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
                 options["value"] = key;
@@ -914,7 +914,7 @@ sniping and someone sneaks up on you
                 tp.presetFolder.addSeparator();
                 initModule({ location: tp.presetFolder, title: "Save", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
                     console.log("Config Main: ", configMain);
-                    let saveString = ''; 
+                    let saveString = '';
                     const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
                     Object.entries(configMain).forEach(([key, value]) => {
                         console.log(key, value);
@@ -942,9 +942,9 @@ sniping and someone sneaks up on you
                     console.log(inbuiltPresets);
                     initMenu(false); //Reloads menu to add to dropdown list
                 },});
-                initModule({ location: tp.presetFolder, title: "Delete", storeAs: "deletePreset", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode 
+                initModule({ location: tp.presetFolder, title: "Delete", storeAs: "deletePreset", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode
                     let currUserPresets = loadUserPresets(); //gets current presets from storage
-                    delete currUserPresets[extract("selectedPreset")];//deletes 
+                    delete currUserPresets[extract("selectedPreset")];//deletes
                     delete inbuiltPresets[extract("selectedPreset")];//deletes
                     save(presetStorageLocation, currUserPresets); // saves cnages to file.
                     console.log("Current User Presets: ",currUserPresets);
@@ -975,7 +975,7 @@ sniping and someone sneaks up on you
                     };
                 },});
                 initModule({ location: tp.presetFolder, title: "Export", storeAs: "exportPreset", button: "Copy To Clipboard", clickFunction: function () {
-                    let saveString = ''; 
+                    let saveString = '';
                     const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
                     Object.entries(configMain).forEach(([key, value]) => {
                         console.log(key, value);
@@ -1170,7 +1170,7 @@ sniping and someone sneaks up on you
             automatedBorder = document.createElement('div');
             automatedBorder.setAttribute('id', 'automated-border');
             document.body.appendChild(automatedBorder);
-        
+
             const automatedBorderStyle = `
                 position: fixed;
                 top: 0;
@@ -1376,6 +1376,23 @@ sniping and someone sneaks up on you
         `);
         document.body.appendChild(playerinfoElement);
         playerinfoElement.style.display = 'none';
+        //initiate player info div and css and shit
+        firstUseElement = document.createElement('div'); // create the element directly
+        firstUseElement.classList.add('firstuse');
+        firstUseElement.setAttribute('style', `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8); 
+            z-index: 99999999; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        `);
+        document.body.appendChild(firstUseElement);
+        firstUseElement.style.display = 'none';
         //initiate bloom indicator div and css and shit
         redCircle = document.createElement('div');
         redCircle.style.position = 'fixed';
@@ -1952,10 +1969,10 @@ z-index: 999999;
         audioContext = audioContexts[contextName];
         let source = audioContext.createBufferSource();
         source.buffer = soundsSFC[name];
-    
+
         const newPanner = audioContext.createPanner();
         audioContext.listener.setPosition(0,0,0);
-    
+
         if (panner) {
             newPanner.context.listener.setPosition(panner.context.listener.positionX.value,panner.context.listener.positionY.value,panner.context.listener.positionZ.value);
             newPanner.setPosition(
@@ -2203,6 +2220,7 @@ z-index: 999999;
         gameInfoElement.style.display = "none";
         playerstatsElement.style.display = "none";
         playerinfoElement.style.display = "none";
+        firstUseElement.style.display = "none";
         redCircle.style.display = "none";
         makeHudElementDragable(coordElement);
         makeHudElementDragable(gameInfoElement);
@@ -2237,9 +2255,9 @@ z-index: 999999;
                     const jsonFileData = await zip.file(jsonFiles[0]).async('string');
                     config = {...config, ...JSON.parse(jsonFileData)};
                 };
-        
+
                 let loadedCount = 0;
-        
+
                 mp3Files.forEach(async (fileName, index) => {
                     const fileData = await zip.file(fileName).async('arraybuffer');
                     const audioBuffer = await audioContexts.SOUNDS.decodeAudioData(fileData);
@@ -2248,7 +2266,7 @@ z-index: 999999;
                     soundsSFC[key] = audioBuffer;
                     console.log("Loaded sound for:", key);
                     loadedCount++;
-        
+
                     if (loadedCount === totalRequests) {
                         createPopup("Loaded Custom SFX!", "success");
                         console.log("LOADED!");
@@ -2257,15 +2275,15 @@ z-index: 999999;
             } catch (error) {
                 console.error('Error fetching/decoding audio from ZIP:', error);
             };
-        };        
-        
+        };
+
         if (initialisedCustomSFX !== extract("customSFX")) {
             initialisedCustomSFX = extract("customSFX");
             console.log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
             soundsSFC = {};
             if (initialisedCustomSFX !== true && initialisedCustomSFX !== "default") {
                 createPopup("Loading Custom SFX...");
-                
+
                 // Make the request to fetch and process audio data from the ZIP file
                 fetchAndProcessAudioFromZip(JSON.parse(initialisedCustomSFX));
             };
@@ -2349,6 +2367,11 @@ z-index: 999999;
         };
 
         if (startUpComplete) {
+            // check if it is a user's first time to run the script
+            if ( GM_getValue("StateFarm_firstRun") !== 0 ) {
+                firstExecution = true;
+                GM_setValue("StateFarm_firstRun", 0);
+            }
             if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
                 unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=false;
                 if (extract("setDetail")=="autodetail") {
@@ -2497,7 +2520,7 @@ z-index: 999999;
                     };
                 };
                 break;
-            
+
             case "clearpath":
                 clearPath();
                 break;
@@ -2525,7 +2548,7 @@ z-index: 999999;
                 } else {
                     sendChatMessage("Invalid setpathdespawn message");
                 }
-            
+
         }
     };
     const clearPath = function() {
@@ -2587,6 +2610,84 @@ z-index: 999999;
                 void coordElement.offsetWidth;
                 coordElement.style.display = '';
             };
+            // create an info box for the first execution, i have 69697935 iq
+            if ( firstExecution == true ) {
+                firstUseElement.innerHTML = `
+                <style>
+                @font-face {
+                    font-family: "Bahnschrift";
+                    src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot");
+                    src: url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.eot?#iefix")format("embedded-opentype"),
+                    url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff2")format("woff2"),
+                    url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.woff")format("woff"),
+                    url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.ttf")format("truetype"),
+                    url("https://db.onlinewebfonts.com/t/0a6ee448d1bd65c56f6cf256a7c6f20a.svg#Bahnschrift")format("svg");
+                }
+                .overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    z-index: 9999;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    opacity: 1;
+                }
+                .overlay-content {
+                    text-align: center;
+                    color: white;
+                }
+                h100 {
+                    color: white;
+                    font-weight: bold;
+                    font-family: Bahnschrift;
+                    font-size: 36px;
+                }
+                a {
+                    text-decoration: none;
+                    font-family: Bahnschrift;
+                    font-size: 24px;
+                }
+                p {
+                    text-decoration: none;
+                    font-family: Bahnschrift;
+                    font-size: 15px;
+                }
+            </style>
+            </head>
+            <body>
+            
+                <div class="overlay">
+                    <div class="overlay-content">
+                        <h100>Welcome to StateFarmClient V3</h100>
+                        <br>
+                        <br>
+                        <a href="https://discord.gg/EMy9swEwB6">Discord&emsp;</a>
+                        <a href="https://github.com/Hydroflame522/StateFarmClient">Github&emsp;</a>
+                        <a href="https://greasyfork.org/en/scripts/482982">Greasyfork&emsp;</a>
+                        <a href="https://www.youtube.com/channel/UCGWtU3Dp3unyefuaBpwGMDw">Youtube</a>
+                        <br>
+                        <br>
+                        <p>Press 'Escape' to close</p>
+                    </div>
+                </div>
+            </body>
+                `
+                firstUseElement.style.display = '';
+                firstExecution = false;
+                document.addEventListener('keydown', function(event) {
+                    if (event.keyCode === 27) {
+                        firstUseElement.style.opacity = '0';
+                        firstUseElement.style.display = "none";
+                        setTimeout(function() {
+                            firstUseElement.parentNode.removeChild(firstUseElement);
+                        }, 1000)
+                    }
+            });
+        }
         };
         if (AUTOMATED) { //i know what youre saying looking at this. i am the greatest programmer to have ever lived
             if (GM_getValue("StateFarm_CommandTime") > cachedCommandTime) {
@@ -2664,7 +2765,7 @@ z-index: 999999;
             });
         };
     };
-    const loadUserPresets = function () { //gets user presets 
+    const loadUserPresets = function () { //gets user presets
         let result = load(presetStorageLocation);
         console.log("Loaded StateFarmUserPresets: ", result);
         return load(presetStorageLocation);
@@ -3307,7 +3408,7 @@ z-index: 999999;
 
             let originalJS = js;
             if (typeof isCrackedShell !== 'undefined') originalJS = fetchTextContent('/js/shellshock.og.js');
-          
+
             let hash = CryptoJS.SHA256(originalJS).toString(CryptoJS.enc.Hex);
 
             let onlineClientKeys = fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
@@ -3330,9 +3431,9 @@ z-index: 999999;
             };
 
             console.log(hash, onlineClientKeys);
-    
+
             H = clientKeys.vars;
-    
+
             let injectionString="";
 
             //SERVERSYNC
@@ -3352,7 +3453,7 @@ z-index: 999999;
                     crashplease = "balls2";
                 };
             };
-            
+
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
 
             const modifyJS = function(find,replace) {
@@ -3370,7 +3471,7 @@ z-index: 999999;
             };
 
             const f = function(varName) { return varName.replace("$", "\\$") };
-            
+
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
             modifyJS(f(H.SCENE)+'.'+f(H.render),`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
@@ -3442,7 +3543,7 @@ z-index: 999999;
 
             console.log(H);
             console.log(js);
-            
+
             attemptedInjection = true;
             return js;
         };
@@ -3640,11 +3741,11 @@ z-index: 999999;
         // Allow it to bubble up.
         this.bubbleUp(this.content.length - 1);
         },
-        
+
         rescoreElement: function(node) {
             this.sinkDown(this.content.indexOf(node));
         },
-    
+
         pop: function() {
         // Store the first element so we can return it later.
         var result = this.content[0];
@@ -3949,10 +4050,10 @@ z-index: 999999;
                         open_heap.rescoreElement(neighbor);
                     };
                 };
-            
+
 
             };
-            
+
         };
 
 
@@ -4038,12 +4139,12 @@ z-index: 999999;
                         console.log(L.BABYLON.Engine.Version);
 
                         console.log('%cSTATEFARM SUCCESSFULLY LOADED BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
-                        
+
                         H.actor = findKeyWithProperty(ss.MYPLAYER, H.mesh);
                         // Math.capVector3 = Math[H.capVector3];
-            
+
                         console.log("StateFarm: found vars:", H);
-            
+
                         crosshairsPosition=new L.BABYLON.Vector3();
                         Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
                             get: () => {
@@ -4054,7 +4155,7 @@ z-index: 999999;
                         if (AUTOMATED) {
                             automatedBorder.style.borderColor = 'rgba(0, 0, 255, 1)';
                         };
-    
+
                     } else {
                         console.log('%cSTATEFARM COULD NOT LOAD L.BABYLON', 'color: red; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                     };
@@ -4080,7 +4181,7 @@ z-index: 999999;
                     }
                     // check if node at position exists
                     let random_node = get_node_at(position);
-                    
+
                     if (!(player_node === random_node) && random_node) {
                         console.log("location, target:")
                         print_node_list([player_node, random_node])
@@ -4091,8 +4192,8 @@ z-index: 999999;
                             activeNodeTarget = activePath[0];
                             console.log("list printed, target set, creating pathfinding lines")
                             create_pathfinding_lines(ss, activePath);
-                            findNewPath = false; 
-                            console.log("found path to random node")                 
+                            findNewPath = false;
+                            console.log("found path to random node")
                         } else {
                             console.log("unable to find path to random node")
                         }
@@ -4192,19 +4293,19 @@ z-index: 999999;
                     loggedGameMap = true;
                 };
                 username=ss.MYPLAYER?.name;
-    
+
                 crosshairsPosition.copyFrom(ss.MYPLAYER[H.actor][H.mesh].position);
                 const horizontalOffset = Math.sin(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
                 const verticalOffset = Math.sin(-ss.MYPLAYER[H.pitch]);
                 crosshairsPosition.x += horizontalOffset;
                 crosshairsPosition.z += Math.cos(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
                 crosshairsPosition.y += verticalOffset + 0.4;
-    
+
                 ammo=ss.MYPLAYER.weapon.ammo;
-    
+
                 whitelistPlayers=(extract("whitelist")||"").split(',');
                 blacklistPlayers=(extract("blacklist")||"").split(',');
-    
+
                 ss.MYPLAYER[H.actor].scene.texturesEnabled=extract("enableTextures");
             };
         };
