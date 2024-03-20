@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre65
+// @version      3.4.0-pre66
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2369,9 +2369,8 @@ z-index: 999999;
 
         if (startUpComplete) {
             // check if it is a user's first time to run the script
-            if ( GM_getValue("StateFarm_firstRun") !== 0 ) {
+            if ( GM_getValue("StateFarm_firstRun") !== 1 ) {
                 firstExecution = true;
-                GM_setValue("StateFarm_firstRun", 0);
             }
             if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
                 unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=false;
@@ -2677,7 +2676,6 @@ z-index: 999999;
             </body>
                 `
                 firstUseElement.style.display = '';
-                firstExecution = false;
                 document.addEventListener('keydown', function(event) {
                     if (event.keyCode === 27) {
                         firstUseElement.style.opacity = '0';
@@ -2686,6 +2684,7 @@ z-index: 999999;
                             firstUseElement.parentNode.removeChild(firstUseElement);
                         }, 1000)
                     }
+                    GM_setValue("StateFarm_firstRun", 1);
             });
         }
             };
