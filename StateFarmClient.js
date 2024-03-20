@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre68
+// @version      3.4.0-pre69 (funny)
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2790,8 +2790,8 @@ z-index: 999999;
         if (chatThing.value.includes("unlock")) {
             createPopup("Message send failed: Account too new!","error");
             return false;
-        } else if (ss.MYPLAYER.chatLines<2) {
-            createPopup("Chat Cooldown: "+(globalSS.ss.MYPLAYER.chatLines-2)+" remaining.","error");
+        } else if (ss.MYPLAYER.chatLines>2) {
+            createPopup("Chat Cooldown: "+(ss.MYPLAYER.chatLines-2)+" remaining.","error");
             return false;
         } else {
             try {
