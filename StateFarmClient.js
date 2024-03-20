@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre66
+// @version      3.4.0-pre67
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -3409,15 +3409,34 @@ z-index: 999999;
             let originalJS = js;
             if (typeof isCrackedShell !== 'undefined') originalJS = fetchTextContent('/js/shellshock.og.js');
 
-            let hash = CryptoJS.SHA256(originalJS).toString(CryptoJS.enc.Hex);
+            const getVardata = function(hash) {
+                return fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
+            };
 
-            let onlineClientKeys = fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
+
+            let hash, onlineClientKeys;
+            hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex);
+            onlineClientKeys = getVardata(hash);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
-                let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: '+hash, '');
+                let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it, or alternatively the hash of a previous game js to attempt to load that. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: '+hash, '');
                 if (userInput !== null && userInput !== '') {
                     alert('Aight, let\'s try this. If it is invalid, it will just crash.');
-                    clientKeys = JSON.parse(userInput);
+                    try {
+                        clientKeys = JSON.parse(userInput);
+                    } catch {
+                        console.log("maybe they did a hash??");
+                        try {
+                            const archivedJS = fetchTextContent(`https://raw.githubusercontent.com/onlypuppy7/ShellShockJSArchives/main/js_archive/${userInput}.js`);
+                            console.log("did that just work??");
+                            js = archivedJS;
+                            hash = userInput.split("_")[5];
+                            onlineClientKeys = getVardata(hash);
+                            clientKeys = JSON.parse(onlineClientKeys);
+                        } catch {
+
+                        };
+                    };
                 } else {
                     alert('You did not enter anything, this is gonna crash lmao.');
                 };
