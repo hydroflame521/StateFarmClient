@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre67
+// @version      3.4.0-pre68
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2786,10 +2786,16 @@ z-index: 999999;
     //Updates inbuiltPresets to include user presets
     addUserPresets(loadUserPresets());
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
-        if (ss.MYPLAYER.chatLines<2) {
+        chatThing=document.getElementById('chatIn');
+        if (chatThing.value.includes("unlock")) {
+            createPopup("Message send failed: Account too new!","error");
+            return false;
+        } else if (ss.MYPLAYER.chatLines<2) {
+            createPopup("Chat Cooldown: "+(globalSS.ss.MYPLAYER.chatLines-2)+" remaining.","error");
+            return false;
+        } else {
             try {
                 lastSentMessage=text;
-                chatThing=document.getElementById('chatIn');
                 if (chatThing && unsafeWindow.extern.startChat) {
                     unsafeWindow.extern.startChat();
                     chatThing.value=text;
@@ -2806,10 +2812,8 @@ z-index: 999999;
                     return false;
                 };
             } catch (error) {
-                return false
+                return false;
             };
-        } else {
-            // createPopup("Chat Cooldown: "+(globalSS.ss.MYPLAYER.chatLines-2)+" remaining.","error");
         };
     };
     const addStreamsToInGameUI = function () {
