@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre64
+// @version      3.4.0-pre65
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -58,6 +58,7 @@
 // @match        *://*.mathlete.fun/*
 // @match        *://*.mathlete.pro/*
 // @match        *://*.overeasy.club/*
+// @match        *://*.risenegg.com/*
 // @match        *://*.scrambled.tech/*
 // @match        *://*.scrambled.today/*
 // @match        *://*.scrambled.us/*
@@ -233,7 +234,7 @@ console.log("StateFarm: running (before function)");
         'shellshock.io', 'algebra.best', 'algebra.vip', 'biologyclass.club', 'deadlyegg.com', 'deathegg.world', 'eggboy.club', 'eggboy.xyz', 'eggcombat.com', 'egg.dance',
         'eggfacts.fun', 'egghead.institute', 'eggisthenewblack.com', 'eggsarecool.com', 'geometry.best', 'geometry.monster', 'geometry.pw', 'geometry.report', 'hardboiled.life',
         'hardshell.life', 'humanorganising.org', 'mathactivity.xyz', 'mathactivity.club', 'mathdrills.info', 'mathdrills.life', 'mathfun.rocks', 'mathgames.world', 'math.international',
-        'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.life', 'shellshockers.site',
+        'mathlete.fun', 'mathlete.pro', 'overeasy.club', 'risenegg.com', 'scrambled.tech', 'scrambled.today', 'scrambled.us', 'scrambled.world', 'shellshockers.club', 'shellshockers.life', 'shellshockers.site',
         'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
         'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe', 'shellshockers.best', 'eggboy.me'
     ];
@@ -622,7 +623,7 @@ the pistol. Ideal use case is when you are
 sniping and someone sneaks up on you
 (...hence it is called... AntiSneak).`},
         ]);
-            // COMBAT MODULES
+        //COMBAT MODULES
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat", enableConditions: [["aimbot",true]],});
@@ -825,6 +826,22 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
                 tp.audioFolder.addSeparator();
                 initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
+            tp.themingTab.pages[0].addSeparator();
+            initModule({ location: tp.themingTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.themingTab.pages[1],});
+            initModule({ location: tp.themingTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.themingTab.pages[1],});
+            initModule({ location: tp.themingTab.pages[0], title: "Client Theme", storeAs: "themeType", bindLocation: tp.themingTab.pages[1], dropdown: [
+                {text: "Default", value: "defaultTheme"},
+                {text: "Iceberg", value: "icebergTheme"},
+                {text: "Jet Black", value: "jetblackTheme"},
+                {text: "Light", value: "lightTheme"},
+                {text: "Retro", value: "retroTheme"},
+                {text: "Translucent", value: "translucentTheme"},
+                {text: "StateFarmer", value: "statefarmerTheme"},
+                {text: "Blurple", value: "blurpleTheme"},
+                {text: "ShellFarm", value: "shellFarmTheme"},
+            ], defaultValue: "defaultTheme", changeFunction: function(value) {
+                applyTheme(value.value);
+            }});
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -874,22 +891,6 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.clientFolder, storeAs: "clientTab" })
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.mainPanel.hidden=!tp.mainPanel.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
-            tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.clientTab.pages[1],});
-            initModule({ location: tp.clientTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.clientTab.pages[1],});
-            initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
-                {text: "Default", value: "defaultTheme"},
-                {text: "Iceberg", value: "icebergTheme"},
-                {text: "Jet Black", value: "jetblackTheme"},
-                {text: "Light", value: "lightTheme"},
-                {text: "Retro", value: "retroTheme"},
-                {text: "Translucent", value: "translucentTheme"},
-                {text: "StateFarmer", value: "statefarmerTheme"},
-                {text: "Blurple", value: "blurpleTheme"},
-                {text: "ShellFarm", value: "shellFarmTheme"},
-            ], defaultValue: "defaultTheme", changeFunction: function(value) {
-                applyTheme(value.value);
-            }});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X", enableConditions: [["enablePanic",true]],});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
@@ -1376,7 +1377,7 @@ sniping and someone sneaks up on you
         `);
         document.body.appendChild(playerinfoElement);
         playerinfoElement.style.display = 'none';
-        //initiate player info div and css and shit
+        //initiate first use div and css and shit
         firstUseElement = document.createElement('div'); // create the element directly
         firstUseElement.classList.add('firstuse');
         firstUseElement.setAttribute('style', `
@@ -1385,8 +1386,8 @@ sniping and someone sneaks up on you
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.8); 
-            z-index: 99999999; 
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 99999999;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -2220,8 +2221,8 @@ z-index: 999999;
         gameInfoElement.style.display = "none";
         playerstatsElement.style.display = "none";
         playerinfoElement.style.display = "none";
-        firstUseElement.style.display = "none";
         redCircle.style.display = "none";
+        firstUseElement.style.display = "none";
         makeHudElementDragable(coordElement);
         makeHudElementDragable(gameInfoElement);
         makeHudElementDragable(playerstatsElement);
@@ -2609,8 +2610,7 @@ z-index: 999999;
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
                 coordElement.style.display = '';
-            };
-            // create an info box for the first execution, i have 69697935 iq
+                           // create an info box for the first execution, i have 69697935 iq
             if ( firstExecution == true ) {
                 firstUseElement.innerHTML = `
                 <style>
@@ -2659,7 +2659,7 @@ z-index: 999999;
             </style>
             </head>
             <body>
-            
+
                 <div class="overlay">
                     <div class="overlay-content">
                         <h100>Welcome to StateFarmClient V3</h100>
@@ -2688,6 +2688,7 @@ z-index: 999999;
                     }
             });
         }
+            };
         };
         if (AUTOMATED) { //i know what youre saying looking at this. i am the greatest programmer to have ever lived
             if (GM_getValue("StateFarm_CommandTime") > cachedCommandTime) {
