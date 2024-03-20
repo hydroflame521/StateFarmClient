@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre62
+// @version      3.4.0-pre63
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -824,6 +824,22 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
                 tp.audioFolder.addSeparator();
                 initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
+            tp.themingTab.pages[0].addSeparator();
+            initModule({ location: tp.themingTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.themingTab.pages[1],});
+            initModule({ location: tp.themingTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.themingTab.pages[1],});
+            initModule({ location: tp.themingTab.pages[0], title: "Client Theme", storeAs: "themeType", bindLocation: tp.themingTab.pages[1], dropdown: [
+                {text: "Default", value: "defaultTheme"},
+                {text: "Iceberg", value: "icebergTheme"},
+                {text: "Jet Black", value: "jetblackTheme"},
+                {text: "Light", value: "lightTheme"},
+                {text: "Retro", value: "retroTheme"},
+                {text: "Translucent", value: "translucentTheme"},
+                {text: "StateFarmer", value: "statefarmerTheme"},
+                {text: "Blurple", value: "blurpleTheme"},
+                {text: "ShellFarm", value: "shellFarmTheme"},
+            ], defaultValue: "defaultTheme", changeFunction: function(value) {
+                applyTheme(value.value);
+            }});
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -873,22 +889,6 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.clientFolder, storeAs: "clientTab" })
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.mainPanel.hidden=!tp.mainPanel.hidden}, defaultBind:"H",});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
-            tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.clientTab.pages[1],});
-            initModule({ location: tp.clientTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.clientTab.pages[1],});
-            initModule({ location: tp.clientTab.pages[0], title: "Theme", storeAs: "themeType", bindLocation: tp.clientTab.pages[1], dropdown: [
-                {text: "Default", value: "defaultTheme"},
-                {text: "Iceberg", value: "icebergTheme"},
-                {text: "Jet Black", value: "jetblackTheme"},
-                {text: "Light", value: "lightTheme"},
-                {text: "Retro", value: "retroTheme"},
-                {text: "Translucent", value: "translucentTheme"},
-                {text: "StateFarmer", value: "statefarmerTheme"},
-                {text: "Blurple", value: "blurpleTheme"},
-                {text: "ShellFarm", value: "shellFarmTheme"},
-            ], defaultValue: "defaultTheme", changeFunction: function(value) {
-                applyTheme(value.value);
-            }});
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X", enableConditions: [["enablePanic",true]],});
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
