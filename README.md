@@ -5,9 +5,9 @@
 
 <div align='center'>
 
-![Greasyfork Installs](https://shields.io/greasyfork/dt/482982?style=for-the-badge&labelColor=black&logo=greasyfork&color=e61005)
-![Greasyfork Version](https://shields.io/greasyfork/v/482982?style=for-the-badge&label=version&labelColor=black&color=8507f2)
-![Discord Members](https://shields.io/discord/988104240000028706?style=for-the-badge&label=discord&logo=discord&labelColor=black&color=5865F2)
+[![Greasyfork Installs](https://shields.io/greasyfork/dt/482982?style=for-the-badge&labelColor=black&logo=greasyfork&color=e61005)](https://greasyfork.org/en/scripts/482982-statefarm-client-v3-combat-bloom-esp-rendering-chat-automation-botting-unbanning-and-more)
+[![Current Version](https://shields.io/greasyfork/v/482982?style=for-the-badge&label=version&labelColor=black&color=8507f2)](https://github.com/Hydroflame522/StateFarmClient/raw/main/StateFarmClient.js)
+[![Discord Members](https://shields.io/discord/988104240000028706?style=for-the-badge&label=discord&logo=discord&labelColor=black&color=5865F2)](https://dsc.gg/sfnetwork)
 
 </div>
 <br><br>
