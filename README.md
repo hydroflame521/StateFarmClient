@@ -14,9 +14,9 @@
 
 StateFarm is the **BEST** hack client for Shell Shockers (shellshock.io), including **Aimbot**, **ESP**, **Bloom Hacks**, **Botting**, **Custom Binding**, **Highly Customisable Modules**, **Chat Mods** and so much more!<br>
 
-> StateFarm Client V3 is based off [LibertyMutual Client](https://github.com/onlypuppy7/LibertyMutualShellShockers)
-> This is a simpler template client, intended to be a base for StateFarm but anyone is welcome to use it in their own projects.
-
+> StateFarm Client V3 is based off [LibertyMutual Client](https://github.com/onlypuppy7/LibertyMutualShellShockers) <br>
+> This is a simpler template client, intended to be a base for StateFarm but anyone is welcome to use it in their own projects. <br>
+ 
 <h3 align='center'>Join our <a href='https://dsc.gg/sfnetwork'>Discord Server</a> for the latest news!</h3>
 <br>
 
@@ -73,9 +73,9 @@ Before you can install the client, there are a few things you must set up to be 
 > You just installed Statefarm Client...and you're probably confused by all the tabs, sliders, & buttons.
 > Below is a few basic ways to start using StateFarm.
 
-- Press 'h' to show/hide the panel. You can also drag it by clicking & dragging `StateFarm` at the top.
+- Press 'H' to show/hide the panel. You can also drag it by clicking & dragging `StateFarm` at the top.
 - Click on various categories (combat, render, chat, etc) for different areas of cheating.
-- Press 'j' to show/hide the botting panel. This allows you to use bots.
+- Press 'J' to show/hide the botting panel. This allows you to use bots.
 
 Here are some key features to learn:
 
@@ -88,7 +88,7 @@ To configure the aimbot, open the `Combat` tab.
 - If using a mouse, click the `v` key to enable & disable aimbot.
   
 ### ESP
-With a donned name `wall hacks`, these cheats allow you to see players through walls.<br>
+Being also named `wall hacks`, these cheats allow you to see players through walls.<br>
 To configure ESP, open the `Render` tab.
 
 - To see eggs through walls with **boxes**, enable `PlayerESP`.
@@ -107,6 +107,7 @@ With the exception of the color pickers and some links, each option should all b
 3. Find the cheat name, and choose `Set Bind` to the right.
    - Some cheats already have binds. To change these, click on the preset key
 4. Press the key to bind! It's that simple.
+> If you want to remove a bind, press your 'Delete' key instead of a bind.
 
 ## [](#combat) Combat:
 - **Aimbot** - locks onto targeted player.
