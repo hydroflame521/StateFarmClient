@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre70
+// @version      3.4.0-pre71
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -441,6 +441,8 @@ console.log("StateFarm: running (before function)");
                                 popupText="Toggled StateFarm Panel"; break;
                             case ("showBotPanel"):
                                 popupText="Toggled Bot Panel"; break;
+                            case ("sfChatShowHide"):
+                                popupText="Toggled SFC Chat"; break;
                             case ("panic"):
                                 popupText="Exiting to set URL..."; break;
                         };
@@ -567,6 +569,27 @@ console.log("StateFarm: running (before function)");
 
         tp.mainPanel = new Tweakpane.Pane();
         tp.mainPanel.title = menuTitle;
+        //SFC CHAT
+        initFolder({ location: tp.mainPanel, title: "StateFarm Chat", storeAs: "sfChatFolder",});
+        initTabs({ location: tp.sfChatFolder, storeAs: "sfChatTab" });
+        initModule({ location: tp.sfChatTab.pages[0], title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest"+(Math.floor(Math.random() * 8999) + 1000)),});
+        initModule({ location: tp.sfChatTab.pages[0], title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.sfChatTab.pages[1], clickFunction: function(){
+            if (sfChatIframe != undefined){
+                createPopup("Already Started. Try Showing it.");
+            } else {
+                startStateFarmChat();
+            };
+        },});
+        tp.sfChatTab.pages[0].addSeparator();
+        initModule({ location: tp.sfChatTab.pages[0], title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.sfChatTab.pages[1], bindLocation: tp.sfChatTab.pages[1], defaultBind:"K", clickFunction: function(){
+            if (sfChatContainer != undefined){
+                if(sfChatContainer.style.display == "none"){
+                    sfChatContainer.style.display = "block";
+                } else {
+                    sfChatContainer.style.display = "none";
+                };
+            };
+        },});
         //COMBAT MODULES
         initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder",});
         initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
@@ -627,35 +650,34 @@ the pistol. Ideal use case is when you are
 sniping and someone sneaks up on you
 (...hence it is called... AntiSneak).`},
         ]);
-        //COMBAT MODULES
-            initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
-            initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
-                initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat", enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Prioritise Visible", value: "prioritise"}, {text: "Only Visible", value: "onlyvisible"}], defaultValue: "disabled", enableConditions: [["aimbot",true]]});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true], ["silentAimbot",false]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", slider: {min: 0.05, max: 360, step: 1}, defaultValue: 360, enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff", enableConditions: [["aimbot",true]]});
-            tp.combatTab.pages[0].addSeparator();
-            initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1], showConditions: [["autoRefill",true]],});
-            tp.combatTab.pages[0].addSeparator();
-            initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Visible and Aimbotting", value: "whileVisAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse", showConditions: [["enableAutoFire",true]]});
-            tp.combatTab.pages[0].addSeparator();
-            initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
+        initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
+        initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
+            initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat", enableConditions: [["aimbot",true]],});
+            initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Prioritise Visible", value: "prioritise"}, {text: "Only Visible", value: "onlyvisible"}], defaultValue: "disabled", enableConditions: [["aimbot",true]]});
+            tp.aimbotFolder.addSeparator();
+            initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+            initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+            initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true], ["silentAimbot",false]],});
+            tp.aimbotFolder.addSeparator();
+            initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+            initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+            tp.aimbotFolder.addSeparator();
+            initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+            initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
+            tp.aimbotFolder.addSeparator();
+            initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", slider: {min: 0.05, max: 360, step: 1}, defaultValue: 360, enableConditions: [["aimbot",true]],});
+            initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
+            initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
+            tp.aimbotFolder.addSeparator();
+            initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff", enableConditions: [["aimbot",true]]});
+        tp.combatTab.pages[0].addSeparator();
+        initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
+        initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1], showConditions: [["autoRefill",true]],});
+        tp.combatTab.pages[0].addSeparator();
+        initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
+        initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Visible and Aimbotting", value: "whileVisAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse", showConditions: [["enableAutoFire",true]]});
+        tp.combatTab.pages[0].addSeparator();
+        initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
         //RENDER MODULES
         initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder",});
         initTabs({ location: tp.renderFolder, storeAs: "renderTab" });
@@ -715,26 +737,6 @@ sniping and someone sneaks up on you
         //CHAT MODULES
         initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder",});
         initTabs({ location: tp.chatFolder, storeAs: "chatTab" });
-            initFolder({ location: tp.chatTab.pages[0], title: "State Farm Chat", storeAs: "sfChatFolder",}); //StateFarmChat
-                initModule({ location: tp.sfChatFolder, title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest"+(Math.floor(Math.random() * 8999) + 1000)),});
-                initModule({ location: tp.sfChatFolder, title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.chatTab.pages[1], clickFunction: function(){
-                    if (sfChatIframe != undefined){
-                        createPopup("Already Started. Try Showing it.");
-                    }else{
-                        startStateFarmChat();
-                    }
-                },});
-                tp.sfChatFolder.addSeparator();
-                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], clickFunction: function(){
-                    if (sfChatContainer != undefined){
-                        if(sfChatContainer.style.display == "none"){
-                            sfChatContainer.style.display = "block";
-                        }else{
-                            sfChatContainer.style.display = "none";
-                        }
-                    }
-                },});
-            tp.chatTab.pages[0].addSeparator();
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
@@ -1190,16 +1192,16 @@ sniping and someone sneaks up on you
             // Handle the error and display an error message onscreen
             console.error("An error occurred:", error);
             alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the developers.");
-        }
+        };
     };
-    function sfChatUsernameSet() {
+    //StateFarmChat functions
+    const sfChatUsernameSet = function() {
         if (sfChatUsername != extract("sfChatUsername") && sfChatIframe != undefined){
             sfChatUsername = extract("sfChatUsername");
             sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({name: sfChatUsername}), "*");
-        }
-    }
-    //StateFarmChat
-    function startStateFarmChat(){
+        };
+    };
+    const startStateFarmChat = function(){
         //UnsafewindowVars
         const makeChatDragable = function (element) {
             if (element.getAttribute("drag-true") != "true") {
@@ -1227,7 +1229,7 @@ sniping and someone sneaks up on you
                 });
 
                 element.setAttribute("drag-true", "true");
-            }
+            };
         };
         
         sfChatContainer = document.createElement("div");
@@ -1235,7 +1237,7 @@ sniping and someone sneaks up on you
         let title = document.createElement("p");
         title.style.fontSize = "medium";
         title.style.color = "#D6D6D6";
-        title.innerHTML = "Statefarm Chat";
+        title.innerHTML = "StateFarm Chat";
         sfChatContainer.appendChild(title);
         sfChatContainer.style.backgroundColor = "#555";
         sfChatContainer.style.position = "absolute";
@@ -1245,14 +1247,14 @@ sniping and someone sneaks up on you
         sfChatContainer.style.left = "20px";
         sfChatContainer.style.zIndex = 1000;
 
-        let sendSettings = function(){
+        const sendSettings = function(){
             let settings = GM_getValue("SFCHAT-SETTINGS");
             if (settings){
                 sfChatIframe.contentWindow.postMessage("SFCHAT-SETTINGS" + settings, "*");
-            }else{
+            } else {
                 sfChatIframe.contentWindow.postMessage("SFCHAT-SETTINGS", "*");
-            }
-        }
+            };
+        };
 
         makeChatDragable(sfChatContainer);
         sfChatIframe = document.createElement("iframe");
@@ -1280,9 +1282,9 @@ sniping and someone sneaks up on you
             }
             if (e.data.startsWith("SFCHAT-REQUEST")){
                 sendSettings();
-            }
+            };
         });
-    }
+    };
 
     const applyStylesAddElements = function (themeToApply = "null") {
         const head = document.head || document.getElementsByTagName('head').pages[0];
