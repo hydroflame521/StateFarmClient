@@ -163,6 +163,7 @@ console.log("StateFarm: running (before function)");
     let sfChatIframe;
     let sfChatContainer;
     let sfChatUsername;
+    let presetIgnore = ['sfChatUsername', 'otherSettingYouMightWantNotToBeExported'];
     const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
     console.log("Save key:",storageKey);
     let binding=false;
@@ -935,7 +936,9 @@ sniping and someone sneaks up on you
                                 //dont care lmaoooo
                             };
                         };
-                        addParam(key, value);
+                        if (!presetIgnore.includes(key)){
+                            addParam(key, value);
+                        }
                     });
                     saveString = saveString.substring(0, saveString.length - 1);
                     let presetName = prompt("Name of preset:"); // asks user for name of preset
@@ -996,7 +999,9 @@ sniping and someone sneaks up on you
                                 //dont care lmaoooo
                             };
                         };
-                        addParam(key, value);
+                        if (!presetIgnore.includes(key)){
+                            addParam(key, value);
+                        }
                     });
                     saveString = saveString.substring(0, saveString.length - 1);
                     GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
@@ -1235,7 +1240,7 @@ sniping and someone sneaks up on you
         sfChatIframe = document.createElement("iframe");
         sfChatIframe.setAttribute(
             "src",
-            "https://raw.githack.com/OakSwingZZZ/StateFarmClient-PresetCreator/main/chat/index.html"
+            "https://raw.githack.com/OakSwingZZZ/StateFarmChatFiles/main/index.html"
         );
         sfChatIframe.id = "chat-iframe";
         sfChatIframe.setAttribute("style", "width: 600px; height:700px; z-index: 10000;");
