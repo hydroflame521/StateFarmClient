@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-release
+// @version      3.4.1-pre1
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -895,6 +895,12 @@ sniping and someone sneaks up on you
                 reloadPage();
             },});
             tp.miscTab.pages[0].addSeparator();
+            initModule({ location: tp.miscTab.pages[0], title: 'ShellPrint Key', storeAs: 'shellPrintKey', defaultValue: "" });
+            initModule({ location: tp.miscTab.pages[0], title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => {
+                alert('Join this Discord Server and visit the #info channel under ShellPrint to unlock a key!');
+                unsafeWindow.open('https://discord.gg/XAyZ6ndEd4');
+            }});
+            tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function(){
                 if (document.pointerLockElement !== null) { //currently locked
                     noPointerPause=true; unsafeWindow.document.exitPointerLock();
@@ -1233,7 +1239,7 @@ sniping and someone sneaks up on you
                 element.setAttribute("drag-true", "true");
             };
         };
-        
+
         sfChatContainer = document.createElement("div");
         sfChatContainer.style.padding = "1px";
         let title = document.createElement("p");
@@ -1268,7 +1274,7 @@ sniping and someone sneaks up on you
         sfChatIframe.setAttribute("style", "width: 600px; height:700px; z-index: 10000;");
         sfChatContainer.appendChild(sfChatIframe);
         document.getElementsByTagName("body")[0].appendChild(sfChatContainer);
-        
+
         const startTimeout = setTimeout(function(){
             console.log("settings");
             sendSettings();
@@ -3624,6 +3630,7 @@ z-index: 999999;
             //hook for main loop function in render loop
             modifyJS(f(H.SCENE)+'.'+f(H.render),`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
             modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
+            modifyJS('no account found"),', `no account found"),window["${functionNames.register}"](),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
@@ -4616,6 +4623,47 @@ z-index: 999999;
                 unsafeWindow.BAWK.sounds.silence.end = 0.001;
             };
         });
+
+        createAnonFunction("register", async () => {
+
+            let wait = (ms) => new Promise((res) => setTimeout(res, ms));
+
+            document.querySelector('.profile-menu-item').click();
+
+            let accountButton = document.querySelector('#account-button');
+            if (!accountButton.innerText.includes('Sign In')) return;
+            accountButton.click();
+
+            let freshAccount = await (await fetch('https://shellprint.villainsrule.xyz/create?key=' + extract('shellPrintKey'), {
+                method: 'POST'
+            })).json();
+
+            await wait(100);
+
+            document.querySelector('.firebaseui-idp-password').click();
+
+            document.querySelector('input[type="email"]').value = freshAccount.email;
+            document.querySelector('.firebaseui-id-submit').click();
+
+            await wait(1500);
+
+            let passwordElement = document.querySelector('.firebaseui-id-password') || document.querySelector('.firebaseui-id-new-password');
+            passwordElement.value = freshAccount.password;
+            document.querySelector('.firebaseui-id-submit').click();
+
+            await wait(3000);
+
+            document.querySelector('.notify-group-eggs > button').click();
+
+            let inter = setInterval(async () => {
+                let isVerified = await (await fetch('https://shellprint.villainsrule.xyz/verified?key=' + extract('shellPrintKey') + '&email=' + freshAccount.email, {
+                    method: 'POST'
+                })).json();
+
+                if (isVerified.verified) location.reload();
+            }, 7000);
+        });
+
         createAnonFunction("STATEFARM",function(){
             ss.PLAYERS.forEach(PLAYER=>{
                 if (PLAYER.hasOwnProperty("ws")) {
