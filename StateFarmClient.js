@@ -1242,7 +1242,7 @@ sniping and someone sneaks up on you
             "src",
             "https://raw.githack.com/OakSwingZZZ/StateFarmChatFiles/main/index.html"
         );
-        sfChatIframe.id = "chat-iframe";
+        sfChatIframe.id = "sfChat-iframe";
         sfChatIframe.setAttribute("style", "width: 600px; height:700px; z-index: 10000;");
         sfChatContainer.appendChild(sfChatIframe);
         document.getElementsByTagName("body")[0].appendChild(sfChatContainer);
@@ -3533,7 +3533,7 @@ z-index: 999999;
             match = js.match(/static play\(([a-zA-Z$_,]+)\){/);
             console.log("AUDIO INTERCEPTION", match);
             modifyJS(match[0], `${match[0]}[${match[1]}] = window.${functionNames.interceptAudio}(${match[1]});`);
-            modifyJS('"IFRAME" == document.ac', `"MFRAME" == document.ac`);
+            modifyJS('"IFRAME"==document.activeElement.tagName', `("IFRAME"==document.activeElement.tagName&&document.activeElement.id!=='sfChat-iframe)'`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g,'');
