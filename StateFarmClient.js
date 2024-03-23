@@ -710,7 +710,7 @@ sniping and someone sneaks up on you
                     }
                 },});
                 tp.sfChatFolder.addSeparator();
-                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], defaultBind:"K", clickFunction: function(){
+                initModule({ location: tp.sfChatFolder, title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.chatTab.pages[1], clickFunction: function(){
                     if (sfChatContainer != undefined){
                         if(sfChatContainer.style.display == "none"){
                             sfChatContainer.style.display = "block";
