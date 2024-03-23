@@ -24,7 +24,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre71
+// @version      3.4.0-release
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -573,13 +573,13 @@ console.log("StateFarm: running (before function)");
         initFolder({ location: tp.mainPanel, title: "StateFarm Chat", storeAs: "sfChatFolder",});
         initTabs({ location: tp.sfChatFolder, storeAs: "sfChatTab" });
         initModule({ location: tp.sfChatTab.pages[0], title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest"+(Math.floor(Math.random() * 8999) + 1000)),});
-        initModule({ location: tp.sfChatTab.pages[0], title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.sfChatTab.pages[1], clickFunction: function(){
-            if (sfChatIframe != undefined){
-                createPopup("Already Started. Try Showing it.");
-            } else {
-                startStateFarmChat();
-            };
-        },});
+        // initModule({ location: tp.sfChatTab.pages[0], title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.sfChatTab.pages[1], clickFunction: function(){
+        //     if (sfChatIframe != undefined){
+        //         createPopup("Already Started. Try Showing it.");
+        //     } else {
+        //         startStateFarmChat();
+        //     };
+        // },});
         tp.sfChatTab.pages[0].addSeparator();
         initModule({ location: tp.sfChatTab.pages[0], title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.sfChatTab.pages[1], bindLocation: tp.sfChatTab.pages[1], defaultBind:"K", clickFunction: function(){
             if (sfChatContainer != undefined){
@@ -588,6 +588,8 @@ console.log("StateFarm: running (before function)");
                 } else {
                     sfChatContainer.style.display = "none";
                 };
+            } else {
+                startStateFarmChat(); //its just easier this way imo
             };
         },});
         //COMBAT MODULES
