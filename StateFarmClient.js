@@ -24,7 +24,7 @@
 //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.0-pre69 (funny)
+// @version      3.4.1-pre1
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -163,6 +163,10 @@ console.log("StateFarm: running (before function)");
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
     let blacklistedGameCodes = [];
+    let sfChatIframe;
+    let sfChatContainer;
+    let sfChatUsername;
+    let presetIgnore = ['sfChatUsername', 'otherSettingYouMightWantNotToBeExported'];
     const storageKey = "StateFarm_" + (unsafeWindow.document.location.host.replaceAll(".", "")) + "_";
     console.log("Save key:", storageKey);
     let binding = false;
@@ -437,6 +441,8 @@ console.log("StateFarm: running (before function)");
                                 popupText = "Toggled StateFarm Panel"; break;
                             case ("showBotPanel"):
                                 popupText = "Toggled Bot Panel"; break;
+                            case ("sfChatShowHide"):
+                                popupText = "Toggled SFC Chat"; break;
                             case ("panic"):
                                 popupText = "Exiting to set URL..."; break;
                         };
@@ -563,6 +569,31 @@ console.log("StateFarm: running (before function)");
 
         tp.mainPanel = new Tweakpane.Pane();
         tp.mainPanel.title = menuTitle;
+        //SFC CHAT
+        initFolder({ location: tp.mainPanel, title: "StateFarm Chat", storeAs: "sfChatFolder", });
+        initTabs({ location: tp.sfChatFolder, storeAs: "sfChatTab" });
+        initModule({ location: tp.sfChatTab.pages[0], title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest" + (Math.floor(Math.random() * 8999) + 1000)), });
+        // initModule({ location: tp.sfChatTab.pages[0], title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.sfChatTab.pages[1], clickFunction: function(){
+        //     if (sfChatIframe != undefined){
+        //         createPopup("Already Started. Try Showing it.");
+        //     } else {
+        //         startStateFarmChat();
+        //     };
+        // },});
+        tp.sfChatTab.pages[0].addSeparator();
+        initModule({
+            location: tp.sfChatTab.pages[0], title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.sfChatTab.pages[1], bindLocation: tp.sfChatTab.pages[1], defaultBind: "K", clickFunction: function () {
+                if (sfChatContainer != undefined) {
+                    if (sfChatContainer.style.display == "none") {
+                        sfChatContainer.style.display = "block";
+                    } else {
+                        sfChatContainer.style.display = "none";
+                    };
+                } else {
+                    startStateFarmChat(); //its just easier this way imo
+                };
+            },
+        });
         //COMBAT MODULES
         initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder", });
         initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
@@ -626,7 +657,6 @@ the pistol. Ideal use case is when you are
 sniping and someone sneaks up on you
 (...hence it is called... AntiSneak).`},
         ]);
-        //COMBAT MODULES
         initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind: "V", });
         initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder", });
         initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind: "T", dropdown: [{ text: "Pointing At", value: "pointingat" }, { text: "Nearest", value: "nearest" }], defaultValue: "pointingat", enableConditions: [["aimbot", true]], });
@@ -886,6 +916,14 @@ sniping and someone sneaks up on you
             },
         });
         tp.miscTab.pages[0].addSeparator();
+        initModule({ location: tp.miscTab.pages[0], title: 'ShellPrint Key', storeAs: 'shellPrintKey', defaultValue: "" });
+        initModule({
+            location: tp.miscTab.pages[0], title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => {
+                alert('Join this Discord Server and visit the #info channel under ShellPrint to unlock a key!');
+                unsafeWindow.open('https://discord.gg/XAyZ6ndEd4');
+            }
+        });
+        tp.miscTab.pages[0].addSeparator();
         initModule({
             location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function () {
                 if (document.pointerLockElement !== null) { //currently locked
@@ -952,7 +990,9 @@ sniping and someone sneaks up on you
                             //dont care lmaoooo
                         };
                     };
-                    addParam(key, value);
+                    if (!presetIgnore.includes(key)) {
+                        addParam(key, value);
+                    }
                 });
                 saveString = saveString.substring(0, saveString.length - 1);
                 let presetName = prompt("Name of preset:"); // asks user for name of preset
@@ -1019,7 +1059,9 @@ sniping and someone sneaks up on you
                             //dont care lmaoooo
                         };
                     };
-                    addParam(key, value);
+                    if (!presetIgnore.includes(key)) {
+                        addParam(key, value);
+                    }
                 });
                 saveString = saveString.substring(0, saveString.length - 1);
                 GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
@@ -1196,8 +1238,100 @@ sniping and someone sneaks up on you
             // Handle the error and display an error message onscreen
             console.error("An error occurred:", error);
             alert("Bollocks! If you're getting this message, injection probably failed. To solve this, perform CTRL+F5 - this performs a hard reload. If this does not work, contact the developers.");
-        }
+        };
     };
+    //StateFarmChat functions
+    const sfChatUsernameSet = function () {
+        if (sfChatUsername != extract("sfChatUsername") && sfChatIframe != undefined) {
+            sfChatUsername = extract("sfChatUsername");
+            sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({ name: sfChatUsername }), "*");
+        };
+    };
+    const startStateFarmChat = function () {
+        //UnsafewindowVars
+        const makeChatDragable = function (element) {
+            if (element.getAttribute("drag-true") != "true") {
+                element.addEventListener("mousedown", function (e) {
+                    let offsetX = e.clientX - parseInt(window.getComputedStyle(this).left);
+                    let offsetY = e.clientY - parseInt(window.getComputedStyle(this).top);
+                    function mouseMoveHandler(e) {
+                        let newX = e.clientX - offsetX;
+                        let newY = e.clientY - offsetY;
+                        if (newX >= 0 && newX + element.getBoundingClientRect().width <= window.innerWidth) {
+                            element.style.left = newX + "px";
+                        }
+                        if (newY >= 0 && newY + element.getBoundingClientRect().height <= window.innerHeight) {
+                            element.style.top = newY + "px";
+                        }
+                    }
+
+                    function reset() {
+                        window.removeEventListener("mousemove", mouseMoveHandler);
+                        window.removeEventListener("mouseup", reset);
+                    }
+
+                    window.addEventListener("mousemove", mouseMoveHandler);
+                    window.addEventListener("mouseup", reset);
+                });
+
+                element.setAttribute("drag-true", "true");
+            };
+        };
+
+        sfChatContainer = document.createElement("div");
+        sfChatContainer.style.padding = "1px";
+        let title = document.createElement("p");
+        title.style.fontSize = "medium";
+        title.style.color = "#D6D6D6";
+        title.innerHTML = "StateFarm Chat";
+        sfChatContainer.appendChild(title);
+        sfChatContainer.style.backgroundColor = "#555";
+        sfChatContainer.style.position = "absolute";
+        sfChatContainer.style.borderRadius = "10px";
+        sfChatContainer.style.textAlign = "center";
+        sfChatContainer.style.top = "20px";
+        sfChatContainer.style.left = "20px";
+        sfChatContainer.style.zIndex = 1000;
+
+        const sendSettings = function () {
+            let settings = GM_getValue("SFCHAT-SETTINGS");
+            if (settings) {
+                sfChatIframe.contentWindow.postMessage("SFCHAT-SETTINGS" + settings, "*");
+            } else {
+                sfChatIframe.contentWindow.postMessage("SFCHAT-SETTINGS", "*");
+            };
+        };
+
+        makeChatDragable(sfChatContainer);
+        sfChatIframe = document.createElement("iframe");
+        sfChatIframe.setAttribute(
+            "src",
+            "https://raw.githack.com/OakSwingZZZ/StateFarmChatFiles/main/index.html"
+        );
+        sfChatIframe.id = "sfChat-iframe";
+        sfChatIframe.setAttribute("style", "width: 600px; height:700px; z-index: 10000;");
+        sfChatContainer.appendChild(sfChatIframe);
+        document.getElementsByTagName("body")[0].appendChild(sfChatContainer);
+
+        const startTimeout = setTimeout(function () {
+            console.log("settings");
+            sendSettings();
+            let nameChange = setTimeout(function () {
+                sfChatUsername = extract("sfChatUsername");
+                sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({ name: sfChatUsername }), "*");
+            }, 500);
+        }, 1000);
+
+        unsafeWindow.addEventListener("message", (e) => {
+            if (e.data.startsWith("SFCHAT-UPDATE")) {
+                GM_setValue("SFCHAT-SETTINGS", e.data.replace(/SFCHAT-UPDATE/gm, ""));
+            }
+            if (e.data.startsWith("SFCHAT-REQUEST")) {
+                sendSettings();
+            };
+        });
+    };
+
     const applyStylesAddElements = function (themeToApply = "null") {
         const head = document.head || document.getElementsByTagName('head').pages[0];
 
@@ -2183,6 +2317,7 @@ z-index: 999999;
         };
         startUpComplete = (!document.getElementById("progressBar"));
         let botsDict = GM_getValue("StateFarm_BotStatus");
+        sfChatUsernameSet();
         if (!botsDict) botsDict = {};
         if (AUTOMATED) {
             if (clientID) {
@@ -3533,6 +3668,7 @@ z-index: 999999;
             //hook for main loop function in render loop
             modifyJS(f(H.SCENE) + '.' + f(H.render), `window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
             modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
+            modifyJS('no account found"),', `no account found"),window["${functionNames.register}"](),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
@@ -3594,6 +3730,7 @@ z-index: 999999;
             match = js.match(/static play\(([a-zA-Z$_,]+)\){/);
             console.log("AUDIO INTERCEPTION", match);
             modifyJS(match[0], `${match[0]}[${match[1]}] = window.${functionNames.interceptAudio}(${match[1]});`);
+            modifyJS('"IFRAME"==document.activeElement.tagName', `("IFRAME"==document.activeElement.tagName&&document.activeElement.id!=='sfChat-iframe')`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g, '');
@@ -4546,6 +4683,47 @@ z-index: 999999;
                 unsafeWindow.BAWK.sounds.silence.end = 0.001;
             };
         });
+
+        createAnonFunction("register", async () => {
+
+            let wait = (ms) => new Promise((res) => setTimeout(res, ms));
+
+            document.querySelector('.profile-menu-item').click();
+
+            let accountButton = document.querySelector('#account-button');
+            if (!accountButton.innerText.includes('Sign In')) return;
+            accountButton.click();
+
+            let freshAccount = await (await fetch('https://shellprint.villainsrule.xyz/create?key=' + extract('shellPrintKey'), {
+                method: 'POST'
+            })).json();
+
+            await wait(100);
+
+            document.querySelector('.firebaseui-idp-password').click();
+
+            document.querySelector('input[type="email"]').value = freshAccount.email;
+            document.querySelector('.firebaseui-id-submit').click();
+
+            await wait(1500);
+
+            let passwordElement = document.querySelector('.firebaseui-id-password') || document.querySelector('.firebaseui-id-new-password');
+            passwordElement.value = freshAccount.password;
+            document.querySelector('.firebaseui-id-submit').click();
+
+            await wait(3000);
+
+            document.querySelector('.notify-group-eggs > button').click();
+
+            let inter = setInterval(async () => {
+                let isVerified = await (await fetch('https://shellprint.villainsrule.xyz/verified?key=' + extract('shellPrintKey') + '&email=' + freshAccount.email, {
+                    method: 'POST'
+                })).json();
+
+                if (isVerified.verified) location.reload();
+            }, 7000);
+        });
+
         createAnonFunction("STATEFARM", function () {
             ss.PLAYERS.forEach(PLAYER => {
                 if (PLAYER.hasOwnProperty("ws")) {
