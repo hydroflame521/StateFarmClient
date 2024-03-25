@@ -20,8 +20,8 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
 
 // version naming:
-    //3.#.#-pre[number] for development versions, increment for every commit (not full release)
-    //3.#.#-release for release
+//3.#.#-pre[number] for development versions, increment for every commit (not full release)
+//3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
 // @version      3.4.0-pre69 (funny)
@@ -101,18 +101,18 @@ console.log("StateFarm: running (before function)");
     let originalReplace = String.prototype.replace;
     let originalReplaceAll = String.prototype.replaceAll;
 
-    String.prototype.originalReplace = function() {
+    String.prototype.originalReplace = function () {
         return originalReplace.apply(this, arguments);
     };
-    String.prototype.originalReplaceAll = function() {
+    String.prototype.originalReplaceAll = function () {
         return originalReplaceAll.apply(this, arguments);
     };
 
     console.log("StateFarm: running (after function)");
     //script info
-    const name="ЅtateFarm Client";
-    const version = typeof(GM_info) !== 'undefined' ? GM_info.script.version : "3";
-    const menuTitle=name + " v" + version;
+    const name = "ЅtateFarm Client";
+    const version = typeof (GM_info) !== 'undefined' ? GM_info.script.version : "3";
+    const menuTitle = name + " v" + version;
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
     const discordURL = "https://discord.gg/Vf5qtxAmvU";
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
@@ -123,7 +123,7 @@ console.log("StateFarm: running (before function)");
     const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
     //startup sequence
-    const startUp=function () {
+    const startUp = function () {
         console.log("StateFarm: detectURLParams()");
         detectURLParams();
         console.log("StateFarm: mainLoop()");
@@ -133,23 +133,23 @@ console.log("StateFarm: running (before function)");
         document.addEventListener("DOMContentLoaded", function () {
             console.log("StateFarm: DOMContentLoaded, fetching sfx");
             fetch(sfxURL)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Failed to fetch folder contents');
-                };
-            })
-            .then(data => {
-                data.forEach((file, index) => {
-                    retrievedSFX.push({text: file.name.replace(".zip",""), value: JSON.stringify(file.download_url)})
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to fetch folder contents');
+                    };
+                })
+                .then(data => {
+                    data.forEach((file, index) => {
+                        retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
+                    });
+                    onContentLoaded();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    onContentLoaded();
                 });
-                onContentLoaded();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                onContentLoaded();
-            });
         });
     };
     //INIT VARS
@@ -163,33 +163,33 @@ console.log("StateFarm: running (before function)");
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
     let blacklistedGameCodes = [];
-    const storageKey = "StateFarm_"+(unsafeWindow.document.location.host.replaceAll(".",""))+"_";
-    console.log("Save key:",storageKey);
-    let binding=false;
-    let previousFrame=0;
-    let lastSpamMessage=[0,""];
+    const storageKey = "StateFarm_" + (unsafeWindow.document.location.host.replaceAll(".", "")) + "_";
+    console.log("Save key:", storageKey);
+    let binding = false;
+    let previousFrame = 0;
+    let lastSpamMessage = [0, ""];
     let startTime = Date.now();
-    let lastAutoJump=0;
-    let lastAntiAFKMessage=0;
-    let spamMessageCount=0;
+    let lastAutoJump = 0;
+    let lastAntiAFKMessage = 0;
+    let spamMessageCount = 0;
     let currentFrameIndex = 0;
     let deciSecondsPassed = 0;
     let timeJoinedGame = 0;
-    let lastSentMessage="";
-    let spamDelay=0;
-    let URLParams="";
-    let retrievedSFX = [{text: "Default", value: "default"}];
+    let lastSentMessage = "";
+    let spamDelay = 0;
+    let URLParams = "";
+    let retrievedSFX = [{ text: "Default", value: "default" }];
     let soundsSFC = {};
-    let targetingComplete=false;
-    let firstExecution=false;
+    let targetingComplete = false;
+    let firstExecution = false;
     let username = "";
-    let autoStrafeValue=[0,0,"left"];
-    let TEAMCOLORS = ["#fed838","#40e0ff","#ffc0a0"];
+    let autoStrafeValue = [0, 0, "left"];
+    let TEAMCOLORS = ["#fed838", "#40e0ff", "#ffc0a0"];
     let autoLeaveReminder = 9999;
-    const allModules=[];
-    const allFolders=[];
-    const F=[];
-    const createAudioContext = function () {return new (window.AudioContext || window.webkitAudioContext)()};
+    const allModules = [];
+    const allFolders = [];
+    const F = [];
+    const createAudioContext = function () { return new (window.AudioContext || window.webkitAudioContext)() };
     const audioContexts = {
         "BGM": createAudioContext(),
         "KOTC": createAudioContext(),
@@ -199,16 +199,16 @@ console.log("StateFarm: running (before function)");
     const divertContexts = {
         "KOTC": ["kotc_capture", "kotc_capturing_opponents", "kotc_capturing_player", "kotc_contested", "kotc_pointscore", "kotc_roundend", "kotc_zonespawn"],
     };
-    const L={};
-    const functionNames=[];
-    const isKeyToggled={};
-    let ESPArray=[];
-    let onlinePlayersArray=[];
-    let bindsArray={};
-    let H={}; // obfuscated shit lol
-    const tp={}; // <-- tp = tweakpane
-    let ss,msgElement,botBlacklist,initialisedCustomSFX,automatedBorder,clientID,didStateFarm,menuInitiated,GAMECODE,noPointerPause,resetModules,amountOnline,errorString,playersInGame,loggedGameMap,startUpComplete,isBanned,attemptedAutoUnban,coordElement,gameInfoElement,playerinfoElement,playerstatsElement,firstUseElement,minangleCircle,redCircle,crosshairsPosition,currentlyTargeting,ammo,ranOneTime,lastWeaponBox,lastChatItemLength,configMain,configBots;
-    let whitelistPlayers,scrambledMsgEl,newGame,previousDetail,previousTitleAnimation,blacklistPlayers,playerLookingAt,forceControlKeys,forceControlKeysCache,playerNearest,enemyLookingAt,enemyNearest,AUTOMATED,ranEverySecond
+    const L = {};
+    const functionNames = [];
+    const isKeyToggled = {};
+    let ESPArray = [];
+    let onlinePlayersArray = [];
+    let bindsArray = {};
+    let H = {}; // obfuscated shit lol
+    const tp = {}; // <-- tp = tweakpane
+    let ss, msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots;
+    let whitelistPlayers, scrambledMsgEl, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -216,7 +216,7 @@ console.log("StateFarm: running (before function)");
     let isLeftButtonDown = false;
     let isRightButtonDown = false;
     let configNotSet = true;
-    const weaponArray={ //this could be done differently but i cba
+    const weaponArray = { //this could be done differently but i cba
         eggk47: 0,
         scrambler: 1,
         freeranger: 2,
@@ -238,9 +238,9 @@ console.log("StateFarm: running (before function)");
         'shellshockers.us', 'shellshockers.world', 'shellshockers.xyz', 'shellsocks.com', 'softboiled.club', 'urbanegger.com', 'violentegg.club', 'violentegg.fun', 'yolk.best', 'yolk.life',
         'yolk.rocks', 'yolk.tech', 'yolk.quest', 'yolk.today', 'zygote.cafe', 'shellshockers.best', 'eggboy.me'
     ];
-    proxyList=proxyList.filter(item=>item!==unsafeWindow.location.hostname);
-    proxyList=[...proxyList].sort(() => Math.random() - 0.5);
-    let proxyListIndex=0;
+    proxyList = proxyList.filter(item => item !== unsafeWindow.location.hostname);
+    proxyList = [...proxyList].sort(() => Math.random() - 0.5);
+    let proxyListIndex = 0;
     const monitorObjects = {};
     //title animation
     const titleAnimationFrames = [
@@ -312,12 +312,12 @@ console.log("StateFarm: running (before function)");
 
     //menu interaction functions
     //menu extraction
-    const extract = function (variable,shouldUpdate) {
-        if (shouldUpdate) {updateConfig()};
-        return configMain[variable]||configBots[variable];
+    const extract = function (variable, shouldUpdate) {
+        if (shouldUpdate) { updateConfig() };
+        return configMain[variable] || configBots[variable];
     };
     const extractDropdownList = function (variable) {
-        return tp[variable+"Button"].controller_.binding.value.constraint_.constraints[0].options;
+        return tp[variable + "Button"].controller_.binding.value.constraint_.constraints[0].options;
     };
     const extractAsDropdownInt = function (variable) {
         const options = extractDropdownList(variable);
@@ -331,8 +331,8 @@ console.log("StateFarm: running (before function)");
 
     const beginBinding = function (value) {
         if (binding == false) {
-            binding=value;
-            tp[binding+"BindButton"].title="PRESS KEY";
+            binding = value;
+            tp[binding + "BindButton"].title = "PRESS KEY";
         };
     };
     //one day i should make this unshit. dom is not the correct way to go about this.
@@ -340,50 +340,50 @@ console.log("StateFarm: running (before function)");
     //a way it could be done is export preset => change value => import preset
     //but doesnt account for it being a button... and dropdowns wouldnt switch properly too. laziness. the problem is that this works fine.
     //suppose i could always just log the type of module and refer to it later. you can also get the parent object from the tp object, that would save iterating over everything.
-    const change = function (module,newValue) { //its important to note that every module must have a unique name (the title of the module, NOT the storeAs)
+    const change = function (module, newValue) { //its important to note that every module must have a unique name (the title of the module, NOT the storeAs)
         const labels = document.querySelectorAll('.tp-lblv_l');
-        const moduleButton=module+"Button";
-        const moduleLabel=tp[moduleButton].label;
+        const moduleButton = module + "Button";
+        const moduleLabel = tp[moduleButton].label;
         for (const label of labels) {
             if (label.textContent.includes(moduleLabel)) {
                 const inputContainer = label.nextElementSibling;
-                const currentValue=extract(module);
+                const currentValue = extract(module);
                 // check for checkbox
                 const checkbox = inputContainer.querySelector('.tp-ckbv_i');
                 if (checkbox) {
-                    if (newValue==undefined) {
-                        newValue=(!currentValue);
+                    if (newValue == undefined) {
+                        newValue = (!currentValue);
                     };
-                    if (newValue!==(!!currentValue)) {
+                    if (newValue !== (!!currentValue)) {
                         checkbox.click(); // Toggle checkbox
                     };
-                    console.log(module,"checkbox",currentValue,newValue);
-                    return extract(module,true);
+                    console.log(module, "checkbox", currentValue, newValue);
+                    return extract(module, true);
                 };
                 // check for button
                 const button = inputContainer.querySelector('.tp-btnv_b');
                 if (button) {
                     button.click(); // Trigger button click
-                    console.log(module,"button",currentValue,newValue);
+                    console.log(module, "button", currentValue, newValue);
                     return ("NOMSG"); //no change of state, dont show pop up message
                 };
                 // check for dropdown
                 const dropdown = inputContainer.querySelector('.tp-lstv_s');
                 if (dropdown) {
-                    if (newValue==undefined) { //if youre going to set a list to a certain value, use the int value of the list item
-                        newValue=(dropdown.selectedIndex+1) % dropdown.options.length;
+                    if (newValue == undefined) { //if youre going to set a list to a certain value, use the int value of the list item
+                        newValue = (dropdown.selectedIndex + 1) % dropdown.options.length;
                     };
                     dropdown.selectedIndex = newValue;
                     dropdown.dispatchEvent(new Event('change')); // trigger change event for dropdown
-                    console.log(module,"dropdown",currentValue,newValue);
-                    return extract(module,true);
+                    console.log(module, "dropdown", currentValue, newValue);
+                    return extract(module, true);
                 };
                 // check for text input
                 const textInput = inputContainer.querySelector('.tp-txtv_i');
                 if (textInput) {
                     textInput.value = newValue;
                     textInput.dispatchEvent(new Event('change')); // trigger change event for dropdown
-                    return extract(module,true);
+                    return extract(module, true);
                 };
             };
         };
@@ -404,41 +404,41 @@ console.log("StateFarm: running (before function)");
     });
     //menu
     document.addEventListener("keydown", function (event) {
-        event=(event.code.originalReplace("Key",""));
-        isKeyToggled[event]=true;
-        if (event=="Escape") { noPointerPause=false; unsafeWindow.document.onpointerlockchange() };
+        event = (event.code.originalReplace("Key", ""));
+        isKeyToggled[event] = true;
+        if (event == "Escape") { noPointerPause = false; unsafeWindow.document.onpointerlockchange() };
     });
     document.addEventListener("keyup", function (event) {
-        event=(event.code.originalReplace("Key",""));
-        isKeyToggled[event]=false;
-        if (document.activeElement&&document.activeElement.tagName==='INPUT' ) {
+        event = (event.code.originalReplace("Key", ""));
+        isKeyToggled[event] = false;
+        if (document.activeElement && document.activeElement.tagName === 'INPUT') {
             return;
-        } else if (binding!=false) {
-                if (event=="Delete") { event="Set Bind" };
-                tp[binding+"BindButton"].title=event;
-                bindsArray[binding]=event;
-                save(binding+"Bind",event);
-                createPopup("Binded "+tp[binding+"Button"].label+" to key: "+event);
-                binding=false;
+        } else if (binding != false) {
+            if (event == "Delete") { event = "Set Bind" };
+            tp[binding + "BindButton"].title = event;
+            bindsArray[binding] = event;
+            save(binding + "Bind", event);
+            createPopup("Binded " + tp[binding + "Button"].label + " to key: " + event);
+            binding = false;
         } else {
             Object.keys(bindsArray).forEach(function (module) {
-                if ((bindsArray[module] == event) && module!="zoom") {
-                    let state=change(module)
-                    let popupText=state
-                    if (state!="NOMSG") {
-                        if (state===true||state===false||state===undefined) {state=(state?"ON":"OFF")};
-                        popupText="Set "+module+" to: "+state;
+                if ((bindsArray[module] == event) && module != "zoom") {
+                    let state = change(module)
+                    let popupText = state
+                    if (state != "NOMSG") {
+                        if (state === true || state === false || state === undefined) { state = (state ? "ON" : "OFF") };
+                        popupText = "Set " + module + " to: " + state;
                         if (extract("announcer")) {
-                            sendChatMessage("I just set "+module+" to "+state+"!");
+                            sendChatMessage("I just set " + module + " to " + state + "!");
                         };
                     } else {
                         switch (module) {
                             case ("hide"):
-                                popupText="Toggled StateFarm Panel"; break;
+                                popupText = "Toggled StateFarm Panel"; break;
                             case ("showBotPanel"):
-                                popupText="Toggled Bot Panel"; break;
+                                popupText = "Toggled Bot Panel"; break;
                             case ("panic"):
-                                popupText="Exiting to set URL..."; break;
+                                popupText = "Exiting to set URL..."; break;
                         };
                     };
                     createPopup(popupText);
@@ -446,34 +446,34 @@ console.log("StateFarm: running (before function)");
             });
         };
     });
-    const initTabs = function(tab,guideData) {
-        tp[tab.storeAs]=tab.location.addTab({
+    const initTabs = function (tab, guideData) {
+        tp[tab.storeAs] = tab.location.addTab({
             pages: [
-                {title: 'Modules'},
-                {title: 'Binds'},
-                {title: 'Guide'},
+                { title: 'Modules' },
+                { title: 'Binds' },
+                { title: 'Guide' },
             ],
         });
         if (guideData) {
             const thePages = [];
-            guideData.forEach(aPage=>{
-                thePages.push({title: aPage.title});
+            guideData.forEach(aPage => {
+                thePages.push({ title: aPage.title });
             });
-            tp[tab.storeAs+"Guide"]=tp[tab.storeAs].pages[2].addTab({ pages: thePages }); //is there a one liner for this? uhhh probabyl
+            tp[tab.storeAs + "Guide"] = tp[tab.storeAs].pages[2].addTab({ pages: thePages }); //is there a one liner for this? uhhh probabyl
             //tp[tab.storeAs + "Guide"] = tab.location.addTab({ thePages: guideData.map(page => ({ title: page.title })) });
             for (let i = 0; i < guideData.length; i++) {
-                const storeAs = tab.storeAs+"Guide"+i;
-                const text = (guideData[i].content||"Not set up correctly lmao");
-                initModule({ location: tp[tab.storeAs+"Guide"].pages[i], storeAs: storeAs, monitor: (text.split('\n').length + 0.25),});
-                monitorObjects[storeAs]=text;
-                const infoElement = tp[storeAs+"Button"].controller_.view.element.children[1].children[0];
+                const storeAs = tab.storeAs + "Guide" + i;
+                const text = (guideData[i].content || "Not set up correctly lmao");
+                initModule({ location: tp[tab.storeAs + "Guide"].pages[i], storeAs: storeAs, monitor: (text.split('\n').length + 0.25), });
+                monitorObjects[storeAs] = text;
+                const infoElement = tp[storeAs + "Button"].controller_.view.element.children[1].children[0];
                 infoElement.style.width = "270px";
                 infoElement.style.setProperty("margin-left", "-110px", "important");
             };
         };
     };
-    const initFolder = function(folder) {
-        tp[folder.storeAs]=folder.location.addFolder({
+    const initFolder = function (folder) {
+        tp[folder.storeAs] = folder.location.addFolder({
             title: folder.title,
             expanded: load(folder.storeAs) !== null ? load(folder.storeAs) : false
         });
@@ -484,18 +484,18 @@ console.log("StateFarm: running (before function)");
 
         };
 
-        const value={};
-        value[module.storeAs]=(module.defaultValue !== undefined ? module.defaultValue : false);
+        const value = {};
+        value[module.storeAs] = (module.defaultValue !== undefined ? module.defaultValue : false);
 
-        tp[module.storeAs+"TiedModules"] = {
-            showConditions: (module.showConditions||false),
-            hideConditions: (module.hideConditions||false),
-            enableConditions: (module.enableConditions||false),
-            disableConditions: (module.disableConditions||false), //why have disable when there is already enable? enable acts like an AND operator, whereas having conditions for the opposite allows for an OR operation. it is messy, but hey it works lmao?
+        tp[module.storeAs + "TiedModules"] = {
+            showConditions: (module.showConditions || false),
+            hideConditions: (module.hideConditions || false),
+            enableConditions: (module.enableConditions || false),
+            disableConditions: (module.disableConditions || false), //why have disable when there is already enable? enable acts like an AND operator, whereas having conditions for the opposite allows for an OR operation. it is messy, but hey it works lmao?
         };
 
-        if (!(module.slider&&module.slider.step)) {module.slider={}};
-        const config={
+        if (!(module.slider && module.slider.step)) { module.slider = {} };
+        const config = {
             label: module.title,
             options: module.dropdown,
             min: module.slider.min,
@@ -504,31 +504,31 @@ console.log("StateFarm: running (before function)");
             title: module.button,
         };
         if (module.button) {
-            tp[(module.storeAs+"Button")]=module.location.addButton({
+            tp[(module.storeAs + "Button")] = module.location.addButton({
                 label: module.title,
                 title: module.button,
             }).on("click", (value) => {
-                if (module.clickFunction!==undefined) {module.clickFunction(value)};
-                if (module.botParam!==undefined) {updateBotParams(module.botParam)};
+                if (module.clickFunction !== undefined) { module.clickFunction(value) };
+                if (module.botParam !== undefined) { updateBotParams(module.botParam) };
             });
         } else if (module.monitor) {
-            monitorObjects[module.storeAs]="Text Goes Here";
-            tp[(module.storeAs+"Button")]=module.location.addMonitor(monitorObjects,module.storeAs,{
+            monitorObjects[module.storeAs] = "Text Goes Here";
+            tp[(module.storeAs + "Button")] = module.location.addMonitor(monitorObjects, module.storeAs, {
                 label: '',
                 expanded: true,
                 multiline: true,
                 lineCount: module.monitor,
             });
             setInterval(() => {
-                tp[(module.storeAs+"Button")].refresh();
+                tp[(module.storeAs + "Button")].refresh();
             }, 1000);
         } else {
-            tp[module.storeAs+"Button"]=module.location.addInput(value,module.storeAs,config
+            tp[module.storeAs + "Button"] = module.location.addInput(value, module.storeAs, config
             ).on("change", (value) => {
-                if (module.changeFunction!==undefined) {module.changeFunction(value)};
+                if (module.changeFunction !== undefined) { module.changeFunction(value) };
                 setTimeout(() => {
                     if (startUpComplete) {
-                        if ((module.botParam!==undefined)) {
+                        if ((module.botParam !== undefined)) {
                             updateBotParams(module.botParam);
                         };
                     };
@@ -538,18 +538,18 @@ console.log("StateFarm: running (before function)");
             });
         };
         allModules.push(module.storeAs);
-        if (module.bindLocation) {initBind(module)};
+        if (module.bindLocation) { initBind(module) };
     };
     const initBind = function (module) {
-        if (resetModules) { remove(module.storeAs+"Bind") };
-        const theBind=( load(module.storeAs+"Bind") || module.defaultBind || "Set Bind" );
-        tp[(module.storeAs+"BindButton")]=module.bindLocation.addButton({
+        if (resetModules) { remove(module.storeAs + "Bind") };
+        const theBind = (load(module.storeAs + "Bind") || module.defaultBind || "Set Bind");
+        tp[(module.storeAs + "BindButton")] = module.bindLocation.addButton({
             label: module.title,
             title: theBind,
         }).on("click", (value) => {
             beginBinding(module.storeAs);
         });
-        bindsArray[module.storeAs]=theBind;
+        bindsArray[module.storeAs] = theBind;
     };
     const initMenu = function (reset) {
         //INIT MENU
@@ -564,10 +564,11 @@ console.log("StateFarm: running (before function)");
         tp.mainPanel = new Tweakpane.Pane();
         tp.mainPanel.title = menuTitle;
         //COMBAT MODULES
-        initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder",});
+        initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder", });
         initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
-            {title: "Basics", content:
-`This is the combat tab. Here you will find
+            {
+                title: "Basics", content:
+                    `This is the combat tab. Here you will find
 options relating to aimbotting, and other
 useful macros. Aimbot is made active by
 turning it on. Using ToggleRM will give you
@@ -587,8 +588,9 @@ mode allows you to refill at the moment
 when you will not have a long
 reload time. GrenadeMAX makes all
 grenades get thrown at max strength.`},
-        {title: "Visibility", content:
-`There are a couple of options related to
+            {
+                title: "Visibility", content:
+                    `There are a couple of options related to
 visibility (Line-of-Sight). First is
 TargetVisible. This tunes the aimbot to
 be more strategic with where it aims.
@@ -597,8 +599,9 @@ targeted player goes behind a wall, you
 stop aimlocking them. There is also an
 AutoFire mode with this sort of
 functionality.`},
-        {title: "Advanced", content:
-`If you want to increase stealthiness,
+            {
+                title: "Advanced", content:
+                    `If you want to increase stealthiness,
 make use of MinAngle and AntiSnap. The
 first will make it so that you have to
 manually move your reticle within your
@@ -624,471 +627,502 @@ sniping and someone sneaks up on you
 (...hence it is called... AntiSneak).`},
         ]);
         //COMBAT MODULES
-            initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind:"V",});
-            initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder",});
-                initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind:"T", dropdown: [{text: "Pointing At", value: "pointingat"}, {text: "Nearest", value: "nearest"}], defaultValue: "pointingat", enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Prioritise Visible", value: "prioritise"}, {text: "Only Visible", value: "onlyvisible"}], defaultValue: "disabled", enableConditions: [["aimbot",true]]});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true], ["silentAimbot",false]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot",true]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", slider: {min: 0.05, max: 360, step: 1}, defaultValue: 360, enableConditions: [["aimbot",true]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", slider: {min: 0, max: 0.99, step: 0.01}, defaultValue: 0, enableConditions: [["aimbot",true], ["silentAimbot",false]],});
-                initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", slider: {min: 0, max: 5, step: 0.2}, defaultValue: 0, enableConditions: [["aimbot",true]],});
-                tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff", enableConditions: [["aimbot",true]]});
-            tp.combatTab.pages[0].addSeparator();
-            initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1], showConditions: [["autoRefill",true]],});
-            tp.combatTab.pages[0].addSeparator();
-            initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1],});
-            initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{text: "Force Automatic", value: "forceAutomatic"}, {text: "While Visible", value: "whileVisible"}, {text: "While Aimbotting", value: "whileAimbot"}, {text: "Visible and Aimbotting", value: "whileVisAimbot"}, {text: "Always", value: "always"}], defaultValue: "leftMouse", showConditions: [["enableAutoFire",true]]});
-            tp.combatTab.pages[0].addSeparator();
-            initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1],});
+        initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind: "V", });
+        initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder", });
+        initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind: "T", dropdown: [{ text: "Pointing At", value: "pointingat" }, { text: "Nearest", value: "nearest" }], defaultValue: "pointingat", enableConditions: [["aimbot", true]], });
+        initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Prioritise Visible", value: "prioritise" }, { text: "Only Visible", value: "onlyvisible" }], defaultValue: "disabled", enableConditions: [["aimbot", true]] });
+        tp.aimbotFolder.addSeparator();
+        initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+        initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+        initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true], ["silentAimbot", false]], });
+        tp.aimbotFolder.addSeparator();
+        initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+        initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+        tp.aimbotFolder.addSeparator();
+        initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+        initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+        tp.aimbotFolder.addSeparator();
+        initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", slider: { min: 0.05, max: 360, step: 1 }, defaultValue: 360, enableConditions: [["aimbot", true]], });
+        initModule({ location: tp.aimbotFolder, title: "AntiSnap", storeAs: "aimbotAntiSnap", slider: { min: 0, max: 0.99, step: 0.01 }, defaultValue: 0, enableConditions: [["aimbot", true], ["silentAimbot", false]], });
+        initModule({ location: tp.aimbotFolder, title: "AntiSneak", storeAs: "antiSneak", slider: { min: 0, max: 5, step: 0.2 }, defaultValue: 0, enableConditions: [["aimbot", true]], });
+        tp.aimbotFolder.addSeparator();
+        initModule({ location: tp.aimbotFolder, title: "ESPColor", storeAs: "aimbotColor", defaultValue: "#0000ff", enableConditions: [["aimbot", true]] });
+        tp.combatTab.pages[0].addSeparator();
+        initModule({ location: tp.combatTab.pages[0], title: "Auto Refill", storeAs: "autoRefill", bindLocation: tp.combatTab.pages[1], });
+        initModule({ location: tp.combatTab.pages[0], title: "Smart Refill", storeAs: "smartRefill", bindLocation: tp.combatTab.pages[1], showConditions: [["autoRefill", true]], });
+        tp.combatTab.pages[0].addSeparator();
+        initModule({ location: tp.combatTab.pages[0], title: "Auto Fire", storeAs: "enableAutoFire", bindLocation: tp.combatTab.pages[1], });
+        initModule({ location: tp.combatTab.pages[0], title: "AutoFireType", storeAs: "autoFireType", bindLocation: tp.combatTab.pages[1], dropdown: [{ text: "Force Automatic", value: "forceAutomatic" }, { text: "While Visible", value: "whileVisible" }, { text: "While Aimbotting", value: "whileAimbot" }, { text: "Visible and Aimbotting", value: "whileVisAimbot" }, { text: "Always", value: "always" }], defaultValue: "leftMouse", showConditions: [["enableAutoFire", true]] });
+        tp.combatTab.pages[0].addSeparator();
+        initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1], });
         //RENDER MODULES
-        initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder",});
+        initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder", });
         initTabs({ location: tp.renderFolder, storeAs: "renderTab" });
-            initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1],});
-            tp.renderTab.pages[0].addSeparator();
-            initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder",});
-                initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Static", value: "static"}, {text: "Proximity", value: "proximity"}, {text: "Visibility", value: "visibility"}], defaultValue: "static", disableConditions: [["tracers",false],["playerESP",false]],});
-                initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000", disableConditions: [["tracers",false],["playerESP",false]],});
-                initModule({ location: tp.tracersFolder, title: "Color 2", storeAs: "tracersColor2", defaultValue: "#00ff00", disableConditions: [["tracers",false],["playerESP",false]], hideConditions: [["tracersType","static"]],});
-                initModule({ location: tp.tracersFolder, title: "Color 3", storeAs: "tracersColor3", defaultValue: "#ffffff", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["tracersType","proximity"]],});
-                // tp.tracersFolder.addSeparator();
-                initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 5, showConditions: [["tracersType","proximity"]], disableConditions: [["tracers",false],["playerESP",false]],});
-                initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: {min: 0, max: 30, step: 0.25}, defaultValue: 15, showConditions: [["tracersType","proximity"]], disableConditions: [["tracers",false],["playerESP",false]],});
-            tp.renderTab.pages[0].addSeparator();
-            initFolder({ location: tp.renderTab.pages[0], title: "Ammo ESP/Tracers Options", storeAs: "tracersAmmoFolder",});
-                initFolder({ location: tp.tracersAmmoFolder, title: "Ammo", storeAs: "ammoFolder",});
-                    initModule({ location: tp.ammoFolder, title: "AESP", storeAs: "ammoESP", bindLocation: tp.renderTab.pages[1],});
-                    initModule({ location: tp.ammoFolder, title: "ATracers", storeAs: "ammoTracers", bindLocation: tp.renderTab.pages[1],});
-                    tp.ammoFolder.addSeparator();
-                    initModule({ location: tp.ammoFolder, title: "ARegime", storeAs: "ammoESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted", disableConditions: [["ammoESP",false],["ammoTracers",false]],});
-                    initModule({ location: tp.ammoFolder, title: "AColor", storeAs: "ammoESPColor", defaultValue: "#ffff00", disableConditions: [["ammoESP",false],["ammoTracers",false]],});
-                initFolder({ location: tp.tracersAmmoFolder, title: "Grenades", storeAs: "grenadesFolder",});
-                    initModule({ location: tp.grenadesFolder, title: "GESP", storeAs: "grenadeESP", bindLocation: tp.renderTab.pages[1],});
-                    initModule({ location: tp.grenadesFolder, title: "GTracers", storeAs: "grenadeTracers", bindLocation: tp.renderTab.pages[1],});
-                    tp.grenadesFolder.addSeparator();
-                    initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "When Depleted", value: "whendepleted"},{text: "When Low", value: "whenlow"},{text: "Below Max", value: "belowmax"},{text: "Always On", value: "alwayson"},], defaultValue: "whendepleted", disableConditions: [["grenadeESP",false],["grenadeTracers",false]],});
-                    initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff", disableConditions: [["grenadeESP",false],["grenadeTracers",false]],});
-            tp.renderTab.pages[0].addSeparator();
-            initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: {min: 0, max: 360, step: 3}, defaultValue: 72,});
-            initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: {min: 0, max: 72, step: 1}, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C",});
-            tp.renderTab.pages[0].addSeparator();
-            initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1],});
-            initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: {min: 0, max: 10, step: 0.25}, defaultValue: 1,});
-            tp.renderTab.pages[0].addSeparator();
-            initModule({ location: tp.renderTab.pages[0], title: "Set Detail", storeAs: "setDetail", bindLocation: tp.renderTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Auto Detail", value: "autodetail"}, {text: "No Details", value: "nodetails"}, {text: "Shadows", value: "shadows"}, {text: "High Res", value: "highres"}, {text: "Shadows+High Res", value: "shadowshighres"}], defaultValue: "disabled"});
-            initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true,});
-            initModule({ location: tp.renderTab.pages[0], title: "Render Delay", storeAs: "renderDelay", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0,});
+        initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1], });
+        tp.renderTab.pages[0].addSeparator();
+        initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder", });
+        initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "Static", value: "static" }, { text: "Proximity", value: "proximity" }, { text: "Visibility", value: "visibility" }], defaultValue: "static", disableConditions: [["tracers", false], ["playerESP", false]], });
+        initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000", disableConditions: [["tracers", false], ["playerESP", false]], });
+        initModule({ location: tp.tracersFolder, title: "Color 2", storeAs: "tracersColor2", defaultValue: "#00ff00", disableConditions: [["tracers", false], ["playerESP", false]], hideConditions: [["tracersType", "static"]], });
+        initModule({ location: tp.tracersFolder, title: "Color 3", storeAs: "tracersColor3", defaultValue: "#ffffff", disableConditions: [["tracers", false], ["playerESP", false]], showConditions: [["tracersType", "proximity"]], });
+        // tp.tracersFolder.addSeparator();
+        initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: { min: 0, max: 30, step: 0.25 }, defaultValue: 5, showConditions: [["tracersType", "proximity"]], disableConditions: [["tracers", false], ["playerESP", false]], });
+        initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: { min: 0, max: 30, step: 0.25 }, defaultValue: 15, showConditions: [["tracersType", "proximity"]], disableConditions: [["tracers", false], ["playerESP", false]], });
+        tp.renderTab.pages[0].addSeparator();
+        initFolder({ location: tp.renderTab.pages[0], title: "Ammo ESP/Tracers Options", storeAs: "tracersAmmoFolder", });
+        initFolder({ location: tp.tracersAmmoFolder, title: "Ammo", storeAs: "ammoFolder", });
+        initModule({ location: tp.ammoFolder, title: "AESP", storeAs: "ammoESP", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.ammoFolder, title: "ATracers", storeAs: "ammoTracers", bindLocation: tp.renderTab.pages[1], });
+        tp.ammoFolder.addSeparator();
+        initModule({ location: tp.ammoFolder, title: "ARegime", storeAs: "ammoESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "When Depleted", value: "whendepleted" }, { text: "When Low", value: "whenlow" }, { text: "Below Max", value: "belowmax" }, { text: "Always On", value: "alwayson" },], defaultValue: "whendepleted", disableConditions: [["ammoESP", false], ["ammoTracers", false]], });
+        initModule({ location: tp.ammoFolder, title: "AColor", storeAs: "ammoESPColor", defaultValue: "#ffff00", disableConditions: [["ammoESP", false], ["ammoTracers", false]], });
+        initFolder({ location: tp.tracersAmmoFolder, title: "Grenades", storeAs: "grenadesFolder", });
+        initModule({ location: tp.grenadesFolder, title: "GESP", storeAs: "grenadeESP", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.grenadesFolder, title: "GTracers", storeAs: "grenadeTracers", bindLocation: tp.renderTab.pages[1], });
+        tp.grenadesFolder.addSeparator();
+        initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "When Depleted", value: "whendepleted" }, { text: "When Low", value: "whenlow" }, { text: "Below Max", value: "belowmax" }, { text: "Always On", value: "alwayson" },], defaultValue: "whendepleted", disableConditions: [["grenadeESP", false], ["grenadeTracers", false]], });
+        initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff", disableConditions: [["grenadeESP", false], ["grenadeTracers", false]], });
+        tp.renderTab.pages[0].addSeparator();
+        initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: { min: 0, max: 360, step: 3 }, defaultValue: 72, });
+        initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: { min: 0, max: 72, step: 1 }, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C", });
+        tp.renderTab.pages[0].addSeparator();
+        initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1], });
+        initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: { min: 0, max: 10, step: 0.25 }, defaultValue: 1, });
+        tp.renderTab.pages[0].addSeparator();
+        initModule({ location: tp.renderTab.pages[0], title: "Set Detail", storeAs: "setDetail", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Auto Detail", value: "autodetail" }, { text: "No Details", value: "nodetails" }, { text: "Shadows", value: "shadows" }, { text: "High Res", value: "highres" }, { text: "Shadows+High Res", value: "shadowshighres" }], defaultValue: "disabled" });
+        initModule({ location: tp.renderTab.pages[0], title: "Textures", storeAs: "enableTextures", bindLocation: tp.renderTab.pages[1], defaultValue: true, });
+        initModule({ location: tp.renderTab.pages[0], title: "Render Delay", storeAs: "renderDelay", slider: { min: 0, max: 30000, step: 10 }, defaultValue: 0, });
         //HUD MODULES
-        initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder",});
+        initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder", });
         initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
-            initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "Show MinAngle", storeAs: "showMinAngle", bindLocation: tp.hudTab.pages[1],});
-            initModule({ showConditions: [["disabledlmao",true]], location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1], enableConditions: [["aimbot",true]],});
-            tp.hudTab.pages[0].addSeparator();
-            initModule({ location: tp.hudTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "RadarWIP", storeAs: "radar", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "GameInfo", storeAs: "gameInfo", bindLocation: tp.hudTab.pages[1],});
-            initModule({ location: tp.hudTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.hudTab.pages[1],});
+        initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1], });
+        initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1], });
+        initModule({ location: tp.hudTab.pages[0], title: "Show MinAngle", storeAs: "showMinAngle", bindLocation: tp.hudTab.pages[1], });
+        initModule({ showConditions: [["disabledlmao", true]], location: tp.hudTab.pages[0], title: "Leaderboard", storeAs: "highlightLeaderboard", bindLocation: tp.hudTab.pages[1], enableConditions: [["aimbot", true]], });
+        tp.hudTab.pages[0].addSeparator();
+        initModule({ location: tp.hudTab.pages[0], title: "Co-ords", storeAs: "showCoordinates", bindLocation: tp.hudTab.pages[1], });
+        initModule({ location: tp.hudTab.pages[0], title: "RadarWIP", storeAs: "radar", bindLocation: tp.hudTab.pages[1], });
+        initModule({ location: tp.hudTab.pages[0], title: "HP Display", storeAs: "playerStats", bindLocation: tp.hudTab.pages[1], });
+        initModule({ location: tp.hudTab.pages[0], title: "PlayerInfo", storeAs: "playerInfo", bindLocation: tp.hudTab.pages[1], });
+        initModule({ location: tp.hudTab.pages[0], title: "GameInfo", storeAs: "gameInfo", bindLocation: tp.hudTab.pages[1], });
+        initModule({ location: tp.hudTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.hudTab.pages[1], });
         //CHAT MODULES
-        initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder",});
+        initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder", });
         initTabs({ location: tp.chatFolder, storeAs: "chatTab" });
-            initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: {min: 0, max: 30, step: 1}, defaultValue: 5,});
-            initModule({ location: tp.chatTab.pages[0], title: "ShowFiltered", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1],});
-            tp.chatTab.pages[0].addSeparator();
-            initModule({ location: tp.chatTab.pages[0], title: "BypassFilter", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "Tall Chat", storeAs: "tallChat", bindLocation: tp.chatTab.pages[1],});
-            tp.chatTab.pages[0].addSeparator();
-            initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1],});
-            initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1],});
-            initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder",});
-                initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: {min: 250, max: 60000, step: 10}, defaultValue: 500, enableConditions: [["spamChat",true]],});
-                initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ",});
-            initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder",});
-                initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1],});
-                initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1],});
-                tp.trollingFolder.addSeparator();
-                initModule({ location: tp.trollingFolder, title: "AutoEZ", storeAs: "autoEZ", bindLocation: tp.chatTab.pages[1],});
-                initModule({ location: tp.trollingFolder, title: "CheatAccuse", storeAs: "cheatAccuse", bindLocation: tp.chatTab.pages[1],});
-            initFolder({ location: tp.chatTab.pages[0], title: "Join/Leave Msgs Options", storeAs: "joinLeaveFolder",});
-                initModule({ location: tp.joinLeaveFolder, title: "Join Msgs", storeAs: "joinMessages", bindLocation: tp.chatTab.pages[1],});
-                initModule({ location: tp.joinLeaveFolder, title: "Leave Msgs", storeAs: "leaveMessages", bindLocation: tp.chatTab.pages[1],});
-                tp.joinLeaveFolder.addSeparator();
-                initModule({ location: tp.joinLeaveFolder, title: "Send2Chat", storeAs: "publicBroadcast", bindLocation: tp.chatTab.pages[1], disableConditions: [["joinMessages",false],["leaveMessages",false]],});
-                initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1], disableConditions: [["joinMessages",false],["leaveMessages",false]],});
+        initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1], });
+        initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1], });
+        initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: { min: 0, max: 30, step: 1 }, defaultValue: 5, });
+        initModule({ location: tp.chatTab.pages[0], title: "ShowFiltered", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1], });
+        tp.chatTab.pages[0].addSeparator();
+        initModule({ location: tp.chatTab.pages[0], title: "BypassFilter", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1], });
+        initModule({ location: tp.chatTab.pages[0], title: "Tall Chat", storeAs: "tallChat", bindLocation: tp.chatTab.pages[1], });
+        tp.chatTab.pages[0].addSeparator();
+        initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1], });
+        initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1], });
+        initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder", });
+        initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: { min: 250, max: 60000, step: 10 }, defaultValue: 500, enableConditions: [["spamChat", true]], });
+        initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ", });
+        initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder", });
+        initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1], });
+        initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1], });
+        tp.trollingFolder.addSeparator();
+        initModule({ location: tp.trollingFolder, title: "AutoEZ", storeAs: "autoEZ", bindLocation: tp.chatTab.pages[1], });
+        initModule({ location: tp.trollingFolder, title: "CheatAccuse", storeAs: "cheatAccuse", bindLocation: tp.chatTab.pages[1], });
+        initFolder({ location: tp.chatTab.pages[0], title: "Join/Leave Msgs Options", storeAs: "joinLeaveFolder", });
+        initModule({ location: tp.joinLeaveFolder, title: "Join Msgs", storeAs: "joinMessages", bindLocation: tp.chatTab.pages[1], });
+        initModule({ location: tp.joinLeaveFolder, title: "Leave Msgs", storeAs: "leaveMessages", bindLocation: tp.chatTab.pages[1], });
+        tp.joinLeaveFolder.addSeparator();
+        initModule({ location: tp.joinLeaveFolder, title: "Send2Chat", storeAs: "publicBroadcast", bindLocation: tp.chatTab.pages[1], disableConditions: [["joinMessages", false], ["leaveMessages", false]], });
+        initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1], disableConditions: [["joinMessages", false], ["leaveMessages", false]], });
         //LISTS MODULES
-        initFolder({ location: tp.mainPanel, title: "Lists", storeAs: "listsFolder",});
+        initFolder({ location: tp.mainPanel, title: "Lists", storeAs: "listsFolder", });
         initTabs({ location: tp.listsFolder, storeAs: "listsTab" })
-            initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2",});
-            initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder",});
-                initModule({ location: tp.whitelistFolder, title: "WAimbot", storeAs: "enableWhitelistAimbot", bindLocation: tp.listsTab.pages[1],});
-                initModule({ location: tp.whitelistFolder, title: "WESP", storeAs: "enableWhitelistTracers", bindLocation: tp.listsTab.pages[1], disableConditions: [["tracers",false],["playerESP",false]],});
-                initModule({ location: tp.whitelistFolder, title: "WESPType", storeAs: "whitelistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Only Include", value: "onlyinclude"},{text: "Highlight", value: "highlight"},], defaultValue: "onlyinclude", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableWhitelistTracers",true]],});
-                initModule({ location: tp.whitelistFolder, title: "WHighlight", storeAs: "whitelistColor", defaultValue: "#e80aac", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableWhitelistTracers",true], ["whitelistESPType", "highlight"]],});
-            tp.listsTab.pages[0].addSeparator();
-            initModule({ location: tp.listsTab.pages[0], title: "Blacklist", storeAs: "blacklist", defaultValue: "User-1, User-2",});
-            initFolder({ location: tp.listsTab.pages[0], title: "Blacklist (Exclude) Options", storeAs: "blacklistFolder",});
-                initModule({ location: tp.blacklistFolder, title: "BAimbot", storeAs: "enableBlacklistAimbot", bindLocation: tp.listsTab.pages[1],});
-                initModule({ location: tp.blacklistFolder, title: "BESP", storeAs: "enableBlacklistTracers", bindLocation: tp.listsTab.pages[1], disableConditions: [["tracers",false],["playerESP",false]],});
-                initModule({ location: tp.blacklistFolder, title: "BESPType", storeAs: "blacklistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{text: "Just Exclude", value: "justexclude"},{text: "Highlight", value: "highlight"},], defaultValue: "justexclude", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableBlacklistTracers",true]],});
-                initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00", disableConditions: [["tracers",false],["playerESP",false]], showConditions: [["enableBlacklistTracers",true], ["blacklistESPType", "highlight"]],});
+        initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2", });
+        initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder", });
+        initModule({ location: tp.whitelistFolder, title: "WAimbot", storeAs: "enableWhitelistAimbot", bindLocation: tp.listsTab.pages[1], });
+        initModule({ location: tp.whitelistFolder, title: "WESP", storeAs: "enableWhitelistTracers", bindLocation: tp.listsTab.pages[1], disableConditions: [["tracers", false], ["playerESP", false]], });
+        initModule({ location: tp.whitelistFolder, title: "WESPType", storeAs: "whitelistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{ text: "Only Include", value: "onlyinclude" }, { text: "Highlight", value: "highlight" },], defaultValue: "onlyinclude", disableConditions: [["tracers", false], ["playerESP", false]], showConditions: [["enableWhitelistTracers", true]], });
+        initModule({ location: tp.whitelistFolder, title: "WHighlight", storeAs: "whitelistColor", defaultValue: "#e80aac", disableConditions: [["tracers", false], ["playerESP", false]], showConditions: [["enableWhitelistTracers", true], ["whitelistESPType", "highlight"]], });
+        tp.listsTab.pages[0].addSeparator();
+        initModule({ location: tp.listsTab.pages[0], title: "Blacklist", storeAs: "blacklist", defaultValue: "User-1, User-2", });
+        initFolder({ location: tp.listsTab.pages[0], title: "Blacklist (Exclude) Options", storeAs: "blacklistFolder", });
+        initModule({ location: tp.blacklistFolder, title: "BAimbot", storeAs: "enableBlacklistAimbot", bindLocation: tp.listsTab.pages[1], });
+        initModule({ location: tp.blacklistFolder, title: "BESP", storeAs: "enableBlacklistTracers", bindLocation: tp.listsTab.pages[1], disableConditions: [["tracers", false], ["playerESP", false]], });
+        initModule({ location: tp.blacklistFolder, title: "BESPType", storeAs: "blacklistESPType", bindLocation: tp.listsTab.pages[1], dropdown: [{ text: "Just Exclude", value: "justexclude" }, { text: "Highlight", value: "highlight" },], defaultValue: "justexclude", disableConditions: [["tracers", false], ["playerESP", false]], showConditions: [["enableBlacklistTracers", true]], });
+        initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00", disableConditions: [["tracers", false], ["playerESP", false]], showConditions: [["enableBlacklistTracers", true], ["blacklistESPType", "highlight"]], });
         //AUTOMATION MODULES
-        initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder",});
+        initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder", });
         initTabs({ location: tp.automationFolder, storeAs: "automationTab" })
-            initModule({ location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: function(){
+        initModule({
+            location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: function () {
                 alert("Thank you for your efforts comrade! o7");
                 spamReport();
-            },});
-            tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "Bunnyhop", storeAs: "bunnyhop", bindLocation: tp.automationTab.pages[1], });
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: {min: 1, max: 10000, step: 1}, defaultValue: 1, showConditions: [["autoJump", true]],});
-            tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
-            initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1],});
-            tp.automationTab.pages[0].addSeparator();
-            initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder",});
-                initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE", enableConditions: [["autoJoin", true]],});
-                initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){change("joinCode",GAMECODE)}, enableConditions: [["autoJoin", true]],});
-            initFolder({ location: tp.automationTab.pages[0], title: "Auto Name Options", storeAs: "autoNamesFolder",});
-                initModule({ location: tp.autoNamesFolder, title: "Use Name", storeAs: "useCustomName", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.autoNamesFolder, title: "New Name", storeAs: "usernameAutoJoin" , defaultValue: "ЅtateFarmer", enableConditions: [["useCustomName", true]],});
-                //the name usernameAutoJoin is only kept for compatability
-                initModule({ location: tp.autoNamesFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", enableConditions: [["useCustomName", true]], bindLocation: tp.automationTab.pages[1], clickFunction: function(){
-                    const copiedName = retrieveCopiedName();
-                    console.log("Retrieved copied name:",copiedName);
-                    change("usernameAutoJoin",(copiedName||"ЅtateFarmer"));
-                },});
-                initModule({ location: tp.autoNamesFolder, title: "Random Name", storeAs: "randomName", button: "Randomise Name", enableConditions: [["useCustomName", true]], bindLocation: tp.automationTab.pages[1], clickFunction: function(){
-                    const randomisedName = unsafeWindow.extern.generateRandomName();
-                    change("usernameAutoJoin",(randomisedName||"ЅtateFarmer"));
-                },});
-            tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled"});
-            tp.automationTab.pages[0].addSeparator();
-            initFolder({ location: tp.automationTab.pages[0], title: "Game Blacklist Settings", storeAs: "gameBlacklistFolder",});//Game Blacklist Folder
-                initModule({ location: tp.gameBlacklistFolder, title: "Blacklist On", storeAs: "gameBlacklist", bindLocation: tp.automationTab.pages[1],});
-                initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "",});
-                initModule({ location: tp.gameBlacklistFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){
-                    if (GAMECODE != undefined && GAMECODE != null){
-                        extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
-                    } else {
-                        createPopup("Join a game first");
-                    };
-                },});
-            tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function(){unsafeWindow.vueApp.onLeaveGameConfirm()},});
-            initModule({ location: tp.automationTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Leave", storeAs: "autoLeave", bindLocation: tp.automationTab.pages[1],});
-            initModule({ location: tp.automationTab.pages[0], title: "Delay (s)", storeAs: "autoLeaveDelay", slider: {min: 0, max: 3600, step: 1}, defaultValue: 300, enableConditions: [["autoLeave",true]]});
-            tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "Gamemode", storeAs: "autoGamemode", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Region", storeAs: "autoRegion", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled"});
-            tp.automationTab.pages[0].addSeparator();
-            initModule({ location: tp.automationTab.pages[0], title: "Egg Colour", storeAs: "eggColour", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, /*{text: "Randomised", value: "random"}*/], defaultValue: "disabled"});
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Stamp", storeAs: "autoStamp", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}], defaultValue: "disabled"});
-            initModule({ location: tp.automationTab.pages[0], title: "Auto Hat", storeAs: "autoHat", bindLocation: tp.automationTab.pages[1], dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}], defaultValue: "disabled"});
+            },
+        });
+        tp.automationTab.pages[0].addSeparator();
+        initModule({ location: tp.automationTab.pages[0], title: "Bunnyhop", storeAs: "bunnyhop", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Walk", storeAs: "autoWalk", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Strafe", storeAs: "autoStrafe", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Jump", storeAs: "autoJump", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.automationTab.pages[0], title: "Jump Delay", storeAs: "autoJumpDelay", slider: { min: 1, max: 10000, step: 1 }, defaultValue: 1, showConditions: [["autoJump", true]], });
+        tp.automationTab.pages[0].addSeparator();
+        initModule({ location: tp.automationTab.pages[0], title: "AutoWeapon", storeAs: "autoWeapon", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "EggK-47", value: "eggk47" }, { text: "Scrambler", value: "scrambler" }, { text: "Free Ranger", value: "freeranger" }, { text: "RPEGG", value: "rpegg" }, { text: "Whipper", value: "whipper" }, { text: "Crackshot", value: "crackshot" }, { text: "Tri-Hard", value: "trihard" }, { text: "Randomised", value: "random" }], defaultValue: "disabled" });
+        initModule({ location: tp.automationTab.pages[0], title: "AutoGrenade", storeAs: "autoGrenade", bindLocation: tp.automationTab.pages[1], });
+        tp.automationTab.pages[0].addSeparator();
+        initFolder({ location: tp.automationTab.pages[0], title: "Auto Join Options", storeAs: "autoJoinFolder", });
+        initModule({ location: tp.autoJoinFolder, title: "Auto Join", storeAs: "autoJoin", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.autoJoinFolder, title: "Join Code", storeAs: "joinCode", defaultValue: "CODE", enableConditions: [["autoJoin", true]], });
+        initModule({ location: tp.autoJoinFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function () { change("joinCode", GAMECODE) }, enableConditions: [["autoJoin", true]], });
+        initFolder({ location: tp.automationTab.pages[0], title: "Auto Name Options", storeAs: "autoNamesFolder", });
+        initModule({ location: tp.autoNamesFolder, title: "Use Name", storeAs: "useCustomName", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.autoNamesFolder, title: "New Name", storeAs: "usernameAutoJoin", defaultValue: "ЅtateFarmer", enableConditions: [["useCustomName", true]], });
+        //the name usernameAutoJoin is only kept for compatability
+        initModule({
+            location: tp.autoNamesFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", enableConditions: [["useCustomName", true]], bindLocation: tp.automationTab.pages[1], clickFunction: function () {
+                const copiedName = retrieveCopiedName();
+                console.log("Retrieved copied name:", copiedName);
+                change("usernameAutoJoin", (copiedName || "ЅtateFarmer"));
+            },
+        });
+        initModule({
+            location: tp.autoNamesFolder, title: "Random Name", storeAs: "randomName", button: "Randomise Name", enableConditions: [["useCustomName", true]], bindLocation: tp.automationTab.pages[1], clickFunction: function () {
+                const randomisedName = unsafeWindow.extern.generateRandomName();
+                change("usernameAutoJoin", (randomisedName || "ЅtateFarmer"));
+            },
+        });
+        tp.automationTab.pages[0].addSeparator();
+        initModule({ location: tp.automationTab.pages[0], title: "AutoRespawn", storeAs: "autoRespawn", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Team", storeAs: "autoTeam", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Red Team", value: "red" }, { text: "Blue Team", value: "blue" }, { text: "Random Team", value: "random" }], defaultValue: "disabled" });
+        tp.automationTab.pages[0].addSeparator();
+        initFolder({ location: tp.automationTab.pages[0], title: "Game Blacklist Settings", storeAs: "gameBlacklistFolder", });//Game Blacklist Folder
+        initModule({ location: tp.gameBlacklistFolder, title: "Blacklist On", storeAs: "gameBlacklist", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "", });
+        initModule({
+            location: tp.gameBlacklistFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function () {
+                if (GAMECODE != undefined && GAMECODE != null) {
+                    extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes") + GAMECODE + ",") : change("gameBlacklistCodes", GAMECODE + ",");
+                } else {
+                    createPopup("Join a game first");
+                };
+            },
+        });
+        tp.automationTab.pages[0].addSeparator();
+        initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function () { unsafeWindow.vueApp.onLeaveGameConfirm() }, });
+        initModule({ location: tp.automationTab.pages[0], title: "LeaveEmpty", storeAs: "leaveEmpty", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Leave", storeAs: "autoLeave", bindLocation: tp.automationTab.pages[1], });
+        initModule({ location: tp.automationTab.pages[0], title: "Delay (s)", storeAs: "autoLeaveDelay", slider: { min: 0, max: 3600, step: 1 }, defaultValue: 300, enableConditions: [["autoLeave", true]] });
+        tp.automationTab.pages[0].addSeparator();
+        initModule({ location: tp.automationTab.pages[0], title: "Gamemode", storeAs: "autoGamemode", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "FFA", value: "ffa" }, { text: "Teams", value: "teams" }, { text: "Captula", value: "captula" }, { text: "KotC", value: "kotc" }, { text: "Randomised", value: "random" }], defaultValue: "disabled" });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Region", storeAs: "autoRegion", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Chile", value: "santiago" }, { text: "Germany", value: "germany" }, { text: "Singapore", value: "singapore" }, { text: "Sydney", value: "sydney" }, { text: "US Central", value: "uscentral" }, { text: "US East", value: "useast" }, { text: "US West", value: "uswest" }, { text: "Randomised", value: "random" }], defaultValue: "disabled" });
+        tp.automationTab.pages[0].addSeparator();
+        initModule({ location: tp.automationTab.pages[0], title: "Egg Colour", storeAs: "eggColour", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "White", value: "white" }, { text: "Light Blue", value: "lightblue" }, { text: "Light Eggshell", value: "lighteggshell" }, { text: "Eggshell", value: "eggshell" }, { text: "Dark Eggshell", value: "darkeggshell" }, { text: "Darker Eggshell", value: "darkereggshell" }, { text: "Darkest Eggshell", value: "darkesteggshell" }, { text: "Red (VIP)", value: "red" }, { text: "Purple (VIP)", value: "purple" }, { text: "Pink (VIP)", value: "pink" }, { text: "Yellow (VIP)", value: "yellow" }, { text: "Blue (VIP)", value: "blue" }, { text: "Green (VIP)", value: "green" }, { text: "Lime (VIP)", value: "lime" }, /*{text: "Randomised", value: "random"}*/], defaultValue: "disabled" });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Stamp", storeAs: "autoStamp", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Target Stamp", value: "target" }, { text: "No Sign Stamp", value: "nosign" }, { text: "Question Mark Stamp?", value: "question" }, { text: "Peace Stamp", value: "peace" }, { text: "Thumbs Up Stamp", value: "thumbsup" }, { text: "Pablo Smile Stamp", value: "pablosmile" }], defaultValue: "disabled" });
+        initModule({ location: tp.automationTab.pages[0], title: "Auto Hat", storeAs: "autoHat", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Ball Cap", value: "ballcap" }, { text: "Boat Fedora", value: "boatfedora" }, { text: "Top Hat", value: "tophat" }, { text: "Derby Hat", value: "derbyhat" }, { text: "Mountie Hat", value: "mountiehat" }, { text: "Pablo Hat", value: "pablohat" }], defaultValue: "disabled" });
         //BOTTING MODULES
-        initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder",});
+        initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder", });
         initTabs({ location: tp.bottingFolder, storeAs: "bottingTab" })
-            initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function(){tp.botPanel.hidden=!tp.botPanel.hidden}, defaultBind:"J",});
-            tp.bottingTab.pages[0].addSeparator();
-            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function(){unsafeWindow.open(bottingGuideURL)},});
+        initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function () { tp.botPanel.hidden = !tp.botPanel.hidden }, defaultBind: "J", });
+        tp.bottingTab.pages[0].addSeparator();
+        initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function () { unsafeWindow.open(bottingGuideURL) }, });
         //THEMING MODULES
-        initFolder({ location: tp.mainPanel, title: "Theming", storeAs: "themingFolder",});
+        initFolder({ location: tp.mainPanel, title: "Theming", storeAs: "themingFolder", });
         initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
-            initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder",});
-                initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1],});
-                initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: {min: 0.01, max: 2, step: 0.01}, defaultValue: 1,});
-                tp.audioFolder.addSeparator();
-                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
-            tp.themingTab.pages[0].addSeparator();
-            initModule({ location: tp.themingTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.themingTab.pages[1],});
-            initModule({ location: tp.themingTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.themingTab.pages[1],});
-            initModule({ location: tp.themingTab.pages[0], title: "Client Theme", storeAs: "themeType", bindLocation: tp.themingTab.pages[1], dropdown: [
-                {text: "Default", value: "defaultTheme"},
-                {text: "Iceberg", value: "icebergTheme"},
-                {text: "Jet Black", value: "jetblackTheme"},
-                {text: "Light", value: "lightTheme"},
-                {text: "Retro", value: "retroTheme"},
-                {text: "Translucent", value: "translucentTheme"},
-                {text: "StateFarmer", value: "statefarmerTheme"},
-                {text: "Blurple", value: "blurpleTheme"},
-                {text: "ShellFarm", value: "shellFarmTheme"},
-            ], defaultValue: "defaultTheme", changeFunction: function(value) {
+        initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder", });
+        initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1], });
+        initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: { min: 0.01, max: 2, step: 0.01 }, defaultValue: 1, });
+        tp.audioFolder.addSeparator();
+        initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
+        tp.themingTab.pages[0].addSeparator();
+        initModule({ location: tp.themingTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.themingTab.pages[1], });
+        initModule({ location: tp.themingTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.themingTab.pages[1], });
+        initModule({
+            location: tp.themingTab.pages[0], title: "Client Theme", storeAs: "themeType", bindLocation: tp.themingTab.pages[1], dropdown: [
+                { text: "Default", value: "defaultTheme" },
+                { text: "Iceberg", value: "icebergTheme" },
+                { text: "Jet Black", value: "jetblackTheme" },
+                { text: "Light", value: "lightTheme" },
+                { text: "Retro", value: "retroTheme" },
+                { text: "Translucent", value: "translucentTheme" },
+                { text: "StateFarmer", value: "statefarmerTheme" },
+                { text: "Blurple", value: "blurpleTheme" },
+                { text: "ShellFarm", value: "shellFarmTheme" },
+            ], defaultValue: "defaultTheme", changeFunction: function (value) {
                 applyTheme(value.value);
-            }});
+            }
+        });
         //MISC MODULES
-        initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder",});
+        initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder", });
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
-            initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1],});
-            initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1],});
-            initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1],});
-            initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1],});
-            tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", bindLocation: tp.miscTab.pages[1], button: "UNBAN NOW", clickFunction: function(){
-                const userConfirmed=confirm("By proceeding, you will be signed out. If you don't have an account, your stats will be lost.");
+        initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1], });
+        initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1], });
+        initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1], });
+        initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1], });
+        tp.miscTab.pages[0].addSeparator();
+        initModule({
+            location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", bindLocation: tp.miscTab.pages[1], button: "UNBAN NOW", clickFunction: function () {
+                const userConfirmed = confirm("By proceeding, you will be signed out. If you don't have an account, your stats will be lost.");
                 if (userConfirmed) {
                     unban();
                 };
-            },});
-            initModule({ location: tp.miscTab.pages[0], title: "Auto Unban", storeAs: "autoUnban", bindLocation: tp.miscTab.pages[1],});
-            initModule({ location: tp.miscTab.pages[0], title: "New Proxy", storeAs: "newProxy", bindLocation: tp.miscTab.pages[1], button: "NEW PROXY", clickFunction: function(){
-                const userConfirmed=confirm("Switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
+            },
+        });
+        initModule({ location: tp.miscTab.pages[0], title: "Auto Unban", storeAs: "autoUnban", bindLocation: tp.miscTab.pages[1], });
+        initModule({
+            location: tp.miscTab.pages[0], title: "New Proxy", storeAs: "newProxy", bindLocation: tp.miscTab.pages[1], button: "NEW PROXY", clickFunction: function () {
+                const userConfirmed = confirm("Switching to a proxy URL. By proceeding, you will enter another URL for Shell Shockers but your data doesn't get transferred.");
                 if (userConfirmed) {
                     newProxy();
                 };
-            },});
-            initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", bindLocation: tp.miscTab.pages[1], button: "RELOAD NOW", clickFunction: function(){
+            },
+        });
+        initModule({
+            location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", bindLocation: tp.miscTab.pages[1], button: "RELOAD NOW", clickFunction: function () {
                 reloadPage();
-            },});
-            tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function(){
+            },
+        });
+        tp.miscTab.pages[0].addSeparator();
+        initModule({
+            location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function () {
                 if (document.pointerLockElement !== null) { //currently locked
-                    noPointerPause=true; unsafeWindow.document.exitPointerLock();
+                    noPointerPause = true; unsafeWindow.document.exitPointerLock();
                 } else if (noPointerPause) { //already unlocked?
-                    noPointerPause=false; canvas.requestPointerLock();
+                    noPointerPause = false; canvas.requestPointerLock();
                 };
-            },});
-            tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
+            },
+        });
+        tp.miscTab.pages[0].addSeparator();
+        initModule({
+            location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function () {
                 findNewPath = true;
-            },});
-            findNewPath = false;
-            tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1],});
-            initFolder({ location: tp.miscTab.pages[0], title: "Seizure Options", storeAs: "seizureFolder",});
-                initModule({ location: tp.seizureFolder, title: "SeizureX", storeAs: "enableSeizureX", bindLocation: tp.miscTab.pages[1],});
-                initModule({ location: tp.seizureFolder, title: "X Amount", storeAs: "amountSeizureX", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
-                initModule({ location: tp.seizureFolder, title: "SeizureY", storeAs: "enableSeizureY", bindLocation: tp.miscTab.pages[1],});
-                initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: {min: -6.283185307179586, max: 6.283185307179586, step: Math.PI/280}, defaultValue: 2,});
+            },
+        });
+        findNewPath = false;
+        tp.miscTab.pages[0].addSeparator();
+        initModule({ location: tp.miscTab.pages[0], title: "SilentRoll", storeAs: "silentRoll", bindLocation: tp.miscTab.pages[1], });
+        initFolder({ location: tp.miscTab.pages[0], title: "Seizure Options", storeAs: "seizureFolder", });
+        initModule({ location: tp.seizureFolder, title: "SeizureX", storeAs: "enableSeizureX", bindLocation: tp.miscTab.pages[1], });
+        initModule({ location: tp.seizureFolder, title: "X Amount", storeAs: "amountSeizureX", slider: { min: -6.283185307179586, max: 6.283185307179586, step: Math.PI / 280 }, defaultValue: 2, });
+        initModule({ location: tp.seizureFolder, title: "SeizureY", storeAs: "enableSeizureY", bindLocation: tp.miscTab.pages[1], });
+        initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: { min: -6.283185307179586, max: 6.283185307179586, step: Math.PI / 280 }, defaultValue: 2, });
         //CLIENT MODULES
-        initFolder({ location: tp.mainPanel, title: "Client & About", storeAs: "clientFolder",});
+        initFolder({ location: tp.mainPanel, title: "Client & About", storeAs: "clientFolder", });
         initTabs({ location: tp.clientFolder, storeAs: "clientTab" })
-            initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function(){tp.mainPanel.hidden=!tp.mainPanel.hidden}, defaultBind:"H",});
-            initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
-            tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function(){if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) }}, defaultBind:"X", enableConditions: [["enablePanic",true]],});
-            initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder",});
-                initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true,});
-                initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/", enableConditions: [["enablePanic",true]],});
-            tp.clientTab.pages[0].addSeparator();
-            let presetList = [];
-            Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var
-                let options = {};
-                options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
-                options["value"] = key;
-                presetList.push(options);
-            });
-            //PRESETS: OakSwingZZZ 😎
-            initFolder({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presetFolder",});
-                initModule({ location: tp.presetFolder, title: "Preset List", storeAs: "selectedPreset", defaultValue: "onlypuppy7's Config", bindLocation: tp.clientTab.pages[1], dropdown: presetList, });
-                initModule({ location: tp.presetFolder, title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function () {
-                    const userConfirmed = confirm( "Are you sure you want to continue? This will replace most of your current config." );
-                        if (userConfirmed) { applySettings(inbuiltPresets[extract("selectedPreset")], true); };
-                    },
+        initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function () { tp.mainPanel.hidden = !tp.mainPanel.hidden }, defaultBind: "H", });
+        initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true, });
+        tp.clientTab.pages[0].addSeparator();
+        initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function () { if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) } }, defaultBind: "X", enableConditions: [["enablePanic", true]], });
+        initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder", });
+        initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true, });
+        initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/", enableConditions: [["enablePanic", true]], });
+        tp.clientTab.pages[0].addSeparator();
+        let presetList = [];
+        Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var
+            let options = {};
+            options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
+            options["value"] = key;
+            presetList.push(options);
+        });
+        //PRESETS: OakSwingZZZ 😎
+        initFolder({ location: tp.clientTab.pages[0], title: "Presets", storeAs: "presetFolder", });
+        initModule({ location: tp.presetFolder, title: "Preset List", storeAs: "selectedPreset", defaultValue: "onlypuppy7's Config", bindLocation: tp.clientTab.pages[1], dropdown: presetList, });
+        initModule({
+            location: tp.presetFolder, title: "Apply", storeAs: "applyPreset", button: "Apply Preset", clickFunction: function () {
+                const userConfirmed = confirm("Are you sure you want to continue? This will replace most of your current config.");
+                if (userConfirmed) { applySettings(inbuiltPresets[extract("selectedPreset")], true); };
+            },
+        });
+        tp.presetFolder.addSeparator();
+        initModule({
+            location: tp.presetFolder, title: "Save", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
+                console.log("Config Main: ", configMain);
+                let saveString = '';
+                const addParam = function (module, setTo) { saveString = saveString + module + ">" + JSON.stringify(setTo) + "<" };
+                Object.entries(configMain).forEach(([key, value]) => {
+                    console.log(key, value);
+                    if (typeof (value) == 'string') {
+                        try {
+                            let dropdown = extractAsDropdownInt(key)
+                            value = dropdown;
+                        } catch (error) {
+                            //dont care lmaoooo
+                        };
+                    };
+                    addParam(key, value);
                 });
-                tp.presetFolder.addSeparator();
-                initModule({ location: tp.presetFolder, title: "Save", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
-                    console.log("Config Main: ", configMain);
-                    let saveString = '';
-                    const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
-                    Object.entries(configMain).forEach(([key, value]) => {
-                        console.log(key, value);
-                        if (typeof(value) == 'string') {
-                            try {
-                                let dropdown = extractAsDropdownInt(key)
-                                value = dropdown;
-                            } catch (error) {
-                                //dont care lmaoooo
-                            };
-                        };
-                        addParam(key, value);
-                    });
-                    saveString = saveString.substring(0, saveString.length - 1);
-                    let presetName = prompt("Name of preset:"); // asks user for name of preset
-                    if (presetName == "" || presetName == null) {
-                        console.log("User cancelled save");
-                    } else {
-                        let result = saveUserPreset(presetName, saveString);//saves user preset
-                        addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                        console.log("Saved Preset: ", saveString);
-                        console.log("User Preset Result: ", result);
-                    };
-                    console.log("InbuiltPrests:");
-                    console.log(inbuiltPresets);
-                    initMenu(false); //Reloads menu to add to dropdown list
-                },});
-                initModule({ location: tp.presetFolder, title: "Delete", storeAs: "deletePreset", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode
-                    let currUserPresets = loadUserPresets(); //gets current presets from storage
-                    delete currUserPresets[extract("selectedPreset")];//deletes
-                    delete inbuiltPresets[extract("selectedPreset")];//deletes
-                    save(presetStorageLocation, currUserPresets); // saves cnages to file.
-                    console.log("Current User Presets: ",currUserPresets);
-                    initMenu(false); //reloads menu
-                },});
-                tp.presetFolder.addSeparator();
-                initModule({ location: tp.presetFolder, title: "Import", storeAs: "importPreset", button: "Import Preset", clickFunction: function () {
-                    let preset = prompt("Paste preset here:"); // asks user to paste preset
-                    if (preset == "" || preset == null) {
-                        console.log("User cancelled save");
-                    } else {
-                        const pattern = /([a-zA-Z]*>[^<]*<)+[a-zA-Z]*>[^<]*/;
-                        if (pattern.test(preset)){
-                            let presetName = prompt("Name of preset:"); // asks user for name of preset
-                            if (presetName == "" || presetName == null) {
-                                console.log("User cancelled save");
-                            } else {
-                                let result = saveUserPreset(presetName, preset);//saves user preset
-                                addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                                console.log("Saved Preset: ", preset);
-                                console.log("User Preset Result: ", result);
-                            }
+                saveString = saveString.substring(0, saveString.length - 1);
+                let presetName = prompt("Name of preset:"); // asks user for name of preset
+                if (presetName == "" || presetName == null) {
+                    console.log("User cancelled save");
+                } else {
+                    let result = saveUserPreset(presetName, saveString);//saves user preset
+                    addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                    console.log("Saved Preset: ", saveString);
+                    console.log("User Preset Result: ", result);
+                };
+                console.log("InbuiltPrests:");
+                console.log(inbuiltPresets);
+                initMenu(false); //Reloads menu to add to dropdown list
+            },
+        });
+        initModule({
+            location: tp.presetFolder, title: "Delete", storeAs: "deletePreset", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode
+                let currUserPresets = loadUserPresets(); //gets current presets from storage
+                delete currUserPresets[extract("selectedPreset")];//deletes
+                delete inbuiltPresets[extract("selectedPreset")];//deletes
+                save(presetStorageLocation, currUserPresets); // saves cnages to file.
+                console.log("Current User Presets: ", currUserPresets);
+                initMenu(false); //reloads menu
+            },
+        });
+        tp.presetFolder.addSeparator();
+        initModule({
+            location: tp.presetFolder, title: "Import", storeAs: "importPreset", button: "Import Preset", clickFunction: function () {
+                let preset = prompt("Paste preset here:"); // asks user to paste preset
+                if (preset == "" || preset == null) {
+                    console.log("User cancelled save");
+                } else {
+                    const pattern = /([a-zA-Z]*>[^<]*<)+[a-zA-Z]*>[^<]*/;
+                    if (pattern.test(preset)) {
+                        let presetName = prompt("Name of preset:"); // asks user for name of preset
+                        if (presetName == "" || presetName == null) {
+                            console.log("User cancelled save");
                         } else {
-                            alert("Not A Valid Preset!");
-                            console.log("Preset Not Valid");
-                        };
-                        initMenu(false);
+                            let result = saveUserPreset(presetName, preset);//saves user preset
+                            addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
+                            console.log("Saved Preset: ", preset);
+                            console.log("User Preset Result: ", result);
+                        }
+                    } else {
+                        alert("Not A Valid Preset!");
+                        console.log("Preset Not Valid");
                     };
-                },});
-                initModule({ location: tp.presetFolder, title: "Export", storeAs: "exportPreset", button: "Copy To Clipboard", clickFunction: function () {
-                    let saveString = '';
-                    const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
-                    Object.entries(configMain).forEach(([key, value]) => {
-                        console.log(key, value);
-                        if (typeof(value) == 'string') {
-                            try {
-                                let dropdown = extractAsDropdownInt(key)
-                                value = dropdown;
-                            } catch (error) {
-                                //dont care lmaoooo
-                            };
+                    initMenu(false);
+                };
+            },
+        });
+        initModule({
+            location: tp.presetFolder, title: "Export", storeAs: "exportPreset", button: "Copy To Clipboard", clickFunction: function () {
+                let saveString = '';
+                const addParam = function (module, setTo) { saveString = saveString + module + ">" + JSON.stringify(setTo) + "<" };
+                Object.entries(configMain).forEach(([key, value]) => {
+                    console.log(key, value);
+                    if (typeof (value) == 'string') {
+                        try {
+                            let dropdown = extractAsDropdownInt(key)
+                            value = dropdown;
+                        } catch (error) {
+                            //dont care lmaoooo
                         };
-                        addParam(key, value);
-                    });
-                    saveString = saveString.substring(0, saveString.length - 1);
-                    GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
-                    createPopup("Preset copied to clipboard...")
-                },});
-            tp.clientTab.pages[0].addSeparator();
-            initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
-                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){unsafeWindow.open(discordURL)},});
-                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){unsafeWindow.open(githubURL)},});
-            tp.clientTab.pages[0].addSeparator();
-            initModule({ location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function(){
-                const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored module states and keybinds.");
+                    };
+                    addParam(key, value);
+                });
+                saveString = saveString.substring(0, saveString.length - 1);
+                GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
+                createPopup("Preset copied to clipboard...")
+            },
+        });
+        tp.clientTab.pages[0].addSeparator();
+        initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder", });
+        initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function () { unsafeWindow.open(discordURL) }, });
+        initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function () { unsafeWindow.open(githubURL) }, });
+        tp.clientTab.pages[0].addSeparator();
+        initModule({
+            location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function () {
+                const userConfirmed = confirm("Are you sure you want to continue? This will clear all stored module states and keybinds.");
                 if (userConfirmed) {
                     initMenu(true);
                     alert("Reset to defaults.");
                 };
-            },});
-            initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1],});
+            },
+        });
+        initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1], });
         tp.mainPanel.addSeparator();
-        initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function(){unsafeWindow.open(featuresGuideURL)},});
+        initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function () { unsafeWindow.open(featuresGuideURL) }, });
 
 
         tp.botPanel = new Tweakpane.Pane();
         tp.botPanel.title = "StateFarm Bot Control Panel";
         tp.botPanel.containerElem_.style.left = "15%";
         tp.botPanel.containerElem_.style.top = "25%";
-        tp.botPanel.hidden=true;
+        tp.botPanel.hidden = true;
 
-        tp["botTabs"]=tp.botPanel.addTab({
+        tp["botTabs"] = tp.botPanel.addTab({
             pages: [
-                {title: 'Deploy'},
-                {title: 'Manage'},
-                {title: 'Params'},
-                {title: 'Info'},
+                { title: 'Deploy' },
+                { title: 'Manage' },
+                { title: 'Params' },
+                { title: 'Info' },
             ],
         });
 
         //DEPLOY STUFF
-        initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: {min: 1, max: 18, step: 1}, defaultValue: 1,});
-        initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function(){deployBots()},});
+        initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: { min: 1, max: 18, step: 1 }, defaultValue: 1, });
+        initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function () { deployBots() }, });
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Window Width", storeAs: "botWindowWidth", slider: {min: 0, max: 10000, step: 1}, defaultValue: 450, botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Window Height", storeAs: "botWindowHeight", slider: {min: 0, max: 10000, step: 1}, defaultValue: 300, botParam: true,});
+        initModule({ location: tp.botTabs.pages[0], title: "Window Width", storeAs: "botWindowWidth", slider: { min: 0, max: 10000, step: 1 }, defaultValue: 450, botParam: true, });
+        initModule({ location: tp.botTabs.pages[0], title: "Window Height", storeAs: "botWindowHeight", slider: { min: 0, max: 10000, step: 1 }, defaultValue: 300, botParam: true, });
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useCustomNameBots", defaultValue: true, botParam: true,});
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", enableConditions: [["useCustomNameBots",true]],});
-        initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", enableConditions: [["useCustomNameBots",true]],});
-        initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", enableConditions: [["useCustomNameBots",true]],});
+        initModule({ location: tp.botTabs.pages[0], title: "Use Names", storeAs: "useCustomNameBots", defaultValue: true, botParam: true, });
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", enableConditions: [["useCustomNameBots", true]], });
+        initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", enableConditions: [["useCustomNameBots", true]], });
+        initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", enableConditions: [["useCustomNameBots", true]], });
         tp.botTabs.pages[0].addSeparator();
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "White", value: "white"}, {text: "Light Blue", value: "lightblue"}, {text: "Light Eggshell", value: "lighteggshell"}, {text: "Eggshell", value: "eggshell"}, {text: "Dark Eggshell", value: "darkeggshell"}, {text: "Darker Eggshell", value: "darkereggshell"}, {text: "Darkest Eggshell", value: "darkesteggshell"}, {text: "Red (VIP)", value: "red"}, {text: "Purple (VIP)", value: "purple"}, {text: "Pink (VIP)", value: "pink"}, {text: "Yellow (VIP)", value: "yellow"}, {text: "Blue (VIP)", value: "blue"}, {text: "Green (VIP)", value: "green"}, {text: "Lime (VIP)", value: "lime"}, {text: "Randomised", value: "random"}], defaultValue: "darkesteggshell",});
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Target Stamp", value: "target"}, {text: "No Sign Stamp", value: "nosign"}, {text: "Question Mark Stamp?", value: "question"}, {text: "Peace Stamp", value: "peace"}, {text: "Thumbs Up Stamp", value: "thumbsup"}, {text: "Pablo Smile Stamp", value: "pablosmile"}, {text: "Randomised", value: "random"}], defaultValue: "pablosmile",});
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Hat", storeAs: "autoHatBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Ball Cap", value: "ballcap"}, {text: "Boat Fedora", value: "boatfedora"}, {text: "Top Hat", value: "tophat"}, {text: "Derby Hat", value: "derbyhat"}, {text: "Mountie Hat", value: "mountiehat"}, {text: "Pablo Hat", value: "pablohat"}, {text: "Randomised", value: "random"}], defaultValue: "pablohat",});
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "White", value: "white" }, { text: "Light Blue", value: "lightblue" }, { text: "Light Eggshell", value: "lighteggshell" }, { text: "Eggshell", value: "eggshell" }, { text: "Dark Eggshell", value: "darkeggshell" }, { text: "Darker Eggshell", value: "darkereggshell" }, { text: "Darkest Eggshell", value: "darkesteggshell" }, { text: "Red (VIP)", value: "red" }, { text: "Purple (VIP)", value: "purple" }, { text: "Pink (VIP)", value: "pink" }, { text: "Yellow (VIP)", value: "yellow" }, { text: "Blue (VIP)", value: "blue" }, { text: "Green (VIP)", value: "green" }, { text: "Lime (VIP)", value: "lime" }, { text: "Randomised", value: "random" }], defaultValue: "darkesteggshell", });
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Target Stamp", value: "target" }, { text: "No Sign Stamp", value: "nosign" }, { text: "Question Mark Stamp?", value: "question" }, { text: "Peace Stamp", value: "peace" }, { text: "Thumbs Up Stamp", value: "thumbsup" }, { text: "Pablo Smile Stamp", value: "pablosmile" }, { text: "Randomised", value: "random" }], defaultValue: "pablosmile", });
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Hat", storeAs: "autoHatBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Ball Cap", value: "ballcap" }, { text: "Boat Fedora", value: "boatfedora" }, { text: "Top Hat", value: "tophat" }, { text: "Derby Hat", value: "derbyhat" }, { text: "Mountie Hat", value: "mountiehat" }, { text: "Pablo Hat", value: "pablohat" }, { text: "Randomised", value: "random" }], defaultValue: "pablohat", });
         //MANAGE STUFF
-        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function(){ broadcastToBots("kill") },});
-        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function(){ broadcastToBots("refresh") },});
+        initModule({ location: tp.botTabs.pages[1], title: "Close Bots", storeAs: "killBots", button: "CLOSE TABS", clickFunction: function () { broadcastToBots("kill") }, });
+        initModule({ location: tp.botTabs.pages[1], title: "Refresh Pages", storeAs: "refreshBots", button: "REFRESH", clickFunction: function () { broadcastToBots("refresh") }, });
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function(){ broadcastToBots("newproxy") },});
-        initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function(){ broadcastToBots("unban") },});
-        initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function () { broadcastToBots("newproxy") }, });
+        initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function () { broadcastToBots("unban") }, });
+        initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true, });
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true, });
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function(){ broadcastToBots("leave") },});
-        initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "AutoLeave", storeAs: "autoLeaveBots", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Delay (s)", storeAs: "autoLeaveDelayBots", slider: {min: 0, max: 3600, step: 1}, defaultValue: 300, enableConditions: [["autoLeaveBots",true]], botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Games", storeAs: "leaveBots", button: "LEAVE", clickFunction: function () { broadcastToBots("leave") }, });
+        initModule({ location: tp.botTabs.pages[1], title: "Leave Empty", storeAs: "leaveEmptyBots", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "AutoLeave", storeAs: "autoLeaveBots", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "Delay (s)", storeAs: "autoLeaveDelayBots", slider: { min: 0, max: 3600, step: 1 }, defaultValue: 300, enableConditions: [["autoLeaveBots", true]], botParam: true, });
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function(){ broadcastToBots("report") },});
+        initModule({ location: tp.botTabs.pages[1], title: "Spam Report", storeAs: "reportBots", button: "SPAM REPORT!", clickFunction: function () { broadcastToBots("report") }, });
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCodeBots", button: "Retrieve", clickFunction: function(){change("botJoinCode",GAMECODE)}, botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "Join Game", storeAs: "botAutoJoin", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "Game Code", storeAs: "botJoinCode", defaultValue: "CODE", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "Get Code", storeAs: "getCodeBots", button: "Retrieve", clickFunction: function () { change("botJoinCode", GAMECODE) }, botParam: true, });
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "GameType", storeAs: "autoGamemodeBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "FFA", value: "ffa"}, {text: "Teams", value: "teams"}, {text: "Captula", value: "captula"}, {text: "KotC", value: "kotc"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
-        initModule({ location: tp.botTabs.pages[1], title: "AutoRegion", storeAs: "autoRegionBots", dropdown: [{text: "Disabled", value: "disabled"}, {text: "Chile", value: "santiago"}, {text: "Germany", value: "germany"}, {text: "Singapore", value: "singapore"}, {text: "Sydney", value: "sydney"}, {text: "US Central", value: "uscentral"}, {text: "US East", value: "useast"}, {text: "US West", value: "uswest"}, {text: "Randomised", value: "random"}], defaultValue: "disabled", botParam: true,});
+        initModule({ location: tp.botTabs.pages[1], title: "GameType", storeAs: "autoGamemodeBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "FFA", value: "ffa" }, { text: "Teams", value: "teams" }, { text: "Captula", value: "captula" }, { text: "KotC", value: "kotc" }, { text: "Randomised", value: "random" }], defaultValue: "disabled", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "AutoRegion", storeAs: "autoRegionBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Chile", value: "santiago" }, { text: "Germany", value: "germany" }, { text: "Singapore", value: "singapore" }, { text: "Sydney", value: "sydney" }, { text: "US Central", value: "uscentral" }, { text: "US East", value: "useast" }, { text: "US West", value: "uswest" }, { text: "Randomised", value: "random" }], defaultValue: "disabled", botParam: true, });
         tp.botTabs.pages[1].addSeparator();
-        initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{text: "Disabled", value: "disabled"}, {text: "Red Team", value: "red"}, {text: "Blue Team", value: "blue"}, {text: "Random Team", value: "random"}], defaultValue: "disabled",});
+        initModule({ location: tp.botTabs.pages[1], title: "Select Team", storeAs: "botTeam", botParam: true, dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Red Team", value: "red" }, { text: "Blue Team", value: "blue" }, { text: "Random Team", value: "random" }], defaultValue: "disabled", });
         //PARAMS STUFF
-        initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true,})
-        initModule({ location: tp.botTabs.pages[2], title: "RenderDelay", storeAs: "renderDelayBots", slider: {min: 0, max: 30000, step: 10}, defaultValue: 0, botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "MuteGame", storeAs: "botMuteGame", botParam: true,})
+        initModule({ location: tp.botTabs.pages[2], title: "DoPlay", storeAs: "botRespawn", botParam: true, });
+        initModule({ location: tp.botTabs.pages[2], title: "LowRes", storeAs: "botLowRes", botParam: true, })
+        initModule({ location: tp.botTabs.pages[2], title: "RenderDelay", storeAs: "renderDelayBots", slider: { min: 0, max: 30000, step: 10 }, defaultValue: 0, botParam: true, });
+        initModule({ location: tp.botTabs.pages[2], title: "MuteGame", storeAs: "botMuteGame", botParam: true, })
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true, enableConditions: [["botRespawn",true]],});
+        initModule({ location: tp.botTabs.pages[2], title: "DoSeizure", storeAs: "botSeizure", botParam: true, enableConditions: [["botRespawn", true]], });
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "DoTallChat", storeAs: "botTallChat", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "DoMock", storeAs: "botMock", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "DoAutoEZ", storeAs: "botAutoEZ", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoTallChat", storeAs: "botTallChat", botParam: true, });
+        initModule({ location: tp.botTabs.pages[2], title: "DoMock", storeAs: "botMock", botParam: true, });
+        initModule({ location: tp.botTabs.pages[2], title: "DoAutoEZ", storeAs: "botAutoEZ", botParam: true, });
+        initModule({ location: tp.botTabs.pages[2], title: "DoChAccuse", storeAs: "botCheatAccuse", botParam: true, });
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "DoSpam", storeAs: "botSpam", botParam: true,});
-        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true,});
+        initModule({ location: tp.botTabs.pages[2], title: "DoSpam", storeAs: "botSpam", botParam: true, });
+        initModule({ location: tp.botTabs.pages[2], title: "SpamText", storeAs: "spamChatTextBot", defaultValue: "ЅtateFarm Client On Top! ", botParam: true, });
         tp.botTabs.pages[2].addSeparator();
-        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{text: "EggK-47", value: "eggk47"}, {text: "Scrambler", value: "scrambler"}, {text: "Free Ranger", value: "freeranger"}, {text: "RPEGG", value: "rpegg"}, {text: "Whipper", value: "whipper"}, {text: "Crackshot", value: "crackshot"}, {text: "Tri-Hard", value: "trihard"}, {text: "Randomised", value: "random"}], botParam: true, defaultValue: "eggk47", enableConditions: [["botRespawn",true]],});
-        initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true, enableConditions: [["botRespawn",true]],});
-        initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true, enableConditions: [["botRespawn",true]],});
-        initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true, enableConditions: [["botRespawn",true]],});;
+        initModule({ location: tp.botTabs.pages[2], title: "SelectWeapon", storeAs: "botWeapon", dropdown: [{ text: "EggK-47", value: "eggk47" }, { text: "Scrambler", value: "scrambler" }, { text: "Free Ranger", value: "freeranger" }, { text: "RPEGG", value: "rpegg" }, { text: "Whipper", value: "whipper" }, { text: "Crackshot", value: "crackshot" }, { text: "Tri-Hard", value: "trihard" }, { text: "Randomised", value: "random" }], botParam: true, defaultValue: "eggk47", enableConditions: [["botRespawn", true]], });
+        initModule({ location: tp.botTabs.pages[2], title: "DoMove", storeAs: "botAutoMove", botParam: true, enableConditions: [["botRespawn", true]], });
+        initModule({ location: tp.botTabs.pages[2], title: "DoShoot", storeAs: "botAutoShoot", botParam: true, enableConditions: [["botRespawn", true]], });
+        initModule({ location: tp.botTabs.pages[2], title: "DoAimbot", storeAs: "botAimbot", botParam: true, enableConditions: [["botRespawn", true]], });;
         //INFO STUFF
-        initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true,});
+        initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true, });
 
         if (!AUTOMATED) {
             if (!load("StateFarmConfigMainPanel") || reset) {
@@ -1104,21 +1138,21 @@ sniping and someone sneaks up on you
 
         setTimeout(() => {
             if (AUTOMATED) { //why after 500ms? perhaps we'll never know. maybe because it gives a visual indication that statefarm is statefarming.
-                tp.mainPanel.hidden=true;
+                tp.mainPanel.hidden = true;
             };
             updateHiddenAndDisabled();
         }, 500);
 
         menuInitiated = true;
-        const defaultSpamText = ("dsc.gg/sfnetwork: "+menuTitle+" On Top! ");
+        const defaultSpamText = ("dsc.gg/sfnetwork: " + menuTitle + " On Top! ");
 
-        if (extract("spamChatText").includes("On Top!")) { change("spamChatText",defaultSpamText) };
-        if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot",defaultSpamText) };
+        if (extract("spamChatText").includes("On Top!")) { change("spamChatText", defaultSpamText) };
+        if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot", defaultSpamText) };
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
     };
-    const onContentLoaded = function() {
+    const onContentLoaded = function () {
         console.log("StateFarm: initMenu()");
         initMenu();
         console.log("StateFarm: applyStylesAddElements()");
@@ -1130,8 +1164,8 @@ sniping and someone sneaks up on you
         observer.observe(document.body, { subtree: true, childList: true });
     };
     //visual functions
-    const createPopup = function (text,type) {
-        console.log("Creating Popup Type:",type,"With Text:",text);
+    const createPopup = function (text, type) {
+        console.log("Creating Popup Type:", type, "With Text:", text);
         try {
             if (extract("popups")) {
                 const messageContainer = document.getElementById('message-container');
@@ -1143,19 +1177,19 @@ sniping and someone sneaks up on you
                 clonedMsgElement.innerText = text;
                 switch (type) {
                     case ("success"):
-                        clonedMsgElement.style.border='2px solid rgba(0, 255, 0, 0.5)'; break;
+                        clonedMsgElement.style.border = '2px solid rgba(0, 255, 0, 0.5)'; break;
                     case ("error"):
-                        clonedMsgElement.style.border='2px solid rgba(255, 0, 0, 0.5)'; break;
+                        clonedMsgElement.style.border = '2px solid rgba(255, 0, 0, 0.5)'; break;
                 };
-                clonedMsgElement.style.display='none';
-                const messageOffset=(messages.length+1)*50;
-                clonedMsgElement.style.bottom=messageOffset+"px";
+                clonedMsgElement.style.display = 'none';
+                const messageOffset = (messages.length + 1) * 50;
+                clonedMsgElement.style.bottom = messageOffset + "px";
                 void clonedMsgElement.offsetWidth;
-                clonedMsgElement.style.display='';
+                clonedMsgElement.style.display = '';
                 messageContainer.appendChild(clonedMsgElement);
                 //reorder such that newest is lowest
-                for (let i=messages.length-1;i>=0;i--) {
-                    messages[i].style.bottom=(((messages.length-i)*50)-40)+"px";
+                for (let i = messages.length - 1; i >= 0; i--) {
+                    messages[i].style.bottom = (((messages.length - i) * 50) - 40) + "px";
                 };
             };
         } catch (error) {
@@ -1412,11 +1446,11 @@ sniping and someone sneaks up on you
         minangleCircle.style.pointerEvents = 'none';
         document.body.appendChild(minangleCircle);
 
-        if (load("HUD-Positions") == null){
-            hudElementPositions["coordElement"] = {"top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left};
-            hudElementPositions["gameInfoElement"] = {"top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left};
-            hudElementPositions["playerstatsElement"] = {"top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left};
-            hudElementPositions["playerinfoElement"] = {"top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left};
+        if (load("HUD-Positions") == null) {
+            hudElementPositions["coordElement"] = { "top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left };
+            hudElementPositions["gameInfoElement"] = { "top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left };
+            hudElementPositions["playerstatsElement"] = { "top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left };
+            hudElementPositions["playerinfoElement"] = { "top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left };
             save("HUD-Positions", hudElementPositions);
         } else {
             hudElementPositions = load("HUD-Positions");
@@ -1433,11 +1467,11 @@ sniping and someone sneaks up on you
         }
 
     };
-    const makeDraggable = function(element,notMenu) {
+    const makeDraggable = function (element, notMenu) {
         if (element) {
             let offsetX, offsetY;
-            element.addEventListener('mousedown', function(e) {
-                const dragElement = function(e) {
+            element.addEventListener('mousedown', function (e) {
+                const dragElement = function (e) {
                     const x = (e.clientX - offsetX) / unsafeWindow.innerWidth * 100;
                     const y = (e.clientY - offsetY) / unsafeWindow.innerHeight * 100;
                     const maxX = 100 - (element.offsetWidth / unsafeWindow.innerWidth * 100);
@@ -1445,11 +1479,11 @@ sniping and someone sneaks up on you
                     element.style.left = `${Math.max(0, Math.min(x, maxX))}%`;
                     element.style.top = `${Math.max(0, Math.min(y, maxY))}%`;
                 };
-                if (notMenu||e.target.classList.contains('tp-rotv_t')) {
+                if (notMenu || e.target.classList.contains('tp-rotv_t')) {
                     offsetX = e.clientX - element.getBoundingClientRect().left;
                     offsetY = e.clientY - element.getBoundingClientRect().top;
                     document.addEventListener('mousemove', dragElement);
-                    document.addEventListener('mouseup', function() {
+                    document.addEventListener('mouseup', function () {
                         document.removeEventListener('mousemove', dragElement);
                     });
                     e.preventDefault(); // Prevent text selection during drag
@@ -1480,10 +1514,10 @@ sniping and someone sneaks up on you
                     window.removeEventListener("mouseup", reset);
 
                     //saves new positions
-                    hudElementPositions["coordElement"] = {"top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left};
-                    hudElementPositions["gameInfoElement"] = {"top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left};
-                    hudElementPositions["playerstatsElement"] = {"top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left};
-                    hudElementPositions["playerinfoElement"] = {"top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left};
+                    hudElementPositions["coordElement"] = { "top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left };
+                    hudElementPositions["gameInfoElement"] = { "top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left };
+                    hudElementPositions["playerstatsElement"] = { "top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left };
+                    hudElementPositions["playerinfoElement"] = { "top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left };
                     save("HUD-Positions", hudElementPositions);
                 };
 
@@ -1495,8 +1529,8 @@ sniping and someone sneaks up on you
         };
     };
 
-    const applyTheme = function(setTheme) {
-        setTheme = (setTheme||extract("themeType")||"defaultTheme");
+    const applyTheme = function (setTheme) {
+        setTheme = (setTheme || extract("themeType") || "defaultTheme");
         let rootTheme
         switch (setTheme) {
             case ("defaultTheme"):
@@ -1522,7 +1556,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(230, 7%, 75%, 0.70);
                 --tp-monitor-background-color: hsla(230, 7%, 0%, 0.20);
                 --tp-monitor-foreground-color: hsla(230, 7%, 75%, 0.70);`; break;
-            case ( "icebergTheme" ):
+            case ("icebergTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(230, 20%, 11%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1545,7 +1579,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(230, 12%, 48%, 1.00);
                 --tp-monitor-background-color: hsla(230, 20%, 8%, 1.00);
                 --tp-monitor-foreground-color: hsla(230, 12%, 48%, 1.00);`; break;
-            case ( "jetblackTheme" ):
+            case ("jetblackTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(0, 0%, 0%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1568,7 +1602,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(0, 0%, 50%, 1.00);
                 --tp-monitor-background-color: hsla(0, 0%, 8%, 1.00);
                 --tp-monitor-foreground-color: hsla(0, 0%, 48%, 1.00);`; break;
-            case ( "lightTheme" ):
+            case ("lightTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(230, 5%, 90%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.10);
@@ -1591,7 +1625,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(230, 10%, 30%, 0.70);
                 --tp-monitor-background-color: hsla(230, 15%, 30%, 0.10);
                 --tp-monitor-foreground-color: hsla(230, 10%, 30%, 0.50);`; break;
-            case ( "retroTheme" ):
+            case ("retroTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(40, 3%, 90%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.30);
@@ -1614,7 +1648,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(40, 3%, 50%, 1.00);
                 --tp-monitor-background-color: hsla(120, 3%, 20%, 1.00);
                 --tp-monitor-foreground-color: hsla(120, 40%, 60%, 0.80);`; break;
-            case ( "translucentTheme" ):
+            case ("translucentTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(0, 0%, 10%, 0.80);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.20);
@@ -1637,7 +1671,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(0, 0%, 100%, 0.50);
                 --tp-monitor-background-color: hsla(0, 0%, 0%, 0.30);
                 --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.30);`; break;
-            case ( "statefarmerTheme" ):
+            case ("statefarmerTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(0, 80%, 40%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1660,7 +1694,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
                 --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
                 --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
-            case ( "blurpleTheme" ):
+            case ("blurpleTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(255, 68%, 39%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1683,7 +1717,7 @@ sniping and someone sneaks up on you
                 --tp-label-foreground-color: hsla(0, 0%, 100%, 0.90);
                 --tp-monitor-background-color: hsla(0, 0%, 0%, 0.50);
                 --tp-monitor-foreground-color: hsla(0, 0%, 100%, 0.50);`; break;
-            case ( "shellFarmTheme" ):
+            case ("shellFarmTheme"):
                 rootTheme = `
                 --tp-base-background-color: hsla(198, 100%, 50%, 1.00);
                 --tp-base-shadow-color: hsla(0, 0%, 0%, 0.2);
@@ -1715,7 +1749,7 @@ sniping and someone sneaks up on you
         `;
         document.head.appendChild(styleElement);
     };
-    const temp = document.createElement( 'div' );
+    const temp = document.createElement('div');
     temp.innerHTML = `
 <style>
 .notif {
@@ -1781,17 +1815,17 @@ z-index: 999999;
     const mapEl = temp.querySelector('.MiniMap');
     let myPlayerDot = temp.querySelector('.playerDot');
     const playerDotsMap = new Map();
-    window.addEventListener( 'DOMContentLoaded', async function () {
-        while ( temp.children.length > 0 ) {
-            document.body.appendChild( temp.children[ 0 ] );
+    window.addEventListener('DOMContentLoaded', async function () {
+        while (temp.children.length > 0) {
+            document.body.appendChild(temp.children[0]);
         }
-    } );
+    });
     function updateMiniMap(player, myPlayer) {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         // Check if a player dot with the unique ID already exists, then do flow of control
-        let xPosition = (player[H.x] / 100) * windowWidth;xPosition += (windowWidth + xPosition)/2;
-        let yPosition = (player[H.z] / 100) * windowHeight;yPosition += (windowHeight + yPosition)/2;
+        let xPosition = (player[H.x] / 100) * windowWidth; xPosition += (windowWidth + xPosition) / 2;
+        let yPosition = (player[H.z] / 100) * windowHeight; yPosition += (windowHeight + yPosition) / 2;
         if (!player[H.playing] || !player) {
             if (playerDotsMap.has(player.uniqueId)) {
                 const playerDotToRemove = playerDotsMap.get(player.uniqueId);
@@ -1827,10 +1861,10 @@ z-index: 999999;
     };
     function yawToDeg(yaw) {
         let yaw_degrees = yaw * 180.0 / Math.PI; // conversion to degrees
-        if( yaw_degrees < 0 ) yaw_degrees += 360.0; // convert negative to positive angles
+        if (yaw_degrees < 0) yaw_degrees += 360.0; // convert negative to positive angles
         return yaw_degrees;
     };
-    const applyStateFarmLogo = function() {
+    const applyStateFarmLogo = function () {
         if (extract("replaceLogo")) {
             const images = document.getElementsByTagName('img');
             for (let i = 0; i < images.length; i++) {
@@ -1851,7 +1885,7 @@ z-index: 999999;
         };
     };
     //1337 H4X
-    const getSearchParam = function(param) {
+    const getSearchParam = function (param) {
         const queryParams = new URLSearchParams(unsafeWindow.location.search);
         return queryParams.get(param);
     };
@@ -1862,11 +1896,11 @@ z-index: 999999;
         if (xhr.status === 200) {
             return xhr.responseText;
         } else {
-            console.error("Error fetching "+url);
+            console.error("Error fetching " + url);
             return null;
         };
     };
-    const findKeyByValue = function(obj, value) {
+    const findKeyByValue = function (obj, value) {
         for (const key in obj) {
             if (obj[key] === value) {
                 return key;
@@ -1874,32 +1908,32 @@ z-index: 999999;
         };
         return null; // Return null if the value is not found
     };
-    const newProxy = function() {
-        unsafeWindow.location.replace(unsafeWindow.location.href.replace(unsafeWindow.location.hostname,proxyList[3]));
+    const newProxy = function () {
+        unsafeWindow.location.replace(unsafeWindow.location.href.replace(unsafeWindow.location.hostname, proxyList[3]));
     };
-    const unban = function() {
+    const unban = function () {
         console.log("STATEFARM UNBANNING...");
         unsafeWindow.extern.signOut();
         setTimeout(() => {
-            const banPopup=document.getElementById("bannedPopup");
-            if (banPopup) { banPopup.style.display='none' }; //hide it
+            const banPopup = document.getElementById("bannedPopup");
+            if (banPopup) { banPopup.style.display = 'none' }; //hide it
         }, 10000);
     };
-    const reloadPage = function() {
+    const reloadPage = function () {
         unsafeWindow.location.reload(true);
     };
-    const spamReport = function() {
-        (async function(){
-            const sleep = function(ms) {
+    const spamReport = function () {
+        (async function () {
+            const sleep = function (ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             };
             playerList = document.getElementById("playerList").children;
-            for (let i = 0; i < playerList.length; i++){
+            for (let i = 0; i < playerList.length; i++) {
                 playerList[i].click();
                 await sleep(400);
                 document.getElementsByClassName("ss_button btn_medium btn_red bevel_red")[0].click();
                 await sleep(400);
-                document.getElementsByClassName("ss_checkbox label")[randomInt(0,3)].click();
+                document.getElementsByClassName("ss_checkbox label")[randomInt(0, 3)].click();
                 await sleep(400);
                 document.getElementsByClassName("ss_button btn_medium btn_green bevel_green")[0].click();
                 await sleep(400);
@@ -1908,7 +1942,7 @@ z-index: 999999;
         })();
     };
 
-    const broadcastToBots = function(command) {
+    const broadcastToBots = function (command) {
         const commandTime = Date.now();
         console.log("StateFarm: sending command to bots:", command, "| at time:", commandTime);
         GM_setValue("StateFarm_Command", command);
@@ -1933,38 +1967,38 @@ z-index: 999999;
         ];
         return resultRgb;
     };
-    const distancePlayers = function (player,yMultiplier) {
-        yMultiplier=yMultiplier||1;
+    const distancePlayers = function (player, yMultiplier) {
+        yMultiplier = yMultiplier || 1;
         let vector = getDirectionVectorFacingTarget(player);
-        return Math.hypot(vector.x,vector.y*yMultiplier,vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
+        return Math.hypot(vector.x, vector.y * yMultiplier, vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
-        return setPrecision(Math.mod(Math.atan2(pos.x,pos.z), Math.PI2));
+        return setPrecision(Math.mod(Math.atan2(pos.x, pos.z), Math.PI2));
     };
     const calculatePitch = function (pos) {
-        return setPrecision(-Math.atan2(pos.y,Math.hypot(pos.x,pos.z))%1.5);
+        return setPrecision(-Math.atan2(pos.y, Math.hypot(pos.x, pos.z)) % 1.5);
     };
-    const getAngularDifference = function (obj1,obj2) { //this is super scuffed
-        return Math.abs(obj1[H.yaw]-obj2.yawReal)+Math.abs(obj1[H.pitch]-obj2.pitchReal);
+    const getAngularDifference = function (obj1, obj2) { //this is super scuffed
+        return Math.abs(obj1[H.yaw] - obj2.yawReal) + Math.abs(obj1[H.pitch] - obj2.pitchReal);
     };
-    const getDirectionVectorFacingTarget = function (target,vectorPassed,offsetY) {
+    const getDirectionVectorFacingTarget = function (target, vectorPassed, offsetY) {
         target = vectorPassed ? target : target[H.actor][H.mesh].position;
-        offsetY=offsetY||0;
+        offsetY = offsetY || 0;
         return {
             x: target.x - ss.MYPLAYER[H.actor][H.mesh].position.x,
-            y: target.y - ss.MYPLAYER[H.actor][H.mesh].position.y+offsetY,
+            y: target.y - ss.MYPLAYER[H.actor][H.mesh].position.y + offsetY,
             z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
         };
     };
-    const deg2rad = function(deg) {
+    const deg2rad = function (deg) {
         return deg * (Math.PI / 180);
     };
     const reverseString = function (str) { return str.split("").reverse().join("") };
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
-    const playAudio = function(name, panner, contextName) {
+    const playAudio = function (name, panner, contextName) {
         contextName = findStringInLists(divertContexts, name) || "OTHER";
         let audioContext;
         audioContext = audioContexts[contextName];
@@ -1972,10 +2006,10 @@ z-index: 999999;
         source.buffer = soundsSFC[name];
 
         const newPanner = audioContext.createPanner();
-        audioContext.listener.setPosition(0,0,0);
+        audioContext.listener.setPosition(0, 0, 0);
 
         if (panner) {
-            newPanner.context.listener.setPosition(panner.context.listener.positionX.value,panner.context.listener.positionY.value,panner.context.listener.positionZ.value);
+            newPanner.context.listener.setPosition(panner.context.listener.positionX.value, panner.context.listener.positionY.value, panner.context.listener.positionZ.value);
             newPanner.setPosition(
                 panner.context.listener.positionX.value - ((panner.context.listener.positionX.value - panner.positionX.value) * extract("distanceMult")),
                 panner.context.listener.positionY.value - ((panner.context.listener.positionY.value - panner.positionY.value) * extract("distanceMult")),
@@ -1998,14 +2032,14 @@ z-index: 999999;
         source.start();
     };
     const playerMatchesList = function (array, player) {
-        let nameMatched = isPartialMatch(array,player.name);
-        let idMatched = isPartialMatch(array,player.uniqueId);
-        return nameMatched||idMatched;
+        let nameMatched = isPartialMatch(array, player.name);
+        let idMatched = isPartialMatch(array, player.uniqueId);
+        return nameMatched || idMatched;
     };
-    const randomInt = function(min, max) {
+    const randomInt = function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
-    const radianAngleDiff = function (angle1,angle2) {
+    const radianAngleDiff = function (angle1, angle2) {
         const fullCircle = 2 * Math.PI;
         // Normalize angles to be within [0, 2π)
         angle1 = (angle1 % fullCircle + fullCircle) % fullCircle;
@@ -2021,15 +2055,15 @@ z-index: 999999;
             return diff;
         };
     };
-    const getScrambled=function(){return Array.from({length: 10}, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('')}
-    clientID=(getScrambled()+"noID");
-    const createAnonFunction=function(name,func){
-        const funcName=getScrambled();
-        unsafeWindow[funcName]=func;
-        F[name]=unsafeWindow[funcName];
-        functionNames[name]=funcName
+    const getScrambled = function () { return Array.from({ length: 10 }, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('') }
+    clientID = (getScrambled() + "noID");
+    const createAnonFunction = function (name, func) {
+        const funcName = getScrambled();
+        unsafeWindow[funcName] = func;
+        F[name] = unsafeWindow[funcName];
+        functionNames[name] = funcName
     };
-    const processChatItem = function (text,playerName,playerTeam,highlightColor) {
+    const processChatItem = function (text, playerName, playerTeam, highlightColor) {
         let chatItem = document.createElement("div");
         let playerNameSpan = document.createElement("span");
         let playerInfoContainer = document.createElement("div");
@@ -2060,22 +2094,22 @@ z-index: 999999;
             document.querySelector(".chat-container").scrollTop = document.querySelector(".chat-container").scrollHeight;
         };
     };
-    const updateOrCreateLinesESP = function (object,type,color) {
-        let newPosition,newScene,newParent
-        if (type=="playerESP") {
+    const updateOrCreateLinesESP = function (object, type, color) {
+        let newPosition, newScene, newParent
+        if (type == "playerESP") {
             newPosition = object[H.actor][H.mesh].position;
-            newScene    = object[H.actor].scene;
-            newParent   = object[H.actor][H.mesh];
+            newScene = object[H.actor].scene;
+            newParent = object[H.actor][H.mesh];
         } else {
             newPosition = object.position;
-            newScene    = object._scene;
-            newParent   = object;
+            newScene = object._scene;
+            newParent = object;
         };
         if (!object.generatedESP) {
             //tracers
             const tracerLines = L.BABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
-            tracerLines.color=new L.BABYLON.Color3(1, 1, 1);
-            tracerLines.renderingGroupId=1;
+            tracerLines.color = new L.BABYLON.Color3(1, 1, 1);
+            tracerLines.renderingGroupId = 1;
             object.tracerLines = tracerLines;
             //ESP
             //FUCK WIREFRAME BOXES! LIBERTYMUTUAL dictates we making our own MANUALLY bitch! to hell with those diagonal lines
@@ -2105,25 +2139,25 @@ z-index: 999999;
             };
             const box = L.BABYLON.MeshBuilder.CreateLineSystem(getScrambled(), { lines }, newScene);
             box.color = new L.BABYLON.Color3(1, 1, 1);
-            box.position.y=boxOffset[type];
+            box.position.y = boxOffset[type];
             box.renderingGroupId = 1;
-            box.parent=newParent;
-            object.box=box;
+            box.parent = newParent;
+            object.box = box;
             //TARGETS
             let target
-            if (type=="playerESP") {
+            if (type == "playerESP") {
                 target = L.BABYLON.MeshBuilder.CreateSphere(getScrambled(), { diameter: 0.05 }, newScene);
                 target.material = new L.BABYLON.StandardMaterial(getScrambled(), newScene);
                 target.material.diffuseColor = new L.BABYLON.Color3(1, 0, 0);
                 target.material.alpha = 0.5;
                 target.position.y = 0.3;
                 target.renderingGroupId = 1;
-                target.parent=newParent;
-                object.target=target;
+                target.parent = newParent;
+                object.target = target;
             };
             //stuff
-            object.generatedESP=true;
-            ESPArray.push([object,tracerLines,box,target]);
+            object.generatedESP = true;
+            ESPArray.push([object, tracerLines, box, target]);
         };
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
         object.tracerLines.color = new L.BABYLON.Color3(...color);
@@ -2131,20 +2165,20 @@ z-index: 999999;
     };
     const everySecond = function () {
         if (extract("debug")) {
-            globalSS={};
-            globalSS.ss=ss;
-            globalSS.H=H;
-            globalSS.tp=tp;
-            globalSS.initMenu=initMenu;
-            globalSS.extractAsDropdownInt=extractAsDropdownInt;
-            globalSS.extract=extract;
-            globalSS.extractDropdownList=extractDropdownList;
-            globalSS.save=save;
-            globalSS.load=load;
-            globalSS.remove=remove;
-            globalSS.change=change;
-            globalSS.list=GM_listValues;
-            globalSS.soundsSFC=soundsSFC;
+            globalSS = {};
+            globalSS.ss = ss;
+            globalSS.H = H;
+            globalSS.tp = tp;
+            globalSS.initMenu = initMenu;
+            globalSS.extractAsDropdownInt = extractAsDropdownInt;
+            globalSS.extract = extract;
+            globalSS.extractDropdownList = extractDropdownList;
+            globalSS.save = save;
+            globalSS.load = load;
+            globalSS.remove = remove;
+            globalSS.change = change;
+            globalSS.list = GM_listValues;
+            globalSS.soundsSFC = soundsSFC;
             // if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
         };
         startUpComplete = (!document.getElementById("progressBar"));
@@ -2152,56 +2186,56 @@ z-index: 999999;
         if (!botsDict) botsDict = {};
         if (AUTOMATED) {
             if (clientID) {
-                const autoLeave = extract("autoLeave") ? " AL: "+Math.round(((timeJoinedGame+(1000*extract("autoLeaveDelay"))) - Date.now())/100)/10 : "";
+                const autoLeave = extract("autoLeave") ? " AL: " + Math.round(((timeJoinedGame + (1000 * extract("autoLeaveDelay"))) - Date.now()) / 100) / 10 : "";
                 const newArray = {
                     noConfig: ((botsDict[clientID] && configNotSet) ? (
-                        (botsDict[clientID].noConfig>Date.now()) ? botsDict[clientID].noConfig : Date.now()
-                        ) : 0),
-                    username: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.name)||(unsafeWindow.vueApp.playerName)),
-                    uniqueId: ((ss&&ss.MYPLAYER&&ss.MYPLAYER.uniqueId)||"value_undefined"),
+                        (botsDict[clientID].noConfig > Date.now()) ? botsDict[clientID].noConfig : Date.now()
+                    ) : 0),
+                    username: ((ss && ss.MYPLAYER && ss.MYPLAYER.name) || (unsafeWindow.vueApp.playerName)),
+                    uniqueId: ((ss && ss.MYPLAYER && ss.MYPLAYER.uniqueId) || "value_undefined"),
                     startTime: startTime,
                     timecode: Date.now(),
-                    status: ((isBanned&&"banned")||
-                        (unsafeWindow.extern.inGame&&((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + autoLeave + " (" + findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")"))||
-                        (errorString||"idle")),
+                    status: ((isBanned && "banned") ||
+                        (unsafeWindow.extern.inGame && ((ss.MYPLAYER[H.playing] ? "playing " : (unsafeWindow.vueApp.game.respawnTime + "s cooldown ")) + GAMECODE + autoLeave + " (" + findKeyByValue(unsafeWindow.extern.GameType, unsafeWindow.vueApp.game.gameType) + ", " + unsafeWindow.vueData.currentRegionId + ", " + unsafeWindow.vueApp.game.mapName + ", team" + unsafeWindow.vueApp.game.team + ")")) ||
+                        (errorString || "idle")),
                 };
 
                 delete botsDict[clientID];
 
-                clientID = (unsafeWindow.vueData.firebaseId||clientID);
+                clientID = (unsafeWindow.vueData.firebaseId || clientID);
 
                 botsDict[clientID] = newArray;
             };
-            if (attemptedInjection && automatedBorder && automatedBorder.style && automatedBorder.style.borderColor=="rgb(255, 0, 0)") {
+            if (attemptedInjection && automatedBorder && automatedBorder.style && automatedBorder.style.borderColor == "rgb(255, 0, 0)") {
                 automatedBorder.style.borderColor = 'rgba(0, 255, 0, 1)';
             };
         } else {
             let oldBlacklist = botBlacklist;
             botBlacklist = "";
             if (extract("botNoKillMe")) {
-                botBlacklist += botBlacklist + ((ss&&ss.MYPLAYER&&ss.MYPLAYER.uniqueId)||"value_undefined") + ",";
+                botBlacklist += botBlacklist + ((ss && ss.MYPLAYER && ss.MYPLAYER.uniqueId) || "value_undefined") + ",";
             };
-            monitorObjects.botOnline="";
+            monitorObjects.botOnline = "";
             amountOnline = 0;
             const botsArray = Object.keys(botsDict).sort();
             for (i in botsArray) {
-                if (i!=="shallowClone") {
+                if (i !== "shallowClone") {
                     i = Number(i);
                     const botID = botsArray[i];
                     const data = botsDict[botID];
                     if (data.noConfig) {
                         updateBotParams();
-                        botsDict[botID].noConfig = Date.now()+5000;
+                        botsDict[botID].noConfig = Date.now() + 5000;
                     };
                     if (extract("botNoKillBots") && data.uniqueId !== "value_undefined") {
                         botBlacklist += data.uniqueId + ",";
                     };
-                    if ((data.timecode+10000)<Date.now()) { //give up on this bot lmao
+                    if ((data.timecode + 10000) < Date.now()) { //give up on this bot lmao
                         delete botsDict[botID];
-                    } else if ((data.timecode+4000)<Date.now()) { //maybe it will come back
-                        botsDict[botID].status="not responding " + (Date.now()-data.timecode) + "ms elapsed";
+                    } else if ((data.timecode + 4000) < Date.now()) { //maybe it will come back
+                        botsDict[botID].status = "not responding " + (Date.now() - data.timecode) + "ms elapsed";
                     }; //bot is doing fine... hopefully
-                    amountOnline+=1;
+                    amountOnline += 1;
                     monitorObjects.botOnline = monitorObjects.botOnline + "\n" + data.username + " [" + "..." + botID.slice(-4) + "]: " + data.status;
                 };
             };
@@ -2209,12 +2243,12 @@ z-index: 999999;
                 console.log("old:", oldBlacklist, "new:", botBlacklist);
                 updateBotParams();
             };
-            monitorObjects.botOnline = ((amountOnline) + " bots online.")+monitorObjects.botOnline;
+            monitorObjects.botOnline = ((amountOnline) + " bots online.") + monitorObjects.botOnline;
         };
-        GM_setValue("StateFarm_BotStatus",botsDict);
+        GM_setValue("StateFarm_BotStatus", botsDict);
 
         allFolders.forEach(function (name) {
-            save(name,tp[name].expanded);
+            save(name, tp[name].expanded);
         });
 
         coordElement.style.display = "none";
@@ -2227,11 +2261,11 @@ z-index: 999999;
         makeHudElementDragable(gameInfoElement);
         makeHudElementDragable(playerstatsElement);
         makeHudElementDragable(playerinfoElement);
-        if (extract("gameBlacklistCodes")!="" && extract("gameBlacklistCodes") != undefined){
+        if (extract("gameBlacklistCodes") != "" && extract("gameBlacklistCodes") != undefined) {
             let input = extract("gameBlacklistCodes");
             input = input.split(",");
             input.forEach(function (code) {
-                if (code != "" && code.length == 7){
+                if (code != "" && code.length == 7) {
                     blacklistedGameCodes.push(code);
                 }
             });
@@ -2254,7 +2288,7 @@ z-index: 999999;
 
                 if (jsonFiles.length > 0) {
                     const jsonFileData = await zip.file(jsonFiles[0]).async('string');
-                    config = {...config, ...JSON.parse(jsonFileData)};
+                    config = { ...config, ...JSON.parse(jsonFileData) };
                 };
 
                 let loadedCount = 0;
@@ -2292,35 +2326,35 @@ z-index: 999999;
 
         if (startUpComplete && ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             if (extract("mockMode")) {
-                let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[1].textContent;
-                let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length-1].children[0].textContent.slice(0,-2);
+                let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length - 1].children[1].textContent;
+                let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length - 1].children[0].textContent.slice(0, -2);
                 // console.log("Chat Name:", chatName);
-                if (chatName && chatName!==username && textAfterLastColon!=="joined." && textAfterLastColon!=="left." && !handleChat(textAfterLastColon)) {
+                if (chatName && chatName !== username && textAfterLastColon !== "joined." && textAfterLastColon !== "left." && !handleChat(textAfterLastColon)) {
                     sendChatMessage(textAfterLastColon);
                 }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
             };
             if (extract("antiAFK")) {
-                if (Date.now()>(lastAntiAFKMessage+270000)) {
-                    if (sendChatMessage(antiAFKString+filteredList[randomInt(0,filteredList.length-1)])) {
-                        lastAntiAFKMessage=Date.now();
+                if (Date.now() > (lastAntiAFKMessage + 270000)) {
+                    if (sendChatMessage(antiAFKString + filteredList[randomInt(0, filteredList.length - 1)])) {
+                        lastAntiAFKMessage = Date.now();
                     };
                 };
             };
             if (extract("gameInfo")) {
-                let gameInfoText=GAMECODE+" | "+playersInGame+"/18 | "+(18-playersInGame)+" slots remaining. | Server: "+unsafeWindow.vueData.currentRegionId+" | Gamemode: "+findKeyByValue(unsafeWindow.extern.GameType,unsafeWindow.vueApp.game.gameType)+" | Map: "+unsafeWindow.vueApp.game.mapName+" | Time in game: "+(Math.floor((Date.now()-timeJoinedGame)/1000))+"s"+(extract("autoLeave") ? " | AutoLeave: "+(Math.ceil(((timeJoinedGame+(1000*extract("autoLeaveDelay"))) - Date.now())/1000))+"s" : "");
+                let gameInfoText = GAMECODE + " | " + playersInGame + "/18 | " + (18 - playersInGame) + " slots remaining. | Server: " + unsafeWindow.vueData.currentRegionId + " | Gamemode: " + findKeyByValue(unsafeWindow.extern.GameType, unsafeWindow.vueApp.game.gameType) + " | Map: " + unsafeWindow.vueApp.game.mapName + " | Time in game: " + (Math.floor((Date.now() - timeJoinedGame) / 1000)) + "s" + (extract("autoLeave") ? " | AutoLeave: " + (Math.ceil(((timeJoinedGame + (1000 * extract("autoLeaveDelay"))) - Date.now()) / 1000)) + "s" : "");
                 gameInfoElement.innerText = gameInfoText;
                 void gameInfoElement.offsetWidth;
                 gameInfoElement.style.display = '';
             };
             if (extract("leaveEmpty")) {
-                if (playersInGame==1 || playersInGame==2) { //if literally empty or there is one person remaining
+                if (playersInGame == 1 || playersInGame == 2) { //if literally empty or there is one person remaining
                     createPopup("Left empty game. [LeaveEmpty]")
                     change("leaveGame");
-                    playersInGame=0;
+                    playersInGame = 0;
                 };
             };
             if (extract("autoLeave")) {
-                const remaining = ((timeJoinedGame+(1000*extract("autoLeaveDelay"))) - Date.now())/1000;
+                const remaining = ((timeJoinedGame + (1000 * extract("autoLeaveDelay"))) - Date.now()) / 1000;
                 if (remaining <= 0) {
                     createPopup("AutoLeave: Leaving now...");
                     change("leaveGame");
@@ -2334,10 +2368,10 @@ z-index: 999999;
             };
 
             //credits: @2lars and @macintosh2 in the discord :)
-            if ((extract("autoTeam")!=="disabled")&&ss.MYPLAYER.team!==0) {
-                if ((extract("autoTeam")=="random") ||
-                    (extract("autoTeam")=="red")&&(ss.MYPLAYER.team==1) ||
-                    (extract("autoTeam")=="blue")&&(ss.MYPLAYER.team==2)) {
+            if ((extract("autoTeam") !== "disabled") && ss.MYPLAYER.team !== 0) {
+                if ((extract("autoTeam") == "random") ||
+                    (extract("autoTeam") == "red") && (ss.MYPLAYER.team == 1) ||
+                    (extract("autoTeam") == "blue") && (ss.MYPLAYER.team == 2)) {
                     unsafeWindow.extern.switchTeam();
                 };
             };
@@ -2354,46 +2388,46 @@ z-index: 999999;
         } else {
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
-                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length===7)?2:0,vueApp.currentGameType,(vueApp.playerName),-1,extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length === 7) ? 2 : 0, vueApp.currentGameType, (vueApp.playerName), -1, extract("joinCode"));
                 };
             };
-            if (extract("autoRegion")!=="disabled") {
-                const region = (extract("autoRegion")=="random" ? extractDropdownList("autoRegion")[randomInt(1,7)].value : extract("autoRegion"));
+            if (extract("autoRegion") !== "disabled") {
+                const region = (extract("autoRegion") == "random" ? extractDropdownList("autoRegion")[randomInt(1, 7)].value : extract("autoRegion"));
                 unsafeWindow.vueData.currentRegionId = region;
             };
-            if (extract("autoGamemode")!=="disabled") {
-                const gamemode = ((extract("autoGamemode")=="random") ? randomInt(0,3) : (extractAsDropdownInt("autoGamemode")-1));
+            if (extract("autoGamemode") !== "disabled") {
+                const gamemode = ((extract("autoGamemode") == "random") ? randomInt(0, 3) : (extractAsDropdownInt("autoGamemode") - 1));
                 unsafeWindow.vueApp.onGameTypeChanged(gamemode);
             };
         };
 
         if (startUpComplete) {
             // check if it is a user's first time to run the script
-            if ( GM_getValue("StateFarm_firstRun") !== 1 ) {
+            if (GM_getValue("StateFarm_firstRun") !== 1) {
                 firstExecution = true;
             }
-            if ((extract("setDetail")!==previousDetail)&&(extract("setDetail")!=="disabled")) {
-                unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=false;
-                if (extract("setDetail")=="autodetail") {
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[3].value=true;
-                } else if (extract("setDetail")=="nodetails") {
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=false;
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=false;
-                } else if (extract("setDetail")=="shadows") {
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=true;
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=false;
-                } else if (extract("setDetail")=="highres") {
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=false;
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=true;
-                } else if (extract("setDetail")=="shadowshighres") {
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value=true;
-                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value=true;
+            if ((extract("setDetail") !== previousDetail) && (extract("setDetail") !== "disabled")) {
+                unsafeWindow.vueApp.settingsUi.togglers.misc[3].value = false;
+                if (extract("setDetail") == "autodetail") {
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[3].value = true;
+                } else if (extract("setDetail") == "nodetails") {
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value = false;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value = false;
+                } else if (extract("setDetail") == "shadows") {
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value = true;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value = false;
+                } else if (extract("setDetail") == "highres") {
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value = false;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value = true;
+                } else if (extract("setDetail") == "shadowshighres") {
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[4].value = true;
+                    unsafeWindow.vueApp.settingsUi.togglers.misc[5].value = true;
                 };
                 unsafeWindow.extern.applyUiSettings(unsafeWindow.vueApp.settingsUi);
             };
-            previousDetail=extract("setDetail");
+            previousDetail = extract("setDetail");
 
-            if (previousTitleAnimation!==extract("titleAnimation")) {
+            if (previousTitleAnimation !== extract("titleAnimation")) {
                 let existingFavicons = document.querySelectorAll("link[rel*='icon']");
                 existingFavicons.forEach(function (favicon) {
                     favicon.parentNode.removeChild(favicon);
@@ -2412,14 +2446,14 @@ z-index: 999999;
         };
 
         const banPopup = document.getElementById("bannedPopup");
-        if (attemptedInjection && banPopup && vueApp.bannedPopup.expire!=="") {
-            isBanned=true;
+        if (attemptedInjection && banPopup && vueApp.bannedPopup.expire !== "") {
+            isBanned = true;
         };
         if (isBanned && extract("autoUnban") && (!attemptedAutoUnban)) {
             console.log("eep!");
-            banPopup.textContent='StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
+            banPopup.textContent = 'StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
             unban();
-            attemptedAutoUnban=true;
+            attemptedAutoUnban = true;
             createPopup("AutoUnban: Attempting to Unban...");
             setTimeout(() => {
                 createPopup("AutoUnban: Removed ban message.");
@@ -2430,26 +2464,26 @@ z-index: 999999;
             }, 15000);
         };
 
-        if (extract("eggColour")!=="disabled") {
-            const colour = extract("eggColour")=="random" ? randomInt(0,6) : extractAsDropdownInt("eggColour")-1;
-            if (colour!==ss.USERDATA.playerAccount.colorIdx) {
+        if (extract("eggColour") !== "disabled") {
+            const colour = extract("eggColour") == "random" ? randomInt(0, 6) : extractAsDropdownInt("eggColour") - 1;
+            if (colour !== ss.USERDATA.playerAccount.colorIdx) {
                 extern.setShellColor(colour);
                 vueApp.onBackClick();
             };
         };
-        if (extract("autoStamp")!=="disabled") {
-            const stampID = 2000 + (extract("autoStamp")=="random" ? randomInt(1,6) : extractAsDropdownInt("autoStamp"));
+        if (extract("autoStamp") !== "disabled") {
+            const stampID = 2000 + (extract("autoStamp") == "random" ? randomInt(1, 6) : extractAsDropdownInt("autoStamp"));
             if (ss.USERDATA && ss.USERDATA.playerAccount) {
-                if (stampID!==((ss.USERDATA.playerAccount.stampItem && ss.USERDATA.playerAccount.stampItem?.id)||-1)) {
+                if (stampID !== ((ss.USERDATA.playerAccount.stampItem && ss.USERDATA.playerAccount.stampItem?.id) || -1)) {
                     ss.USERDATA.playerAccount.stampItem = unsafeWindow.extern.catalog.findItemById(stampID);
                     vueApp.onBackClick();
                 };
             };
         };
-        if (extract("autoHat")!=="disabled") {
-            const hatID = 1000 + (extract("autoHat")=="random" ? randomInt(1,6) : extractAsDropdownInt("autoHat"));
+        if (extract("autoHat") !== "disabled") {
+            const hatID = 1000 + (extract("autoHat") == "random" ? randomInt(1, 6) : extractAsDropdownInt("autoHat"));
             if (ss.USERDATA && ss.USERDATA.playerAccount) {
-                if (hatID!==((ss.USERDATA.playerAccount.hatItem && ss.USERDATA.playerAccount.hatItem?.id)||-1)) {
+                if (hatID !== ((ss.USERDATA.playerAccount.hatItem && ss.USERDATA.playerAccount.hatItem?.id) || -1)) {
                     ss.USERDATA.playerAccount.hatItem = unsafeWindow.extern.catalog.findItemById(hatID);
                     vueApp.onBackClick();
                 };
@@ -2465,7 +2499,7 @@ z-index: 999999;
         //block ads or something kek
         localStorage.timesPlayed = 0;
     };
-    const handleCommand = function(command) {
+    const handleCommand = function (command) {
         args = command.split(" ");
 
         switch (args[0]) {
@@ -2477,7 +2511,7 @@ z-index: 999999;
                 configNotSet = false;
                 break;
             case "ping":
-                createPopup("Pong! "+((Date.now()-cachedCommandTime))+"ms","success");
+                createPopup("Pong! " + ((Date.now() - cachedCommandTime)) + "ms", "success");
                 break;
             case "kill":
                 unsafeWindow.close();
@@ -2500,7 +2534,7 @@ z-index: 999999;
             case "join":
                 code = args[1];
                 if (code) {
-                    unsafeWindow.vueApp.externPlayObject(0,0,unsafeWindow.vueApp.playerName,-1,code);
+                    unsafeWindow.vueApp.externPlayObject(0, 0, unsafeWindow.vueApp.playerName, -1, code);
                 } else {
                     alert("Invalid code");
                 };
@@ -2551,19 +2585,19 @@ z-index: 999999;
 
         }
     };
-    const clearPath = function() {
+    const clearPath = function () {
         activePath = undefined;
         activeNodeTarget = undefined;
     }
-    const clearPath_andTarget = function() {
+    const clearPath_andTarget = function () {
         clearPath();
         pathfindingTargetOverride = undefined;
     };
     const everyDecisecond = function () {
-        updateConfig(); deciSecondsPassed+=1;
+        updateConfig(); deciSecondsPassed += 1;
 
         if (extract("titleAnimation")) {
-            if (deciSecondsPassed%3==0) {
+            if (deciSecondsPassed % 3 == 0) {
                 unsafeWindow.document.title = titleAnimationFrames[currentFrameIndex];
                 currentFrameIndex = (currentFrameIndex + 1) % titleAnimationFrames.length;
             };
@@ -2574,27 +2608,27 @@ z-index: 999999;
         if (ss && ss.MYPLAYER && unsafeWindow.extern.inGame) {
             //innertext stuff, fairly resource intensive. disable these for performance
             if (extract("playerStats")) {
-                let playerStates="";
-                ss.PLAYERS.forEach(player=>{
-                    if (player && (player!==ss.MYPLAYER) && (player[H.hp]>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                        playerStates=playerStates+player.name+": "+Math.round(player[H.hp])+" HP\n";
+                let playerStates = "";
+                ss.PLAYERS.forEach(player => {
+                    if (player && (player !== ss.MYPLAYER) && (player[H.hp] > 0) && ((!ss.MYPLAYER.team) || (player.team !== ss.MYPLAYER.team))) {
+                        playerStates = playerStates + player.name + ": " + Math.round(player[H.hp]) + " HP\n";
                     };
                 });
-                if (playerStates=="") {playerStates="No Enemy Players"};
+                if (playerStates == "") { playerStates = "No Enemy Players" };
                 playerstatsElement.innerText = playerStates;
                 void playerstatsElement.offsetWidth;
                 playerstatsElement.style.display = '';
             };
             if (extract("playerInfo")) {
-                let playerInfoString="";
-                const player=currentlyTargeting||playerLookingAt||undefined
+                let playerInfoString = "";
+                const player = currentlyTargeting || playerLookingAt || undefined
                 if (player && player.distance && player[H.playing]) {
-                    playerInfoString=playerInfoString+player.name+"\n"
-                    playerInfoString=playerInfoString+"HP: "+Math.round(player[H.hp])+"\n"
-                    playerInfoString=playerInfoString+"Distance: "+player.distance.toFixed(3)+"\n"
-                    playerInfoString=playerInfoString+"AngleDiff: "+player.angleDiff.toFixed(3)+"\n"
+                    playerInfoString = playerInfoString + player.name + "\n"
+                    playerInfoString = playerInfoString + "HP: " + Math.round(player[H.hp]) + "\n"
+                    playerInfoString = playerInfoString + "Distance: " + player.distance.toFixed(3) + "\n"
+                    playerInfoString = playerInfoString + "AngleDiff: " + player.angleDiff.toFixed(3) + "\n"
                 };
-                if (playerInfoString=="") {playerInfoString="Not Looking At Player"};
+                if (playerInfoString == "") { playerInfoString = "Not Looking At Player" };
                 playerinfoElement.innerText = playerInfoString;
                 void playerinfoElement.offsetWidth;
                 playerinfoElement.style.display = '';
@@ -2609,9 +2643,9 @@ z-index: 999999;
                 coordElement.innerText = personalCoordinate;
                 void coordElement.offsetWidth;
                 coordElement.style.display = '';
-                           // create an info box for the first execution, i have 69697935 iq
-            if ( firstExecution == true ) {
-                firstUseElement.innerHTML = `
+                // create an info box for the first execution, i have 69697935 iq
+                if (firstExecution == true) {
+                    firstUseElement.innerHTML = `
                 <style>
                 @font-face {
                     font-family: "Bahnschrift";
@@ -2675,18 +2709,18 @@ z-index: 999999;
                 </div>
             </body>
                 `
-                firstUseElement.style.display = '';
-                document.addEventListener('keydown', function(event) {
-                    if (event.keyCode === 27) {
-                        firstUseElement.style.opacity = '0';
-                        firstUseElement.style.display = "none";
-                        setTimeout(function() {
-                            firstUseElement.parentNode.removeChild(firstUseElement);
-                        }, 1000)
-                    }
-                    GM_setValue("StateFarm_firstRun", 1);
-            });
-        }
+                    firstUseElement.style.display = '';
+                    document.addEventListener('keydown', function (event) {
+                        if (event.keyCode === 27) {
+                            firstUseElement.style.opacity = '0';
+                            firstUseElement.style.display = "none";
+                            setTimeout(function () {
+                                firstUseElement.parentNode.removeChild(firstUseElement);
+                            }, 1000)
+                        }
+                        GM_setValue("StateFarm_firstRun", 1);
+                    });
+                }
             };
         };
         if (AUTOMATED) { //i know what youre saying looking at this. i am the greatest programmer to have ever lived
@@ -2708,7 +2742,7 @@ z-index: 999999;
     };
     const updateHiddenAndDisabledHelper = function (array) { //determines if all conditions are met
         conditionMet = false;
-        array.forEach(condition=>{
+        array.forEach(condition => {
             if ((extract(condition[0]) ? extract(condition[0]) : false) !== condition[1]) {
                 conditionMet = true;
                 return;
@@ -2721,42 +2755,42 @@ z-index: 999999;
         //hidden/disabled is an array of arrays. within each of the items, there is the condition required for the module to be shown
         //eg: [["aimbot",true],...] (will only be shown if extract("aimbot")==true)
         if (menuInitiated) {
-            allModules.forEach(module=>{
-                const tiedModules = tp[module+"TiedModules"];
+            allModules.forEach(module => {
+                const tiedModules = tp[module + "TiedModules"];
                 if (tiedModules) {
                     if (tiedModules.showConditions) {
-                        tp[module+"Button"].hidden = updateHiddenAndDisabledHelper(tiedModules.showConditions);
+                        tp[module + "Button"].hidden = updateHiddenAndDisabledHelper(tiedModules.showConditions);
                     };
                     if (tiedModules.hideConditions) {
-                        tp[module+"Button"].hidden = !updateHiddenAndDisabledHelper(tiedModules.hideConditions);
+                        tp[module + "Button"].hidden = !updateHiddenAndDisabledHelper(tiedModules.hideConditions);
                     };
                     if (tiedModules.enableConditions) {
-                        tp[module+"Button"].disabled = updateHiddenAndDisabledHelper(tiedModules.enableConditions);
+                        tp[module + "Button"].disabled = updateHiddenAndDisabledHelper(tiedModules.enableConditions);
                     };
                     if (tiedModules.disableConditions) {
-                        tp[module+"Button"].disabled = !updateHiddenAndDisabledHelper(tiedModules.disableConditions);
+                        tp[module + "Button"].disabled = !updateHiddenAndDisabledHelper(tiedModules.disableConditions);
                     };
                 };
             });
         };
     };
     const saveConfig = function () {
-        save("StateFarmConfigMainPanel",tp.mainPanel.exportPreset());
-        save("StateFarmConfigBotPanel",tp.botPanel.exportPreset());
+        save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
+        save("StateFarmConfigBotPanel", tp.botPanel.exportPreset());
     };
-    const save = function (key,value) {
+    const save = function (key, value) {
         if (AUTOMATED) { return undefined };
-        if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //dont need that anymore lmao
-        GM_setValue(storageKey+key,value);
+        if (JSON.parse(localStorage.getItem(key)) !== undefined) { localStorage.removeItem(key) }; //dont need that anymore lmao
+        GM_setValue(storageKey + key, value);
     };
     const load = function (key) {
         if (AUTOMATED) { key = getScrambled() };
-        return GM_getValue(storageKey+key)||JSON.parse(localStorage.getItem(key)); //localstorage is for legacy purposes *only*
+        return GM_getValue(storageKey + key) || JSON.parse(localStorage.getItem(key)); //localstorage is for legacy purposes *only*
     };
     const remove = function (key) {
         if (AUTOMATED) { return undefined };
-        GM_deleteValue(storageKey+key);
-        if (JSON.parse(localStorage.getItem(key))!==undefined) {localStorage.removeItem(key)}; //legacy
+        GM_deleteValue(storageKey + key);
+        if (JSON.parse(localStorage.getItem(key)) !== undefined) { localStorage.removeItem(key) }; //legacy
     };
     const addUserPresets = function (presets) { //adds presets from dict to inbilt presets, can be called multiple times to update
         if (presets != null) {
@@ -2786,19 +2820,19 @@ z-index: 999999;
     //Updates inbuiltPresets to include user presets
     addUserPresets(loadUserPresets());
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
-        chatThing=document.getElementById('chatIn');
+        chatThing = document.getElementById('chatIn');
         if (chatThing.value.includes("unlock")) {
-            createPopup("Message send failed: Account too new!","error");
+            createPopup("Message send failed: Account too new!", "error");
             return false;
-        } else if (ss.MYPLAYER.chatLines>2) {
-            createPopup("Chat Cooldown: "+(ss.MYPLAYER.chatLines-2)+" remaining.","error");
+        } else if (ss.MYPLAYER.chatLines > 2) {
+            createPopup("Chat Cooldown: " + (ss.MYPLAYER.chatLines - 2) + " remaining.", "error");
             return false;
         } else {
             try {
-                lastSentMessage=text;
+                lastSentMessage = text;
                 if (chatThing && unsafeWindow.extern.startChat) {
                     unsafeWindow.extern.startChat();
-                    chatThing.value=text;
+                    chatThing.value = text;
                     chatThing.dispatchEvent(new KeyboardEvent('keydown', {
                         key: 'Enter',
                         code: 'Enter',
@@ -2819,7 +2853,7 @@ z-index: 999999;
     const addStreamsToInGameUI = function () {
         let inGameUIElement = document.getElementById("inGameUI");
         let streams = document.getElementById("stream_scroll").children;
-        if ( inGameUIElement && streams.length > 0) {
+        if (inGameUIElement && streams.length > 0) {
             for (let i = 0; i < streams.length; i++) {
                 let hrefValue = streams[i].querySelector('a').href;
                 let nameValue = streams[i].querySelector(".stream_name").textContent;
@@ -2832,9 +2866,9 @@ z-index: 999999;
                     nameDiv.style.color = 'white';
                     nameDiv.style.cursor = 'pointer';
                     nameDiv.style.textDecoration = 'none';
-                    nameDiv.addEventListener('mouseover', function() { nameDiv.style.textDecoration = 'underline'; nameDiv.style.color = 'blue' });
-                    nameDiv.addEventListener('mouseout', function() { nameDiv.style.textDecoration = 'none'; nameDiv.style.color = 'white' });
-                    nameDiv.addEventListener('click', function() { unsafeWindow.open(hrefValue, '_blank'); });
+                    nameDiv.addEventListener('mouseover', function () { nameDiv.style.textDecoration = 'underline'; nameDiv.style.color = 'blue' });
+                    nameDiv.addEventListener('mouseout', function () { nameDiv.style.textDecoration = 'none'; nameDiv.style.color = 'white' });
+                    nameDiv.addEventListener('click', function () { unsafeWindow.open(hrefValue, '_blank'); });
                     containerDiv.setAttribute('data-name', nameValue);
                     containerDiv.appendChild(nameDiv);
                     containerDiv.appendChild(nameDiv);
@@ -2847,15 +2881,15 @@ z-index: 999999;
     };
     const highlightTargetOnLeaderboard = function (target, aimbot) {
         let playerArray = [];
-        ss.PLAYERS.forEach(player=>{
-            if (player && (target!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
+        ss.PLAYERS.forEach(player => {
+            if (player && (target !== ss.MYPLAYER) && player[H.playing] && (player[H.hp] > 0) && ((!ss.MYPLAYER.team) || (player.team !== ss.MYPLAYER.team))) {
                 const uniqueId = player.uniqueId;
                 const name = player.name;
                 const hp = player[H.hp]
                 playerArray.push({ player, uniqueId, name, hp });
             };
         });
-        Array.from(document.getElementById("playerList").children).forEach(playerListItem=>{
+        Array.from(document.getElementById("playerList").children).forEach(playerListItem => {
             if (aimbot && target?.name && target[H.playing] === playerListItem.textContent.slice(0, -3)) {//need to slice otherwise won't match properly
                 playerListItem.style.backgroundColor = 'blue';
             } else {
@@ -2867,14 +2901,14 @@ z-index: 999999;
     const highlightCrossHairReticleDot = function (bool) {
         let dot = document.getElementById("reticleDot");
         let crosshair = document.getElementById("crosshairContainer");
-        let setTo='';
-        if (bool===true) {
-            setTo="green";
-        } else if (bool===false) {
-            setTo="red";
+        let setTo = '';
+        if (bool === true) {
+            setTo = "green";
+        } else if (bool === false) {
+            setTo = "red";
         };
         dot.style.backgroundColor = setTo;
-        Array.from(crosshair.children).forEach(part=>{
+        Array.from(crosshair.children).forEach(part => {
             part.style.backgroundColor = setTo;
         });
     };
@@ -3010,8 +3044,8 @@ z-index: 999999;
         string = extractChatPacket(packet);
         if (string.includes(antiAFKString)) {
             console.log(packet)
-            console.log("AntiAFK replacement...", string.originalReplace(antiAFKString,""));
-            var constructed = constructChatPacket(string.originalReplace(antiAFKString,""));
+            console.log("AntiAFK replacement...", string.originalReplace(antiAFKString, ""));
+            var constructed = constructChatPacket(string.originalReplace(antiAFKString, ""));
             console.log(constructed)
             return constructed;
         };
@@ -3062,7 +3096,7 @@ z-index: 999999;
         var arr = new Uint8Array(packetData);
         return arr[0] == 39;
     };
-    const ghostSpamToggle = function () {}
+    const ghostSpamToggle = function () { }
     ghostSpamToggle.enabled = false;
     WebSocket.prototype._send = WebSocket.prototype.send;
     WebSocket.prototype.send = function (data) {
@@ -3076,25 +3110,25 @@ z-index: 999999;
             };
         };
     };
-    const predictBloom = function(yaw,pitch) { //outputs the difference in yaw/pitch from the bloom
+    const predictBloom = function (yaw, pitch) { //outputs the difference in yaw/pitch from the bloom
         let seed = ss.MYPLAYER[H.randomGen].seed;
         let numbers = [];
-        const accuracy=ss.MYPLAYER.weapon.accuracy;
+        const accuracy = ss.MYPLAYER.weapon.accuracy;
         for (var i = 0; i < 3; i++) { //generate from seed the values used to scatter shot
             seed = (seed * 9301 + 49297) % 233280;
-            numbers.push(((seed/233280)-0.5)*accuracy);
+            numbers.push(((seed / 233280) - 0.5) * accuracy);
         };
         const range = ss.MYPLAYER.weapon.constructor.range;
         const playerRotationMatrix = L.BABYLON.Matrix.RotationYawPitchRoll(yaw, pitch, 0);
         const rangeMatrix = L.BABYLON.Matrix.Translation(0, 0, range);
         const playerAndRangeMatrix = rangeMatrix.multiply(playerRotationMatrix);
-        const bloomMatrix = L.BABYLON.Matrix.RotationYawPitchRoll(numbers[0],numbers[1],numbers[2]);
+        const bloomMatrix = L.BABYLON.Matrix.RotationYawPitchRoll(numbers[0], numbers[1], numbers[2]);
         const finalBulletMatrix = playerAndRangeMatrix.multiply(bloomMatrix);
         const finalBulletTranslation = finalBulletMatrix.getTranslation();
         const bulletYaw = calculateYaw(finalBulletTranslation);
         const bulletPitch = calculatePitch(finalBulletTranslation);
-        const bulletYawDiff = radianAngleDiff(yaw,bulletYaw)
-        const bulletPitchDiff = radianAngleDiff(pitch,bulletPitch)
+        const bulletYawDiff = radianAngleDiff(yaw, bulletYaw)
+        const bulletPitchDiff = radianAngleDiff(pitch, bulletPitch)
         //console.log("current accuracy: ",accuracy)
         //console.log("input yaw: ",yaw)
         //console.log("input pitch: ",pitch)
@@ -3103,32 +3137,32 @@ z-index: 999999;
         //console.log("therefore yaw diff: ",bulletYawDiff)
         //console.log("therefore pitch diff: ",bulletPitchDiff)
 
-        return [bulletYawDiff,bulletPitchDiff];
+        return [bulletYawDiff, bulletPitchDiff];
     };
-    const applyBloom = function(dir,multiplier) { //multiplier can be set to -1 to invert
-        const bloomValues=predictBloom(dir.yawReal,dir.pitchReal);
+    const applyBloom = function (dir, multiplier) { //multiplier can be set to -1 to invert
+        const bloomValues = predictBloom(dir.yawReal, dir.pitchReal);
         return {
-            yawReal: dir.yawReal+(bloomValues[0]*multiplier),
-            pitchReal: dir.pitchReal+(bloomValues[1]*multiplier),
+            yawReal: dir.yawReal + (bloomValues[0] * multiplier),
+            pitchReal: dir.pitchReal + (bloomValues[1] * multiplier),
         };
     };
-    const predictPosition = function(player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
+    const predictPosition = function (player) { //outputs the prediction for where a player will be in the time it takes for a bullet to reach them
         let velocityVector = new L.BABYLON.Vector3(player.dx, player.dy, player.dz);
-        const bulletSpeed=ss.MYPLAYER.weapon.constructor.velocity;
+        const bulletSpeed = ss.MYPLAYER.weapon.constructor.velocity;
         const timeDiff = distancePlayers(player, 1) / bulletSpeed + 1;
-        let newPos = new L.BABYLON.Vector3(player[H.x],player[H.y],player[H.z]).add(velocityVector.scale(timeDiff));
+        let newPos = new L.BABYLON.Vector3(player[H.x], player[H.y], player[H.z]).add(velocityVector.scale(timeDiff));
         newPos.y = player[H.y];
         const cappedVector = new L.BABYLON.Vector3(velocityVector.x, 0.29, velocityVector.z);
         Math.capVector3(cappedVector);
         const terminalVelocity = -cappedVector.y;
         const timeAccelerating = Math.min(timeDiff, (terminalVelocity - velocityVector.y) / -0.012);
         const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
-        const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos,new L.BABYLON.Vector3(0,predictedY-1-newPos.y,0), ss.RAYS.grenadeCollidesWithCell);
-        newPos.y=Math.max(rayToGround ? rayToGround.pick.pickedPoint.y:0,predictedY)-0.072;
+        const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos, new L.BABYLON.Vector3(0, predictedY - 1 - newPos.y, 0), ss.RAYS.grenadeCollidesWithCell);
+        newPos.y = Math.max(rayToGround ? rayToGround.pick.pickedPoint.y : 0, predictedY) - 0.072;
         // console.log(velocityVector, bulletSpeed, timeDiff, cappedVector, terminalVelocity, timeAccelerating, predictedY, rayToGround, newPos);
         return newPos;
     };
-    const getLineOfSight = function(target,usePrediction) { //returns true if no wall collisions
+    const getLineOfSight = function (target, usePrediction) { //returns true if no wall collisions
         // credit for code: de_neuublue/crackware
         if (target && target[H.actor] && target[H.actor][H.bodyMesh] && target[H.actor][H.bodyMesh].renderOverlay && target[H.actor][H.bodyMesh].overlayColor.g == 1) return; //check if player is spawned in fully
 
@@ -3136,7 +3170,7 @@ z-index: 999999;
         let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor][H.mesh].position; //set to always use prediction for now
         // let targetPosition = usePrediction ? predictPosition(target) : target[H.actor][H.mesh].position;
 
-        let directionVector = getDirectionVectorFacingTarget(targetPosition,true);
+        let directionVector = getDirectionVectorFacingTarget(targetPosition, true);
         let rotationMatrix = L.BABYLON.Matrix.RotationYawPitchRoll(calculateYaw(directionVector), calculatePitch(directionVector), 0);
         let directionMatrix = L.BABYLON.Matrix.Translation(0, 0, ss.MYPLAYER.weapon.constructor.range).multiply(rotationMatrix);
         directionVector = directionMatrix.getTranslation();
@@ -3147,7 +3181,7 @@ z-index: 999999;
         let distanceToTarget = L.BABYLON.Vector3.DistanceSquared(position, targetPosition)
         return distanceToTarget < distanceToMap
     };
-    const getAimbot = function(target) {
+    const getAimbot = function (target) {
         let targetPosition = extract("prediction") ? predictPosition(target) : target[H.actor][H.mesh].position;
         let directionVector = getDirectionVectorFacingTarget(targetPosition, true, -0.05);
 
@@ -3165,10 +3199,10 @@ z-index: 999999;
     const injectScript = function () {
         //TODO: replace with anon functions
         createAnonFunction('fixCamera', function () {
-            return isKeyToggled[bindsArray.zoom] && (extract("zoom")*(Math.PI / 180)) || (extract("fov")*(Math.PI/180)) || 1.25;
+            return isKeyToggled[bindsArray.zoom] && (extract("zoom") * (Math.PI / 180)) || (extract("fov") * (Math.PI / 180)) || 1.25;
         });
         createAnonFunction('getChatLimit', function () {
-            return (extract("chatExtend")&&999999)||4;
+            return (extract("chatExtend") && 999999) || 4;
         });
         createAnonFunction('getDisableChatFilter', function () {
             return extract("disableChatFilter");
@@ -3219,7 +3253,7 @@ z-index: 999999;
             return [name, panner, somethingelse];
         });
         createAnonFunction('beforeFiring', function (MYPLAYER) {
-            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete||extract("silentAimbot")) && ss.MYPLAYER[H.playing] && currentlyTargeting && currentlyTargeting[H.playing]) {
+            if (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && (targetingComplete || extract("silentAimbot")) && ss.MYPLAYER[H.playing] && currentlyTargeting && currentlyTargeting[H.playing]) {
                 const aimbot = getAimbot(currentlyTargeting);
                 // credit for code: de_neuublue
                 let diffYaw = Math.radDifference(ss.MYPLAYER[H.yaw], aimbot.yawReal) * 180 / Math.PI;
@@ -3236,7 +3270,7 @@ z-index: 999999;
                     } else if (diffYaw > 112.5) {
                         if (diffPositive) {
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.right : 0
-                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left: 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left : 0
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.right : 0
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.left : 0
                         } else {
@@ -3265,7 +3299,7 @@ z-index: 999999;
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left : 0
                         } else {
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.left ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.left : 0
-                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.right: 0
+                            newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.right ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.right : 0
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.up ? ss.CONTROLKEYSENUM.up + ss.CONTROLKEYSENUM.left : 0
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.right : 0
                         };
@@ -3280,15 +3314,15 @@ z-index: 999999;
                 ss.SERVERSYNC();
             };
         });
-        createAnonFunction('onConnectFail', function (ERRORCODE,ERRORARRAY) {
-            errorString = findKeyByValue(ERRORARRAY,ERRORCODE);
-            console.log("StateFarm has detected a connection error...",errorString,ERRORCODE,ERRORARRAY);
-            if (document.getElementById("genericPopup").textContent === ' Game Not Found Sorry! This game ID is either invalid, or no longer exists.  OK '){
+        createAnonFunction('onConnectFail', function (ERRORCODE, ERRORARRAY) {
+            errorString = findKeyByValue(ERRORARRAY, ERRORCODE);
+            console.log("StateFarm has detected a connection error...", errorString, ERRORCODE, ERRORARRAY);
+            if (document.getElementById("genericPopup").textContent === ' Game Not Found Sorry! This game ID is either invalid, or no longer exists.  OK ') {
                 document.getElementById("genericPopup").children[1].textContent = 'joinCode not found! check your autoJoin settings and get a new code';
                 document.getElementById("genericPopup").children[2].children[1].textContent = "heeheeheehaw";
                 document.getElementById("genericPopup").children[0].children[1].textContent = 'MAKE NEW AUTOJOIN CODE';
             };
-            if ((!attemptedAutoUnban) && extract("autoUnban")&&(errorString=="sessionNotFound")) {
+            if ((!attemptedAutoUnban) && extract("autoUnban") && (errorString == "sessionNotFound")) {
                 // console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
                 // createPopup("AutoUnban: Reloading page in 5 seconds...");
                 // attemptedAutoUnban = true;
@@ -3303,8 +3337,8 @@ z-index: 999999;
                 isBanned = true;
             };
         });
-        createAnonFunction('modifyChat', function(msg) {
-            if (msg!==lastSentMessage) { //not spammed or afked
+        createAnonFunction('modifyChat', function (msg) {
+            if (msg !== lastSentMessage) { //not spammed or afked
                 if (extract("chatFilterBypass")) {
                     const UNICODE_RTL_OVERRIDE = '\u202e'
                     msg = ([UNICODE_RTL_OVERRIDE,].concat(reverseString(msg).split(""))).join("");
@@ -3320,7 +3354,7 @@ z-index: 999999;
             };
             return msg;
         });
-        createAnonFunction('modifyControls', function(CONTROLKEYS) {
+        createAnonFunction('modifyControls', function (CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
             if (forceControlKeys) {
                 forceControlKeysCache = true;
@@ -3329,41 +3363,41 @@ z-index: 999999;
                 forceControlKeysCache = false;
                 return 0;
             } else {
-                if (extract("autoWalk")) { CONTROLKEYS|=ss.CONTROLKEYSENUM.up };
+                if (extract("autoWalk")) { CONTROLKEYS |= ss.CONTROLKEYSENUM.up };
                 // credit for code: de_neuublue
                 if (extract("bunnyhop") && isKeyToggled["Space"]) {
                     CONTROLKEYS |= ss.CONTROLKEYSENUM.jump;
                 };
                 if (extract("autoJump")) {
-                    if (Date.now()>(lastAutoJump+extract("autoJumpDelay"))) {
-                        CONTROLKEYS|=ss.CONTROLKEYSENUM.jump;
-                        lastAutoJump=Date.now();
+                    if (Date.now() > (lastAutoJump + extract("autoJumpDelay"))) {
+                        CONTROLKEYS |= ss.CONTROLKEYSENUM.jump;
+                        lastAutoJump = Date.now();
                     };
                 };
                 if (extract("autoStrafe")) {
-                    if (Date.now()>(autoStrafeValue[0])) {
-                        if (autoStrafeValue[1]==0) { //decide new strafe delay
-                            autoStrafeValue[0]=Date.now() + randomInt(500,3000);
-                            autoStrafeValue[2]=(Math.random()>0.5) ? "left" : "right";
-                            autoStrafeValue[1]=1;
-                        } else if (autoStrafeValue[1]==1) { //time to start strafe
-                            autoStrafeValue[3]=Date.now() + randomInt(500,2000);
-                            autoStrafeValue[1]=2;
-                        } else if (autoStrafeValue[1]==2 && Date.now()<autoStrafeValue[3]) { //do strafe
-                            CONTROLKEYS|=ss.CONTROLKEYSENUM[autoStrafeValue[2]];
-                        } else if (autoStrafeValue[1]==2) { //stop strafe
-                            CONTROLKEYS&=~ss.CONTROLKEYSENUM.left;
-                            CONTROLKEYS&=~ss.CONTROLKEYSENUM.right;
-                            autoStrafeValue[1]=0;
+                    if (Date.now() > (autoStrafeValue[0])) {
+                        if (autoStrafeValue[1] == 0) { //decide new strafe delay
+                            autoStrafeValue[0] = Date.now() + randomInt(500, 3000);
+                            autoStrafeValue[2] = (Math.random() > 0.5) ? "left" : "right";
+                            autoStrafeValue[1] = 1;
+                        } else if (autoStrafeValue[1] == 1) { //time to start strafe
+                            autoStrafeValue[3] = Date.now() + randomInt(500, 2000);
+                            autoStrafeValue[1] = 2;
+                        } else if (autoStrafeValue[1] == 2 && Date.now() < autoStrafeValue[3]) { //do strafe
+                            CONTROLKEYS |= ss.CONTROLKEYSENUM[autoStrafeValue[2]];
+                        } else if (autoStrafeValue[1] == 2) { //stop strafe
+                            CONTROLKEYS &= ~ss.CONTROLKEYSENUM.left;
+                            CONTROLKEYS &= ~ss.CONTROLKEYSENUM.right;
+                            autoStrafeValue[1] = 0;
                         };
                     };
                 };
                 return CONTROLKEYS;
             };
         });
-        createAnonFunction('adBlocker', function(input) {
+        createAnonFunction('adBlocker', function (input) {
             if (extract("adBlock")) {
-                if (typeof(input) == 'boolean') {
+                if (typeof (input) == 'boolean') {
                     return true;
                 } else if (input == "user-has-adblock") {
                     return getScrambled();
@@ -3373,11 +3407,11 @@ z-index: 999999;
             };
             return input;
         });
-        createAnonFunction('gameBlacklisted', function(t) {
+        createAnonFunction('gameBlacklisted', function (t) {
             let result = false;
             if (blacklistedGameCodes.length >= 1) {
-                blacklistedGameCodes.forEach(function (code){
-                    if (t.id == code){
+                blacklistedGameCodes.forEach(function (code) {
+                    if (t.id == code) {
                         console.log("Blacklisted Game: ", t.id, code);
                         result = true;
                         return true;
@@ -3390,7 +3424,7 @@ z-index: 999999;
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
         let shellshockjs
-        XMLHttpRequest.prototype.open = function(...args) {
+        XMLHttpRequest.prototype.open = function (...args) {
             const url = args[1];
             if (url && url.includes("js/shellshock.js")) {
                 shellshockjs = this;
@@ -3398,14 +3432,14 @@ z-index: 999999;
             originalXHROpen.apply(this, args);
         };
         Object.defineProperty(XMLHttpRequest.prototype, 'response', {
-            get: function() {
-                if (this===shellshockjs) {
+            get: function () {
+                if (this === shellshockjs) {
                     return applyStateFarm(originalXHRGetResponse.get.call(this));
                 };
                 return originalXHRGetResponse.get.call(this);
             }
         });
-        const applyStateFarm = function(js) {
+        const applyStateFarm = function (js) {
             console.log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
             let match;
             let clientKeys;
@@ -3413,8 +3447,8 @@ z-index: 999999;
             let originalJS = js;
             if (typeof isCrackedShell !== 'undefined') originalJS = fetchTextContent('/js/shellshock.og.js');
 
-            const getVardata = function(hash) {
-                return fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_"+hash+".json");
+            const getVardata = function (hash) {
+                return fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_" + hash + ".json");
             };
 
 
@@ -3423,7 +3457,7 @@ z-index: 999999;
             onlineClientKeys = getVardata(hash);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
-                let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it, or alternatively the hash of a previous game js to attempt to load that. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: '+hash, '');
+                let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it, or alternatively the hash of a previous game js to attempt to load that. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: ' + hash, '');
                 if (userInput !== null && userInput !== '') {
                     alert('Aight, let\'s try this. If it is invalid, it will just crash.');
                     try {
@@ -3449,7 +3483,7 @@ z-index: 999999;
                 if (GM_getValue("StateFarm_KeyCache")) {
                     GM_setValue("StateFarm_KeyCache", GM_getValue("StateFarm_KeyCache")[onlineClientKeys.hash] = onlineClientKeys);
                 } else {
-                    GM_setValue("StateFarm_KeyCache", {[onlineClientKeys.hash]: GM_getValue("StateFarm_KeyCache")});
+                    GM_setValue("StateFarm_KeyCache", { [onlineClientKeys.hash]: GM_getValue("StateFarm_KeyCache") });
                 };
             };
 
@@ -3457,12 +3491,12 @@ z-index: 999999;
 
             H = clientKeys.vars;
 
-            let injectionString="";
+            let injectionString = "";
 
             //SERVERSYNC
             match = new RegExp(`!${H.CULL}&&(.+?\\}\\})`).exec(js);
             H.SERVERSYNC = match ? match[1].replace(/[a-zA-Z$_\.\[\]]+shots/, 0) : "function(){console.log('no serversync womp womp')}";
-            console.log("SERVERSYNC:",  match);
+            console.log("SERVERSYNC:", match);
 
             const variableNameRegex = /^[a-zA-Z0-9_$\[\]"\\]*$/;
             for (let name in H) {
@@ -3479,78 +3513,78 @@ z-index: 999999;
 
             console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
 
-            const modifyJS = function(find,replace) {
+            const modifyJS = function (find, replace) {
                 let oldJS = js;
                 try {
-                    js = js.originalReplaceAll(find,replace);
+                    js = js.originalReplaceAll(find, replace);
                 } catch (err) {
-                    console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace " + find + " with: " + replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
                 if (oldJS !== js) {
-                    console.log("%cReplacement successful! Injected code: replaced: "+find+" with: "+replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    console.log("%cReplacement successful! Injected code: replaced: " + find + " with: " + replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 } else {
-                    console.log("%cReplacement failed! Attempted to replace "+find+" with: "+replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    console.log("%cReplacement failed! Attempted to replace " + find + " with: " + replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
             };
 
-            const f = function(varName) { return varName.replace("$", "\\$") };
+            const f = function (varName) { return varName.replace("$", "\\$") };
 
             console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
-            modifyJS(f(H.SCENE)+'.'+f(H.render),`window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
+            modifyJS(f(H.SCENE) + '.' + f(H.render), `window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
             modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
-            modifyJS(`${f(H.CULL)})r`,`true)r`);
-            console.log('%cSuccess! Cull inhibition hooked '+f(H.CULL), 'color: green; font-weight: bold;');
+            modifyJS(`${f(H.CULL)})r`, `true)r`);
+            console.log('%cSuccess! Cull inhibition hooked ' + f(H.CULL), 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
-            modifyJS('fire(){var','fire(){window.'+functionNames.beforeFiring+'(this.player);var');
+            modifyJS('fire(){var', 'fire(){window.' + functionNames.beforeFiring + '(this.player);var');
             //hook for fov mods
-            modifyJS(/\.fov\s*=\s*1\.25/g, '.fov = window.'+functionNames.fixCamera+'()');
-            modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.'+functionNames.fixCamera+'()');
+            modifyJS(/\.fov\s*=\s*1\.25/g, '.fov = window.' + functionNames.fixCamera + '()');
+            modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.' + functionNames.fixCamera + '()');
             //chat mods: disable chat culling
-            const chatCull=/;[a-zA-Z$_]+\.length>4/.exec(js)[0];
-            modifyJS(chatCull,chatCull.originalReplace('4', `window.${functionNames.getChatLimit}()`));
+            const chatCull = /;[a-zA-Z$_]+\.length>4/.exec(js)[0];
+            modifyJS(chatCull, chatCull.originalReplace('4', `window.${functionNames.getChatLimit}()`));
             //chat mods: disable filter (credit to A3+++ for this finding)
-            modifyJS(`!${f(H._filterFunction)}(${f(H._insideFilterFunction)})`,`((!${f(H._filterFunction)}(${f(H._insideFilterFunction)}))||window.${functionNames.getDisableChatFilter}())`);
+            modifyJS(`!${f(H._filterFunction)}(${f(H._insideFilterFunction)})`, `((!${f(H._filterFunction)}(${f(H._insideFilterFunction)}))||window.${functionNames.getDisableChatFilter}())`);
             //chat mods: make filtered text red
             let [_, elm, str] = js.match(/\)\),([a-zA-Z$_]+)\.innerHTML=([a-zA-Z$_]+),/);
             modifyJS(_, _ + `${f(H._filterFunction)}(${str})&&!arguments[2]&&(${elm}.style.color="red"),`);
             //skins
             match = js.match(/inventory\[[a-zA-Z$_]+\].id===[a-zA-Z$_]+.id\)return!0;return!1/);
-            if (match) {modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`)};
+            if (match) { modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`) };
             //reset join/leave msgs
-            modifyJS(',console.log("joinGame()',',window.'+functionNames.setNewGame+'(),console.log("value changed, also joinGame()');
+            modifyJS(',console.log("joinGame()', ',window.' + functionNames.setNewGame + '(),console.log("value changed, also joinGame()');
             //bypass chat filter
-            modifyJS('.trim();','.trim();'+f(H._chat)+'=window.'+functionNames.modifyChat+'('+f(H._chat)+');')
+            modifyJS('.trim();', '.trim();' + f(H._chat) + '=window.' + functionNames.modifyChat + '(' + f(H._chat) + ');')
             //hook for control interception
             match = new RegExp(`${f(H._update)}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
-            console.log("player update function:",match);
-            modifyJS(match,`${match}${f(H.CONTROLKEYS)}=window.${functionNames.modifyControls}(${f(H.CONTROLKEYS)});`);
+            console.log("player update function:", match);
+            modifyJS(match, `${match}${f(H.CONTROLKEYS)}=window.${functionNames.modifyControls}(${f(H.CONTROLKEYS)});`);
             //admin spoof lol
-            modifyJS('isGameOwner(){return ','isGameOwner(){return window.'+functionNames.getAdminSpoof+'()?true:')
-            modifyJS('adminRoles(){return ','adminRoles(){return window.'+functionNames.getAdminSpoof+'()?255:')
+            modifyJS('isGameOwner(){return ', 'isGameOwner(){return window.' + functionNames.getAdminSpoof + '()?true:')
+            modifyJS('adminRoles(){return ', 'adminRoles(){return window.' + functionNames.getAdminSpoof + '()?255:')
             //grab reason for connect fail
-            const FUNCTIONPARAM = new RegExp('function '+f(H._connectFail)+'\\(([a-zA-Z$_]+)\\)').exec(js)[1];
-            console.log("FUNCTIONPARAM:",FUNCTIONPARAM);
-            modifyJS('function '+f(H._connectFail)+'('+f(FUNCTIONPARAM)+'){','function '+f(H._connectFail)+'('+f(FUNCTIONPARAM)+'){window.'+functionNames.onConnectFail+'('+f(FUNCTIONPARAM)+','+f(H.ERRORARRAY)+');')
+            const FUNCTIONPARAM = new RegExp('function ' + f(H._connectFail) + '\\(([a-zA-Z$_]+)\\)').exec(js)[1];
+            console.log("FUNCTIONPARAM:", FUNCTIONPARAM);
+            modifyJS('function ' + f(H._connectFail) + '(' + f(FUNCTIONPARAM) + '){', 'function ' + f(H._connectFail) + '(' + f(FUNCTIONPARAM) + '){window.' + functionNames.onConnectFail + '(' + f(FUNCTIONPARAM) + ',' + f(H.ERRORARRAY) + ');')
             //get rid of tutorial popup because its a stupid piece of shit
-            modifyJS(',vueApp.onTutorialPopupClick()','');
+            modifyJS(',vueApp.onTutorialPopupClick()', '');
             //annoying shit
-            modifyJS('alert','console.log');
+            modifyJS('alert', 'console.log');
             //pointer escape
-            modifyJS('onpointerlockchange=function(){','onpointerlockchange=function(){if (window.'+functionNames.getPointerEscape+'()) {return};');
+            modifyJS('onpointerlockchange=function(){', 'onpointerlockchange=function(){if (window.' + functionNames.getPointerEscape + '()) {return};');
             //death hook
-            const DEATHARGS = new RegExp('function '+f(H._deathFunction)+'\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
-            console.log("DEATHARGS",DEATHARGS);
-            modifyJS('function '+f(H._deathFunction)+'('+DEATHARGS+'){','function '+f(H._deathFunction)+'('+f(DEATHARGS)+'){window.'+functionNames.interceptDeath+'('+f(DEATHARGS)+');');
+            const DEATHARGS = new RegExp('function ' + f(H._deathFunction) + '\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
+            console.log("DEATHARGS", DEATHARGS);
+            modifyJS('function ' + f(H._deathFunction) + '(' + DEATHARGS + '){', 'function ' + f(H._deathFunction) + '(' + f(DEATHARGS) + '){window.' + functionNames.interceptDeath + '(' + f(DEATHARGS) + ');');
             //vip spoof/no ads credit absolutely goes to OakSwingZZZ
-            modifyJS('adsBlocked='+FUNCTIONPARAM, 'adsBlocked='+functionNames.adBlocker+'("adsBlocked")');
-            modifyJS('"user-has-adblock"', functionNames.adBlocker+'("user-has-adblock")');
-            modifyJS('layed=!1', 'layed=window.'+functionNames.adBlocker+'(!1)');
-            modifyJS(H.USERDATA+'.playerAccount.isUpgraded()', functionNames.adBlocker+'('+f(H.USERDATA)+'.playerAccount.isUpgraded())');
+            modifyJS('adsBlocked=' + FUNCTIONPARAM, 'adsBlocked=' + functionNames.adBlocker + '("adsBlocked")');
+            modifyJS('"user-has-adblock"', functionNames.adBlocker + '("user-has-adblock")');
+            modifyJS('layed=!1', 'layed=window.' + functionNames.adBlocker + '(!1)');
+            modifyJS(H.USERDATA + '.playerAccount.isUpgraded()', functionNames.adBlocker + '(' + f(H.USERDATA) + '.playerAccount.isUpgraded())');
             //Modifies matchmaker JS to block gamecodes.
             match = js.match(/ion,([a-zA-Z$_]+)\(([a-zA-Z$_]+)/);
             if (match) {
@@ -3562,7 +3596,7 @@ z-index: 999999;
             modifyJS(match[0], `${match[0]}[${match[1]}] = window.${functionNames.interceptAudio}(${match[1]});`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
-            modifyJS(/tp-/g,'');
+            modifyJS(/tp-/g, '');
 
             console.log(H);
             console.log(js);
@@ -3575,33 +3609,33 @@ z-index: 999999;
     JSON.safeStringify = (obj, indent = 2) => {
         let cache = [];
         const retVal = JSON.stringify(
-        obj,
-        (key, value) =>
-            typeof value === "object" && value !== null
-                ? cache.includes(value)
-                    ? undefined // Duplicate reference found, discard key
-                    : cache.push(value) && value // Store value in our collection
-            : value,
+            obj,
+            (key, value) =>
+                typeof value === "object" && value !== null
+                    ? cache.includes(value)
+                        ? undefined // Duplicate reference found, discard key
+                        : cache.push(value) && value // Store value in our collection
+                    : value,
             indent
         );
         cache = null;
         return retVal;
     };
 
-    const deployBots = function() {
+    const deployBots = function () {
         updateBotParams();
         if (!load("firstTimeBots")) {
-            save("firstTimeBots",true);
+            save("firstTimeBots", true);
             unsafeWindow.open(bottingGuideURL);
         };
 
-        GM_setValue("StateFarm_BotStatus",{});
+        GM_setValue("StateFarm_BotStatus", {});
 
-        console.log("Deploying "+extract("numberBots")+" bots...");
+        console.log("Deploying " + extract("numberBots") + " bots...");
 
-        let botNames=[];
+        let botNames = [];
         for (let i = 0; i < extract("numberBots"); i++) {
-            let name=(extract("botUsername"));
+            let name = (extract("botUsername"));
             if (extract("botCopyName")) {
                 name = retrieveCopiedName();
                 if (!name) {
@@ -3613,96 +3647,96 @@ z-index: 999999;
         };
 
         for (let i = 0; i < extract("numberBots"); i++) {
-            let leftOffset=((i%15)*100);
+            let leftOffset = ((i % 15) * 100);
             // let topOffset=((i%3)*100);
-            let topOffset=0;
-            let proxyURL=proxyList[proxyListIndex];
-            proxyListIndex=(proxyListIndex+1)%proxyList.length;
-            let params="?AUTOMATED=true&StateFarm=";
-            let name=botNames[i];
-            if (extract("botAntiDupe")) { name=name+String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
+            let topOffset = 0;
+            let proxyURL = proxyList[proxyListIndex];
+            proxyListIndex = (proxyListIndex + 1) % proxyList.length;
+            let params = "?AUTOMATED=true&StateFarm=";
+            let name = botNames[i];
+            if (extract("botAntiDupe")) { name = name + String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
 
-            const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
+            const addParam = function (module, setTo, noEnding) { params = params + module + ">" + JSON.stringify(setTo) + (noEnding ? "" : "<") };
 
-            addParam("eggColour",extract("eggColourBots")=="random" ? randomInt(1,7) : extractAsDropdownInt("eggColourBots"));
-            addParam("autoStamp",extract("autoStampBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoStampBots"));
-            addParam("autoHat",extract("autoHatBots")=="random" ? randomInt(0,6) : extractAsDropdownInt("autoHatBots"));
+            addParam("eggColour", extract("eggColourBots") == "random" ? randomInt(1, 7) : extractAsDropdownInt("eggColourBots"));
+            addParam("autoStamp", extract("autoStampBots") == "random" ? randomInt(0, 6) : extractAsDropdownInt("autoStampBots"));
+            addParam("autoHat", extract("autoHatBots") == "random" ? randomInt(0, 6) : extractAsDropdownInt("autoHatBots"));
 
-            addParam("usernameAutoJoin",name,true);
+            addParam("usernameAutoJoin", name, true);
 
-            console.log("PARAMS:",params)
-            unsafeWindow.open("https://"+proxyURL+"/"+params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=`+leftOffset+',top='+topOffset);
+            console.log("PARAMS:", params)
+            unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
         };
     };
 
-    const constructBotParams = function() {
-        const addParam = function(module,setTo,noEnding) {params=params+module+">"+JSON.stringify(setTo)+(noEnding ? "" : "<")};
-        let params="";
+    const constructBotParams = function () {
+        const addParam = function (module, setTo, noEnding) { params = params + module + ">" + JSON.stringify(setTo) + (noEnding ? "" : "<") };
+        let params = "";
 
-        addParam("autoFireType",1); //while visible
-        addParam("adBlock",true);
+        addParam("autoFireType", 1); //while visible
+        addParam("adBlock", true);
 
         //blacklist stuff
-        addParam("blacklist",botBlacklist);
-        addParam("enableBlacklistAimbot",true);
+        addParam("blacklist", botBlacklist);
+        addParam("enableBlacklistAimbot", true);
         //do aimbot
-        addParam("aimbotTargetMode",1);
-        addParam("aimbotVisibilityMode",1);
-        addParam("prediction",extract("botAimbot"));
-        addParam("aimbot",extract("botAimbot"));
-        addParam("antiBloom",extract("botAimbot"));
-        addParam("grenadeMax",extract("botAimbot"));
-        addParam("autoRefill",extract("botAimbot"));
+        addParam("aimbotTargetMode", 1);
+        addParam("aimbotVisibilityMode", 1);
+        addParam("prediction", extract("botAimbot"));
+        addParam("aimbot", extract("botAimbot"));
+        addParam("antiBloom", extract("botAimbot"));
+        addParam("grenadeMax", extract("botAimbot"));
+        addParam("autoRefill", extract("botAimbot"));
         //do shoot
-        addParam("antiSneak",extract("botAutoShoot")?1.4:0);
-        addParam("enableAutoFire",extract("botAutoShoot"));
-        addParam("autoGrenade",extract("botAutoShoot"));
+        addParam("antiSneak", extract("botAutoShoot") ? 1.4 : 0);
+        addParam("enableAutoFire", extract("botAutoShoot"));
+        addParam("autoGrenade", extract("botAutoShoot"));
         //automove
-        addParam("autoWalk",extract("botAutoMove"));
-        addParam("autoStrafe",extract("botAutoMove"));
-        addParam("autoJump",extract("botAutoMove"));
-        addParam("autoJumpDelay",1500);
+        addParam("autoWalk", extract("botAutoMove"));
+        addParam("autoStrafe", extract("botAutoMove"));
+        addParam("autoJump", extract("botAutoMove"));
+        addParam("autoJumpDelay", 1500);
         //low res
-        addParam("enableTextures",!extract("botLowRes"));
-        addParam("setDetail",extract("botLowRes")?2:0);
+        addParam("enableTextures", !extract("botLowRes"));
+        addParam("setDetail", extract("botLowRes") ? 2 : 0);
         //seizure
-        addParam("enableSeizureX",extract("botSeizure"));
-        addParam("enableSeizureY",extract("botSeizure"));
+        addParam("enableSeizureX", extract("botSeizure"));
+        addParam("enableSeizureY", extract("botSeizure"));
 
-        addParam("renderDelay",extract("renderDelayBots"));
-        addParam("muteGame",extract("botMuteGame"));
-        addParam("autoJoin",extract("botAutoJoin"));
-        addParam("mockMode",extract("botMock"));
-        addParam("autoRespawn",extract("botRespawn"));
-        addParam("autoEZ",extract("botAutoEZ"));
-        addParam("cheatAccuse",extract("botCheatAccuse"));
-        addParam("joinCode",extract("botJoinCode"));
-        addParam("autoWeapon",extractAsDropdownInt("botWeapon")+1);
-        addParam("autoTeam",extractAsDropdownInt("botTeam"));
-        addParam("autoUnban",extract("botAutoUnban"));
-        addParam("autoRegion",extractAsDropdownInt("autoRegionBots"));
-        addParam("autoGamemode",extractAsDropdownInt("autoGamemodeBots"));
-        addParam("useCustomName",extract("useCustomNameBots"));
-        addParam("leaveEmpty",extract("leaveEmptyBots"));
-        addParam("autoLeave",extract("autoLeaveBots"));
-        addParam("autoLeaveDelay",extract("autoLeaveDelayBots"));
-        addParam("spamChat",extract("botSpam"));
-        addParam("spamChatText",extract("spamChatTextBot"));
-        addParam("tallChat",extract("botTallChat"),true);
+        addParam("renderDelay", extract("renderDelayBots"));
+        addParam("muteGame", extract("botMuteGame"));
+        addParam("autoJoin", extract("botAutoJoin"));
+        addParam("mockMode", extract("botMock"));
+        addParam("autoRespawn", extract("botRespawn"));
+        addParam("autoEZ", extract("botAutoEZ"));
+        addParam("cheatAccuse", extract("botCheatAccuse"));
+        addParam("joinCode", extract("botJoinCode"));
+        addParam("autoWeapon", extractAsDropdownInt("botWeapon") + 1);
+        addParam("autoTeam", extractAsDropdownInt("botTeam"));
+        addParam("autoUnban", extract("botAutoUnban"));
+        addParam("autoRegion", extractAsDropdownInt("autoRegionBots"));
+        addParam("autoGamemode", extractAsDropdownInt("autoGamemodeBots"));
+        addParam("useCustomName", extract("useCustomNameBots"));
+        addParam("leaveEmpty", extract("leaveEmptyBots"));
+        addParam("autoLeave", extract("autoLeaveBots"));
+        addParam("autoLeaveDelay", extract("autoLeaveDelayBots"));
+        addParam("spamChat", extract("botSpam"));
+        addParam("spamChatText", extract("spamChatTextBot"));
+        addParam("tallChat", extract("botTallChat"), true);
 
         return params;
     };
 
-    const detectURLParams = function() {
+    const detectURLParams = function () {
 
-        if (getSearchParam("AUTOMATED")=="true") {
+        if (getSearchParam("AUTOMATED") == "true") {
             console.log("Automated Window!");
-            AUTOMATED=true;
+            AUTOMATED = true;
         };
         let customSettings = getSearchParam("StateFarm")
-        if (customSettings!==null) {
-            customSettings=customSettings.split("|");
-            URLParams=customSettings[0];
+        if (customSettings !== null) {
+            customSettings = customSettings.split("|");
+            URLParams = customSettings[0];
             console.log("StateFarm: Custom Settings in URL!", URLParams);
             // let setVars=[];
             // let setBinds=[];
@@ -3714,30 +3748,30 @@ z-index: 999999;
         };
     };
 
-    const applySettings = function(receivedConfig,reset,secondPassThru) {
-        console.log(AUTOMATED,receivedConfig);
-        let settings=receivedConfig.split("<");
-        if (reset) {initMenu(true); console.log("StateFarm: clearing before applying settings")};
-        settings.forEach(element=>{
-            element=element.split(">");
-            console.log(change(element[0],JSON.parse(element[1])));
+    const applySettings = function (receivedConfig, reset, secondPassThru) {
+        console.log(AUTOMATED, receivedConfig);
+        let settings = receivedConfig.split("<");
+        if (reset) { initMenu(true); console.log("StateFarm: clearing before applying settings") };
+        settings.forEach(element => {
+            element = element.split(">");
+            console.log(change(element[0], JSON.parse(element[1])));
         });
         createPopup("Custom StateFarm Settings Applying...");
         if (!secondPassThru) {
             setTimeout(() => {
                 if (receivedConfig) {
-                    applySettings(receivedConfig,false,true);
+                    applySettings(receivedConfig, false, true);
                 };
             }, 150);
         };
     };
 
-    const updateBotParams = function() {
+    const updateBotParams = function () {
         if (AUTOMATED) { // nuh uh.
-            createPopup("Automated window cannot config bots.","error");
+            createPopup("Automated window cannot config bots.", "error");
         } else {
             const botParams = constructBotParams();
-            broadcastToBots("setconfig "+btoa(unsafeWindow.unescape(encodeURIComponent(botParams))));
+            broadcastToBots("setconfig " + btoa(unsafeWindow.unescape(encodeURIComponent(botParams))));
             console.log("StateFarm: attempted to set bot params.");
         };
     };
@@ -3752,124 +3786,124 @@ z-index: 999999;
 
     // begin pathfinding
 
-    function BinaryHeap(scoreFunction){
+    function BinaryHeap(scoreFunction) {
         this.content = [];
         this.scoreFunction = scoreFunction;
     }
 
     BinaryHeap.prototype = {
-        push: function(element) {
-        // Add the new element to the end of the array.
-        this.content.push(element);
-        // Allow it to bubble up.
-        this.bubbleUp(this.content.length - 1);
+        push: function (element) {
+            // Add the new element to the end of the array.
+            this.content.push(element);
+            // Allow it to bubble up.
+            this.bubbleUp(this.content.length - 1);
         },
 
-        rescoreElement: function(node) {
+        rescoreElement: function (node) {
             this.sinkDown(this.content.indexOf(node));
         },
 
-        pop: function() {
-        // Store the first element so we can return it later.
-        var result = this.content[0];
-        // Get the element at the end of the array.
-        var end = this.content.pop();
-        // If there are any elements left, put the end element at the
-        // start, and let it sink down.
-        if (this.content.length > 0) {
-            this.content[0] = end;
-            this.sinkDown(0);
-        }
-        return result;
-        },
-
-        remove: function(node) {
-        var length = this.content.length;
-        // To remove a value, we must search through the array to find
-        // it.
-        for (var i = 0; i < length; i++) {
-            if (this.content[i] != node) continue;
-            // When it is found, the process seen in 'pop' is repeated
-            // to fill up the hole.
+        pop: function () {
+            // Store the first element so we can return it later.
+            var result = this.content[0];
+            // Get the element at the end of the array.
             var end = this.content.pop();
-            // If the element we popped was the one we needed to remove,
-            // we're done.
-            if (i == length - 1) break;
-            // Otherwise, we replace the removed element with the popped
-            // one, and allow it to float up or sink down as appropriate.
-            this.content[i] = end;
-            this.bubbleUp(i);
-            this.sinkDown(i);
-            break;
-        }
+            // If there are any elements left, put the end element at the
+            // start, and let it sink down.
+            if (this.content.length > 0) {
+                this.content[0] = end;
+                this.sinkDown(0);
+            }
+            return result;
         },
 
-        size: function() {
-        return this.content.length;
+        remove: function (node) {
+            var length = this.content.length;
+            // To remove a value, we must search through the array to find
+            // it.
+            for (var i = 0; i < length; i++) {
+                if (this.content[i] != node) continue;
+                // When it is found, the process seen in 'pop' is repeated
+                // to fill up the hole.
+                var end = this.content.pop();
+                // If the element we popped was the one we needed to remove,
+                // we're done.
+                if (i == length - 1) break;
+                // Otherwise, we replace the removed element with the popped
+                // one, and allow it to float up or sink down as appropriate.
+                this.content[i] = end;
+                this.bubbleUp(i);
+                this.sinkDown(i);
+                break;
+            }
         },
 
-        bubbleUp: function(n) {
-        // Fetch the element that has to be moved.
-        var element = this.content[n], score = this.scoreFunction(element);
-        // When at 0, an element can not go up any further.
-        while (n > 0) {
-            // Compute the parent element's index, and fetch it.
-            var parentN = Math.floor((n + 1) / 2) - 1,
-            parent = this.content[parentN];
-            // If the parent has a lesser score, things are in order and we
-            // are done.
-            if (score >= this.scoreFunction(parent))
-            break;
-
-            // Otherwise, swap the parent with the current element and
-            // continue.
-            this.content[parentN] = element;
-            this.content[n] = parent;
-            n = parentN;
-        }
+        size: function () {
+            return this.content.length;
         },
 
-        includes: function(n) {
+        bubbleUp: function (n) {
+            // Fetch the element that has to be moved.
+            var element = this.content[n], score = this.scoreFunction(element);
+            // When at 0, an element can not go up any further.
+            while (n > 0) {
+                // Compute the parent element's index, and fetch it.
+                var parentN = Math.floor((n + 1) / 2) - 1,
+                    parent = this.content[parentN];
+                // If the parent has a lesser score, things are in order and we
+                // are done.
+                if (score >= this.scoreFunction(parent))
+                    break;
+
+                // Otherwise, swap the parent with the current element and
+                // continue.
+                this.content[parentN] = element;
+                this.content[n] = parent;
+                n = parentN;
+            }
+        },
+
+        includes: function (n) {
             return this.content.includes(n);
         },
 
-        sinkDown: function(n) {
-        // Look up the target element and its score.
-        var length = this.content.length,
-        element = this.content[n],
-        elemScore = this.scoreFunction(element);
+        sinkDown: function (n) {
+            // Look up the target element and its score.
+            var length = this.content.length,
+                element = this.content[n],
+                elemScore = this.scoreFunction(element);
 
-        while(true) {
-            // Compute the indices of the child elements.
-            var child2N = (n + 1) * 2, child1N = child2N - 1;
-            // This is used to store the new position of the element,
-            // if any.
-            var swap = null;
-            // If the first child exists (is inside the array)...
-            if (child1N < length) {
-            // Look it up and compute its score.
-            var child1 = this.content[child1N],
-            child1Score = this.scoreFunction(child1);
-            // If the score is less than our element's, we need to swap.
-            if (child1Score < elemScore)
-                swap = child1N;
+            while (true) {
+                // Compute the indices of the child elements.
+                var child2N = (n + 1) * 2, child1N = child2N - 1;
+                // This is used to store the new position of the element,
+                // if any.
+                var swap = null;
+                // If the first child exists (is inside the array)...
+                if (child1N < length) {
+                    // Look it up and compute its score.
+                    var child1 = this.content[child1N],
+                        child1Score = this.scoreFunction(child1);
+                    // If the score is less than our element's, we need to swap.
+                    if (child1Score < elemScore)
+                        swap = child1N;
+                }
+                // Do the same checks for the other child.
+                if (child2N < length) {
+                    var child2 = this.content[child2N],
+                        child2Score = this.scoreFunction(child2);
+                    if (child2Score < (swap == null ? elemScore : child1Score))
+                        swap = child2N;
+                }
+
+                // No need to swap further, we are done.
+                if (swap == null) break;
+
+                // Otherwise, swap and continue.
+                this.content[n] = this.content[swap];
+                this.content[swap] = element;
+                n = swap;
             }
-            // Do the same checks for the other child.
-            if (child2N < length) {
-            var child2 = this.content[child2N],
-            child2Score = this.scoreFunction(child2);
-            if (child2Score < (swap == null ? elemScore : child1Score))
-                swap = child2N;
-            }
-
-            // No need to swap further, we are done.
-            if (swap == null) break;
-
-            // Otherwise, swap and continue.
-            this.content[n] = this.content[swap];
-            this.content[swap] = element;
-            n = swap;
-        }
         }
     };
 
@@ -3987,7 +4021,7 @@ z-index: 999999;
         console.log("pathTo called")
         while (current.parent) {
             path.unshift(current);
-            if (current.parent === undefined) { console.log("parent undefined; path nodes successfully acquired:", path.length)}
+            if (current.parent === undefined) { console.log("parent undefined; path nodes successfully acquired:", path.length) }
             current = current.parent;
             console.log("pathTo loop, list len:", path.length)
         }
@@ -3996,7 +4030,7 @@ z-index: 999999;
     }
 
     function getHeap() {
-        return new BinaryHeap(function(node) {
+        return new BinaryHeap(function (node) {
             return node.f;
         });
     }
@@ -4121,12 +4155,12 @@ z-index: 999999;
 
     // end pathfinding
 
-    const findKeyWithProperty = function(obj, propertyToFind) {
+    const findKeyWithProperty = function (obj, propertyToFind) {
         for (const key in obj) {
             if (obj[key] === null || obj[key] === undefined) {
                 continue;
             };
-            if (!!obj[key] && (typeof(obj[key])=='object' || typeof(obj[key])=='function') && obj[key].hasOwnProperty(propertyToFind)) {
+            if (!!obj[key] && (typeof (obj[key]) == 'object' || typeof (obj[key]) == 'function') && obj[key].hasOwnProperty(propertyToFind)) {
                 return key;
             };
         };
@@ -4134,7 +4168,7 @@ z-index: 999999;
         return null;
     };
 
-    const findStringInLists = function(dictWithLists, str) {
+    const findStringInLists = function (dictWithLists, str) {
         for (const key in dictWithLists) {
             if (dictWithLists.hasOwnProperty(key)) {
                 const list = dictWithLists[key];
@@ -4153,7 +4187,7 @@ z-index: 999999;
                 console.log('%cSTATEFARM IS ATTEMPTING TO LOAD L.BABYLON', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                 var script = document.createElement("script");
                 script.src = babylonURL;
-                script.onload = function() {
+                script.onload = function () {
                     if (unsafeWindow.BABYLON) {
                         L.BABYLON = unsafeWindow.BABYLON;
                         delete unsafeWindow.BABYLON;
@@ -4168,8 +4202,8 @@ z-index: 999999;
 
                         console.log("StateFarm: found vars:", H);
 
-                        crosshairsPosition=new L.BABYLON.Vector3();
-                        Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe',  {
+                        crosshairsPosition = new L.BABYLON.Vector3();
+                        Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe', {
                             get: () => {
                                 return extract("wireframe");
                             }
@@ -4184,14 +4218,22 @@ z-index: 999999;
                     };
                 };
                 document.body.appendChild(script);
-                ranOneTime=true;
+                ranOneTime = true;
             };
         };
-        const mapStuff = function () {
+
+        const createMapData = function () {
             if (!map_data_created) {
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
-            };
+                return true;
+            }
+        }
+
+        const mapStuff = function () {
+            createMapData();
+
+            console.log("node = " + get_node_at(get_player_position(ss.MYPLAYER)), "nodelist len = " + GLOBAL_NODE_LIST.length);
 
             if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
                 let player_pos = get_player_position(ss.MYPLAYER);
@@ -4241,6 +4283,19 @@ z-index: 999999;
                             sendChatMessage("despawnIfNoPath");
                         }
                     }
+                } else {
+                    if (player_node) {
+                        alert("playernode good")
+                    }
+                    if (target_node) {
+                        alert("targetnode good")
+                    }
+                    if (!player_node) {
+                        alert("playernode bad")
+                    }
+                    if (!target_node) {
+                        alert("targetnode bad")
+                    }
                 }
             }
 
@@ -4254,6 +4309,7 @@ z-index: 999999;
                         console.log("path completed");
                         activePath = null;
                         activeNodeTarget = null;
+                        pathfindingTargetOverride = undefined;
                     }
                 } else {
                     console.log("not at target");
@@ -4281,22 +4337,22 @@ z-index: 999999;
         };
         const initVars = function () {
 
-            isBanned=false; //cant be banned if in a game /shrug
-            errorString=undefined; //no error if ur playing
-            forceControlKeys=undefined; //reset every frame
+            isBanned = false; //cant be banned if in a game /shrug
+            errorString = undefined; //no error if ur playing
+            forceControlKeys = undefined; //reset every frame
 
             if (newGame) {
-                onlinePlayersArray=[];
+                onlinePlayersArray = [];
             };
-            if (extract("debug")&&(typeof playerLogger === 'undefined')) {
-                playerLogger=[];
+            if (extract("debug") && (typeof playerLogger === 'undefined')) {
+                playerLogger = [];
             };
             const weaponBox = document.getElementById("weaponBox");
             const chatContainer = document.getElementById('chatOut');
             const chatItems = chatContainer.getElementsByClassName('chat-item');
-            if ((weaponBox.style.display!=lastWeaponBox)||(chatItems.length!=lastChatItemLength)) {
-                lastWeaponBox=weaponBox.style.display;
-                lastChatItemLength=chatItems.length;
+            if ((weaponBox.style.display != lastWeaponBox) || (chatItems.length != lastChatItemLength)) {
+                lastWeaponBox = weaponBox.style.display;
+                lastChatItemLength = chatItems.length;
 
                 const maxChat = extract("maxChat");
                 const maxMessages = (weaponBox.style.display === "block" && maxChat) || 9999999;
@@ -4315,7 +4371,7 @@ z-index: 999999;
                     console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
                     loggedGameMap = true;
                 };
-                username=ss.MYPLAYER?.name;
+                username = ss.MYPLAYER?.name;
 
                 crosshairsPosition.copyFrom(ss.MYPLAYER[H.actor][H.mesh].position);
                 const horizontalOffset = Math.sin(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
@@ -4324,47 +4380,47 @@ z-index: 999999;
                 crosshairsPosition.z += Math.cos(ss.MYPLAYER[H.actor][H.mesh].rotation.y);
                 crosshairsPosition.y += verticalOffset + 0.4;
 
-                ammo=ss.MYPLAYER.weapon.ammo;
+                ammo = ss.MYPLAYER.weapon.ammo;
 
-                whitelistPlayers=(extract("whitelist")||"").split(',');
-                blacklistPlayers=(extract("blacklist")||"").split(',');
+                whitelistPlayers = (extract("whitelist") || "").split(',');
+                blacklistPlayers = (extract("blacklist") || "").split(',');
 
-                ss.MYPLAYER[H.actor].scene.texturesEnabled=extract("enableTextures");
+                ss.MYPLAYER[H.actor].scene.texturesEnabled = extract("enableTextures");
             };
         };
         const updateLinesESP = function () {
-            const objExists=Date.now();
+            const objExists = Date.now();
 
             //update playerESP boxes, tracer lines, colors
-            ss.PLAYERS.forEach(player=>{
-                if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0) && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) {
-                    const whitelisted=(extract("whitelistESPType")=="highlight"||!extract("enableWhitelistTracers")||playerMatchesList(whitelistPlayers,player));
-                    const blacklisted=(extract("blacklistESPType")=="justexclude"&&extract("enableBlacklistTracers")&&playerMatchesList(blacklistPlayers,player));
-                    const passedLists=whitelisted&&(!blacklisted);
-                    const tracersType=extract("tracersType");
+            ss.PLAYERS.forEach(player => {
+                if (player && (player !== ss.MYPLAYER) && player[H.playing] && (player[H.hp] > 0) && ((!ss.MYPLAYER.team) || (player.team !== ss.MYPLAYER.team))) {
+                    const whitelisted = (extract("whitelistESPType") == "highlight" || !extract("enableWhitelistTracers") || playerMatchesList(whitelistPlayers, player));
+                    const blacklisted = (extract("blacklistESPType") == "justexclude" && extract("enableBlacklistTracers") && playerMatchesList(blacklistPlayers, player));
+                    const passedLists = whitelisted && (!blacklisted);
+                    const tracersType = extract("tracersType");
 
-                    let color,progress;
-                    if (extract("enableWhitelistTracers") && extract("whitelistESPType")=="highlight" && playerMatchesList(whitelistPlayers,player) ) {
-                        color=hexToRgb(extract("whitelistColor"));
-                    } else if (extract("enableBlacklistTracers") && extract("blacklistESPType")=="highlight" && playerMatchesList(blacklistPlayers,player) ) {
-                        color=hexToRgb(extract("blacklistColor"));
-                    } else if ( tracersType=="proximity" ) {
+                    let color, progress;
+                    if (extract("enableWhitelistTracers") && extract("whitelistESPType") == "highlight" && playerMatchesList(whitelistPlayers, player)) {
+                        color = hexToRgb(extract("whitelistColor"));
+                    } else if (extract("enableBlacklistTracers") && extract("blacklistESPType") == "highlight" && playerMatchesList(blacklistPlayers, player)) {
+                        color = hexToRgb(extract("blacklistColor"));
+                    } else if (tracersType == "proximity") {
                         const distance = distancePlayers(player);
                         if (distance < extract("tracersColor1to2")) { //fade between first set
-                            progress=(distance/extract("tracersColor1to2"));
-                            color=fadeBetweenColors(extract("tracersColor1"),extract("tracersColor2"),progress);
+                            progress = (distance / extract("tracersColor1to2"));
+                            color = fadeBetweenColors(extract("tracersColor1"), extract("tracersColor2"), progress);
                         } else if (distance < extract("tracersColor2to3")) { //fade between second set
-                            progress=((distance-extract("tracersColor1to2"))/(extract("tracersColor2to3")-extract("tracersColor1to2")));
-                            color=fadeBetweenColors(extract("tracersColor2"),extract("tracersColor3"),progress);
+                            progress = ((distance - extract("tracersColor1to2")) / (extract("tracersColor2to3") - extract("tracersColor1to2")));
+                            color = fadeBetweenColors(extract("tracersColor2"), extract("tracersColor3"), progress);
                         } else {
-                            color=hexToRgb(extract("tracersColor3"));
+                            color = hexToRgb(extract("tracersColor3"));
                         };
-                    } else if (tracersType=="static") {
-                        color=hexToRgb(extract("tracersColor1"));
+                    } else if (tracersType == "static") {
+                        color = hexToRgb(extract("tracersColor1"));
                     } else if (tracersType == "visibility") {
                         color = getLineOfSight(player) ? hexToRgb(extract("tracersColor2")) : hexToRgb(extract("tracersColor1"))
                     };
-                    updateOrCreateLinesESP(player,"playerESP",color);
+                    updateOrCreateLinesESP(player, "playerESP", color);
 
                     player.tracerLines.visibility = player[H.playing] && extract("tracers") && passedLists;
                     player.box.visibility = extract("playerESP") && passedLists;
@@ -4372,115 +4428,115 @@ z-index: 999999;
                     player.target.visibility = false;
 
                     if (player[H.actor]) {
-                        eggSize=extract("eggSize")
-                        player[H.actor][H.bodyMesh].scaling = {x:eggSize, y:eggSize, z:eggSize}
+                        eggSize = extract("eggSize")
+                        player[H.actor][H.bodyMesh].scaling = { x: eggSize, y: eggSize, z: eggSize }
                     };
 
                     player[H.actor][H.bodyMesh].renderingGroupId = extract("chams") ? 1 : 0;
 
-                    player.exists=objExists;
+                    player.exists = objExists;
                 };
                 if (player) {
                     if (extract("nametags") && player[H.actor] && player[H.actor].nameSprite) { //taken from shellshock.js, so var names are weird
                         player[H.actor].nameSprite._manager.renderingGroupId = 1;
                         player[H.actor].nameSprite.renderingGroupId = 1;
                         var h = Math.length3(player[H.x] - ss.MYPLAYER[H.x], player[H.y] - ss.MYPLAYER[H.y], player[H.z] - ss.MYPLAYER[H.z]),
-                        d = Math.pow(h, 1.25)*2;
+                            d = Math.pow(h, 1.25) * 2;
                         player[H.actor].nameSprite.width = d / 10 + .6, player[H.actor].nameSprite.height = d / 20 + .3;
-                        ss.MYPLAYER[H.actor].scene.activeCamera.fov=0.75
+                        ss.MYPLAYER[H.actor].scene.activeCamera.fov = 0.75
                     };
                     if (!player.logged) {
-                        player.logged=true;
-                        if (extract("debug")) { playerLogger.push(player);console.log("Logged player: "+player.name,player) }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
+                        player.logged = true;
+                        if (extract("debug")) { playerLogger.push(player); console.log("Logged player: " + player.name, player) }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
                         if (extract("joinMessages") && (!newGame)) {
                             if (extract("publicBroadcast")) {
-                                sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+player.name+" joined.")
+                                sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "") + player.name + " joined.")
                             } else {
-                                processChatItem("joined.",player.name,player.team,"rgba(0, 255, 0, 0.2)");
+                                processChatItem("joined.", player.name, player.team, "rgba(0, 255, 0, 0.2)");
                             };
                         };
-                        onlinePlayersArray.push([player,player.name,player.team]);
+                        onlinePlayersArray.push([player, player.name, player.team]);
                     };
-                    player.isOnline=objExists;
+                    player.isOnline = objExists;
                 };
             });
-            playersInGame=onlinePlayersArray.length;
-            for ( let i=0;i<onlinePlayersArray.length;i++) {
-                if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline==objExists) { //player still online
-                    onlinePlayersArray[i][2]=onlinePlayersArray[i][0].team;
+            playersInGame = onlinePlayersArray.length;
+            for (let i = 0; i < onlinePlayersArray.length; i++) {
+                if (onlinePlayersArray[i][0] && onlinePlayersArray[i][0].isOnline == objExists) { //player still online
+                    onlinePlayersArray[i][2] = onlinePlayersArray[i][0].team;
                 } else {
                     if (extract("leaveMessages") && (!newGame)) {
                         if (extract("publicBroadcast")) {
-                            sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "")+onlinePlayersArray[i][1]+" left.")
+                            sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "") + onlinePlayersArray[i][1] + " left.")
                         } else {
-                            processChatItem("left.",onlinePlayersArray[i][1],onlinePlayersArray[i][2],"rgba(255, 0, 0, 0.2)");
+                            processChatItem("left.", onlinePlayersArray[i][1], onlinePlayersArray[i][2], "rgba(255, 0, 0, 0.2)");
                         };
                     };
-                    onlinePlayersArray.splice(i,1);
+                    onlinePlayersArray.splice(i, 1);
                 };
             };
             //update ammoESP boxes, tracer lines, colors
-            if (extract("ammoESP")||extract("ammoTracers")||extract("grenadeESP")||extract("grenadeTracers")) {
-                ss.OBJECTSVAR.getShadowMap()[H.renderList].forEach(item=>{
-                    if ( item._isEnabled && item.sourceMesh && item.sourceMesh.name && (item.sourceMesh.name=="grenadeItem" || item.sourceMesh.name=="ammo") ) { //this is what we want
-                        const itemType=item.sourceMesh.name;
-                        let color=itemType=="ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
+            if (extract("ammoESP") || extract("ammoTracers") || extract("grenadeESP") || extract("grenadeTracers")) {
+                ss.OBJECTSVAR.getShadowMap()[H.renderList].forEach(item => {
+                    if (item._isEnabled && item.sourceMesh && item.sourceMesh.name && (item.sourceMesh.name == "grenadeItem" || item.sourceMesh.name == "ammo")) { //this is what we want
+                        const itemType = item.sourceMesh.name;
+                        let color = itemType == "ammo" && extract("ammoESPColor") || extract("grenadeESPColor");
                         color = hexToRgb(color);
 
-                        updateOrCreateLinesESP(item,"ammoESP",color)
+                        updateOrCreateLinesESP(item, "ammoESP", color)
 
-                        let willBeVisible=false;
+                        let willBeVisible = false;
 
-                        if (itemType=="ammo") { //ammo
-                            const regime=extract("ammoESPRegime");
-                            if (regime=="whendepleted" && ammo.store==0) {
-                                willBeVisible=true;
-                            } else if (regime=="whenlow" && ammo.store<=ammo.capacity) {
-                                willBeVisible=true;
-                            } else if (regime=="belowmax" && ammo.store<ammo.storeMax) {
-                                willBeVisible=true;
-                            } else if (regime=="alwayson") {
-                                willBeVisible=true;
+                        if (itemType == "ammo") { //ammo
+                            const regime = extract("ammoESPRegime");
+                            if (regime == "whendepleted" && ammo.store == 0) {
+                                willBeVisible = true;
+                            } else if (regime == "whenlow" && ammo.store <= ammo.capacity) {
+                                willBeVisible = true;
+                            } else if (regime == "belowmax" && ammo.store < ammo.storeMax) {
+                                willBeVisible = true;
+                            } else if (regime == "alwayson") {
+                                willBeVisible = true;
                             };
                         } else { //grenades
-                            const regime=extract("grenadeESPRegime");
-                            if (regime=="whendepleted" && ss.MYPLAYER.grenadeCount==0) {
-                                willBeVisible=true;
-                            } else if (regime=="whenlow" && ss.MYPLAYER.grenadeCount<=1) {
-                                willBeVisible=true;
-                            } else if (regime=="belowmax" && ss.MYPLAYER.grenadeCount<ss.MYPLAYER.grenadeCapacity) {
-                                willBeVisible=true;
-                            } else if (regime=="alwayson") {
-                                willBeVisible=true;
+                            const regime = extract("grenadeESPRegime");
+                            if (regime == "whendepleted" && ss.MYPLAYER.grenadeCount == 0) {
+                                willBeVisible = true;
+                            } else if (regime == "whenlow" && ss.MYPLAYER.grenadeCount <= 1) {
+                                willBeVisible = true;
+                            } else if (regime == "belowmax" && ss.MYPLAYER.grenadeCount < ss.MYPLAYER.grenadeCapacity) {
+                                willBeVisible = true;
+                            } else if (regime == "alwayson") {
+                                willBeVisible = true;
                             };
                         };
 
-                        item.box.visibility = willBeVisible && (itemType=="ammo" && extract("ammoESP") || extract("grenadeESP"));
-                        item.tracerLines.visibility = willBeVisible && (itemType=="ammo" && extract("ammoTracers") || extract("grenadeTracers"));
+                        item.box.visibility = willBeVisible && (itemType == "ammo" && extract("ammoESP") || extract("grenadeESP"));
+                        item.tracerLines.visibility = willBeVisible && (itemType == "ammo" && extract("ammoTracers") || extract("grenadeTracers"));
 
-                        item.exists=objExists;
+                        item.exists = objExists;
                     };
                 });
             };
-            for ( let i=0;i<ESPArray.length;i++) {
-                if (ESPArray[i][0] && ESPArray[i][0].exists==objExists) { //obj still exists and still relevant
+            for (let i = 0; i < ESPArray.length; i++) {
+                if (ESPArray[i][0] && ESPArray[i][0].exists == objExists) { //obj still exists and still relevant
                     //do nothing, lol
                 } else {
                     if (ESPArray[i][0]) { //obj still exists but no longer relevant
-                        console.log( '%cRemoving tracer line due to irrelevant object', 'color: white; background: red' );
-                        ESPArray[i][0].generatedESP=false;
+                        console.log('%cRemoving tracer line due to irrelevant object', 'color: white; background: red');
+                        ESPArray[i][0].generatedESP = false;
                     } else { //obj no longer exists
-                        console.log( '%cRemoving tracer line due to no longer exists', 'color: white; background: red' );
+                        console.log('%cRemoving tracer line due to no longer exists', 'color: white; background: red');
                     };
                     ESPArray[i][1].dispose(); //tracer
                     ESPArray[i][2].dispose(); //esp box
-                    if (ESPArray[i][3]) {ESPArray[i][3].dispose()}; //target
-                    ESPArray.splice(i,1);
+                    if (ESPArray[i][3]) { ESPArray[i][3].dispose() }; //target
+                    ESPArray.splice(i, 1);
                 };
-            }; newGame=false;
+            }; newGame = false;
         };
-        createAnonFunction("retrieveFunctions",function(vars,doStateFarm) {
-            ss=vars;
+        createAnonFunction("retrieveFunctions", function (vars, doStateFarm) {
+            ss = vars;
             if (doStateFarm) {
                 didStateFarm = true;
                 return F.STATEFARM();
@@ -4490,33 +4546,33 @@ z-index: 999999;
                 unsafeWindow.BAWK.sounds.silence.end = 0.001;
             };
         });
-        createAnonFunction("STATEFARM",function(){
-            ss.PLAYERS.forEach(PLAYER=>{
+        createAnonFunction("STATEFARM", function () {
+            ss.PLAYERS.forEach(PLAYER => {
                 if (PLAYER.hasOwnProperty("ws")) {
                     ss.MYPLAYER = PLAYER
                 };
             });
-            if ( !ranOneTime ) {
+            if (!ranOneTime) {
                 oneTime();
-            } else if ( typeof(L.BABYLON) !== 'undefined' ) {
+            } else if (typeof (L.BABYLON) !== 'undefined') {
                 initVars();
                 updateLinesESP();
                 // mapStuff();
 
 
                 let isVisible;
-                const player=currentlyTargeting||playerLookingAt||undefined;
+                const player = currentlyTargeting || playerLookingAt || undefined;
                 if (player && player[H.playing]) {
-                    isVisible=getLineOfSight(player);
+                    isVisible = getLineOfSight(player);
                 };
-                highlightCrossHairReticleDot(extract("showLOS")?isVisible:null);
+                highlightCrossHairReticleDot(extract("showLOS") ? isVisible : null);
 
-                if (extract("radar")){
+                if (extract("radar")) {
                     myPlayerDot.style.display = 'block';
-                    ss.PLAYERS.forEach(player=>{updateMiniMap(player,ss.MYPLAYER)});
+                    ss.PLAYERS.forEach(player => { updateMiniMap(player, ss.MYPLAYER) });
                 }
                 else {
-                    ss.PLAYERS.forEach(player=>{
+                    ss.PLAYERS.forEach(player => {
                         if (playerDotsMap.has(player.uniqueId)) {
                             const playerDotToRemove = playerDotsMap.get(player.uniqueId);
                             mapEl.removeChild(playerDotToRemove);
@@ -4526,79 +4582,79 @@ z-index: 999999;
                     myPlayerDot.style.display = 'none';
                 }
 
-                if ( extract("freecam") ) {
+                if (extract("freecam")) {
                     ss.MYPLAYER[H.actor][H.mesh].position.y = ss.MYPLAYER[H.actor][H.mesh].position.y + 1;
                 };
                 if (extract("spamChat")) {
                     if (document.getElementById("chatIn").style.visibility == 'visible') {
                         if (spamDelay < Date.now()) {
-                            if (Date.now()>(lastSpamMessage[0]+extract("spamChatDelay"))) {
+                            if (Date.now() > (lastSpamMessage[0] + extract("spamChatDelay"))) {
                                 let possibleMessages = extract("spamChatText").split("|");
-                                let chosenMessage = possibleMessages[spamMessageCount%possibleMessages.length];
-                                if (chosenMessage == lastSpamMessage[1]) {chosenMessage += String.fromCharCode(97 + Math.floor(Math.random() * 26))};
+                                let chosenMessage = possibleMessages[spamMessageCount % possibleMessages.length];
+                                if (chosenMessage == lastSpamMessage[1]) { chosenMessage += String.fromCharCode(97 + Math.floor(Math.random() * 26)) };
                                 sendChatMessage(chosenMessage);
-                                lastSpamMessage=[Date.now(),chosenMessage];
-                                spamMessageCount+=1;
+                                lastSpamMessage = [Date.now(), chosenMessage];
+                                spamMessageCount += 1;
                             };
-                        } else if (spamDelay < Date.now()-250) {
-                            spamDelay = Date.now()+250;
+                        } else if (spamDelay < Date.now() - 250) {
+                            spamDelay = Date.now() + 250;
                         };
                     };
                 };
-                if ( extract("chatHighlight") ) {
-                    document.getElementById("chatOut").style.userSelect="text"
+                if (extract("chatHighlight")) {
+                    document.getElementById("chatOut").style.userSelect = "text"
                 };
-                if ( extract("autoRefill") ) {
+                if (extract("autoRefill")) {
                     //console.log(ss.MYPLAYER.weapon);
-                    if (ammo.rounds==0) {
+                    if (ammo.rounds == 0) {
                         ss.MYPLAYER.reload();
                     } else if (extract("smartRefill")) {
                         let smartRefillMinAmmo = {
-                            eggk47:1,
-                            dozenGauge:0,
-                            csg1:1,
-                            rpegg:0,
-                            smg:1,
-                            m24:0,
-                            aug:3,
-                            cluck9mm:1
+                            eggk47: 1,
+                            dozenGauge: 0,
+                            csg1: 1,
+                            rpegg: 0,
+                            smg: 1,
+                            m24: 0,
+                            aug: 3,
+                            cluck9mm: 1
                         };
                         if (ammo.rounds <= smartRefillMinAmmo[ss.MYPLAYER.weapon.constructor.standardMeshName]) {
                             ss.MYPLAYER.reload();
                         };
                     };
                 };
-                if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount>0)) {
+                if (extract("autoGrenade") && isVisible && (ss.MYPLAYER.grenadeCount > 0)) {
                     ss.MYPLAYER.throwGrenade();
                 };
-                if ((extract("autoWeapon")!=="disabled")&&(!ss.MYPLAYER[H.playing])) {
-                    weaponArray.random = randomInt(0,6);
+                if ((extract("autoWeapon") !== "disabled") && (!ss.MYPLAYER[H.playing])) {
+                    weaponArray.random = randomInt(0, 6);
                     document.querySelectorAll('.weapon_img')[weaponArray[extract("autoWeapon")]].parentNode.click();
                 };
                 if (extract("revealBloom") || extract("showMinAngle")) {
                     const distCenterToOuter = 2 * (200 / ss.CAMERA.fov);
-                    const bloomValues=predictBloom(ss.MYPLAYER[H.yaw],ss.MYPLAYER[H.pitch]);
+                    const bloomValues = predictBloom(ss.MYPLAYER[H.yaw], ss.MYPLAYER[H.pitch]);
                     // Set the new position of the circle
                     const centerX = (unsafeWindow.innerWidth / 2);
                     const centerY = (unsafeWindow.innerHeight / 2);
                     const offsettedX = centerX + (2 * distCenterToOuter * bloomValues[0]);
                     const offsettedY = centerY + (2 * distCenterToOuter * bloomValues[1]);
                     if (extract("revealBloom")) {
-                        redCircle.style.display='';
+                        redCircle.style.display = '';
                         redCircle.style.bottom = offsettedY + 'px';
                         redCircle.style.right = offsettedX + 'px';
                     } else {
-                        redCircle.style.display='none';
+                        redCircle.style.display = 'none';
                     };
                     if (extract("showMinAngle")) {
                         minangleCircle.style.display = '';
-                        let idkWhatThisIs = 25*(1.25/ss.CAMERA.fov);
+                        let idkWhatThisIs = 25 * (1.25 / ss.CAMERA.fov);
                         minangleCircle.style.width = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
                         minangleCircle.style.height = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
                         minangleCircle.style.bottom = offsettedY + 'px';
                         minangleCircle.style.right = offsettedX + 'px';
                     } else {
-                        minangleCircle.style.display='none';
+                        minangleCircle.style.display = 'none';
                     };
                 };
 
@@ -4606,14 +4662,14 @@ z-index: 999999;
                 // enemyLookingAt=undefined; //currently unused and not defined
 
                 let playerLookingAtMinimum = 999999;
-                playerLookingAt=undefined; //used for player info
+                playerLookingAt = undefined; //used for player info
 
                 let enemyMinimumDistance = 999999;
-                enemyNearest=undefined; //used for antisneak
+                enemyNearest = undefined; //used for antisneak
 
-                let previousTarget=currentlyTargeting;
-                let selectNewTarget=(!extract("antiSwitch")||!currentlyTargeting);
-                let isDoingAimbot=(extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
+                let previousTarget = currentlyTargeting;
+                let selectNewTarget = (!extract("antiSwitch") || !currentlyTargeting);
+                let isDoingAimbot = (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
                 // console.log(targetingComplete);
 
                 const targetType = extract("aimbotTargetMode");
@@ -4622,52 +4678,52 @@ z-index: 999999;
                 let enemyMinimumValue = ((targetType == "pointingat") && (extract("silentAimbot"))) ? deg2rad(extract("aimbotMinAngle")) : 10000; //used for selecting target (either pointingat or nearest)
 
                 let didAimbot
-                const candidates=[];
-                let amountVisible=0;
+                const candidates = [];
+                let amountVisible = 0;
 
-                ss.PLAYERS.forEach(player=>{ //iterate over all players to
-                    if (player && (player!==ss.MYPLAYER) && player[H.playing] && (player[H.hp]>0)) {
-                        const whitelisted=(!extract("enableWhitelistAimbot")||extract("enableWhitelistAimbot")&&playerMatchesList(whitelistPlayers,player));
-                        const blacklisted=(extract("enableBlacklistAimbot")&&playerMatchesList(blacklistPlayers,player));
-                        const passedLists=whitelisted&&(!blacklisted);
-                        player.distance=distancePlayers(player);
-                        player.adjustedDistance=distancePlayers(player,2);
-                        const directionVector=getDirectionVectorFacingTarget(player);
-                        player.angleDiff=getAngularDifference(ss.MYPLAYER, {yawReal: calculateYaw(directionVector), pitchReal: calculatePitch(directionVector)});
-                        player.isVisible=getLineOfSight(player,extract("prediction"));
+                ss.PLAYERS.forEach(player => { //iterate over all players to
+                    if (player && (player !== ss.MYPLAYER) && player[H.playing] && (player[H.hp] > 0)) {
+                        const whitelisted = (!extract("enableWhitelistAimbot") || extract("enableWhitelistAimbot") && playerMatchesList(whitelistPlayers, player));
+                        const blacklisted = (extract("enableBlacklistAimbot") && playerMatchesList(blacklistPlayers, player));
+                        const passedLists = whitelisted && (!blacklisted);
+                        player.distance = distancePlayers(player);
+                        player.adjustedDistance = distancePlayers(player, 2);
+                        const directionVector = getDirectionVectorFacingTarget(player);
+                        player.angleDiff = getAngularDifference(ss.MYPLAYER, { yawReal: calculateYaw(directionVector), pitchReal: calculatePitch(directionVector) });
+                        player.isVisible = getLineOfSight(player, extract("prediction"));
 
                         if (player.angleDiff < playerLookingAtMinimum) {
                             playerLookingAtMinimum = player.angleDiff;
                             playerLookingAt = player;
                         };
 
-                        if (passedLists && ((!ss.MYPLAYER.team)||( player.team!==ss.MYPLAYER.team))) { //is an an enemy
+                        if (passedLists && ((!ss.MYPLAYER.team) || (player.team !== ss.MYPLAYER.team))) { //is an an enemy
                             if (isDoingAimbot) { //is doing aimbot and we care about getting a new target
-                                if (player.adjustedDistance<enemyMinimumValue) { //for antisneak, not targeting
+                                if (player.adjustedDistance < enemyMinimumValue) { //for antisneak, not targeting
                                     enemyMinimumDistance = player.adjustedDistance;
                                     enemyNearest = player;
                                 };
                                 if (selectNewTarget) {
                                     candidates.push(player);
-                                    if (player.isVisible) { amountVisible+=1 };
+                                    if (player.isVisible) { amountVisible += 1 };
                                 };
                             };
                         };
                     };
                 });
 
-                candidates.forEach(player=>{
-                    const valueToUse=((targetType=="nearest"&&player.adjustedDistance)||(targetType=="pointingat"&&player.angleDiff));
+                candidates.forEach(player => {
+                    const valueToUse = ((targetType == "nearest" && player.adjustedDistance) || (targetType == "pointingat" && player.angleDiff));
                     let visibleValue;
-                    if (visibilityMode=="disabled") { //we dont care about that shit
+                    if (visibilityMode == "disabled") { //we dont care about that shit
                         visibleValue = true; //go ahead
-                    } else if (amountVisible<1) { //none of candidates are visibS
-                        visibleValue = (visibilityMode=="onlyvisible" ? false : true); //there are no visible candidates, so either select none if "onlyvisible" or ignore this altogether
+                    } else if (amountVisible < 1) { //none of candidates are visibS
+                        visibleValue = (visibilityMode == "onlyvisible" ? false : true); //there are no visible candidates, so either select none if "onlyvisible" or ignore this altogether
                     } else { //some are visible
                         visibleValue = player.isVisible; //assuming now that either "prioritise" or "onlyvisible" are enabled, as "onlyvisible"'s use case fulfilled in previous statement
                     };
                     if (visibleValue) {
-                        if (valueToUse < enemyMinimumValue ) {
+                        if (valueToUse < enemyMinimumValue) {
                             enemyMinimumValue = valueToUse;
                             currentlyTargeting = player;
                         };
@@ -4676,27 +4732,27 @@ z-index: 999999;
 
                 if (isDoingAimbot) {
                     //globalSS.currentlyTargeting = currentlyTargeting;
-                    if ( currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor] ) { //found a target
-                        didAimbot=true;
+                    if (currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor]) { //found a target
+                        didAimbot = true;
                         if (extract("tracers")) {
                             currentlyTargeting.tracerLines.color = new L.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                         };
                         if (extract("playerESP")) {
                             currentlyTargeting.box.color = new L.BABYLON.Color3(...hexToRgb(extract("aimbotColor")));
                         };
-                        if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player,true)) && (targetingComplete||(deg2rad(extract("aimbotMinAngle"))>currentlyTargeting?.angleDiff))) {
+                        if ((!extract("silentAimbot")) && (!extract("noWallTrack") || getLineOfSight(player, true)) && (targetingComplete || (deg2rad(extract("aimbotMinAngle")) > currentlyTargeting?.angleDiff))) {
                             const distanceBetweenPlayers = distancePlayers(currentlyTargeting);
 
-                            const aimbot=getAimbot(currentlyTargeting);
+                            const aimbot = getAimbot(currentlyTargeting);
 
-                            const antiSnap=(1-(extract("aimbotAntiSnap")||0));
+                            const antiSnap = (1 - (extract("aimbotAntiSnap") || 0));
 
-                            if (previousTarget!==currentlyTargeting) { targetingComplete=false };
+                            if (previousTarget !== currentlyTargeting) { targetingComplete = false };
 
-                            const lerp = function(start, end, alpha) {
-                                let value = (1 - alpha ) * start + alpha * end;
-                                if ((Math.abs(end - start) < (0.2/(distanceBetweenPlayers))) || (targetingComplete)) {
-                                    value = end; targetingComplete=true;
+                            const lerp = function (start, end, alpha) {
+                                let value = (1 - alpha) * start + alpha * end;
+                                if ((Math.abs(end - start) < (0.2 / (distanceBetweenPlayers))) || (targetingComplete)) {
+                                    value = end; targetingComplete = true;
                                 };
                                 return value;
                             };
@@ -4705,63 +4761,63 @@ z-index: 999999;
                             ss.MYPLAYER[H.yaw] = setPrecision(lerp(ss.MYPLAYER[H.yaw], aimbot.yawReal, antiSnap));
                             ss.MYPLAYER[H.pitch] = setPrecision(lerp(ss.MYPLAYER[H.pitch], aimbot.pitchReal, antiSnap));
                         };
-                        if ( enemyMinimumDistance < extract("antiSneak")) {
+                        if (enemyMinimumDistance < extract("antiSneak")) {
                             currentlyTargeting = enemyNearest;
                             if (ammo.rounds === 0) { //basically after MAGDUMP, switch to pistol, if that is empty reload and keep shootin'
-                                if (ss.MYPLAYER.weaponIdx === 0){ss.MYPLAYER.swapWeapon(1);}
-                                else {ss.MYPLAYER.reload();}
+                                if (ss.MYPLAYER.weaponIdx === 0) { ss.MYPLAYER.swapWeapon(1); }
+                                else { ss.MYPLAYER.reload(); }
                             };
                             ss.MYPLAYER.pullTrigger();
                             // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
                         };
                     } else {
                         if (extract("oneKill")) {
-                            currentlyTargeting="dead";
+                            currentlyTargeting = "dead";
                         } else {
-                            currentlyTargeting=false;
+                            currentlyTargeting = false;
                         };
                     };
                 } else {
-                    currentlyTargeting=false;
-                    targetingComplete=false;
+                    currentlyTargeting = false;
+                    targetingComplete = false;
                     if (extract("enableSeizureX")) {
-                        ss.MYPLAYER[H.yaw]+=extract("amountSeizureX")
+                        ss.MYPLAYER[H.yaw] += extract("amountSeizureX")
                     };
                     if (extract("enableSeizureY")) {
-                        ss.MYPLAYER[H.pitch]+=extract("amountSeizureY")
+                        ss.MYPLAYER[H.pitch] += extract("amountSeizureY")
                     };
                 };
                 highlightTargetOnLeaderboard(currentlyTargeting, (extract("highlightLeaderboard")) ? didAimbot : false);
                 if (extract("upsideDown")) { //sorta useless
-                    if (ss.MYPLAYER[H.pitch]<1.5 && ss.MYPLAYER[H.pitch]>-1.5) {
-                        ss.MYPLAYER[H.pitch]=Math.PI;
+                    if (ss.MYPLAYER[H.pitch] < 1.5 && ss.MYPLAYER[H.pitch] > -1.5) {
+                        ss.MYPLAYER[H.pitch] = Math.PI;
                     };
                 };
                 if (extract("silentRoll")) {
-                    ss.MYPLAYER[H.pitch]+=2*Math.PI;
+                    ss.MYPLAYER[H.pitch] += 2 * Math.PI;
                 };
 
                 if (extract("enableAutoFire")) {
-                    let autoFireType=extract("autoFireType");
-                    let doAutoFire=false
-                    if (autoFireType=="always") {
-                        doAutoFire=true;
-                    } else if (autoFireType=="whileAimbot" && didAimbot) {
-                        doAutoFire=true;
-                    } else if (autoFireType=="whileVisible" && isVisible) {
-                        doAutoFire=true;
-                    } else if (autoFireType=="whileVisAimbot" && isVisible && didAimbot) {
-                        doAutoFire=true;
+                    let autoFireType = extract("autoFireType");
+                    let doAutoFire = false
+                    if (autoFireType == "always") {
+                        doAutoFire = true;
+                    } else if (autoFireType == "whileAimbot" && didAimbot) {
+                        doAutoFire = true;
+                    } else if (autoFireType == "whileVisible" && isVisible) {
+                        doAutoFire = true;
+                    } else if (autoFireType == "whileVisAimbot" && isVisible && didAimbot) {
+                        doAutoFire = true;
                     };
                     if (doAutoFire) {
-                        if ((ammo.rounds>0)||(ammo.store>0)) {
+                        if ((ammo.rounds > 0) || (ammo.store > 0)) {
                             ss.MYPLAYER.pullTrigger();
                         } else {
                             ss.MYPLAYER.melee();
                         };
                     };
                     //method by de_Neuublue
-                    if ( autoFireType=="forceAutomatic" ) {
+                    if (autoFireType == "forceAutomatic") {
                         if (ss.MYPLAYER.weapon.constructor.originallySemi == null) {
                             ss.MYPLAYER.weapon.constructor.originallySemi = !ss.MYPLAYER.weapon.constructor.automatic;
                         };
@@ -4772,9 +4828,11 @@ z-index: 999999;
                     };
                 };
 
+                mapStuff();
+
                 let doRender = true;
 
-                if ((extract("renderDelay")>10) && (Date.now()<(previousFrame+extract("renderDelay")))) { //because bots lmao
+                if ((extract("renderDelay") > 10) && (Date.now() < (previousFrame + extract("renderDelay")))) { //because bots lmao
                     doRender = false;
                 } else {
                     previousFrame = Date.now();
@@ -4799,4 +4857,4 @@ z-index: 999999;
         };
     }, 30000);
 })();
-console.log("StateFarm: after function",attemptedInjection);
+console.log("StateFarm: after function", attemptedInjection);
