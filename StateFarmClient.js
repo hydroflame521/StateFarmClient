@@ -24,7 +24,7 @@
 //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre1
+// @version      3.4.1-pre3
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -211,7 +211,8 @@ console.log("StateFarm: running (before function)");
     let bindsArray = {};
     let H = {}; // obfuscated shit lol
     const tp = {}; // <-- tp = tweakpane
-    let ss, msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots;
+    let ss = {};
+    let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
     let whitelistPlayers, scrambledMsgEl, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
@@ -567,7 +568,7 @@ console.log("StateFarm: running (before function)");
         if (tp.mainPanel) { tp.mainPanel.dispose() };
         if (tp.botPanel) { tp.botPanel.dispose() };
 
-        tp.mainPanel = new Tweakpane.Pane();
+        tp.mainPanel = new Tweakpane.Pane(); // eslint-disable-line
         tp.mainPanel.title = menuTitle;
         //SFC CHAT
         initFolder({ location: tp.mainPanel, title: "StateFarm Chat", storeAs: "sfChatFolder", });
@@ -929,7 +930,8 @@ sniping and someone sneaks up on you
                 if (document.pointerLockElement !== null) { //currently locked
                     noPointerPause = true; unsafeWindow.document.exitPointerLock();
                 } else if (noPointerPause) { //already unlocked?
-                    noPointerPause = false; canvas.requestPointerLock();
+                    noPointerPause = false;
+                    unsafeWindow.canvas.requestPointerLock();
                 };
             },
         });
@@ -961,8 +963,8 @@ sniping and someone sneaks up on you
         let presetList = [];
         Object.entries(inbuiltPresets).forEach(([key, value]) => {//Get all presets from inbuilt presets var
             let options = {};
-            options["text"] = key;//not the best way to add things to a dictionary, but the only way i could get to work
-            options["value"] = key;
+            options.text = key;//not the best way to add things to a dictionary, but the only way i could get to work
+            options.value = key; // idiot could've not violated eslint smfh
             presetList.push(options);
         });
         //PRESETS: OakSwingZZZ 😎
@@ -1087,13 +1089,13 @@ sniping and someone sneaks up on you
         initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function () { unsafeWindow.open(featuresGuideURL) }, });
 
 
-        tp.botPanel = new Tweakpane.Pane();
+        tp.botPanel = new Tweakpane.Pane(); // eslint-disable-line
         tp.botPanel.title = "StateFarm Bot Control Panel";
         tp.botPanel.containerElem_.style.left = "15%";
         tp.botPanel.containerElem_.style.top = "25%";
         tp.botPanel.hidden = true;
 
-        tp["botTabs"] = tp.botPanel.addTab({
+        tp.botTabs = tp.botPanel.addTab({
             pages: [
                 { title: 'Deploy' },
                 { title: 'Manage' },
@@ -1581,26 +1583,26 @@ sniping and someone sneaks up on you
         document.body.appendChild(minangleCircle);
 
         if (load("HUD-Positions") == null) {
-            hudElementPositions["coordElement"] = { "top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left };
-            hudElementPositions["gameInfoElement"] = { "top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left };
-            hudElementPositions["playerstatsElement"] = { "top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left };
-            hudElementPositions["playerinfoElement"] = { "top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left };
+            hudElementPositions.coordElement = { top: coordElement.getBoundingClientRect().top, left: coordElement.getBoundingClientRect().left };
+            hudElementPositions.gameInfoElement = { top: gameInfoElement.getBoundingClientRect().top, left: gameInfoElement.getBoundingClientRect().left };
+            hudElementPositions.playerstatsElement = { top: playerstatsElement.getBoundingClientRect().top, left: playerstatsElement.getBoundingClientRect().left };
+            hudElementPositions.playerinfoElement = { top: playerinfoElement.getBoundingClientRect().top, left: playerinfoElement.getBoundingClientRect().left };
             save("HUD-Positions", hudElementPositions);
         } else {
             hudElementPositions = load("HUD-Positions");
 
-            coordElement.style.top = hudElementPositions["coordElement"]["top"] + "px";
-            gameInfoElement.style.top = hudElementPositions["gameInfoElement"]["top"] + "px";
-            playerstatsElement.style.top = hudElementPositions["playerstatsElement"]["top"] + "px";
-            playerinfoElement.style.top = hudElementPositions["playerinfoElement"]["top"] + "px";
+            coordElement.style.top = hudElementPositions.coordElement.top + "px";
+            gameInfoElement.style.top = hudElementPositions.gameInfoElement.top + "px";
+            playerstatsElement.style.top = hudElementPositions.playerstatsElement.top + "px";
+            playerinfoElement.style.top = hudElementPositions.playerinfoElement.top + "px";
 
-            coordElement.style.left = hudElementPositions["coordElement"]["left"] + "px";
-            gameInfoElement.style.left = hudElementPositions["gameInfoElement"]["left"] + "px";
-            playerstatsElement.style.left = hudElementPositions["playerstatsElement"]["left"] + "px";
-            playerinfoElement.style.left = hudElementPositions["playerinfoElement"]["left"] + "px";
-        }
-
+            coordElement.style.left = hudElementPositions.coordElement.left + "px";
+            gameInfoElement.style.left = hudElementPositions.gameInfoElement.left + "px";
+            playerstatsElement.style.left = hudElementPositions.playerstatsElement.left + "px";
+            playerinfoElement.style.left = hudElementPositions.playerinfoElement.left + "px";
+        };
     };
+
     const makeDraggable = function (element, notMenu) {
         if (element) {
             let offsetX, offsetY;
@@ -1648,10 +1650,10 @@ sniping and someone sneaks up on you
                     window.removeEventListener("mouseup", reset);
 
                     //saves new positions
-                    hudElementPositions["coordElement"] = { "top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left };
-                    hudElementPositions["gameInfoElement"] = { "top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left };
-                    hudElementPositions["playerstatsElement"] = { "top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left };
-                    hudElementPositions["playerinfoElement"] = { "top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left };
+                    hudElementPositions.coordElement = { "top": coordElement.getBoundingClientRect().top, "left": coordElement.getBoundingClientRect().left };
+                    hudElementPositions.gameInfoElement = { "top": gameInfoElement.getBoundingClientRect().top, "left": gameInfoElement.getBoundingClientRect().left };
+                    hudElementPositions.playerstatsElement = { "top": playerstatsElement.getBoundingClientRect().top, "left": playerstatsElement.getBoundingClientRect().left };
+                    hudElementPositions.playerinfoElement = { "top": playerinfoElement.getBoundingClientRect().top, "left": playerinfoElement.getBoundingClientRect().left };
                     save("HUD-Positions", hudElementPositions);
                 };
 
@@ -2061,7 +2063,7 @@ z-index: 999999;
             const sleep = function (ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             };
-            playerList = document.getElementById("playerList").children;
+            let playerList = document.getElementById("playerList").children;
             for (let i = 0; i < playerList.length; i++) {
                 playerList[i].click();
                 await sleep(400);
@@ -2299,20 +2301,20 @@ z-index: 999999;
     };
     const everySecond = function () {
         if (extract("debug")) {
-            globalSS = {};
-            globalSS.ss = ss;
-            globalSS.H = H;
-            globalSS.tp = tp;
-            globalSS.initMenu = initMenu;
-            globalSS.extractAsDropdownInt = extractAsDropdownInt;
-            globalSS.extract = extract;
-            globalSS.extractDropdownList = extractDropdownList;
-            globalSS.save = save;
-            globalSS.load = load;
-            globalSS.remove = remove;
-            globalSS.change = change;
-            globalSS.list = GM_listValues;
-            globalSS.soundsSFC = soundsSFC;
+            unsafeWindow.globalSS = {};
+            unsafeWindow.globalSS.ss = ss;
+            unsafeWindow.globalSS.H = H;
+            unsafeWindow.globalSS.tp = tp;
+            unsafeWindow.globalSS.initMenu = initMenu;
+            unsafeWindow.globalSS.extractAsDropdownInt = extractAsDropdownInt;
+            unsafeWindow.globalSS.extract = extract;
+            unsafeWindow.globalSS.extractDropdownList = extractDropdownList;
+            unsafeWindow.globalSS.save = save;
+            unsafeWindow.globalSS.load = load;
+            unsafeWindow.globalSS.remove = remove;
+            unsafeWindow.globalSS.change = change;
+            unsafeWindow.globalSS.list = GM_listValues;
+            unsafeWindow.globalSS.soundsSFC = soundsSFC;
             // if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
         };
         startUpComplete = (!document.getElementById("progressBar"));
@@ -2353,7 +2355,7 @@ z-index: 999999;
             monitorObjects.botOnline = "";
             amountOnline = 0;
             const botsArray = Object.keys(botsDict).sort();
-            for (i in botsArray) {
+            for (let i in botsArray) {
                 if (i !== "shallowClone") {
                     i = Number(i);
                     const botID = botsArray[i];
@@ -2371,7 +2373,7 @@ z-index: 999999;
                         botsDict[botID].status = "not responding " + (Date.now() - data.timecode) + "ms elapsed";
                     }; //bot is doing fine... hopefully
                     amountOnline += 1;
-                    monitorObjects.botOnline = monitorObjects.botOnline + "\n" + data.username + " [" + "..." + botID.slice(-4) + "]: " + data.status;
+                    monitorObjects.botOnline = monitorObjects.botOnline + "\n" + data.username + " [..." + botID.slice(-4) + "]: " + data.status;
                 };
             };
             if (oldBlacklist !== botBlacklist) {
@@ -2415,7 +2417,7 @@ z-index: 999999;
                     throw new Error('Failed to fetch ZIP:', response.statusText);
                 };
                 const arrayBuffer = await response.arrayBuffer();
-                const zip = await JSZip.loadAsync(arrayBuffer);
+                const zip = await JSZip.loadAsync(arrayBuffer); // eslint-disable-line
                 const mp3Files = Object.keys(zip.files).filter(fileName => fileName.endsWith('.mp3'));
                 const jsonFiles = Object.keys(zip.files).filter(fileName => fileName.endsWith('.json'));
                 const totalRequests = mp3Files.length + jsonFiles.length;
@@ -2523,7 +2525,13 @@ z-index: 999999;
         } else {
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin")) {
-                    unsafeWindow.vueApp.externPlayObject((extract("joinCode").length === 7) ? 2 : 0, vueApp.currentGameType, (vueApp.playerName), -1, extract("joinCode"));
+                    unsafeWindow.vueApp.externPlayObject(
+                        (extract("joinCode").length === 7) ? 2 : 0,
+                        unsafeWindow.vueApp.currentGameType,
+                        unsafeWindow.vueApp.playerName,
+                        -1,
+                        extract("joinCode")
+                    );
                 };
             };
             if (extract("autoRegion") !== "disabled") {
@@ -2581,9 +2589,7 @@ z-index: 999999;
         };
 
         const banPopup = document.getElementById("bannedPopup");
-        if (attemptedInjection && banPopup && vueApp.bannedPopup.expire !== "") {
-            isBanned = true;
-        };
+        if (attemptedInjection && banPopup && unsafeWindow.vueApp.bannedPopup.expire !== "") isBanned = true;
         if (isBanned && extract("autoUnban") && (!attemptedAutoUnban)) {
             console.log("eep!");
             banPopup.textContent = 'StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
@@ -2595,32 +2601,32 @@ z-index: 999999;
                 banPopup.style.display = "none";
                 attemptedAutoUnban = false;
                 isBanned = false;
-                vueApp.bannedPopup.expire = "";
+                unsafeWindow.vueApp.bannedPopup.expire = "";
             }, 15000);
         };
 
-        if (extract("eggColour") !== "disabled") {
+        if (extract("eggColour") !== "disabled" && ss?.USERDATA) {
             const colour = extract("eggColour") == "random" ? randomInt(0, 6) : extractAsDropdownInt("eggColour") - 1;
             if (colour !== ss.USERDATA.playerAccount.colorIdx) {
-                extern.setShellColor(colour);
-                vueApp.onBackClick();
+                unsafeWindow.extern.setShellColor(colour);
+                unsafeWindow.vueApp.onBackClick();
             };
         };
-        if (extract("autoStamp") !== "disabled") {
+        if (extract("autoStamp") !== "disabled" && ss?.USERDATA) {
             const stampID = 2000 + (extract("autoStamp") == "random" ? randomInt(1, 6) : extractAsDropdownInt("autoStamp"));
             if (ss.USERDATA && ss.USERDATA.playerAccount) {
                 if (stampID !== ((ss.USERDATA.playerAccount.stampItem && ss.USERDATA.playerAccount.stampItem?.id) || -1)) {
                     ss.USERDATA.playerAccount.stampItem = unsafeWindow.extern.catalog.findItemById(stampID);
-                    vueApp.onBackClick();
+                    unsafeWindow.vueApp.onBackClick();
                 };
             };
         };
-        if (extract("autoHat") !== "disabled") {
+        if (extract("autoHat") !== "disabled" && ss?.USERDATA) {
             const hatID = 1000 + (extract("autoHat") == "random" ? randomInt(1, 6) : extractAsDropdownInt("autoHat"));
             if (ss.USERDATA && ss.USERDATA.playerAccount) {
                 if (hatID !== ((ss.USERDATA.playerAccount.hatItem && ss.USERDATA.playerAccount.hatItem?.id) || -1)) {
                     ss.USERDATA.playerAccount.hatItem = unsafeWindow.extern.catalog.findItemById(hatID);
-                    vueApp.onBackClick();
+                    unsafeWindow.vueApp.onBackClick();
                 };
             };
         };
@@ -2635,11 +2641,11 @@ z-index: 999999;
         localStorage.timesPlayed = 0;
     };
     const handleCommand = function (command) {
-        args = command.split(" ");
+        let args = command.split(" ");
 
         switch (args[0]) {
             case "setconfig":
-                let receivedConfig = decodeURIComponent(unsafeWindow.escape(window.atob(args[1])));
+                let receivedConfig = decodeURIComponent(unsafeWindow.escape(window.atob(args[1]))); // eslint-disable-line
                 if (URLParams !== "") { receivedConfig = URLParams + "<" + receivedConfig };
                 console.log("StateFarm: Change in Bot Panel detected.", receivedConfig);
                 applySettings(receivedConfig);
@@ -2667,25 +2673,18 @@ z-index: 999999;
                 spamReport();
                 break;
             case "join":
-                code = args[1];
-                if (code) {
-                    unsafeWindow.vueApp.externPlayObject(0, 0, unsafeWindow.vueApp.playerName, -1, code);
-                } else {
-                    alert("Invalid code");
-                };
+                if (args[1]) unsafeWindow.vueApp.externPlayObject(0, 0, unsafeWindow.vueApp.playerName, -1, args[1]);
+                else alert("Invalid code");
                 break;
             case "pathtarget": // pathfinding target
-                option = args[1];
+                let option = args[1]; // eslint-disable-line
                 if (option) {
                     if (option === "set") {
-                        x = args[2];
-                        y = args[3];
-                        z = args[4];
-                        if (x && y && z) {
-                            pathfindingTargetOverride = { x: x, y: y, z: z };
-                        } else {
-                            sendChatMessage("Invalid pathtarget coordinates")
-                        };
+                        let x = args[2];
+                        let y = args[3];
+                        let z = args[4];
+                        if (x && y && z) pathfindingTargetOverride = { x: x, y: y, z: z };
+                        else sendChatMessage("Invalid pathtarget coordinates")
                     };
                 };
                 break;
@@ -2876,7 +2875,7 @@ z-index: 999999;
         configBots = tp.botPanel.exportPreset();
     };
     const updateHiddenAndDisabledHelper = function (array) { //determines if all conditions are met
-        conditionMet = false;
+        let conditionMet = false;
         array.forEach(condition => {
             if ((extract(condition[0]) ? extract(condition[0]) : false) !== condition[1]) {
                 conditionMet = true;
@@ -2955,9 +2954,9 @@ z-index: 999999;
     //Updates inbuiltPresets to include user presets
     addUserPresets(loadUserPresets());
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
-        chatThing = document.getElementById('chatIn');
+        let chatThing = document.getElementById('chatIn');
         if (chatThing.value.includes("unlock")) {
-            createPopup("Message send failed: Account too new!", "error");
+            createPopup("Message send failed: Account too new! (try ShellPrint)", "error");
             return false;
         } else if (ss.MYPLAYER.chatLines > 2) {
             createPopup("Chat Cooldown: " + (ss.MYPLAYER.chatLines - 2) + " remaining.", "error");
@@ -3164,11 +3163,9 @@ z-index: 999999;
         return arr;
     };
     const extractChatPacket = function (packet) {
-        if (!(packet instanceof ArrayBuffer)) {
-            var pack_arr = new Uint8Array(packet);
-        } else {
-            var pack_arr = packet;
-        };
+        var pack_arr;
+        if (!(packet instanceof ArrayBuffer)) pack_arr = new Uint8Array(packet);
+        else pack_arr = packet;
         var str = "";
         for (var i = 0; i < pack_arr[1]; i++) {
             str += String.fromCharCode(pack_arr[2 * i + 2] + (pack_arr[2 * i + 3] << 8)); // ripped straight outta unpackInt16 (thanks github copilot)
@@ -3176,7 +3173,7 @@ z-index: 999999;
         return str;
     };
     const chatPacketHandler = function (packet) {
-        string = extractChatPacket(packet);
+        let string = extractChatPacket(packet);
         if (string.includes(antiAFKString)) {
             console.log(packet)
             console.log("AntiAFK replacement...", string.originalReplace(antiAFKString, ""));
@@ -3187,7 +3184,7 @@ z-index: 999999;
         return packet;
     };
     const modifyPacket = function (data) {
-        if (!ss || (data instanceof String)) { // avoid server comm, ping, etc. necessary to load
+        if (!ss || !ss.SERVERCODES || (data instanceof String)) { // avoid server comm, ping, etc. necessary to load
             return data;
         };
 
@@ -3483,9 +3480,8 @@ z-index: 999999;
                 msg = msg + "᥊";
             };
             if (msg[0] === '%') {
-                command = msg.slice(1);
                 msg = ""; //dont send anything
-                broadcastToBots(command);
+                broadcastToBots(msg.slice(1));
             };
             return msg;
         });
@@ -3500,7 +3496,7 @@ z-index: 999999;
             } else {
                 if (extract("autoWalk")) { CONTROLKEYS |= ss.CONTROLKEYSENUM.up };
                 // credit for code: de_neuublue
-                if (extract("bunnyhop") && isKeyToggled["Space"]) {
+                if (extract("bunnyhop") && isKeyToggled.Space) {
                     CONTROLKEYS |= ss.CONTROLKEYSENUM.jump;
                 };
                 if (extract("autoJump")) {
@@ -3588,7 +3584,7 @@ z-index: 999999;
 
 
             let hash, onlineClientKeys;
-            hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex);
+            hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex); // eslint-disable-line
             onlineClientKeys = getVardata(hash);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
@@ -3635,7 +3631,7 @@ z-index: 999999;
 
             const variableNameRegex = /^[a-zA-Z0-9_$\[\]"\\]*$/;
             for (let name in H) {
-                deobf = H[name];
+                let deobf = H[name];
                 if (name == "SERVERSYNC" || variableNameRegex.test(deobf)) { //serversync should only be defined just before...
                     injectionString = `${injectionString}${name}: (() => { try { return ${deobf}; } catch (error) { return "value_undefined"; } })(),`;
                 } else {
@@ -3989,8 +3985,7 @@ z-index: 999999;
                     parent = this.content[parentN];
                 // If the parent has a lesser score, things are in order and we
                 // are done.
-                if (score >= this.scoreFunction(parent))
-                    break;
+                if (score >= this.scoreFunction(parent)) break;
 
                 // Otherwise, swap the parent with the current element and
                 // continue.
@@ -4022,15 +4017,13 @@ z-index: 999999;
                     var child1 = this.content[child1N],
                         child1Score = this.scoreFunction(child1);
                     // If the score is less than our element's, we need to swap.
-                    if (child1Score < elemScore)
-                        swap = child1N;
+                    if (child1Score < elemScore) swap = child1N;
                 }
                 // Do the same checks for the other child.
                 if (child2N < length) {
                     var child2 = this.content[child2N],
                         child2Score = this.scoreFunction(child2);
-                    if (child2Score < (swap == null ? elemScore : child1Score))
-                        swap = child2N;
+                    if (child2Score < (swap == null ? elemScore : child1Score)) swap = child2N;
                 }
 
                 // No need to swap further, we are done.
@@ -4100,15 +4093,13 @@ z-index: 999999;
                         if (!isNodeAir(map_data[map_data_x][map_data_y][map_data_z])) {
                             continue;
                         }
-                        if (y != 0) {
-                            var air_directly_below = isNodeAir(map_data[map_data_x][map_data_y - 1][map_data_z]);
-                        } else {
-                            var air_directly_below = false;
-                        }
+                        var air_directly_below;
+                        if (y != 0) air_directly_below = isNodeAir(map_data[map_data_x][map_data_y + 1][map_data_z]);
+                        else air_directly_below = false;
                         // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
-                        if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) {
+                        if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) { // eslint-disable-line
                             if (air_directly_below && y == -1 || !air_directly_below) {
-                                this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z));
+                                this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)); // eslint-disable-line
                             }
                         } else {
                             var new_node = new MapNode(new Position(map_data_x, map_data_y, map_data_z), [], map_data);
@@ -4269,8 +4260,8 @@ z-index: 999999;
 
     function create_red_line_between_nodes(ss, node1, node2) {
         // const tracerLines = L.BABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
-        pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
-        pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
+        let pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
+        let pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
         if (window.pathLines === undefined) {
             let node_lines = L.BABYLON.MeshBuilder.CreateLines(new Date().getTime().toString(), { points: [ss.MYPLAYER[H.actor][H.mesh].position, pos2] }, ss.MYPLAYER[H.actor].scene);
             node_lines.color = new L.BABYLON.Color3(1, 0, 0);
@@ -4370,8 +4361,6 @@ z-index: 999999;
         const mapStuff = function () {
             createMapData();
 
-            console.log("node = " + get_node_at(get_player_position(ss.MYPLAYER)), "nodelist len = " + GLOBAL_NODE_LIST.length);
-
             if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
                 let player_pos = get_player_position(ss.MYPLAYER);
                 let player_node = get_node_at(player_pos);
@@ -4408,10 +4397,10 @@ z-index: 999999;
             }
 
             if (AUTOMATED && pathfindingTargetOverride !== undefined) {
-                player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                target_node = get_node_at(pathfindingTargetOverride);
+                let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                let target_node = get_node_at(pathfindingTargetOverride);
                 if (player_node && target_node) {
-                    path = AStar(player_node, target_node);
+                    let path = AStar(player_node, target_node);
                     if (path) {
                         activePath = path;
                         activeNodeTarget = path[0];
@@ -4565,7 +4554,7 @@ z-index: 999999;
                     player.target.visibility = false;
 
                     if (player[H.actor]) {
-                        eggSize = extract("eggSize")
+                        let eggSize = extract("eggSize")
                         player[H.actor][H.bodyMesh].scaling = { x: eggSize, y: eggSize, z: eggSize }
                     };
 
@@ -4579,12 +4568,16 @@ z-index: 999999;
                         player[H.actor].nameSprite.renderingGroupId = 1;
                         var h = Math.length3(player[H.x] - ss.MYPLAYER[H.x], player[H.y] - ss.MYPLAYER[H.y], player[H.z] - ss.MYPLAYER[H.z]),
                             d = Math.pow(h, 1.25) * 2;
-                        player[H.actor].nameSprite.width = d / 10 + .6, player[H.actor].nameSprite.height = d / 20 + .3;
+                        player[H.actor].nameSprite.width = d / 10 + .6;
+                        player[H.actor].nameSprite.height = d / 20 + .3;
                         ss.MYPLAYER[H.actor].scene.activeCamera.fov = 0.75
                     };
                     if (!player.logged) {
                         player.logged = true;
-                        if (extract("debug")) { playerLogger.push(player); console.log("Logged player: " + player.name, player) }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
+                        if (extract("debug")) {
+                            playerLogger.push(player);
+                            console.log("Logged player: " + player.name, player)
+                        }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
                         if (extract("joinMessages") && (!newGame)) {
                             if (extract("publicBroadcast")) {
                                 sendChatMessage((extract("joinLeaveBranding") ? "[SFC] " : "") + player.name + " joined.")
