@@ -2314,6 +2314,13 @@ z-index: 999999;
             globalSS.change = change;
             globalSS.list = GM_listValues;
             globalSS.soundsSFC = soundsSFC;
+            globalSS.pathfindingInfo = {
+                activePath: activePath,
+                pathfindingTargetOverride: pathfindingTargetOverride,
+                activePath: activePath,
+                activeNodeTarget: activeNodeTarget,
+                mapNodes: GLOBAL_NODE_LIST,
+            }
             // if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
         };
         startUpComplete = (!document.getElementById("progressBar"));
@@ -3487,7 +3494,11 @@ z-index: 999999;
             if (msg[0] === '%') {
                 command = msg.slice(1);
                 msg = ""; //dont send anything
-                broadcastToBots(command);
+                if (command != "pts") {
+                    broadcastToBots(command);
+                } else {
+                    handleCommand('pathtarget set 9 1 9')
+                }
             };
             return msg;
         });
@@ -4047,7 +4058,11 @@ z-index: 999999;
     };
 
     function isNodeAir(item) {
-        return item.mesh === undefined || item.mesh.name.includes("none");
+        return item.mesh === undefined
+    }
+
+    function canTravelThroughNode(item) {
+        return isNodeAir(item) || item.mesh.name.includes("none")
     }
 
     class Position {
@@ -4081,6 +4096,7 @@ z-index: 999999;
         }
         add_children_from_map_data(map_data) {
             // for each thing around us in a 3x3x3 cube, add a link if it's air and it's not above us
+            let found_node = 0; let found_link = 0
             for (var x = -1; x <= 1; x++) {
                 for (var y = -1; y <= 0; y++) {
                     for (var z = -1; z <= 1; z++) {
@@ -4095,6 +4111,7 @@ z-index: 999999;
                         var map_data_z = this.position.z + z;
                         if (map_data_x < 0 || map_data_y < 0 || map_data_z < 0) {
                             continue;
+
                         }
                         if (map_data_x >= map_data.length || map_data_y >= map_data[0].length || map_data_z >= map_data[0][0].length) {
                             continue;
@@ -4102,40 +4119,82 @@ z-index: 999999;
 
                         var attemptedNode = map_data[map_data_x][map_data_y][map_data_z];
 
-                        if (!isNodeAir(attemptedNode)) {
+                        if (!canTravelThroughNode(attemptedNode)) {
                             continue;
                         }
 
-                        if (y != 0 && map_data_y < map_data[0].length - 1) {
-                            try {
-                                var is_air_directly_below = isNodeAir(map_data[map_data_x][map_data_y + 1][map_data_z]);
-                                if (!is_air_directly_below) {
-                                    var is_nonsolid_directly_below = !map_data[map_data_x][map_data_y + 1][map_data_z].mesh.name.includes('full');
-                                    var no_solid_directly_below = is_air_directly_below || is_nonsolid_directly_below;
-                                }
-                            } catch {
-                                var no_solid_directly_below = false;
-                            }
-                        } else {
-                            var no_solid_directly_below = false;
-                        }
-                        // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
-                        if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) {
-                            if (is_air_directly_below && y == -1 || !no_solid_directly_below) {
-                                console.log("+1 to reattached count");
-                                this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z));
-                            }
-                        } else {
-                            console.log("+1 to new node count");
-                            var new_node = new MapNode(new Position(map_data_x, map_data_y, map_data_z), [], map_data);
-                            if (is_air_directly_below && y == -1 || !no_solid_directly_below) {
-                                this.add_link(new_node);
-                            }
+
+                        /* for the tested node:
+                            continue if:
+                                can't travel through it
+                                a nonsolid is directly below it
+                        */
+
+                        try {
+                            var node_below_checked_node = map_data[map_data_x][map_data_y - 1][map_data_z];
+                        } catch (error) {
+                            console.log(error)
+                            continue;
                         }
 
+                        var is_air_directly_below = isNodeAir(node_below_checked_node); // self explanatory
+                        var is_solid_directly_below = !is_air_directly_below ? node_below_checked_node.mesh.name.includes("full") : false;
+                        var is_partial_directly_below = !is_air_directly_below && !is_solid_directly_below
+
+
+                        try {
+                            var node_directly_below_node_doing_the_checking = map_data[this.position.x][this.position.y - 1][this.position.z];
+                        } catch (error) {
+                            console.log(error);
+                            var node_directly_below_node_doing_the_checking = {};
+                        };
+
+                        var is_solid_directly_below_node_doing_checking = !isNodeAir(node_directly_below_node_doing_the_checking) && node_directly_below_node_doing_the_checking.mesh.name.includes("full");
+
+
+                        var is_valid_candidate = (
+                            is_solid_directly_below ||
+                            y == -1 && !is_partial_directly_below ||
+                            (is_air_directly_below || is_solid_directly_below) && is_solid_directly_below_node_doing_checking
+                            // TODO: when falling long distances this can cause it to crash
+                            // ideally if there's a partial below it prunes back to the start of the fall
+                            // that's hard
+                            // i just want this to work
+                        )
+
+                        if (y == -1 && !is_partial_directly_below) {
+                            console.log('weird case, looking downwards to x/y/z from x/y/z', map_data_x, map_data_y, map_data_z, this.position.x, this.position.y, this.position.z, 'is air directly below?', is_air_directly_below, 'is solid directly below?', is_solid_directly_below, 'is partial directly below?', is_partial_directly_below, 'is valid candidate?', is_valid_candidate)
+                        }
+
+
+                        // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
+                        // if it's air / equivalent to air we can create it (but not necessarily link to it)
+                            if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) { // this node already exists, link to it
+                                if (is_valid_candidate) {
+                                    found_link++;
+                                    this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z));
+
+                                }
+
+                            } else {
+
+                                found_node++;
+
+                                var new_node = new MapNode(new Position(map_data_x, map_data_y, map_data_z), [], map_data);
+                                // the new node doesn't exist yet
+                                // we create it
+                                // if it's possible to move to we add the link
+
+                                if (is_valid_candidate) {
+                                    found_link++;
+                                    this.add_link(new_node);
+
+                                }
+                            }
                     }
                 }
             }
+            console.log("done with recursive for node at x/y/z", this.position.x, this.position.y, this.position.z, "found", found_node, "new nodes and", found_link, "links, this is the nth node created", GLOBAL_NODE_LIST.length)
         }
     }
 
@@ -4382,20 +4441,6 @@ z-index: 999999;
             }
         }
 
-        const oddlySpecificFunction_normalizeData = function (player, node) {
-            var position = get_player_position(player);
-            position.x += 0.5
-            position.y += 0.5
-            position.z += 0.5
-
-            return [
-                node.position.x - position.x,
-                node.position.y - position.y,
-                node.position.z - position.z
-            ]
-
-        }
-
         const mapStuff = function () {
             createMapData();
 
@@ -4436,14 +4481,21 @@ z-index: 999999;
                 }
             }
 
-            if (AUTOMATED && pathfindingTargetOverride !== undefined) {
+            if (pathfindingTargetOverride !== undefined) {
                 player_node = get_node_at(get_player_position(ss.MYPLAYER));
                 target_node = get_node_at(pathfindingTargetOverride);
                 if (player_node && target_node && !activePath) {
                     path = AStar(player_node, target_node);
                     if (path) {
-                        activePath = path;
-                        activeNodeTarget = path[0];
+                        if (path.length > 0) {
+                            activePath = path;
+                            activeNodeTarget = path[0];
+                        } else {
+                            console.log('already at target')
+                            activePath = null;
+                            activeNodeTarget = null;
+                            pathfindingTargetOverride = undefined;
+                        }
                     } else {
                         if (despawnIfNoPath) {
                             sendChatMessage("despawnIfNoPath");
@@ -4452,16 +4504,16 @@ z-index: 999999;
                 } else {
                     if (!activePath) {
                         if (player_node) {
-                            alert("playernode good")
+                            console.log("playernode good")
                         }
                         if (target_node) {
-                            alert("targetnode good")
+                            console.log("targetnode good")
                         }
                         if (!player_node) {
-                            alert("playernode bad")
+                            console.log("playernode bad")
                         }
                         if (!target_node) {
-                            alert("targetnode bad")
+                            console.log("targetnode bad")
                         }
                     }
                 }
@@ -4470,14 +4522,27 @@ z-index: 999999;
             if (activeNodeTarget && activePath) {
                 //console.log("found target and path");
                 let player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                if (player_node == activeNodeTarget) {
-                    activeNodeTarget = activePath.shift();
-                    console.log("update target");
-                    if (activePath.length == 0) {
-                        console.log("path completed");
-                        activePath = null;
-                        activeNodeTarget = null;
-                        pathfindingTargetOverride = undefined;
+                if (player_node == activeNodeTarget || activePath.includes(player_node)) { // if we are at the target or have somehow skipped ahead in the list
+                    if (player_node == activeNodeTarget) {
+                        activeNodeTarget = activePath.shift();
+                        console.log("update target");
+                        if (activePath.length == 0) {
+                            console.log("path completed");
+                            activePath = null;
+                            activeNodeTarget = null;
+                            pathfindingTargetOverride = undefined;
+                        }
+                    } else {
+                        while (activePath.includes(player_node)) {
+                            activeNodeTarget = activePath.shift();
+                        }
+                        if (activePath.length == 0) {
+                            console.log("path completed");
+                            activePath = null;
+                            activeNodeTarget = null;
+                            pathfindingTargetOverride = undefined;
+                        }
+
                     }
                 } else {
                     //console.log("not at target");
