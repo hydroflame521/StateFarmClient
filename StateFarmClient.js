@@ -583,7 +583,7 @@ console.log("StateFarm: running (before function)");
         // },});
         tp.sfChatTab.pages[0].addSeparator();
         initModule({
-            location: tp.sfChatTab.pages[0], title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.sfChatTab.pages[1], bindLocation: tp.sfChatTab.pages[1], defaultBind: "K", clickFunction: function () {
+            location: tp.sfChatTab.pages[0], title: "Show/Hide", storeAs: "sfChatShowHide", button: "Show/Hide", bindLocation: tp.sfChatTab.pages[1], defaultBind: "K", clickFunction: function () {
                 if (sfChatContainer != undefined) {
                     if (sfChatContainer.style.display == "none") {
                         sfChatContainer.style.display = "block";
@@ -595,6 +595,10 @@ console.log("StateFarm: running (before function)");
                 };
             },
         });
+        tp.sfChatTab.pages[0].addSeparator();
+        initModule({ location: tp.sfChatTab.pages[0], title: "Notifications", storeAs: "sfChatNotifications", bindLocation: tp.sfChatTab.pages[1], });
+        initModule({ location: tp.sfChatTab.pages[0], title: "Notification Sound", storeAs: "sfChatNotificationSound", bindLocation: tp.sfChatTab.pages[1], });
+        initModule({ location: tp.sfChatTab.pages[0], title: "Auto Start Chat", storeAs: "sfChatAutoStart", bindLocation: tp.sfChatTab.pages[1], });
         //COMBAT MODULES
         initFolder({ location: tp.mainPanel, title: "Combat", storeAs: "combatFolder", });
         initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
@@ -1248,7 +1252,7 @@ sniping and someone sneaks up on you
             sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({ name: sfChatUsername }), "*");
         };
     };
-    const startStateFarmChat = function () {
+    const startStateFarmChat = function (startHidden) {
         //UnsafewindowVars
         const makeChatDragable = function (element) {
             if (element.getAttribute("drag-true") != "true") {
@@ -1292,7 +1296,10 @@ sniping and someone sneaks up on you
         sfChatContainer.style.textAlign = "center";
         sfChatContainer.style.top = "20px";
         sfChatContainer.style.left = "20px";
-        sfChatContainer.style.zIndex = 1000;
+        sfChatContainer.style.zIndex = 100000000;
+        if (startHidden){
+            sfChatContainer.style.display = 'none';
+        }
 
         const sendSettings = function () {
             let settings = GM_getValue("SFCHAT-SETTINGS");
@@ -1324,12 +1331,28 @@ sniping and someone sneaks up on you
         }, 1000);
 
         unsafeWindow.addEventListener("message", (e) => {
-            if (e.data.startsWith("SFCHAT-UPDATE")) {
-                GM_setValue("SFCHAT-SETTINGS", e.data.replace(/SFCHAT-UPDATE/gm, ""));
+            if (typeof e.data == "string"){
+                if (e.data.startsWith("SFCHAT-UPDATE")) {
+                    GM_setValue("SFCHAT-SETTINGS", e.data.replace(/SFCHAT-UPDATE/gm, ""));
+                }
+                if (e.data.startsWith("SFCHAT-REQUEST")) {
+                    sendSettings();
+                };
+                if (e.data.startsWith("SFCHAT-MESSAGE")) {
+                    let stringMessage = e.data.replace(/SFCHAT-MESSAGE/gm, "");
+                    let message = JSON.parse(stringMessage);
+                    if (extract("sfChatNotifications") && message.user && message.message && (sfChatContainer.style.display == "none")){
+                        if (message.message.length <= 50){
+                            createPopup(message.user.name + ": " + message.message);
+                        }else{
+                            createPopup(message.user.name + ": " + message.message.substring(0, 50) + "...");
+                        }
+                        if (extract("sfChatNotificationSound")){
+                            BAWK.play("grenade_cellphone");
+                        }
+                    }
+                }
             }
-            if (e.data.startsWith("SFCHAT-REQUEST")) {
-                sendSettings();
-            };
         });
     };
 
@@ -2323,6 +2346,9 @@ z-index: 999999;
             }
             // if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
         };
+        if (extract('sfChatAutoStart') && !sfChatContainer){
+            startStateFarmChat(true);
+        }
         startUpComplete = (!document.getElementById("progressBar"));
         let botsDict = GM_getValue("StateFarm_BotStatus");
         sfChatUsernameSet();
