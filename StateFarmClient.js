@@ -3480,6 +3480,7 @@ z-index: 999999;
                 msg = msg + "᥊";
             };
             if (msg[0] === '%') {
+                command = msg.slice(1);
                 msg = ""; //dont send anything
                 if (command != "pts") {
                     broadcastToBots(command);
