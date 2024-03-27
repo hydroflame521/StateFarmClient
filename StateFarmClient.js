@@ -12,6 +12,7 @@
 // @grant        GM_listValues
 // @grant        GM_info
 // @grant        GM_setClipboard
+// @grant        GM_openInTab
 // @icon         https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png
 
 // @require      https://cdn.jsdelivr.net/npm/tweakpane@3.1.10/dist/tweakpane.min.js
@@ -24,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre6
+// @version      3.4.1-pre7
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -211,6 +212,7 @@ console.log("StateFarm: running (before function)");
     let bindsArray = {};
     let H = {}; // obfuscated shit lol
     const tp = {}; // <-- tp = tweakpane
+    // blank variables
     let ss = {};
     let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
     let whitelistPlayers, scrambledMsgEl, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
@@ -858,7 +860,7 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.bottingFolder, storeAs: "bottingTab" })
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function () { tp.botPanel.hidden = !tp.botPanel.hidden }, defaultBind: "J", });
             tp.bottingTab.pages[0].addSeparator();
-            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function () { unsafeWindow.open(bottingGuideURL) }, });
+            initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function () { GM_openInTab(bottingGuideURL, { active: true }) }, });
         //THEMING MODULES
         initFolder({ location: tp.mainPanel, title: "Theming", storeAs: "themingFolder", });
         initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
@@ -906,19 +908,18 @@ sniping and someone sneaks up on you
             },});
             initModule({ location: tp.miscTab.pages[0], title: "Reload Page", storeAs: "reload", bindLocation: tp.miscTab.pages[1], button: "RELOAD NOW", clickFunction: function(){
                 reloadPage();
-            },});=
+            },});
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: 'ShellPrint Key', storeAs: 'shellPrintKey', defaultValue: "" });
-            initModule({ location: tp.miscTab.pages[0], title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => {
-                alert('Join this Discord Server and visit the #info channel under ShellPrint to unlock a key!');
-                unsafeWindow.open('https://discord.gg/XAyZ6ndEd4');
-            }});
+            initModule({ location: tp.miscTab.pages[0], title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => GM_openInTab('https://discord.gg/XAyZ6ndEd4', { active: true }) });
+            initModule({ location: tp.miscTab.pages[0], title: 'Account Creator', storeAs: 'shellprintGen', button: 'Generate!', clickFunction: () => F.register() });
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function(){
                 if (document.pointerLockElement !== null) { //currently locked
                     noPointerPause=true; unsafeWindow.document.exitPointerLock();
                 } else if (noPointerPause) { //already unlocked?
-                    noPointerPause=false; canvas.requestPointerLock();
+                    noPointerPause=false;
+                    unsafeWindow.canvas.requestPointerLock();
                 };
             },});
             tp.miscTab.pages[0].addSeparator();
@@ -1047,8 +1048,8 @@ sniping and someone sneaks up on you
                 },});
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
-                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: function(){unsafeWindow.open(discordURL)},});
-                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: function(){unsafeWindow.open(githubURL)},});
+                initModule({ location: tp.linksFolder, title: "Discord", storeAs: "discord", button: "Link", clickFunction: () => GM_openInTab(discordURL, { active: true }) });
+                initModule({ location: tp.linksFolder, title: "GitHub", storeAs: "github", button: "Link", clickFunction: () => GM_openInTab(githubURL, { active: true }) });
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Reset", storeAs: "clear", button: "DELETE", clickFunction: function(){
                 const userConfirmed=confirm("Are you sure you want to continue? This will clear all stored module states and keybinds.");
@@ -1059,7 +1060,7 @@ sniping and someone sneaks up on you
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1], });
         tp.mainPanel.addSeparator();
-        initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: function () { unsafeWindow.open(featuresGuideURL) }, });
+        initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: () => GM_openInTab(featuresGuideURL, { active: true }) });
 
 
         tp.botPanel = new Tweakpane.Pane(); // eslint-disable-line
@@ -2296,6 +2297,8 @@ z-index: 999999;
             unsafeWindow.globalSS = {};
             unsafeWindow.globalSS.ss = ss;
             unsafeWindow.globalSS.H = H;
+            unsafeWindow.globalSS.F = F;
+            unsafeWindow.globalSS.L = L;
             unsafeWindow.globalSS.tp = tp;
             unsafeWindow.globalSS.initMenu = initMenu;
             unsafeWindow.globalSS.extractAsDropdownInt = extractAsDropdownInt;
@@ -2313,8 +2316,7 @@ z-index: 999999;
                 activePath: activePath,
                 activeNodeTarget: activeNodeTarget,
                 mapNodes: GLOBAL_NODE_LIST,
-            }
-            // if (typeof(L.BABYLON) !== 'undefined') {globalSS.L.BABYLON=L.BABYLON};
+            };
         };
         if (extract('sfChatAutoStart') && !sfChatContainer){
             startStateFarmChat(true);
@@ -2410,7 +2412,8 @@ z-index: 999999;
             });
         };
 
-        extract('spoofVIP') && document.getElementById("chickenBadge") ? document.getElementById("chickenBadge").style.display = "block" : document.getElementById("chickenBadge").style.display = "none"; //VIP Badge Spoof by OakSwingZZZ
+        if (extract('spoofVIP') && document.getElementById("chickenBadge")) document.getElementById("chickenBadge").style.display = "block";
+        else if (!extract('spoofVIP') && document.getElementById("chickenBadge")) document.getElementById("chickenBadge").style.display = 'none';
 
         const fetchAndProcessAudioFromZip = async function (zipURL) {
             try {
@@ -3008,7 +3011,7 @@ z-index: 999999;
                     nameDiv.style.textDecoration = 'none';
                     nameDiv.addEventListener('mouseover', function () { nameDiv.style.textDecoration = 'underline'; nameDiv.style.color = 'blue' });
                     nameDiv.addEventListener('mouseout', function () { nameDiv.style.textDecoration = 'none'; nameDiv.style.color = 'white' });
-                    nameDiv.addEventListener('click', function () { unsafeWindow.open(hrefValue, '_blank'); });
+                    nameDiv.addEventListener('click', () => GM_openInTab(hrefValue, { active: true }));
                     containerDiv.setAttribute('data-name', nameValue);
                     containerDiv.appendChild(nameDiv);
                     containerDiv.appendChild(nameDiv);
@@ -3675,7 +3678,6 @@ z-index: 999999;
             //hook for main loop function in render loop
             modifyJS(f(H.SCENE) + '.' + f(H.render), `window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
             modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
-            modifyJS('no account found"),', `no account found"),window["${functionNames.register}"](),`);
             console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
@@ -3770,7 +3772,7 @@ z-index: 999999;
         updateBotParams();
         if (!load("firstTimeBots")) {
             save("firstTimeBots", true);
-            unsafeWindow.open(bottingGuideURL);
+            GM_openInTab(bottingGuideURL, { active: true });
         };
 
         GM_setValue("StateFarm_BotStatus", {});
@@ -4569,7 +4571,7 @@ z-index: 999999;
                     current: ${playerPosition.x}, ${playerPosition.y}, ${playerPosition.z}
                     directionVector: ${directionVector.x}, ${directionVector.y}, ${directionVector.z}
                         calc yaw: ${calculateYaw(directionVector)}
-                    targ -> current diff: 
+                    targ -> current diff:
                         `)
                     ss.MYPLAYER[H.yaw] = calculateYaw(directionVector);
                     ss.MYPLAYER[H.pitch] = 0;
@@ -4794,8 +4796,36 @@ z-index: 999999;
         });
 
         createAnonFunction("register", async () => {
-
             let wait = (ms) => new Promise((res) => setTimeout(res, ms));
+
+            document.body.insertAdjacentHTML('beforeend', `
+                <style>
+                    .shellprintOverlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.7);
+                        z-index: 9999999;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        opacity: 1;
+                    }
+
+                    .overlayText {
+                        color: white;
+                        font-weight: bold;
+                        font-family: 'Nunito';
+                        font-size: 36px;
+                    }
+                </style>
+
+                <div class="shellprintOverlay">
+                    <span class="overlayText">Creating Account...</span>
+                </div>
+            `);
 
             document.querySelector('.profile-menu-item').click();
 
@@ -4803,9 +4833,11 @@ z-index: 999999;
             if (!accountButton.innerText.includes('Sign In')) return;
             accountButton.click();
 
-            let freshAccount = await (await fetch('https://shellprint.villainsrule.xyz/create?key=' + extract('shellPrintKey'), {
+            let freshAccount = await (await fetch('https://shellprint.villainsrule.xyz/v2/create?key=' + extract('shellPrintKey'), {
                 method: 'POST'
             })).json();
+
+            if (freshAccount.error) return document.querySelector('.overlayText').innerText = 'Use a valid key. Get one @ discord.gg/XAyZ6ndEd4'; // eslint-disable-line
 
             await wait(100);
 
@@ -4824,13 +4856,45 @@ z-index: 999999;
 
             document.querySelector('.notify-group-eggs > button').click();
 
-            let inter = setInterval(async () => {
-                let isVerified = await (await fetch('https://shellprint.villainsrule.xyz/verified?key=' + extract('shellPrintKey') + '&email=' + freshAccount.email, {
-                    method: 'POST'
-                })).json();
+            document.querySelector('.overlayText').innerText = 'Created account! 🎉 Verifying with email...';
 
-                if (isVerified.verified) location.reload();
-            }, 7000);
+            let verifyConfirmation = await (await fetch('https://shellprint.villainsrule.xyz/v2/verified?key=' + extract('shellPrintKey') + '&email=' + freshAccount.email, {
+                method: 'POST'
+            })).json();
+
+            if (!verifyConfirmation.verified) document.querySelector('.overlayText').innerText = 'There was an error verifying. Please reload :(';
+
+            document.querySelector('.overlayText').innerText = 'Verified email! 🎉 Signing back in...';
+
+            unsafeWindow.extern.signOut();
+
+            await wait(3000);
+
+            document.querySelector('.profile-menu-item').click();
+
+            if (!accountButton.innerText.includes('Sign In')) return;
+            accountButton.click();
+
+            await wait(100);
+
+            document.querySelector('.firebaseui-idp-password').click();
+
+            document.querySelector('input[type="email"]').value = freshAccount.email;
+            document.querySelector('.firebaseui-id-submit').click();
+
+            await wait(1500);
+
+            passwordElement = document.querySelector('.firebaseui-id-password') || document.querySelector('.firebaseui-id-new-password');
+            passwordElement.value = freshAccount.password;
+            document.querySelector('.firebaseui-id-submit').click();
+
+            document.querySelector('.overlayText').innerText = 'Fully signed in! 🎉 This will disappear in 3...';
+            await wait(1000);
+            document.querySelector('.overlayText').innerText = 'Fully signed in! 🎉 This will disappear in 2...';
+            await wait(1000);
+            document.querySelector('.overlayText').innerText = 'Fully signed in! 🎉 This will disappear in 1...';
+            await wait(1000);
+            document.querySelector('.shellprintOverlay').remove();
         });
 
         createAnonFunction("STATEFARM", function () {
@@ -5018,7 +5082,6 @@ z-index: 999999;
                 });
 
                 if (isDoingAimbot) {
-                    //globalSS.currentlyTargeting = currentlyTargeting;
                     if (currentlyTargeting && currentlyTargeting[H.playing] && currentlyTargeting[H.actor]) { //found a target
                         didAimbot = true;
                         if (extract("tracers")) {
