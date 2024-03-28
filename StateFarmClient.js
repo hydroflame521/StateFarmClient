@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre7
+// @version      3.4.1-pre8
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -4806,15 +4806,22 @@ z-index: 999999;
                         left: 0;
                         width: 100%;
                         height: 100%;
-                        background-color: rgba(0, 0, 0, 0.7);
+                        background-color: rgba(0, 0, 0);
                         z-index: 9999999;
                         display: flex;
+                        flex-direction: column;
                         justify-content: center;
                         align-items: center;
-                        opacity: 1;
                     }
 
-                    .overlayText {
+                    .shellprintText {
+                        color: white;
+                        font-weight: bold;
+                        font-family: 'Nunito';
+                        font-size: 20px;
+                    }
+
+                    .shellprintStatus {
                         color: white;
                         font-weight: bold;
                         font-family: 'Nunito';
@@ -4823,86 +4830,114 @@ z-index: 999999;
                 </style>
 
                 <div class="shellprintOverlay">
-                    <span class="overlayText">Creating Account...</span>
+                    <span class="shellprintText">[ ShellPrint @ discord.gg/XAyZ6ndEd4 ]</span>
+                    <span class="shellprintStatus"></span>
                 </div>
             `);
 
-            document.querySelector('.profile-menu-item').click();
+            const shellprint = {
+                write: (p) => document.querySelector('.shellprintStatus').innerText = p, // eslint-disable-line
 
-            let accountButton = document.querySelector('#account-button');
-            if (!accountButton.innerText.includes('Sign In')) return;
+                remove: () => {
+                    let style = (s, t) => document.querySelector('.shellprintOverlay').style[s] = t; // eslint-disable-line
+                    style('visibility', 'hidden');
+                    style('opacity', 0);
+                    style('transition', 'visibility 0s 1s, opacity 1s linear');
+                    setTimeout(() => document.querySelector('.shellprintOverlay').remove(), 1001);
+                },
+
+                awaitElement: (selector) => new Promise(resolve => {
+                    if (document.querySelector(selector)) return resolve(document.querySelector(selector));
+
+                    const observer = new MutationObserver(mutations => {
+                        if (document.querySelector(selector)) {
+                            observer.disconnect();
+                            resolve(document.querySelector(selector));
+                        };
+                    });
+
+                    observer.observe(document.body || document.documentElement, {
+                        childList: true,
+                        subtree: true
+                    });
+                })
+            };
+
+            shellprint.write('Creating Account...');
+
+            (await shellprint.awaitElement('.profile-menu-item')).click();
+
+            let accountButton = await shellprint.awaitElement('#account-button');
+            if (!accountButton.innerText.includes('Sign In')) {
+                shellprint.write('You\'re already signed in. Sign out first.');
+                setTimeout(() => shellprint.remove(), 3000);
+                return;
+            };
             accountButton.click();
 
-            let freshAccount = await (await fetch('https://shellprint.villainsrule.xyz/v2/create?key=' + extract('shellPrintKey'), {
-                method: 'POST'
-            })).json();
+            let freshAccount;
 
-            if (freshAccount.error) return document.querySelector('.overlayText').innerText = 'Use a valid key. Get one @ discord.gg/XAyZ6ndEd4'; // eslint-disable-line
+            try {
+                freshAccount = await (await fetch('https://shellprint.villainsrule.xyz/v2/create?key=' + extract('shellPrintKey'), {
+                    method: 'POST'
+                })).json();
+            } catch {};
 
-            await wait(100);
+            if (!freshAccount) {
+                shellprint.write('ShellPrint is currently broken. Try again later.');
+                setTimeout(() => shellprint.remove(), 3000);
+                return;
+            } else if (freshAccount.error) {
+                shellprint.write('Use a valid key. Get one @ discord.gg/XAyZ6ndEd4');
+                setTimeout(() => shellprint.remove(), 3000);
+                return;
+            };
 
-            document.querySelector('.firebaseui-idp-password').click();
+            (await shellprint.awaitElement('.firebaseui-idp-password')).click();
+            (await shellprint.awaitElement('input[type="email"]')).value = freshAccount.email;
+            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
+            (await shellprint.awaitElement('.firebaseui-id-new-password')).value = freshAccount.password;
+            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
+            (await shellprint.awaitElement('.notify-group-eggs > button')).click();
 
-            document.querySelector('input[type="email"]').value = freshAccount.email;
-            document.querySelector('.firebaseui-id-submit').click();
-
-            await wait(1500);
-
-            let passwordElement = document.querySelector('.firebaseui-id-password') || document.querySelector('.firebaseui-id-new-password');
-            passwordElement.value = freshAccount.password;
-            document.querySelector('.firebaseui-id-submit').click();
-
-            await wait(3000);
-
-            document.querySelector('.notify-group-eggs > button').click();
-
-            document.querySelector('.overlayText').innerText = 'Created account! 🎉 Verifying with email...';
+            shellprint.write('Created account! 🎉 Verifying with email...');
 
             let verifyConfirmation = await (await fetch('https://shellprint.villainsrule.xyz/v2/verified?key=' + extract('shellPrintKey') + '&email=' + freshAccount.email, {
                 method: 'POST'
             })).json();
 
-            if (!verifyConfirmation.verified) document.querySelector('.overlayText').innerText = 'There was an error verifying. Please reload :(';
+            if (!verifyConfirmation.verified) shellprint.write('There was an error verifying. Please reload :(');
 
-            document.querySelector('.overlayText').innerText = 'Verified email! 🎉 Signing back in...';
+            shellprint.write('Verified email! 🎉 Signing back in...');
 
             unsafeWindow.extern.signOut();
 
             await wait(3000);
 
-            document.querySelector('.profile-menu-item').click();
+            (await shellprint.awaitElement('.profile-menu-item')).click();
 
-            if (!accountButton.innerText.includes('Sign In')) return;
+            accountButton = await shellprint.awaitElement('#account-button');
+            if (!accountButton.innerText.includes('Sign In')) {
+                shellprint.write('You\'re already signed in. Sign out first.');
+                setTimeout(() => shellprint.remove(), 3000);
+                return;
+            };
             accountButton.click();
 
-            await wait(100);
+            (await shellprint.awaitElement('.firebaseui-idp-password')).click();
+            (await shellprint.awaitElement('input[type="email"]')).value = freshAccount.email;
+            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
+            (await shellprint.awaitElement('.firebaseui-id-password')).value = freshAccount.password;
+            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
 
-            document.querySelector('.firebaseui-idp-password').click();
-
-            document.querySelector('input[type="email"]').value = freshAccount.email;
-            document.querySelector('.firebaseui-id-submit').click();
-
-            await wait(1500);
-
-            passwordElement = document.querySelector('.firebaseui-id-password') || document.querySelector('.firebaseui-id-new-password');
-            passwordElement.value = freshAccount.password;
-            document.querySelector('.firebaseui-id-submit').click();
-
-            document.querySelector('.overlayText').innerText = 'Fully signed in! 🎉 This will disappear in 3...';
-            await wait(1000);
-            document.querySelector('.overlayText').innerText = 'Fully signed in! 🎉 This will disappear in 2...';
-            await wait(1000);
-            document.querySelector('.overlayText').innerText = 'Fully signed in! 🎉 This will disappear in 1...';
-            await wait(1000);
-            document.querySelector('.shellprintOverlay').remove();
+            shellprint.write('Fully signed in! 🎉');
+            await wait(3000);
+            shellprint.remove();
         });
 
         createAnonFunction("STATEFARM", function () {
-            ss.PLAYERS.forEach(PLAYER => {
-                if (PLAYER.hasOwnProperty("ws")) {
-                    ss.MYPLAYER = PLAYER
-                };
-            });
+            ss.MYPLAYER = ss.PLAYERS.find((PLAYER) => PLAYER.hasOwnProperty("ws"));
+
             if (!ranOneTime) {
                 oneTime();
             } else if (typeof (L.BABYLON) !== 'undefined') {
