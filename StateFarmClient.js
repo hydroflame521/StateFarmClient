@@ -4936,8 +4936,8 @@ z-index: 999999;
         });
 
         createAnonFunction("STATEFARM", function () {
-            ss.MYPLAYER = ss.PLAYERS.find((PLAYER) => PLAYER.hasOwnProperty("ws"));
-
+            ss.PLAYERS.forEach((PLAYER) => (PLAYER.hasOwnProperty("ws")) ? (ss.MYPLAYER = PLAYER) : null);
+            
             if (!ranOneTime) {
                 oneTime();
             } else if (typeof (L.BABYLON) !== 'undefined') {
