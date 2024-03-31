@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre8
+// @version      3.4.1-pre9
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -836,7 +836,7 @@ sniping and someone sneaks up on you
             initFolder({ location: tp.automationTab.pages[0], title: "Game Blacklist Settings", storeAs: "gameBlacklistFolder", });//Game Blacklist Folder
                 initModule({ location: tp.gameBlacklistFolder, title: "Blacklist On", storeAs: "gameBlacklist", bindLocation: tp.automationTab.pages[1], });
                 initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "", });
-                initModule({ location: tp.gameBlacklistFolder, title: "Get Code", storeAs: "getCode", button: "Retrieve", clickFunction: function(){
+                initModule({ location: tp.gameBlacklistFolder, title: "Get BL Code", storeAs: "getCodeBlacklist", button: "Retrieve", bindLocation: tp.automationTab.pages[1], clickFunction: function(){
                     if (GAMECODE != undefined && GAMECODE != null){
                         extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
                     } else {
@@ -3479,16 +3479,7 @@ z-index: 999999;
             };
         });
         createAnonFunction('modifyChat', function (msg) {
-            if (msg !== lastSentMessage) { //not spammed or afked
-                if (extract("chatFilterBypass")) {
-                    const UNICODE_RTL_OVERRIDE = '\u202e'
-                    msg = ([UNICODE_RTL_OVERRIDE,].concat(reverseString(msg).split(""))).join("");
-                };
-            };
-            if (extract("tallChat") && !(msg.includes("᥊"))) {
-                msg = msg + "᥊";
-            };
-            if (msg[0] === '%') {
+            if (msg[0] === '%') { //message is a command
                 command = msg.slice(1);
                 msg = ""; //dont send anything
                 if (command != "pts") {
@@ -3496,6 +3487,16 @@ z-index: 999999;
                 } else {
                     handleCommand('pathtarget set 9 1 9')
                 }
+            } else {
+                if (msg !== lastSentMessage) { //not spammed or afked
+                    if (extract("chatFilterBypass")) {
+                        const UNICODE_RTL_OVERRIDE = '\u202e'
+                        msg = ([UNICODE_RTL_OVERRIDE,].concat(reverseString(msg).split(""))).join("");
+                    };
+                };
+                if (extract("tallChat") && !(msg.includes("᥊"))) {
+                    msg = msg + "᥊";
+                };
             };
             return msg;
         });
@@ -4188,6 +4189,7 @@ z-index: 999999;
                 }
             }
             console.log("done with recursive for node at x/y/z", this.position.x, this.position.y, this.position.z, "found", found_node, "new nodes and", found_link, "links, this is the nth node created", GLOBAL_NODE_LIST.length)
+            //shit lags, lol
         }
     }
 
@@ -4428,6 +4430,7 @@ z-index: 999999;
 
         const createMapData = function () {
             if (!map_data_created) {
+                console.log("Creating map data");
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
                 return true;
@@ -4435,11 +4438,12 @@ z-index: 999999;
         }
 
         const mapStuff = function () {
-            createMapData();
 
             //console.log("node = " + get_node_at(get_player_position(ss.MYPLAYER)), "nodelist len = " + GLOBAL_NODE_LIST.length);
+            console.log(map_data_created);
 
             if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
+
                 let player_pos = get_player_position(ss.MYPLAYER);
                 let player_node = get_node_at(player_pos);
                 if (player_node) {
@@ -4476,6 +4480,7 @@ z-index: 999999;
 
 
             if (pathfindingTargetOverride !== undefined) {
+                createMapData();
                 player_node = get_node_at(get_player_position(ss.MYPLAYER));
                 target_node = get_node_at(pathfindingTargetOverride);
                 if (player_node && target_node && !activePath) {
