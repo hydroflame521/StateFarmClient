@@ -4156,8 +4156,8 @@ z-index: 999999;
                         )
 
                         if (y == -1 && !is_partial_directly_below) {
-                            console.log('weird case, looking downwards to x/y/z from x/y/z', map_data_x, map_data_y, map_data_z, this.position.x, this.position.y, this.position.z, 'is air directly below?', is_air_directly_below, 'is solid directly below?', is_solid_directly_below, 'is partial directly below?', is_partial_directly_below, 'is valid candidate?', is_valid_candidate)
-
+                            // console.log('weird case, looking downwards to x/y/z from x/y/z', map_data_x, map_data_y, map_data_z, this.position.x, this.position.y, this.position.z, 'is air directly below?', is_air_directly_below, 'is solid directly below?', is_solid_directly_below, 'is partial directly below?', is_partial_directly_below, 'is valid candidate?', is_valid_candidate)
+                            //shit lags, lol
                         }
 
 
@@ -4188,7 +4188,7 @@ z-index: 999999;
                     }
                 }
             }
-            console.log("done with recursive for node at x/y/z", this.position.x, this.position.y, this.position.z, "found", found_node, "new nodes and", found_link, "links, this is the nth node created", GLOBAL_NODE_LIST.length)
+            // console.log("done with recursive for node at x/y/z", this.position.x, this.position.y, this.position.z, "found", found_node, "new nodes and", found_link, "links, this is the nth node created", GLOBAL_NODE_LIST.length)
             //shit lags, lol
         }
     }
@@ -4440,7 +4440,6 @@ z-index: 999999;
         const mapStuff = function () {
 
             //console.log("node = " + get_node_at(get_player_position(ss.MYPLAYER)), "nodelist len = " + GLOBAL_NODE_LIST.length);
-            console.log(map_data_created);
 
             if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
 
@@ -4570,14 +4569,15 @@ z-index: 999999;
 
                     let playerPosition = get_player_position(ss.MYPLAYER);
                     let directionVector = new L.BABYLON.Vector3(activeNodeTarget.position.x - playerPosition.x, activeNodeTarget.position.y - playerPosition.y, activeNodeTarget.position.z - playerPosition.z);
-                    console.log(`
+                    /* console.log(`
                     --PATHING UPDATE--
                     target: ${activeNodeTarget.position.x}, ${activeNodeTarget.position.y}, ${activeNodeTarget.position.z}
                     current: ${playerPosition.x}, ${playerPosition.y}, ${playerPosition.z}
                     directionVector: ${directionVector.x}, ${directionVector.y}, ${directionVector.z}
                         calc yaw: ${calculateYaw(directionVector)}
                     targ -> current diff:
-                        `)
+                        `) */
+                    //shit lags, lol
                     ss.MYPLAYER[H.yaw] = calculateYaw(directionVector);
                     ss.MYPLAYER[H.pitch] = 0;
                     forceControlKeys = ss.CONTROLKEYSENUM.up;
