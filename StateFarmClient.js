@@ -3591,7 +3591,7 @@ z-index: 999999;
             let clientKeys;
 
             let originalJS = js;
-            if (typeof isCrackedShell !== 'undefined') originalJS = fetchTextContent('/js/shellshock.og.js');
+            if (typeof isCrackedShell !== 'undefined'){originalJS = fetchTextContent('/js/shellshock.og.js');}
 
             const getVardata = function (hash) {
                 return fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_" + hash + ".json");
