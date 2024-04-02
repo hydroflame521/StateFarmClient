@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre9
+// @version      3.4.1-pre10
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -3600,7 +3600,7 @@ z-index: 999999;
 
             let hash, onlineClientKeys;
             hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex); // eslint-disable-line
-            onlineClientKeys = getVardata(hash);
+            onlineClientKeys = getVardata(originalJS);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
                 let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it, or alternatively the hash of a previous game js to attempt to load that. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: ' + hash, '');
