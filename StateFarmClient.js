@@ -29,7 +29,7 @@
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
-// @match        *://*.algebra.best/*
+// @match        *://*.algebra.best/*   
 // @match        *://*.algebra.vip/*
 // @match        *://*.biologyclass.club/*
 // @match        *://*.deadlyegg.com/*
@@ -3599,8 +3599,8 @@ z-index: 999999;
 
 
             let hash, onlineClientKeys;
-            hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex); // eslint-disable-line
-            onlineClientKeys = getVardata(originalJS);
+            hash = CryptoJS.SHA256(originalJS).toString(CryptoJS.enc.Hex); // eslint-disable-line
+            onlineClientKeys = getVardata(hash);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
                 let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it, or alternatively the hash of a previous game js to attempt to load that. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: ' + hash, '');
