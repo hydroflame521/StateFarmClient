@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre13
+// @version      3.4.1-pre14
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2350,7 +2350,9 @@ z-index: 999999;
         };
         console.log("the email is:", currentEmail);
 
-        let accountDetails = {};
+        let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
+
+        let accountDetails = accountRecords[currentEmail] || {};
         accountDetails.account = JSON.parse(JSON.stringify(extern.account));
         accountDetails.eggCount = extern.account.currentBalance;
         accountDetails.inventoryWorth = 0;
@@ -2364,7 +2366,6 @@ z-index: 999999;
             accountDetails[key] = value;
         };
 
-        let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
         accountRecords[currentEmail] = accountDetails;
         GM_setValue("StateFarm_AccountRecords", accountRecords);
     };
