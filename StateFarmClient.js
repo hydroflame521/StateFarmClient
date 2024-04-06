@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre10
+// @version      3.4.1-pre11
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -798,7 +798,7 @@ sniping and someone sneaks up on you
         initTabs({ location: tp.automationFolder, storeAs: "automationTab" })
             initModule({
                 location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: function () {
-                    alert("Thank you for your efforts comrade! o7");
+                    createPopup("Thank you for your efforts comrade! o7");
                     spamReport();
                 },
             });
@@ -885,6 +885,35 @@ sniping and someone sneaks up on you
             ], defaultValue: "defaultTheme", changeFunction: function(value) {
                 applyTheme(value.value);
             }});
+        //ACCOUNT MODULES
+        initFolder({ location: tp.mainPanel, title: "Accounts", storeAs: "accountsFolder", });
+        initTabs({ location: tp.accountsFolder, storeAs: "accountsTab" });
+            initFolder({ location: tp.accountsTab.pages[0], title: "Account Login", storeAs: "loginFolder", });
+                initModule({ location: tp.loginFolder, title: 'Email:Pass', storeAs: 'loginEmailPass', defaultValue: "ex@gmail.com:passwd" });
+                initModule({ location: tp.loginFolder, title: 'Login Account', storeAs: 'loginLogin', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    let emailPass = extract("loginEmailPass");
+                    if (emailPass.includes(":")) {
+                        loginWithEmailPass(emailPass);
+                    } else {
+                        emailPass = prompt('Your email:pass isn\'t valid. Enter your combo below or input the correct one in the box.', '');
+                        if (emailPass.includes(":")) {
+                            loginWithEmailPass(emailPass);
+                        }; //else fuck you. im not doing anything with that.
+                    };
+                } });
+            tp.accountsTab.pages[0].addSeparator();
+            initFolder({ location: tp.accountsTab.pages[0], title: "Account Generator (Basic)", storeAs: "generatorFolder", });
+                initModule({ location: tp.generatorFolder, title: 'Gmail (before @)', storeAs: 'accountGmail', defaultValue: "example (NO @gmail.com)" });
+                initModule({ location: tp.generatorFolder, title: 'Password to use', storeAs: 'accountPass', defaultValue: "password69" });
+                initModule({ location: tp.generatorFolder, title: 'Create (Basic)', storeAs: 'accountCreate', button: 'CREATE', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    loginWithEmailPass(extract("accountGmail")+"+"+getScrambled()+"@gmail.com:"+extract("accountPass"));
+                } });
+            tp.accountsTab.pages[0].addSeparator();
+            initFolder({ location: tp.accountsTab.pages[0], title: "Account Generator (ShellPrint)", storeAs: "shellPrintFolder", });
+            initModule({ location: tp.shellPrintFolder, title: 'ShellPrint Key', storeAs: 'shellPrintKey', defaultValue: "" });
+            initModule({ location: tp.shellPrintFolder, title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => GM_openInTab('https://discord.gg/XAyZ6ndEd4', { active: true }) });
+            initModule({ location: tp.shellPrintFolder, title: 'Create (ShellPrint)', storeAs: 'shellprintGen', button: 'Generate!', clickFunction: () => F.register(), bindLocation: tp.accountsTab.pages[1] });
+            tp.accountsTab.pages[0].addSeparator();
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder", });
         initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
@@ -910,10 +939,6 @@ sniping and someone sneaks up on you
                 reloadPage();
             },});
             tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: 'ShellPrint Key', storeAs: 'shellPrintKey', defaultValue: "" });
-            initModule({ location: tp.miscTab.pages[0], title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => GM_openInTab('https://discord.gg/XAyZ6ndEd4', { active: true }) });
-            initModule({ location: tp.miscTab.pages[0], title: 'Account Creator', storeAs: 'shellprintGen', button: 'Generate!', clickFunction: () => F.register() });
-            tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Switch Focus", storeAs: "unfocus", bindLocation: tp.miscTab.pages[1], button: "FOCUS/UNFOCUS", defaultBind: "P", clickFunction: function(){
                 if (document.pointerLockElement !== null) { //currently locked
                     noPointerPause=true; unsafeWindow.document.exitPointerLock();
@@ -923,7 +948,18 @@ sniping and someone sneaks up on you
                 };
             },});
             tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: "RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
+            initModule({ location: tp.miscTab.pages[0], title: "FastChickenWinner", storeAs: "chickenWinner", bindLocation: tp.miscTab.pages[1], button: "Force Play", clickFunction: function(){
+                extern.chwTryPlay();
+                const eggElement = document.getElementById("eggOne");
+                eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();
+                setTimeout(function() {
+                    let rewardText = document.querySelector('.chw-reward-amount')?.textContent?.trim() || document.querySelector('#chickn-winner-wrapper h4')?.textContent?.trim();
+                    console.log("rewardText", rewardText);
+                }, 2000);
+            },});
+            initModule({ location: tp.miscTab.pages[0], title: "AutoChickenWinner", storeAs: "autoChickenWinner", bindLocation: tp.miscTab.pages[1],});
+            tp.miscTab.pages[0].addSeparator();
+            initModule({ location: tp.miscTab.pages[0], title: "[WIP]RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
                 findNewPath = true;
             },});
             findNewPath = false;
@@ -2553,7 +2589,7 @@ z-index: 999999;
             // check if it is a user's first time to run the script
             if (GM_getValue("StateFarm_firstRun") !== 1) {
                 firstExecution = true;
-            }
+            };
             if ((extract("setDetail") !== previousDetail) && (extract("setDetail") !== "disabled")) {
                 unsafeWindow.vueApp.settingsUi.togglers.misc[3].value = false;
                 if (extract("setDetail") == "autodetail") {
@@ -2639,6 +2675,9 @@ z-index: 999999;
             unsafeWindow.vueApp.setPlayerName(extract("usernameAutoJoin"));
         };
         if ((!ranEverySecond) && startUpComplete) {
+            if (extract("autoChickenWinner")) {
+                change("chickenWinner");
+            };
             ranEverySecond = true;
         };
 
@@ -2916,6 +2955,29 @@ z-index: 999999;
                 };
             });
         };
+    };
+    const loginWithEmailPass = function (emailPass) {
+        let email, pass;
+        [email, pass] = emailPass.split(":");
+        console.log("gonna create/login an account that will send/has email to", email, "with the password", pass);
+        unsafeWindow.vueApp.showFirebaseSignIn();
+        document.querySelector('.firebaseui-idp-button').click();
+        document.querySelector('.firebaseui-id-email').value = email;
+        document.querySelector('.firebaseui-id-submit').click();
+        //wait for .firebaseui-id-new-password to load
+        setTimeout(function() {
+            document.querySelector('.firebaseui-id-new-password').value = pass;
+            document.querySelector('.firebaseui-id-submit').click();
+        }, 500);
+        //try both. who cares about some stupid errors?
+        setTimeout(function() {
+            document.querySelector('.firebaseui-id-password').value = pass;
+            document.querySelector('.firebaseui-id-submit').click();
+        }, 500);
+        //close the notification
+        setTimeout(function() {
+            document.querySelector('#notificationPopup .popup_close').click();
+        }, 5000);
     };
     const saveConfig = function () {
         save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
