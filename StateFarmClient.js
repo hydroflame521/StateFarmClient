@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre12
+// @version      3.4.1-pre13
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -953,6 +953,7 @@ sniping and someone sneaks up on you
                 const eggElement = document.getElementById("eggOne");
                 eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();
                 setTimeout(function() {
+                    document.getElementById('gotWinnerOk').click();
                     let rewardText = document.querySelector('.chw-reward-amount')?.textContent?.trim() || document.querySelector('#chickn-winner-wrapper h4')?.textContent?.trim();
                     console.log("rewardText", rewardText);
                     updateAccountRecords();
