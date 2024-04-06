@@ -25,11 +25,11 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre9
+// @version      3.4.1-pre10
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
-// @match        *://*.algebra.best/*
+// @match        *://*.algebra.best/*   
 // @match        *://*.algebra.vip/*
 // @match        *://*.biologyclass.club/*
 // @match        *://*.deadlyegg.com/*
@@ -3599,7 +3599,7 @@ z-index: 999999;
 
 
             let hash, onlineClientKeys;
-            hash = CryptoJS.SHA256(js).toString(CryptoJS.enc.Hex); // eslint-disable-line
+            hash = CryptoJS.SHA256(originalJS).toString(CryptoJS.enc.Hex); // eslint-disable-line
             onlineClientKeys = getVardata(hash);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
