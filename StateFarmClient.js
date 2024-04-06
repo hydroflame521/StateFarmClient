@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre11
+// @version      3.4.1-pre12
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -955,6 +955,7 @@ sniping and someone sneaks up on you
                 setTimeout(function() {
                     let rewardText = document.querySelector('.chw-reward-amount')?.textContent?.trim() || document.querySelector('#chickn-winner-wrapper h4')?.textContent?.trim();
                     console.log("rewardText", rewardText);
+                    updateAccountRecords();
                 }, 2000);
             },});
             initModule({ location: tp.miscTab.pages[0], title: "AutoChickenWinner", storeAs: "autoChickenWinner", bindLocation: tp.miscTab.pages[1],});
@@ -2078,6 +2079,7 @@ z-index: 999999;
     };
     const unban = function () {
         console.log("STATEFARM UNBANNING...");
+        updateAccountRecords();
         unsafeWindow.extern.signOut();
         setTimeout(() => {
             const banPopup = document.getElementById("bannedPopup");
@@ -2328,6 +2330,43 @@ z-index: 999999;
         object.tracerLines.color = new L.BABYLON.Color3(...color);
         object.box.color = new L.BABYLON.Color3(...color);
     };
+    const obfuscateEmail = function(email) {
+        const parts = email.split('@');
+        const modifiedFirstPart = parts[0].substring(0, 1) + 
+                                    parts[0].substring(1, parts[0].length - 1).replace(/./g, '*') +
+                                    parts[0].substring(parts[0].length - 1);
+        return modifiedFirstPart + '@' + parts[1];
+    };
+    const updateAccountRecords = function(key, value) {
+        let currentEmail = load("MostRecentEmail");
+        let maskedEmail = extern.account.maskedEmail;
+        if (currentEmail && obfuscateEmail(currentEmail) == maskedEmail) {
+            console.log("no change in email");
+            //do nothing i guess. its good.
+        } else {
+            console.log("using obfuscated email (sadly)");
+            currentEmail = maskedEmail; //better than nothing, eh? :<
+        };
+        console.log("the email is:", currentEmail);
+
+        let accountDetails = {};
+        accountDetails.account = JSON.parse(JSON.stringify(extern.account));
+        accountDetails.eggCount = extern.account.currentBalance;
+        accountDetails.inventoryWorth = 0;
+        accountDetails.inventoryList = [];
+        extern.account.inventory.forEach(item => {
+            accountDetails.inventoryWorth += item.price;
+            accountDetails.inventoryList.push(item.name);
+        });
+        accountDetails.totalWorth = accountDetails.eggCount + accountDetails.inventoryWorth;
+        if (key && value) {
+            accountDetails[key] = value;
+        };
+
+        let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
+        accountRecords[currentEmail] = accountDetails;
+        GM_setValue("StateFarm_AccountRecords", accountRecords);
+    };
     const everySecond = function () {
         if (extract("debug")) {
             unsafeWindow.globalSS = {};
@@ -2344,7 +2383,11 @@ z-index: 999999;
             unsafeWindow.globalSS.load = load;
             unsafeWindow.globalSS.remove = remove;
             unsafeWindow.globalSS.change = change;
-            unsafeWindow.globalSS.list = GM_listValues;
+            unsafeWindow.globalSS.unban = unban;
+            unsafeWindow.globalSS.GM_listValues = GM_listValues;
+            unsafeWindow.globalSS.GM_getValue = GM_getValue;
+            unsafeWindow.globalSS.GM_setValue = GM_setValue;
+            unsafeWindow.globalSS.getScrambled = getScrambled;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
             unsafeWindow.globalSS.pathfindingInfo = {
                 activePath: activePath,
@@ -2676,6 +2719,7 @@ z-index: 999999;
         };
         if ((!ranEverySecond) && startUpComplete) {
             if (extract("autoChickenWinner")) {
+                updateAccountRecords();
                 change("chickenWinner");
             };
             ranEverySecond = true;
@@ -2977,7 +3021,9 @@ z-index: 999999;
         //close the notification
         setTimeout(function() {
             document.querySelector('#notificationPopup .popup_close').click();
+            updateAccountRecords("emailPass", emailPass);
         }, 5000);
+        save("MostRecentEmail", email);
     };
     const saveConfig = function () {
         save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
