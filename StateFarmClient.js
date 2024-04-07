@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre18
+// @version      3.4.1-pre19
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2370,15 +2370,14 @@ z-index: 999999;
     };
     const updateAccountRecords = function(key, value) {
         let currentEmail = load("MostRecentEmail");
-        // let maskedEmail = extern.account.maskedEmail;
-        // if (currentEmail && obfuscateEmail(currentEmail) == maskedEmail) {
-        //     console.log("no change in email");
-        //     //do nothing i guess. its good.
-        // } else {
-        //     console.log("not using obfuscated email (sadly)");
-        //     return;
-        //     currentEmail = maskedEmail; //better than nothing, eh? :<
-        // };
+        let maskedEmail = extern.account.maskedEmail;
+        if (currentEmail && obfuscateEmail(currentEmail) == maskedEmail) {
+            console.log("no change in email");
+            //do nothing i guess. its good.
+        } else {
+            console.log("not using obfuscated email (sadly)");
+            currentEmail = maskedEmail; //better than nothing, eh? :<
+        };
         console.log("the email is:", currentEmail);
 
         let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
@@ -3045,6 +3044,7 @@ z-index: 999999;
         let email, pass;
         [email, pass] = emailPass.split(":");
         console.log("gonna create/login an account that will send/has email to", email, "with the password", pass);
+        save("MostRecentEmail", email);
         //try both. who cares about some stupid errors?
         firebase.auth().createUserWithEmailAndPassword(email, pass)
             .then(response => {
@@ -3067,7 +3067,6 @@ z-index: 999999;
             })
             .catch(error => {
             });
-        save("MostRecentEmail", email);
     };
     const saveConfig = function () {
         save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
