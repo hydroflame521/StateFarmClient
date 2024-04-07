@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre15
+// @version      3.4.1-pre16
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1143,6 +1143,7 @@ sniping and someone sneaks up on you
         //DEPLOY STUFF
         initModule({ location: tp.botTabs.pages[0], title: "Bots Amount", storeAs: "numberBots", slider: { min: 1, max: 18, step: 1 }, defaultValue: 1, });
         initModule({ location: tp.botTabs.pages[0], title: "Deploy", storeAs: "deployBots", button: "START BOTS!", bindLocation: tp.bottingTab.pages[1], clickFunction: function () { deployBots() }, });
+        initModule({ location: tp.botTabs.pages[0], title: "Restart Bots", storeAs: "restartBots", button: "RESTART BOTS", bindLocation: tp.bottingTab.pages[1], clickFunction: function () { broadcastToBots("kill"); setTimeout(function(){deployBots()}, 1000) }, });
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Window Width", storeAs: "botWindowWidth", slider: { min: 0, max: 10000, step: 1 }, defaultValue: 450, botParam: true, });
         initModule({ location: tp.botTabs.pages[0], title: "Window Height", storeAs: "botWindowHeight", slider: { min: 0, max: 10000, step: 1 }, defaultValue: 300, botParam: true, });
