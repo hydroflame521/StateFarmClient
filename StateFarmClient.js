@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre19
+// @version      3.4.1-pre20
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1155,7 +1155,7 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", enableConditions: [["useCustomNameBots", true]], });
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Use Macro", storeAs: "useBotMacro", defaultValue: true, botParam: true, });
-        initModule({ location: tp.botTabs.pages[0], title: "Bot Macro", storeAs: "botMacro", defaultValue: "createPopup('success?');", });
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Macro", storeAs: "botMacro", defaultValue: "createPopup('success?');", botParam: true, });
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "White", value: "white" }, { text: "Light Blue", value: "lightblue" }, { text: "Light Eggshell", value: "lighteggshell" }, { text: "Eggshell", value: "eggshell" }, { text: "Dark Eggshell", value: "darkeggshell" }, { text: "Darker Eggshell", value: "darkereggshell" }, { text: "Darkest Eggshell", value: "darkesteggshell" }, { text: "Red (VIP)", value: "red" }, { text: "Purple (VIP)", value: "purple" }, { text: "Pink (VIP)", value: "pink" }, { text: "Yellow (VIP)", value: "yellow" }, { text: "Blue (VIP)", value: "blue" }, { text: "Green (VIP)", value: "green" }, { text: "Lime (VIP)", value: "lime" }, { text: "Randomised", value: "random" }], defaultValue: "darkesteggshell", });
         initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Target Stamp", value: "target" }, { text: "No Sign Stamp", value: "nosign" }, { text: "Question Mark Stamp?", value: "question" }, { text: "Peace Stamp", value: "peace" }, { text: "Thumbs Up Stamp", value: "thumbsup" }, { text: "Pablo Smile Stamp", value: "pablosmile" }, { text: "Randomised", value: "random" }], defaultValue: "pablosmile", });
@@ -3048,7 +3048,7 @@ z-index: 999999;
         //try both. who cares about some stupid errors?
         firebase.auth().createUserWithEmailAndPassword(email, pass)
             .then(response => {
-                console.log("success?!?!?!?");
+                console.log("success?!?!?!? created account");
                 setTimeout(function(){
                     updateAccountRecords("emailPass", emailPass);
                     accountStatus = "created account";
@@ -3058,7 +3058,7 @@ z-index: 999999;
             });
         firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(response => {
-                console.log("success?!?!?!?");
+                console.log("success?!?!?!? signed in");
                 setTimeout(function(){
                     updateAccountRecords("emailPass", emailPass);
                     accountStatus = "created account";
@@ -4026,7 +4026,7 @@ z-index: 999999;
         addParam("autoGamemode", extractAsDropdownInt("autoGamemodeBots"));
         addParam("useCustomName", extract("useCustomNameBots"));
         addParam("autoMacro", extract("useBotMacro"));
-        addParam("customMacro", extract("botMacro"));
+        addParam("customMacro", extract("botMacro").replaceAll(">","{greater}").replaceAll("<","{less}"));
         addParam("leaveEmpty", extract("leaveEmptyBots"));
         addParam("autoLeave", extract("autoLeaveBots"));
         addParam("autoLeaveDelay", extract("autoLeaveDelayBots"));
@@ -4064,6 +4064,7 @@ z-index: 999999;
         if (reset) { initMenu(true); console.log("StateFarm: clearing before applying settings") };
         settings.forEach(element => {
             element = element.split(">");
+            if (element[0] == "customMacro") {element[1] = element[1].replaceAll("{less}","<").replaceAll("{greater}",">")};
             console.log(change(element[0], JSON.parse(element[1])));
         });
         createPopup("Custom StateFarm Settings Applying...");
