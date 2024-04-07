@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre14
+// @version      3.4.1-pre15
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -215,7 +215,7 @@ console.log("StateFarm: running (before function)");
     // blank variables
     let ss = {};
     let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
-    let whitelistPlayers, scrambledMsgEl, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
+    let whitelistPlayers, scrambledMsgEl, accountStatus, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -893,11 +893,11 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.loginFolder, title: 'Login Account', storeAs: 'loginLogin', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
                     let emailPass = extract("loginEmailPass");
                     if (emailPass.includes(":")) {
-                        loginWithEmailPass(emailPass);
+                        loginOrCreateWithEmailPass(emailPass);
                     } else {
                         emailPass = prompt('Your email:pass isn\'t valid. Enter your combo below or input the correct one in the box.', '');
                         if (emailPass.includes(":")) {
-                            loginWithEmailPass(emailPass);
+                            loginOrCreateWithEmailPass(emailPass);
                         }; //else fuck you. im not doing anything with that.
                     };
                 } });
@@ -906,7 +906,7 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.generatorFolder, title: 'Gmail (before @)', storeAs: 'accountGmail', defaultValue: "example (NO @gmail.com)" });
                 initModule({ location: tp.generatorFolder, title: 'Password to use', storeAs: 'accountPass', defaultValue: "password69" });
                 initModule({ location: tp.generatorFolder, title: 'Create (Basic)', storeAs: 'accountCreate', button: 'CREATE', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
-                    loginWithEmailPass(extract("accountGmail")+"+"+getScrambled()+"@gmail.com:"+extract("accountPass"));
+                    loginOrCreateWithEmailPass(extract("accountGmail")+"+"+getScrambled()+"@gmail.com:"+extract("accountPass"));
                 } });
             tp.accountsTab.pages[0].addSeparator();
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Generator (ShellPrint)", storeAs: "shellPrintFolder", });
@@ -952,14 +952,38 @@ sniping and someone sneaks up on you
                 extern.chwTryPlay();
                 const eggElement = document.getElementById("eggOne");
                 eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();
-                setTimeout(function() {
-                    document.getElementById('gotWinnerOk').click();
-                    let rewardText = document.querySelector('.chw-reward-amount')?.textContent?.trim() || document.querySelector('#chickn-winner-wrapper h4')?.textContent?.trim();
-                    console.log("rewardText", rewardText);
-                    updateAccountRecords();
-                }, 2000);
+                let chicknWinnerElementLoaded = false;
+                const checkInterval = setInterval(() => {
+                    const chicknWinnerElement = document.getElementById('chicknWinner');
+                    chicknWinnerElementLoaded = (chicknWinnerElement?.style?.display == ''); //idk, this is kind of shit? but who actually cares that much...
+                    if (chicknWinnerElementLoaded) {
+                        const gotWinnerOkElement = document.getElementById('gotWinnerOk');
+                        if (gotWinnerOkElement) {
+                            gotWinnerOkElement.click();
+                        };
+                        if (chicknWinnerElement.style.display == 'none') {
+                            console.log("ermm, found");
+                            clearInterval(checkInterval);
+                            updateAccountRecords();
+                            accountStatus = "chwDone";
+                        };
+                    };
+                }, 100);
             },});
             initModule({ location: tp.miscTab.pages[0], title: "AutoChickenWinner", storeAs: "autoChickenWinner", bindLocation: tp.miscTab.pages[1],});
+            tp.miscTab.pages[0].addSeparator();
+            initModule({ location: tp.miscTab.pages[0], title: "Custom Macro", storeAs: "customMacro", defaultValue: "console.log('cool');" });
+            initModule({ location: tp.miscTab.pages[0], title: "Execute Macro", storeAs: "executeMacro", bindLocation: tp.miscTab.pages[1], button: "EXECUTE", clickFunction: function(){
+                //use at your own risk, i guess. but is this really any more dangerous than pasting something into console? not really.
+                (async () => {
+                    try {
+                        await eval(extract("customMacro")); //stay safe out there. this runs in the **userscript** environment. make sure to use unsafeWindow for whatever reason you may need the window object
+                    } catch (error) {
+                        console.error("Error executing code:", error);
+                    }
+                })();
+            },}); //but yes, as you can see "macros" are just scripts you can execute for whatever purposes you need. reminds me of userscripts...
+            initModule({ location: tp.miscTab.pages[0], title: "Do At Startup", storeAs: "autoMacro", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "[WIP]RandomPath", storeAs: "randomPath", bindLocation: tp.miscTab.pages[1], button: "Random Path", clickFunction: function(){
                 findNewPath = true;
@@ -2082,6 +2106,7 @@ z-index: 999999;
         console.log("STATEFARM UNBANNING...");
         updateAccountRecords();
         unsafeWindow.extern.signOut();
+        accountStatus = "logged out";
         setTimeout(() => {
             const banPopup = document.getElementById("bannedPopup");
             if (banPopup) { banPopup.style.display = 'none' }; //hide it
@@ -2353,11 +2378,12 @@ z-index: 999999;
         let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
 
         let accountDetails = accountRecords[currentEmail] || {};
-        accountDetails.account = JSON.parse(JSON.stringify(extern.account));
+        accountDetails.inventory = JSON.parse(JSON.stringify(extern.account.inventory));
         accountDetails.eggCount = extern.account.currentBalance;
+        accountDetails.dateCreated = extern.account.dateCreated;
         accountDetails.inventoryWorth = 0;
         accountDetails.inventoryList = [];
-        extern.account.inventory.forEach(item => {
+        accountDetails.inventory.forEach(item => {
             accountDetails.inventoryWorth += item.price;
             accountDetails.inventoryList.push(item.name);
         });
@@ -2391,6 +2417,8 @@ z-index: 999999;
             unsafeWindow.globalSS.GM_setValue = GM_setValue;
             unsafeWindow.globalSS.getScrambled = getScrambled;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
+            unsafeWindow.globalSS.accountStatus = accountStatus;
+            unsafeWindow.globalSS.createPopup = createPopup;
             unsafeWindow.globalSS.pathfindingInfo = {
                 activePath: activePath,
                 pathfindingTargetOverride: pathfindingTargetOverride,
@@ -2721,8 +2749,13 @@ z-index: 999999;
         };
         if ((!ranEverySecond) && startUpComplete) {
             if (extract("autoChickenWinner")) {
-                updateAccountRecords();
+                console.log("automatically do chw");
                 change("chickenWinner");
+            };
+            updateAccountRecords();
+            if (extract("autoMacro")) {
+                console.log("automatically do your macro");
+                change("executeMacro");
             };
             ranEverySecond = true;
         };
@@ -3002,29 +3035,32 @@ z-index: 999999;
             });
         };
     };
-    const loginWithEmailPass = function (emailPass) {
+    const loginOrCreateWithEmailPass = function (emailPass) {
         let email, pass;
         [email, pass] = emailPass.split(":");
         console.log("gonna create/login an account that will send/has email to", email, "with the password", pass);
-        unsafeWindow.vueApp.showFirebaseSignIn();
-        document.querySelector('.firebaseui-idp-button').click();
-        document.querySelector('.firebaseui-id-email').value = email;
-        document.querySelector('.firebaseui-id-submit').click();
-        //wait for .firebaseui-id-new-password to load
-        setTimeout(function() {
-            document.querySelector('.firebaseui-id-new-password').value = pass;
-            document.querySelector('.firebaseui-id-submit').click();
-        }, 500);
         //try both. who cares about some stupid errors?
-        setTimeout(function() {
-            document.querySelector('.firebaseui-id-password').value = pass;
-            document.querySelector('.firebaseui-id-submit').click();
-        }, 500);
-        //close the notification
-        setTimeout(function() {
-            document.querySelector('#notificationPopup .popup_close').click();
-            updateAccountRecords("emailPass", emailPass);
-        }, 5000);
+        firebase.auth().createUserWithEmailAndPassword(email, pass)
+            .then(response => {
+                console.log("success?!?!?!?");
+                setTimeout(function(){
+                    updateAccountRecords("emailPass", emailPass);
+                    accountStatus = "created account";
+                }, 2000);
+            })
+            .catch(error => {
+            });
+        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .then(response => {
+                console.log("success?!?!?!?");
+                setTimeout(function(){
+                    updateAccountRecords("emailPass", emailPass);
+                    accountStatus = "created account";
+                }, 2000);
+                accountStatus = "signed in";
+            })
+            .catch(error => {
+            });
         save("MostRecentEmail", email);
     };
     const saveConfig = function () {
@@ -3459,11 +3495,19 @@ z-index: 999999;
             return extract("disableChatFilter");
         });
         createAnonFunction('getSkinHack', function () {
-            return extract("unlockSkins");
+            try {
+                return extract("unlockSkins");
+            } catch {
+                return false;
+            };
         });
         createAnonFunction('getAdminSpoof', function () {
-            return extract("adminSpoof");
-        });
+            try {
+                return extract('adminSpoof');
+            } catch {
+                return false;
+            };
+         });
         createAnonFunction('getPointerEscape', function () {
             return noPointerPause;
         });
@@ -3587,6 +3631,8 @@ z-index: 999999;
                 // }, 5000);
                 isBanned = true;
             };
+            createPopup("Leaving due to connection error.");
+            change("leaveGame");
         });
         createAnonFunction('modifyChat', function (msg) {
             if (msg[0] === '%') { //message is a command
