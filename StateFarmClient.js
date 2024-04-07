@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre16
+// @version      3.4.1-pre17
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -123,7 +123,7 @@ console.log("StateFarm: running (before function)");
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
-    //startup sequence 
+    //startup sequence
     const startUp = function () {
         console.log("StateFarm: detectURLParams()");
         detectURLParams();
@@ -977,6 +977,7 @@ sniping and someone sneaks up on you
                 //use at your own risk, i guess. but is this really any more dangerous than pasting something into console? not really.
                 (async () => {
                     try {
+                        console.log(extract("customMacro"));
                         await eval(extract("customMacro")); //stay safe out there. this runs in the **userscript** environment. make sure to use unsafeWindow for whatever reason you may need the window object
                     } catch (error) {
                         console.error("Error executing code:", error);
@@ -1152,6 +1153,9 @@ sniping and someone sneaks up on you
         initModule({ location: tp.botTabs.pages[0], title: "Bot Name", storeAs: "botUsername", defaultValue: "ЅtateFarmer", enableConditions: [["useCustomNameBots", true]], });
         initModule({ location: tp.botTabs.pages[0], title: "AntiDupe", storeAs: "botAntiDupe", enableConditions: [["useCustomNameBots", true]], });
         initModule({ location: tp.botTabs.pages[0], title: "CopyNames", storeAs: "botCopyName", enableConditions: [["useCustomNameBots", true]], });
+        tp.botTabs.pages[0].addSeparator();
+        initModule({ location: tp.botTabs.pages[0], title: "Use Macro", storeAs: "useBotMacro", defaultValue: true, botParam: true, });
+        initModule({ location: tp.botTabs.pages[0], title: "Bot Macro", storeAs: "botMacro", defaultValue: "createPopup('success?');", });
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "White", value: "white" }, { text: "Light Blue", value: "lightblue" }, { text: "Light Eggshell", value: "lighteggshell" }, { text: "Eggshell", value: "eggshell" }, { text: "Dark Eggshell", value: "darkeggshell" }, { text: "Darker Eggshell", value: "darkereggshell" }, { text: "Darkest Eggshell", value: "darkesteggshell" }, { text: "Red (VIP)", value: "red" }, { text: "Purple (VIP)", value: "purple" }, { text: "Pink (VIP)", value: "pink" }, { text: "Yellow (VIP)", value: "yellow" }, { text: "Blue (VIP)", value: "blue" }, { text: "Green (VIP)", value: "green" }, { text: "Lime (VIP)", value: "lime" }, { text: "Randomised", value: "random" }], defaultValue: "darkesteggshell", });
         initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Target Stamp", value: "target" }, { text: "No Sign Stamp", value: "nosign" }, { text: "Question Mark Stamp?", value: "question" }, { text: "Peace Stamp", value: "peace" }, { text: "Thumbs Up Stamp", value: "thumbsup" }, { text: "Pablo Smile Stamp", value: "pablosmile" }, { text: "Randomised", value: "random" }], defaultValue: "pablosmile", });
@@ -2371,7 +2375,8 @@ z-index: 999999;
             console.log("no change in email");
             //do nothing i guess. its good.
         } else {
-            console.log("using obfuscated email (sadly)");
+            console.log("not using obfuscated email (sadly)");
+            return;
             currentEmail = maskedEmail; //better than nothing, eh? :<
         };
         console.log("the email is:", currentEmail);
@@ -4021,6 +4026,8 @@ z-index: 999999;
         addParam("autoRegion", extractAsDropdownInt("autoRegionBots"));
         addParam("autoGamemode", extractAsDropdownInt("autoGamemodeBots"));
         addParam("useCustomName", extract("useCustomNameBots"));
+        addParam("autoMacro", extract("useBotMacro"));
+        addParam("customMacro", extract("botMacro"));
         addParam("leaveEmpty", extract("leaveEmptyBots"));
         addParam("autoLeave", extract("autoLeaveBots"));
         addParam("autoLeaveDelay", extract("autoLeaveDelayBots"));
