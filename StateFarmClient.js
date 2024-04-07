@@ -123,7 +123,7 @@ console.log("StateFarm: running (before function)");
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
     const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
-    //startup sequence
+    //startup sequence 
     const startUp = function () {
         console.log("StateFarm: detectURLParams()");
         detectURLParams();
