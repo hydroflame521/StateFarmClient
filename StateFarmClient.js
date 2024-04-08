@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre22
+// @version      3.4.1-pre23
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -317,6 +317,9 @@ console.log("StateFarm: running (before function)");
         ' ͠°)︻デ═一',
         ')︻デ═一',
     ];
+    
+    const getScrambled = function () { return Array.from({ length: 10 }, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('') };
+    let skyboxName = getScrambled();
 
     //menu interaction functions
     //menu extraction
@@ -444,7 +447,8 @@ console.log("StateFarm: running (before function)");
                             case ("hide"):
                                 popupText = "Toggled StateFarm Panel"; break;
                             case ("showBotPanel"):
-                                popupText = "Toggled Bot Panel"; break;
+                                if (typeof isCrackedShell === 'undefined') popupText = "Toggled Bot Panel";
+                                break;
                             case ("sfChatShowHide"):
                                 popupText = "Toggled SFC Chat"; break;
                             case ("panic"):
@@ -575,7 +579,11 @@ console.log("StateFarm: running (before function)");
         tp.mainPanel.title = menuTitle;
         //SFC CHAT
         initFolder({ location: tp.mainPanel, title: "StateFarm Chat", storeAs: "sfChatFolder", });
-        initTabs({ location: tp.sfChatFolder, storeAs: "sfChatTab" });
+        initTabs({ location: tp.sfChatFolder, storeAs: "sfChatTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({ location: tp.sfChatTab.pages[0], title: "Username", storeAs: "sfChatUsername", defaultValue: ("Guest" + (Math.floor(Math.random() * 8999) + 1000)), });
             // initModule({ location: tp.sfChatTab.pages[0], title: "Join Chat", storeAs: "sfChatJoin", button: "Join", bindLocation: tp.sfChatTab.pages[1], clickFunction: function(){
             //     if (sfChatIframe != undefined){
@@ -607,7 +615,7 @@ console.log("StateFarm: running (before function)");
         initTabs({ location: tp.combatFolder, storeAs: "combatTab" }, [
             {
                 title: "Basics", content:
-                    `This is the combat tab. Here you will find
+`This is the combat tab. Here you will find
 options relating to aimbotting, and other
 useful macros. Aimbot is made active by
 turning it on. Using ToggleRM will give you
@@ -629,7 +637,7 @@ reload time. GrenadeMAX makes all
 grenades get thrown at max strength.`},
             {
                 title: "Visibility", content:
-                    `There are a couple of options related to
+`There are a couple of options related to
 visibility (Line-of-Sight). First is
 TargetVisible. This tunes the aimbot to
 be more strategic with where it aims.
@@ -640,7 +648,7 @@ AutoFire mode with this sort of
 functionality.`},
             {
                 title: "Advanced", content:
-                    `If you want to increase stealthiness,
+`If you want to increase stealthiness,
 make use of MinAngle and AntiSnap. The
 first will make it so that you have to
 manually move your reticle within your
@@ -695,7 +703,11 @@ sniping and someone sneaks up on you
             initModule({ location: tp.combatTab.pages[0], title: "GrenadeMAX", storeAs: "grenadeMax", bindLocation: tp.combatTab.pages[1], });
         //RENDER MODULES
         initFolder({ location: tp.mainPanel, title: "Render", storeAs: "renderFolder", });
-        initTabs({ location: tp.renderFolder, storeAs: "renderTab" });
+        initTabs({ location: tp.renderFolder, storeAs: "renderTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1], });
@@ -737,7 +749,11 @@ sniping and someone sneaks up on you
             initModule({ location: tp.renderTab.pages[0], title: "Render Delay", storeAs: "renderDelay", slider: { min: 0, max: 30000, step: 10 }, defaultValue: 0, });
         //HUD MODULES
         initFolder({ location: tp.mainPanel, title: "HUD", storeAs: "hudFolder", });
-        initTabs({ location: tp.hudFolder, storeAs: "hudTab" });
+        initTabs({ location: tp.hudFolder, storeAs: "hudTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({ location: tp.hudTab.pages[0], title: "Show Bloom", storeAs: "revealBloom", bindLocation: tp.hudTab.pages[1], });
             initModule({ location: tp.hudTab.pages[0], title: "Show LOS", storeAs: "showLOS", bindLocation: tp.hudTab.pages[1], });
             initModule({ location: tp.hudTab.pages[0], title: "Show MinAngle", storeAs: "showMinAngle", bindLocation: tp.hudTab.pages[1], });
@@ -751,7 +767,11 @@ sniping and someone sneaks up on you
             initModule({ location: tp.hudTab.pages[0], title: "ShowStream", storeAs: "showStreams", bindLocation: tp.hudTab.pages[1], });
         //CHAT MODULES
         initFolder({ location: tp.mainPanel, title: "Chat", storeAs: "chatFolder", });
-        initTabs({ location: tp.chatFolder, storeAs: "chatTab" });
+        initTabs({ location: tp.chatFolder, storeAs: "chatTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: { min: 0, max: 30, step: 1 }, defaultValue: 5, });
@@ -779,7 +799,11 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.joinLeaveFolder, title: "[SFC]Added", storeAs: "joinLeaveBranding", bindLocation: tp.chatTab.pages[1], disableConditions: [["joinMessages", false], ["leaveMessages", false]], });
         //LISTS MODULES
         initFolder({ location: tp.mainPanel, title: "Lists", storeAs: "listsFolder", });
-        initTabs({ location: tp.listsFolder, storeAs: "listsTab" })
+        initTabs({ location: tp.listsFolder, storeAs: "listsTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({ location: tp.listsTab.pages[0], title: "Whitelist", storeAs: "whitelist", defaultValue: "User-1, User-2", });
             initFolder({ location: tp.listsTab.pages[0], title: "Whitelist (Target Only) Options", storeAs: "whitelistFolder", });
                 initModule({ location: tp.whitelistFolder, title: "WAimbot", storeAs: "enableWhitelistAimbot", bindLocation: tp.listsTab.pages[1], });
@@ -795,7 +819,11 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.blacklistFolder, title: "BHighlight", storeAs: "blacklistColor", defaultValue: "#00ff00", disableConditions: [["tracers", false], ["playerESP", false]], showConditions: [["enableBlacklistTracers", true], ["blacklistESPType", "highlight"]], });
         //AUTOMATION MODULES
         initFolder({ location: tp.mainPanel, title: "Automation", storeAs: "automationFolder", });
-        initTabs({ location: tp.automationFolder, storeAs: "automationTab" })
+        initTabs({ location: tp.automationFolder, storeAs: "automationTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({
                 location: tp.automationTab.pages[0], title: "Flood Report", storeAs: "floodReport", bindLocation: tp.automationTab.pages[1], button: "Spam Now!", clickFunction: function () {
                     createPopup("Thank you for your efforts comrade! o7");
@@ -857,13 +885,41 @@ sniping and someone sneaks up on you
             initModule({ location: tp.automationTab.pages[0], title: "Auto Hat", storeAs: "autoHat", bindLocation: tp.automationTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Ball Cap", value: "ballcap" }, { text: "Boat Fedora", value: "boatfedora" }, { text: "Top Hat", value: "tophat" }, { text: "Derby Hat", value: "derbyhat" }, { text: "Mountie Hat", value: "mountiehat" }, { text: "Pablo Hat", value: "pablohat" }], defaultValue: "disabled" });
         //BOTTING MODULES
         initFolder({ location: tp.mainPanel, title: "Botting", storeAs: "bottingFolder", });
-        initTabs({ location: tp.bottingFolder, storeAs: "bottingTab" })
-            initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", clickFunction: function () { tp.botPanel.hidden = !tp.botPanel.hidden }, defaultBind: "J", });
+        initTabs({ location: tp.bottingFolder, storeAs: "bottingTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!
+But check out the GitHub guide.`},
+        ]); 
+            initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", defaultBind: "J", clickFunction: () => {
+                if (typeof isCrackedShell === 'undefined') tp.botPanel.hidden = !tp.botPanel.hidden;
+                else alert(`Botting is currently not supported on CrackedShell.`);
+            }});
             tp.bottingTab.pages[0].addSeparator();
             initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function () { GM_openInTab(bottingGuideURL, { active: true }) }, });
         //THEMING MODULES
         initFolder({ location: tp.mainPanel, title: "Theming", storeAs: "themingFolder", });
-        initTabs({ location: tp.themingFolder, storeAs: "themingTab" })
+        initTabs({ location: tp.themingFolder, storeAs: "themingTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);            
+            initModule({ location: tp.themingTab.pages[0], title: "Skybox", storeAs: "skybox", bindLocation: tp.themingTab.pages[1], dropdown: [
+                    { text: 'Default', value: 'default' },
+                    { text: 'aurora', value: 'aurora' },
+                    { text: 'green', value: 'green' },
+                    { text: 'moonlight', value: 'moonlight' },
+                    { text: 'morning', value: 'morning' },
+                    { text: 'space explosion', value: 'space-explosion' },
+                    { text: 'sunrise', value: 'sunrise' },
+                    { text: 'sunset', value: 'sunset' }
+                ], changeFunction: (newSkybox) => {
+                    if (!unsafeWindow[skyboxName]) return;
+
+                    unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`https://raw.githubusercontent.com/xynacore/skybox/master/${newSkybox.value}/skybox`, ss.SCENE);
+                    unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
+                }});
+            tp.themingTab.pages[0].addSeparator();
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder", });
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1], });
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: { min: 0.01, max: 2, step: 0.01 }, defaultValue: 1, });
@@ -887,8 +943,70 @@ sniping and someone sneaks up on you
             }});
         //ACCOUNT MODULES
         initFolder({ location: tp.mainPanel, title: "Accounts", storeAs: "accountsFolder", });
-        initTabs({ location: tp.accountsFolder, storeAs: "accountsTab" });
-            initFolder({ location: tp.accountsTab.pages[0], title: "Account Login", storeAs: "loginFolder", });
+        initTabs({ location: tp.accountsFolder, storeAs: "accountsTab" }, [
+            {
+                title: "Basics", content:
+`This is the accounts tab. Here you will find
+options relating to managing your thousands of
+shell accounts and options that will enable you
+to alt like a pro.
+
+NOTE: ShellPrint is currently unsupported on
+this version of StateFarm Client.`},
+            {
+                title: "Login DB", content:
+`The Login DB allows you to alt with ease. Put
+simply, it is just a list of EmailPass combos.
+It is simpler than AccountRecords, but one does
+not replace the other. Login DB is stored
+universally across all Shell proxies, and
+has a queue system. Each time an account
+from this list is logged into, it moves it
+to the back of the list, allowing you to
+have a steady stream of fresh accounts.
+
+PRIVACY NOTE: This database will contain some
+important information. All data is stored locally
+and will never be requested by the StateFarm
+development team, but can theoretically be stolen
+via the use of other userscripts not authorised
+by the StateFarm developers. This DB is not
+exposed to the Shell Shockers game (unless you
+have enabled debug mode).`},
+            {
+                title: "AccRecord", content:
+`The AccountRecords database is similar, but
+different to the Login DB. Whilst the Login DB
+serves to allow you to quickly switch to a new
+account, AccountRecords saves information
+related to accounts you've logged into. It saves
+info such as your egg count, items in your
+inventory and the value of your inventory.
+This feature is even more advanced than the
+Login DB, and is only recommended for use by
+people who really know what they're doing. If
+you just like aimbotting, you really don't need
+to worry about this.
+
+FYI: This will attempt to save info about any
+account, but will only perform best when you
+are using an account that you logged into using
+StateFarm's login or account creation modules.
+Other accounts will have limited info, such as
+masked emails and no EmailPass combos.
+
+PRIVACY NOTE: This database will contain some
+important information. You can disable the
+logging of this info in the settings. All data
+is stored locally and will never be requested
+by the StateFarm development team, but can
+theoretically be stolen via the use of other
+userscripts not authorised by the StateFarm
+developers. This DB is not exposed to the
+Shell Shockers game (unless you have enabled
+debug mode).`},
+        ]);
+            initFolder({ location: tp.accountsTab.pages[0], title: "Account Login (Basic)", storeAs: "loginFolder", });
                 initModule({ location: tp.loginFolder, title: 'Email:Pass', storeAs: 'loginEmailPass', defaultValue: "ex@gmail.com:passwd" });
                 initModule({ location: tp.loginFolder, title: 'Login Account', storeAs: 'loginLogin', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
                     let emailPass = extract("loginEmailPass");
@@ -902,11 +1020,44 @@ sniping and someone sneaks up on you
                     };
                 } });
             tp.accountsTab.pages[0].addSeparator();
+            initFolder({ location: tp.accountsTab.pages[0], title: "Account Login (Login Database)", storeAs: "loginDatabaseFolder", });
+                initModule({ location: tp.loginDatabaseFolder, title: 'Login Next Account', storeAs: 'loginDatabaseLogin', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    let emailPass = extract("loginEmailPass");
+                    if (emailPass.includes(":")) {
+                        loginOrCreateWithEmailPass(emailPass);
+                    } else {
+                        emailPass = prompt('Your email:pass isn\'t valid. Enter your combo below or input the correct one in the box.', '');
+                        if (emailPass.includes(":")) {
+                            loginOrCreateWithEmailPass(emailPass);
+                        }; //else fuck you. im not doing anything with that.
+                    };
+                } });
+                tp.loginDatabaseFolder.addSeparator();
+                initModule({ location: tp.loginDatabaseFolder, title: 'Export DB', storeAs: 'loginDatabaseExport', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                } });
+                initModule({ location: tp.loginDatabaseFolder, title: 'Import Into DB', storeAs: 'loginDatabaseExport', button: 'APPEND (PASTE)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                } });
+                initModule({ location: tp.loginDatabaseFolder, title: 'ImportFromRecords', storeAs: 'loginDatabaseImportRecords', button: 'APPEND', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                } });
+                initModule({ location: tp.loginDatabaseFolder, title: 'Delete DB', storeAs: 'loginDatabaseDelete', button: 'DELETE!', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                } });
+            tp.accountsTab.pages[0].addSeparator();
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Generator (Basic)", storeAs: "generatorFolder", });
                 initModule({ location: tp.generatorFolder, title: 'Gmail (before @)', storeAs: 'accountGmail', defaultValue: "example (NO @gmail.com)" });
                 initModule({ location: tp.generatorFolder, title: 'Password to use', storeAs: 'accountPass', defaultValue: "password69" });
                 initModule({ location: tp.generatorFolder, title: 'Create (Basic)', storeAs: 'accountCreate', button: 'CREATE', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
                     loginOrCreateWithEmailPass(extract("accountGmail")+"+"+getScrambled()+"@gmail.com:"+extract("accountPass"));
+                } });
+            tp.accountsTab.pages[0].addSeparator();
+            initFolder({ location: tp.accountsTab.pages[0], title: "Account Records Database", storeAs: "accountRecordsFolder", });
+                initModule({ location: tp.accountRecordsFolder, title: "Disable Logging", storeAs: "accountRecordsLogging", bindLocation: tp.accountsTab.pages[1], });
+                initModule({ location: tp.accountRecordsFolder, title: 'Export DB', storeAs: 'accountRecordsExport', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                } });
+                initModule({ location: tp.accountRecordsFolder, title: 'Import Into DB', storeAs: 'accountRecordsImport', button: 'APPEND (PASTE)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                } });
+                initModule({ location: tp.accountRecordsFolder, title: 'Delete DB', storeAs: 'accountRecordsDelete', button: 'DELETE!', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                } });
+                initModule({ location: tp.accountRecordsFolder, title: 'View Info', storeAs: 'accountRecordsInfo', button: 'INFO', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
                 } });
             tp.accountsTab.pages[0].addSeparator();
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Generator (ShellPrint)", storeAs: "shellPrintFolder", });
@@ -916,16 +1067,23 @@ sniping and someone sneaks up on you
             tp.accountsTab.pages[0].addSeparator();
         //MISC MODULES
         initFolder({ location: tp.mainPanel, title: "Misc", storeAs: "miscFolder", });
-        initTabs({ location: tp.miscFolder, storeAs: "miscTab" })
+        initTabs({ location: tp.miscFolder, storeAs: "miscTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1], });
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Unban", storeAs: "unban", bindLocation: tp.miscTab.pages[1], button: "UNBAN NOW", clickFunction: function(){
-                const userConfirmed=confirm("By proceeding, you will be signed out. If you don't have an account, your stats will be lost.");
-                if (userConfirmed) {
+                if (GM_getValue('StateFarm_Unbanned')) unban();
+                else if (prompt("By proceeding, you will be signed out. If you don't have an account, your stats will be lost.\nEnter 'ok' to confirm this.\nThis popup will not be shown again for future unbans.") === 'ok') {
+                    GM_setValue('StateFarm_Unbanned', 'true');
                     unban();
+                } else {
+                    alert('You did not entire "ok", so the unban was cancelled.');
                 };
             },});
             initModule({ location: tp.miscTab.pages[0], title: "Auto Unban", storeAs: "autoUnban", bindLocation: tp.miscTab.pages[1],});
@@ -999,7 +1157,11 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.seizureFolder, title: "Y Amount", storeAs: "amountSeizureY", slider: { min: -6.283185307179586, max: 6.283185307179586, step: Math.PI / 280 }, defaultValue: 2, });
         //CLIENT MODULES
         initFolder({ location: tp.mainPanel, title: "Client & About", storeAs: "clientFolder", });
-        initTabs({ location: tp.clientFolder, storeAs: "clientTab" })
+        initTabs({ location: tp.clientFolder, storeAs: "clientTab" }, [
+            {
+                title: "WIP", content:
+`Sorry! No guide yet!`},
+        ]);
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function () { tp.mainPanel.hidden = !tp.mainPanel.hidden }, defaultBind: "H", });
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true, });
             tp.clientTab.pages[0].addSeparator();
@@ -2253,7 +2415,6 @@ z-index: 999999;
             return diff;
         };
     };
-    const getScrambled = function () { return Array.from({ length: 10 }, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('') }
     clientID = (getScrambled() + "noID");
     const createAnonFunction = function (name, func) {
         const funcName = getScrambled();
@@ -2712,7 +2873,7 @@ z-index: 999999;
 
         const banPopup = document.getElementById("bannedPopup");
         if (attemptedInjection && banPopup && unsafeWindow.vueApp.bannedPopup.expire !== "") isBanned = true;
-        if (isBanned && extract("autoUnban") && (!attemptedAutoUnban)) {
+        if (isBanned && extract("autoUnban") && (!attemptedAutoUnban) && unsafeWindow.vueApp?.bannedPopup) {
             console.log("eep!");
             banPopup.textContent = 'StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
             unban();
@@ -2815,9 +2976,9 @@ z-index: 999999;
                 let option = args[1]; // eslint-disable-line
                 if (option) {
                     if (option === "set") {
-                        x = args[2];
-                        y = args[3];
-                        z = args[4];
+                        let x = args[2];
+                        let y = args[3];
+                        let z = args[4];
                         if (x && y && z) {
                             pathfindingTargetOverride = { x: x, y: y, z: z };
                             isFirstFrameAttemptingToPathfind = true;
@@ -3219,6 +3380,7 @@ z-index: 999999;
             "aimbot": "what aimboot?",
             "bot": "you're a booooT",
             "stop": "u stop",
+            "cheater": "Ho Ho Ho! Santa's Here! And I'm gonna give you a present! A ban! <AdminSpoof enabled>",
             "cheat": "oh youre gonna cheat accuse? keep yapping",
             "hack": "oh youre gonna cheat accuse? keep yapping",
             "hax": "oh youre gonna cheat accuse? keep yapping",
@@ -3296,8 +3458,10 @@ z-index: 999999;
             "angry": "imagine getting angry over an egg game",
             "sad": "imagine getting sad over an egg game",
             "happy": "imagine getting happy over an egg game",
-            "cheater": "Ho Ho Ho! Santa's Here! And I'm gonna give you a present! A ban! <AdminSpoof enabled>",
             "tf": "toasted fries",
+            "1v1": 'no ew go away',
+            'doescolder': 'doescolder is a cutie', // written by 1ust
+            'seq': 'seq is a cutie', // fa-face-awesome
         };
 
         const foundKeywords = Object.keys(responses).filter(keyword =>
@@ -3659,7 +3823,7 @@ z-index: 999999;
         });
         createAnonFunction('modifyChat', function (msg) {
             if (msg[0] === '%') { //message is a command
-                command = msg.slice(1);
+                let command = msg.slice(1);
                 msg = ""; //dont send anything
                 if (command != "pts") {
                     broadcastToBots(command);
@@ -3920,6 +4084,8 @@ z-index: 999999;
             console.log("AUDIO INTERCEPTION", match);
             modifyJS(match[0], `${match[0]}[${match[1]}] = window.${functionNames.interceptAudio}(${match[1]});`);
             modifyJS('"IFRAME"==document.activeElement.tagName', `("IFRAME"==document.activeElement.tagName&&document.activeElement.id!=='sfChat-iframe')`);
+            // skybox (yay)
+            modifyJS(`infiniteDistance=!0;`, `infiniteDistance=!0;window["${skyboxName}"]=${H.skybox};`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g, '');
@@ -4316,16 +4482,16 @@ z-index: 999999;
                         var is_solid_directly_below = !is_air_directly_below ? node_below_checked_node.mesh.name.includes("full") : false;
                         var is_partial_directly_below = !is_air_directly_below && !is_solid_directly_below
 
+                        var node_directly_below_node_doing_the_checking;
 
                         try {
-                            var node_directly_below_node_doing_the_checking = map_data[this.position.x][this.position.y - 1][this.position.z];
+                            node_directly_below_node_doing_the_checking = map_data[this.position.x][this.position.y - 1][this.position.z];
                         } catch (error) {
                             console.log(error);
-                            var node_directly_below_node_doing_the_checking = {};
+                            node_directly_below_node_doing_the_checking = {};
                         };
 
                         var is_solid_directly_below_node_doing_checking = !isNodeAir(node_directly_below_node_doing_the_checking) && node_directly_below_node_doing_the_checking.mesh.name.includes("full");
-
 
                         var is_valid_candidate = (
                             is_solid_directly_below ||
@@ -4345,11 +4511,11 @@ z-index: 999999;
 
                         // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
                         // if it's air / equivalent to air we can create it (but not necessarily link to it)
-                            if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) { // this node already exists, link to it
-                                if (is_valid_candidate) {
-                                    found_link++;
-                                    this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z));
-
+                        if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) { // eslint-disable-line
+                            // ^^ this node already exists, link to it
+                            if (is_valid_candidate) {
+                                found_link++;
+                                this.add_link(GLOBAL_NODE_LIST.find(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)); // eslint-disable-line
                                 }
 
                             } else {
@@ -4662,10 +4828,10 @@ z-index: 999999;
 
             if (pathfindingTargetOverride !== undefined) {
                 createMapData();
-                player_node = get_node_at(get_player_position(ss.MYPLAYER));
-                target_node = get_node_at(pathfindingTargetOverride);
+                let player_node = get_node_at(get_player_position(ss.MYPLAYER));
+                let target_node = get_node_at(pathfindingTargetOverride);
                 if (player_node && target_node && !activePath) {
-                    path = AStar(player_node, target_node);
+                    let path = AStar(player_node, target_node);
 
                     if (path) {
                         if (path.length > 0) {
@@ -4972,6 +5138,14 @@ z-index: 999999;
         };
         createAnonFunction("retrieveFunctions", function (vars, doStateFarm) {
             ss = vars;
+
+            unsafeWindow.vueApp._showGenericPopup = unsafeWindow.vueApp.showGenericPopup;
+
+            unsafeWindow.vueApp.showGenericPopup = (...args) => {
+                if (args[0] === 'session_expired') return;
+                return unsafeWindow.vueApp._showGenericPopup(...args);
+            };
+
             if (doStateFarm) {
                 didStateFarm = true;
                 return F.STATEFARM();
@@ -5031,96 +5205,46 @@ z-index: 999999;
                     style('opacity', 0);
                     style('transition', 'visibility 0s 1s, opacity 1s linear');
                     setTimeout(() => document.querySelector('.shellprintOverlay').remove(), 1001);
-                },
-
-                awaitElement: (selector) => new Promise(resolve => {
-                    if (document.querySelector(selector)) return resolve(document.querySelector(selector));
-
-                    const observer = new MutationObserver(mutations => {
-                        if (document.querySelector(selector)) {
-                            observer.disconnect();
-                            resolve(document.querySelector(selector));
-                        };
-                    });
-
-                    observer.observe(document.body || document.documentElement, {
-                        childList: true,
-                        subtree: true
-                    });
-                })
+                }
             };
 
-            shellprint.write('Creating Account...');
+            shellprint.write('Fetching Account...');
 
-            (await shellprint.awaitElement('.profile-menu-item')).click();
-
-            let accountButton = await shellprint.awaitElement('#account-button');
-            if (!accountButton.innerText.includes('Sign In')) {
-                shellprint.write('You\'re already signed in. Sign out first.');
-                setTimeout(() => shellprint.remove(), 3000);
-                return;
-            };
-            accountButton.click();
-
-            let freshAccount;
+            let account;
 
             try {
-                freshAccount = await (await fetch('https://shellprint.villainsrule.xyz/v2/create?key=' + extract('shellPrintKey'), {
+                account = await (await fetch('https://shellprint.villainsrule.xyz/v3/account?key=' + extract('shellPrintKey'), {
                     method: 'POST'
                 })).json();
             } catch {};
 
-            if (!freshAccount) {
+            if (!account) {
                 shellprint.write('ShellPrint is currently broken. Try again later.');
-                setTimeout(() => shellprint.remove(), 3000);
+                setTimeout(() => shellprint.remove(), 2000);
                 return;
-            } else if (freshAccount.error) {
-                shellprint.write('Use a valid key. Get one @ discord.gg/XAyZ6ndEd4');
-                setTimeout(() => shellprint.remove(), 3000);
-                return;
-            };
-
-            (await shellprint.awaitElement('.firebaseui-idp-password')).click();
-            (await shellprint.awaitElement('input[type="email"]')).value = freshAccount.email;
-            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
-            (await shellprint.awaitElement('.firebaseui-id-new-password')).value = freshAccount.password;
-            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
-            (await shellprint.awaitElement('.notify-group-eggs > button')).click();
-
-            shellprint.write('Created account! 🎉 Verifying with email...');
-
-            let verifyConfirmation = await (await fetch('https://shellprint.villainsrule.xyz/v2/verified?key=' + extract('shellPrintKey') + '&email=' + freshAccount.email, {
-                method: 'POST'
-            })).json();
-
-            if (!verifyConfirmation.verified) shellprint.write('There was an error verifying. Please reload :(');
-
-            shellprint.write('Verified email! 🎉 Signing back in...');
-
-            unsafeWindow.extern.signOut();
-
-            await wait(3000);
-
-            (await shellprint.awaitElement('.profile-menu-item')).click();
-
-            accountButton = await shellprint.awaitElement('#account-button');
-            if (!accountButton.innerText.includes('Sign In')) {
-                shellprint.write('You\'re already signed in. Sign out first.');
-                setTimeout(() => shellprint.remove(), 3000);
+            } else if (!account.success) {
+                shellprint.write(account.error || 'Unknown error.');
+                setTimeout(() => shellprint.remove(), 2000);
                 return;
             };
-            accountButton.click();
 
-            (await shellprint.awaitElement('.firebaseui-idp-password')).click();
-            (await shellprint.awaitElement('input[type="email"]')).value = freshAccount.email;
-            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
-            (await shellprint.awaitElement('.firebaseui-id-password')).value = freshAccount.password;
-            (await shellprint.awaitElement('.firebaseui-id-submit')).click();
+            shellprint.write('Fetched Account! 🎉 Signing in....');
+
+            let signIn = async () => {
+                try {
+                    await unsafeWindow.firebase.auth().signInWithEmailAndPassword(account.email, account.password);
+                } catch {
+                    await signIn();
+                };
+            };
+
+            await signIn();
 
             shellprint.write('Fully signed in! 🎉');
-            await wait(3000);
+            await wait(1000);
             shellprint.remove();
         });
+
 
         createAnonFunction("STATEFARM", function () {
             ss.PLAYERS.forEach((PLAYER) => (PLAYER.hasOwnProperty("ws")) ? (ss.MYPLAYER = PLAYER) : null);
