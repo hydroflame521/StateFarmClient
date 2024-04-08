@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre21
+// @version      3.4.1-pre22
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -215,7 +215,7 @@ console.log("StateFarm: running (before function)");
     // blank variables
     let ss = {};
     let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
-    let whitelistPlayers, scrambledMsgEl, accountStatus, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
+    let whitelistPlayers, scrambledMsgEl, accountStatus, oldGa, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -2765,19 +2765,10 @@ z-index: 999999;
                 console.log("automatically do your macro");
                 change("executeMacro");
             };
-            let oldGa = unsafeWindow.ga;
 
-            unsafeWindow.ga = function () {
-                if (arguments['3'] == 'Reward item') {
-                    let itemName = arguments['4'].slice(0, -4);
-                    let tier = arguments['4'].slice(-1);
-                    console.log(itemName+" is tier "+tier);
-                    let tierCache = globalSS.GM_getValue("StateFarm_TierCache") || {};
-                    tierCache[itemName] = tier;
-                    globalSS.GM_setValue("StateFarm_TierCache", tierCache);
-                };
-                oldGa.apply(this, arguments);
-            };
+            console.log("swapping out google analytics...");
+            oldGa = unsafeWindow.ga;
+            unsafeWindow.ga = F.interceptGa;
             ranEverySecond = true;
         };
 
@@ -3535,6 +3526,17 @@ z-index: 999999;
         createAnonFunction('setNewGame', function () {
             newGame = true;
             timeJoinedGame = Date.now();
+        });
+        createAnonFunction('interceptGa', function () {
+            if (arguments['3'] == 'Reward item') {
+                let itemName = arguments['4'].slice(0, -4);
+                let tier = arguments['4'].slice(-1);
+                console.log(itemName+" is tier "+tier);
+                let tierCache = GM_getValue("StateFarm_TierCache") || {};
+                tierCache[itemName] = tier;
+                GM_setValue("StateFarm_TierCache", tierCache);
+            };
+            oldGa.apply(this, arguments);
         });
         createAnonFunction('interceptDeath', (KILLER, DEAD) => {
             if (DEAD.name === KILLER.name === ss.MYPLAYER.name) return; // killed self (with grenade)
