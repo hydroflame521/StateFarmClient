@@ -21,11 +21,11 @@
 // @require      https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js
 
 // version naming:
-    //3.#.#-pre[number] for development versions, increment for every commit (not full release)
-    //3.#.#-release for release
-//this ensures that each version of the script is counted as different
+    //3.#.#-pre[number] for development versions, increment for every commit (not full release) note: please increment it
+    //3.#.#-release for release (in the unlikely event that happens)
+// this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre23
+// @version      3.4.1-pre24
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -115,14 +115,23 @@ console.log("StateFarm: running (before function)");
     const version = typeof (GM_info) !== 'undefined' ? GM_info.script.version : "3";
     const menuTitle = name + " v" + version;
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
-    const discordURL = "https://discord.gg/Vf5qtxAmvU";
+    const discordURL = "https://dsc.gg/sfnetwork";
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
     const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
     const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
-    const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
+
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
-    const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
+
+    const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
+    const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
+    const skyboxURL = "https://raw.githubusercontent.com/xynacore/skybox/master/";
+
+    const shellPrintURL = 'https://shellprint.villainsrule.xyz/v3/account?key=';
+    const jsArchiveURL = 'https://raw.githubusercontent.com/onlypuppy7/ShellShockJSArchives/main/js_archive/';
+    const clientKeysURL = "https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_";
+    const sfChatURL = "https://raw.githack.com/OakSwingZZZ/StateFarmChatFiles/main/index.html";
+
     //startup sequence
     const startUp = function () {
         console.log("StateFarm: detectURLParams()");
@@ -916,7 +925,7 @@ But check out the GitHub guide.`},
                 ], changeFunction: (newSkybox) => {
                     if (!unsafeWindow[skyboxName]) return;
 
-                    unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`https://raw.githubusercontent.com/xynacore/skybox/master/${newSkybox.value}/skybox`, ss.SCENE);
+                    unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${newSkybox.value}/skybox`, ss.SCENE);
                     unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
                 }});
             tp.themingTab.pages[0].addSeparator();
@@ -1022,24 +1031,65 @@ debug mode).`},
             tp.accountsTab.pages[0].addSeparator();
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Login (Login Database)", storeAs: "loginDatabaseFolder", });
                 initModule({ location: tp.loginDatabaseFolder, title: 'Login Next Account', storeAs: 'loginDatabaseLogin', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
-                    let emailPass = extract("loginEmailPass");
-                    if (emailPass.includes(":")) {
+                    let loginDB = GM_getValue("StateFarm_LoginDB") || []; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other. (yes this needed to be said again)
+                    let loginDBlength = loginDB.length;
+                    if (loginDBlength > 0) {
+                        let index = extract("loginDatabaseSelection") == "inorder" ? 0 : Math.ceil((Math.random()*0.75)*(loginDBlength-1));
+                        console.log(`selecting index ${index}, this is out of ${loginDBlength} entries.`);
+                        let [emailPass] = loginDB.splice(index, 1); //delete and retrieve
+                        loginDB.push(emailPass);
+                        console.log(`deleted and reinserted ${emailPass} at the end.`);
                         loginOrCreateWithEmailPass(emailPass);
+                        GM_setValue("StateFarm_LoginDB", loginDB);
+                        createPopup(`Logging in from index ${index}...`);
                     } else {
-                        emailPass = prompt('Your email:pass isn\'t valid. Enter your combo below or input the correct one in the box.', '');
-                        if (emailPass.includes(":")) {
-                            loginOrCreateWithEmailPass(emailPass);
-                        }; //else fuck you. im not doing anything with that.
+                        createPopup("LoginDB is empty!", "error");
                     };
                 } });
+                initModule({ location: tp.loginDatabaseFolder, title: "Selection Type", storeAs: "loginDatabaseSelection", bindLocation: tp.accountsTab.pages[1], dropdown: [{ text: "In Order", value: "inorder" }, { text: "Random", value: "random" }], defaultValue: "inorder" });
                 tp.loginDatabaseFolder.addSeparator();
-                initModule({ location: tp.loginDatabaseFolder, title: 'Export DB', storeAs: 'loginDatabaseExport', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                initModule({ location: tp.loginDatabaseFolder, title: 'Export DB(JSON)', storeAs: 'loginDatabaseExport', button: 'EXPORT (COPY)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_LoginDB") || []), "text", () => console.log("Clipboard set!"));
+                    createPopup("Login DB copied to clipboard...");
                 } });
-                initModule({ location: tp.loginDatabaseFolder, title: 'Import Into DB', storeAs: 'loginDatabaseExport', button: 'APPEND (PASTE)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                initModule({ location: tp.loginDatabaseFolder, title: 'Import Into LoginDB', storeAs: 'loginDatabaseExport', button: 'APPEND (PASTE)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    let userInput = prompt(`Input data you would like to add to your LoginDB. This will NOT replace your current data. All data added here will be put at the end of the queue. Also make sure that this data goes here and not into the AccountRecords DB.`, 'Reminder: JSON format!');
+                    try {
+                        let loginDB = GM_getValue("StateFarm_LoginDB") || []; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other. (yes this needed to be said again)
+                        appendedData = JSON.parse(userInput);
+                        appendedData.forEach(data => {
+                            if (data && !loginDB.includes(data)) {
+                                loginDB.push(data);
+                            };
+                        });
+                        GM_setValue("StateFarm_LoginDB", loginDB);
+                        createPopup("Success! Data appended to LoginDB.", "success");
+                    } catch {
+                        createPopup("Failed! Check the formatting.", "error");
+                    };
                 } });
                 initModule({ location: tp.loginDatabaseFolder, title: 'ImportFromRecords', storeAs: 'loginDatabaseImportRecords', button: 'APPEND', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    if (prompt("This action will import any Email:Pass combos you have in AccountRecords. Make sure you want to do this, as this will potentially add a lot of new records. Type 'ok' to proceed. This cannot be reversed, export first to be safe. Note: all the new records are added to the end of the queue.") === 'ok') {
+                        let accountRecords = GM_getValue("StateFarm_AccountRecords") || {}; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other.
+                        let loginDB = GM_getValue("StateFarm_LoginDB") || []; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other. (yes this needed to be said again)
+                        Object.entries(accountRecords).forEach(([key, account]) => {
+                            let emailPass = account.emailPass;
+                            if (emailPass && !loginDB.includes(emailPass)) {
+                                loginDB.push(emailPass);
+                            };
+                        });
+                        GM_setValue("StateFarm_LoginDB", loginDB);
+                        createPopup("Appended from AccountDetails!", "success");
+                    };
                 } });
-                initModule({ location: tp.loginDatabaseFolder, title: 'Delete DB', storeAs: 'loginDatabaseDelete', button: 'DELETE!', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                initModule({ location: tp.loginDatabaseFolder, title: 'Delete LoginDB', storeAs: 'loginDatabaseDelete', button: 'DELETE!', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    if (prompt("WARNING! This is a destructive action! Type 'ok' if you are really sure you want to delete your LoginDB! This cannot be reversed, export first to be safe.") === 'ok') { 
+                        GM_setValue("StateFarm_LoginDB", []); //o7 data
+                    };
+                } });
+                initModule({ location: tp.loginDatabaseFolder, title: 'LoginDB Info', storeAs: 'loginDatabaseInfo', button: 'INFO', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    let loginDB = GM_getValue("StateFarm_LoginDB") || []; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other. (yes this needed to be said again)
+                    alert(`You currently have ${loginDB.length} accounts in LoginDB. For info on what this is, check the guide tab.`);
                 } });
             tp.accountsTab.pages[0].addSeparator();
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Generator (Basic)", storeAs: "generatorFolder", });
@@ -1051,18 +1101,78 @@ debug mode).`},
             tp.accountsTab.pages[0].addSeparator();
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Records Database", storeAs: "accountRecordsFolder", });
                 initModule({ location: tp.accountRecordsFolder, title: "Disable Logging", storeAs: "accountRecordsLogging", bindLocation: tp.accountsTab.pages[1], });
-                initModule({ location: tp.accountRecordsFolder, title: 'Export DB', storeAs: 'accountRecordsExport', button: 'LOGIN', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                initModule({ location: tp.accountRecordsFolder, title: 'Export DB (JSON)', storeAs: 'accountRecordsExport', button: 'EXPORT (COPY)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_AccountRecords") || {}), "text", () => console.log("Clipboard set!"));
+                    createPopup("AccountRecords DB copied to clipboard...");
                 } });
                 initModule({ location: tp.accountRecordsFolder, title: 'Import Into DB', storeAs: 'accountRecordsImport', button: 'APPEND (PASTE)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    let userInput = prompt(`Input data you would like to add to your AccountRecords DB. This will NOT replace your current data. All data added here either be added or replace existing records. Also make sure that this data goes here and not into the LoginDB.`, 'Reminder: JSON format!');
+                    try {
+                        let accountRecords = GM_getValue("StateFarm_AccountRecords") || {}; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other.
+                        appendedData = JSON.parse(userInput);
+                        Object.entries(appendedData).forEach(([key, account]) => {
+                            if (account) {
+                                accountRecords[key] = account;
+                            };
+                        });
+                        GM_setValue("StateFarm_AccountRecords", accountRecords);
+                        createPopup("Success! Data appended to AccountRecords.", "success");
+                    } catch {
+                        createPopup("Failed! Check the formatting.", "error");
+                    };
                 } });
                 initModule({ location: tp.accountRecordsFolder, title: 'Delete DB', storeAs: 'accountRecordsDelete', button: 'DELETE!', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    if (prompt("WARNING! This is a destructive action! Type 'ok' if you are really sure you want to delete your AccountRecords DB! This cannot be reversed, export first to be safe.") === 'ok') { 
+                        GM_setValue("StateFarm_AccountRecords", {}); //o7 data
+                    };
                 } });
                 initModule({ location: tp.accountRecordsFolder, title: 'View Info', storeAs: 'accountRecordsInfo', button: 'INFO', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
+                    let userInput = prompt(`This will output some information relating to what information you have in your AccountRecords DB.\nParameters: Enter 1 to only print Email:Pass list of those with items, enter 2 for those with no items.`, '');
+                    let accountRecords = GM_getValue("StateFarm_AccountRecords") || {}; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other.
+                    let tierCache = GM_getValue("StateFarm_TierCache") || {};
+                    const itemCounts = {};
+                    let emailPassList = [];
+                    let accountCount = 0;
+                    let accountWithItemsCount = 0;
+                    let itemCountTotal = 0;
+                    Object.entries(accountRecords).forEach(([key, account]) => {
+                        if (account) {
+                            const inventoryList = account.inventoryList;
+                            let countedAccount = false; accountCount++;
+                            for (let item of inventoryList) {
+                                if (!countedAccount) {countedAccount = true; accountWithItemsCount++};
+                                if (tierCache[item] !== undefined) {item = item+" [T"+tierCache[item]+"]"};
+                                if (itemCounts.hasOwnProperty(item)) {
+                                    itemCounts[item]++;
+                                    itemCountTotal++;
+                                } else {
+                                    itemCounts[item] = 1;
+                                };
+                            };
+                            if (account.emailPass) {
+                                if ((userInput == "1" && inventoryList.length > 0) || // with items
+                                    (userInput == "2" && inventoryList.length < 1) || // no items
+                                    (userInput !== "1" && userInput !== "2")) { // do them all
+                                    emailPassList.push(account.emailPass);
+                                };
+                            };
+                        };
+                    });
+                    console.log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
+                    console.log('%c' + 'AccountRecords Info', 'color: red; font-size: 30px;');
+                    console.log("Full AccountRecords:");
+                    console.log(accountRecords);
+                    console.log(`itemCounts (Total items: ${itemCountTotal}):`);
+                    console.log(itemCounts);
+                    console.log(`emailPassList (Count: ${emailPassList.length}):`);
+                    console.log(JSON.stringify(emailPassList));
+                    console.log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
+                    alert(`Results:\nAccounts Total: ${accountCount}; With Items: ${accountWithItemsCount}\nItem Count: ${itemCountTotal}\nOther info has been pasted into console.`);
                 } });
             tp.accountsTab.pages[0].addSeparator();
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Generator (ShellPrint)", storeAs: "shellPrintFolder", });
             initModule({ location: tp.shellPrintFolder, title: 'ShellPrint Key', storeAs: 'shellPrintKey', defaultValue: "" });
-            initModule({ location: tp.shellPrintFolder, title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => GM_openInTab('https://discord.gg/XAyZ6ndEd4', { active: true }) });
+            initModule({ location: tp.shellPrintFolder, title: ' ', storeAs: 'getSPKey', button: 'Get a Key', clickFunction: () => GM_openInTab(discordURL, { active: true }) });
             initModule({ location: tp.shellPrintFolder, title: 'Create (ShellPrint)', storeAs: 'shellprintGen', button: 'Generate!', clickFunction: () => F.register(), bindLocation: tp.accountsTab.pages[1] });
             tp.accountsTab.pages[0].addSeparator();
         //MISC MODULES
@@ -1269,7 +1379,7 @@ debug mode).`},
                     });
                     saveString = saveString.substring(0, saveString.length - 1);
                     GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
-                    createPopup("Preset copied to clipboard...")
+                    createPopup("Preset copied to clipboard...");
                 },});
             tp.clientTab.pages[0].addSeparator();
             initFolder({ location: tp.clientTab.pages[0], title: "Creator's Links", storeAs: "linksFolder",});
@@ -1318,6 +1428,8 @@ debug mode).`},
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Use Macro", storeAs: "useBotMacro", defaultValue: true, botParam: true, });
         initModule({ location: tp.botTabs.pages[0], title: "Bot Macro", storeAs: "botMacro", defaultValue: "createPopup('success?');", botParam: true, });
+        tp.botTabs.pages[0].addSeparator();
+        initModule({ location: tp.botTabs.pages[0], title: "Proxy URL", storeAs: "proxyBots", dropdown: [{ text: "Randomised", value: "randomised" }, { text: "Static", value: "static" },], defaultValue: "darkesteggshell", });
         tp.botTabs.pages[0].addSeparator();
         initModule({ location: tp.botTabs.pages[0], title: "Bot Colour", storeAs: "eggColourBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "White", value: "white" }, { text: "Light Blue", value: "lightblue" }, { text: "Light Eggshell", value: "lighteggshell" }, { text: "Eggshell", value: "eggshell" }, { text: "Dark Eggshell", value: "darkeggshell" }, { text: "Darker Eggshell", value: "darkereggshell" }, { text: "Darkest Eggshell", value: "darkesteggshell" }, { text: "Red (VIP)", value: "red" }, { text: "Purple (VIP)", value: "purple" }, { text: "Pink (VIP)", value: "pink" }, { text: "Yellow (VIP)", value: "yellow" }, { text: "Blue (VIP)", value: "blue" }, { text: "Green (VIP)", value: "green" }, { text: "Lime (VIP)", value: "lime" }, { text: "Randomised", value: "random" }], defaultValue: "darkesteggshell", });
         initModule({ location: tp.botTabs.pages[0], title: "Bot Stamp", storeAs: "autoStampBots", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Target Stamp", value: "target" }, { text: "No Sign Stamp", value: "nosign" }, { text: "Question Mark Stamp?", value: "question" }, { text: "Peace Stamp", value: "peace" }, { text: "Thumbs Up Stamp", value: "thumbsup" }, { text: "Pablo Smile Stamp", value: "pablosmile" }, { text: "Randomised", value: "random" }], defaultValue: "pablosmile", });
@@ -1513,8 +1625,7 @@ debug mode).`},
         makeChatDragable(sfChatContainer);
         sfChatIframe = document.createElement("iframe");
         sfChatIframe.setAttribute(
-            "src",
-            "https://raw.githack.com/OakSwingZZZ/StateFarmChatFiles/main/index.html"
+            "src", sfChatURL
         );
         sfChatIframe.id = "sfChat-iframe";
         sfChatIframe.setAttribute("style", "width: 600px; height:700px; z-index: 10000;");
@@ -3937,7 +4048,7 @@ z-index: 999999;
             if (typeof isCrackedShell !== 'undefined') originalJS = fetchTextContent('/js/shellshock.og.js');
 
             const getVardata = function (hash) {
-                return fetchTextContent("https://raw.githubusercontent.com/StateFarmNetwork/client-keys/main/statefarm_" + hash + ".json");
+                return fetchTextContent(clientKeysURL + hash + ".json");
             };
 
 
@@ -3946,7 +4057,7 @@ z-index: 999999;
             onlineClientKeys = getVardata(hash);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
-                let userInput = prompt('Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it, or alternatively the hash of a previous game js to attempt to load that. Join the StateFarm Network Discord server to generate VarData! https://discord.gg/HYJG3jXVJF Perform command "sf.vardata" in the bot channel. Hash: ' + hash, '');
+                let userInput = prompt(`Valid VarData could not be retrieved online. This could be due to a conflicting script or your script is out of date. Enter VarData if you have it, or alternatively the hash filename of a previous game js to attempt to load that. Join the StateFarm Network Discord server to generate VarData! Link: ${discordURL} Perform command "sf.vardata" in the bot channel. Hash: ${hash}`, '');
                 if (userInput !== null && userInput !== '') {
                     alert('Aight, let\'s try this. If it is invalid, it will just crash.');
                     try {
@@ -3954,14 +4065,14 @@ z-index: 999999;
                     } catch {
                         console.log("maybe they did a hash??");
                         try {
-                            const archivedJS = fetchTextContent(`https://raw.githubusercontent.com/onlypuppy7/ShellShockJSArchives/main/js_archive/${userInput}.js`);
+                            const archivedJS = fetchTextContent(`${jsArchiveURL}${userInput}.js`);
                             console.log("did that just work??");
                             js = archivedJS;
                             hash = userInput.split("_")[5];
                             onlineClientKeys = getVardata(hash);
                             clientKeys = JSON.parse(onlineClientKeys);
                         } catch {
-
+                            //at this point, fuck it. it's not happening
                         };
                     };
                 } else {
@@ -4142,7 +4253,7 @@ z-index: 999999;
             let leftOffset = ((i % 15) * 100);
             // let topOffset=((i%3)*100);
             let topOffset = 0;
-            let proxyURL = proxyList[proxyListIndex];
+            let proxyURL = extract("proxyBots") == "static" ? window.location.host : proxyList[proxyListIndex] ;
             proxyListIndex = (proxyListIndex + 1) % proxyList.length;
             let params = "?AUTOMATED=true&StateFarm=";
             let name = botNames[i];
@@ -5213,7 +5324,7 @@ z-index: 999999;
             let account;
 
             try {
-                account = await (await fetch('https://shellprint.villainsrule.xyz/v3/account?key=' + extract('shellPrintKey'), {
+                account = await (await fetch(shellPrintURL + extract('shellPrintKey'), {
                     method: 'POST'
                 })).json();
             } catch {};
@@ -5414,7 +5525,7 @@ z-index: 999999;
                     let visibleValue;
                     if (visibilityMode == "disabled") { //we dont care about that shit
                         visibleValue = true; //go ahead
-                    } else if (amountVisible < 1) { //none of candidates are visibS
+                    } else if (amountVisible < 1) { //none of candidates are visible
                         visibleValue = (visibilityMode == "onlyvisible" ? false : true); //there are no visible candidates, so either select none if "onlyvisible" or ignore this altogether
                     } else { //some are visible
                         visibleValue = player.isVisible; //assuming now that either "prioritise" or "onlyvisible" are enabled, as "onlyvisible"'s use case fulfilled in previous statement
