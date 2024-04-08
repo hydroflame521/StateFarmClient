@@ -25,7 +25,7 @@
     //3.#.#-release for release
 //this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre20
+// @version      3.4.1-pre21
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2381,6 +2381,7 @@ z-index: 999999;
         console.log("the email is:", currentEmail);
 
         let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
+        let tierCache = GM_getValue("StateFarm_TierCache") || {};
 
         let accountDetails = accountRecords[currentEmail] || {};
         accountDetails.inventory = JSON.parse(JSON.stringify(extern.account.inventory));
@@ -2390,7 +2391,9 @@ z-index: 999999;
         accountDetails.inventoryList = [];
         accountDetails.inventory.forEach(item => {
             accountDetails.inventoryWorth += item.price;
-            accountDetails.inventoryList.push(item.name);
+            itemName = item.name;
+            if (tierCache[itemName] !== undefined) {itemName = itemName+" [T"+tierCache[itemName]+"]"};
+            accountDetails.inventoryList.push(itemName);
         });
         accountDetails.totalWorth = accountDetails.eggCount + accountDetails.inventoryWorth;
         if (key && value) {
@@ -2761,6 +2764,19 @@ z-index: 999999;
             if (extract("autoMacro")) {
                 console.log("automatically do your macro");
                 change("executeMacro");
+            };
+            let oldGa = unsafeWindow.ga;
+
+            unsafeWindow.ga = function () {
+                if (arguments['3'] == 'Reward item') {
+                    let itemName = arguments['4'].slice(0, -4);
+                    let tier = arguments['4'].slice(-1);
+                    console.log(itemName+" is tier "+tier);
+                    let tierCache = globalSS.GM_getValue("StateFarm_TierCache") || {};
+                    tierCache[itemName] = tier;
+                    globalSS.GM_setValue("StateFarm_TierCache", tierCache);
+                };
+                oldGa.apply(this, arguments);
             };
             ranEverySecond = true;
         };
