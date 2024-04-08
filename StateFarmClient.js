@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
 // @description  Fixed for 0.47.5! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
-// @author       Hydroflame521, onlypuppy7, enbyte and notfood
+// @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ and de_Neuublue
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
 // @license      GPL-3.0
@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre24
+// @version      3.4.1-pre25
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1139,21 +1139,23 @@ debug mode).`},
                         if (account) {
                             const inventoryList = account.inventoryList;
                             let countedAccount = false; accountCount++;
-                            for (let item of inventoryList) {
-                                if (!countedAccount) {countedAccount = true; accountWithItemsCount++};
-                                if (tierCache[item] !== undefined) {item = item+" [T"+tierCache[item]+"]"};
-                                if (itemCounts.hasOwnProperty(item)) {
-                                    itemCounts[item]++;
-                                    itemCountTotal++;
-                                } else {
-                                    itemCounts[item] = 1;
+                            if (inventoryList) {
+                                for (let item of inventoryList) {
+                                    if (!countedAccount) {countedAccount = true; accountWithItemsCount++};
+                                    if (tierCache[item] !== undefined) {item = item+" [T"+tierCache[item]+"]"};
+                                    if (itemCounts.hasOwnProperty(item)) {
+                                        itemCounts[item]++;
+                                        itemCountTotal++;
+                                    } else {
+                                        itemCounts[item] = 1;
+                                    };
                                 };
-                            };
-                            if (account.emailPass) {
-                                if ((userInput == "1" && inventoryList.length > 0) || // with items
-                                    (userInput == "2" && inventoryList.length < 1) || // no items
-                                    (userInput !== "1" && userInput !== "2")) { // do them all
-                                    emailPassList.push(account.emailPass);
+                                if (account.emailPass) {
+                                    if ((userInput == "1" && inventoryList.length > 0) || // with items
+                                        (userInput == "2" && inventoryList.length < 1) || // no items
+                                        (userInput !== "1" && userInput !== "2")) { // do them all
+                                        emailPassList.push(account.emailPass);
+                                    };
                                 };
                             };
                         };
