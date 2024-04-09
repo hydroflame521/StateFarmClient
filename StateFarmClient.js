@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre25
+// @version      3.4.1-pre26
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -3808,10 +3808,16 @@ z-index: 999999;
             if (arguments['3'] == 'Reward item') {
                 let itemName = arguments['4'].slice(0, -4);
                 let tier = arguments['4'].slice(-1);
-                console.log(itemName+" is tier "+tier);
+                console.log("SFcw result: item: "+itemName+" is tier "+tier);
                 let tierCache = GM_getValue("StateFarm_TierCache") || {};
                 tierCache[itemName] = tier;
                 GM_setValue("StateFarm_TierCache", tierCache);
+            };
+            if (arguments['3'] == 'Reward amount') {
+                console.log("SFcw result: eggs: "+arguments['4']);
+            };
+            if (arguments['3'] == 'Reward') {
+                console.log("SFcw reward: "+arguments['4']);
             };
             oldGa.apply(this, arguments);
         });
