@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre26
+// @version      3.4.1-pre27
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1131,6 +1131,7 @@ debug mode).`},
                     let accountRecords = GM_getValue("StateFarm_AccountRecords") || {}; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other.
                     let tierCache = GM_getValue("StateFarm_TierCache") || {};
                     const itemCounts = {};
+                    const tierCounts = {};
                     let emailPassList = [];
                     let accountCount = 0;
                     let accountWithItemsCount = 0;
@@ -1142,7 +1143,17 @@ debug mode).`},
                             if (inventoryList) {
                                 for (let item of inventoryList) {
                                     if (!countedAccount) {countedAccount = true; accountWithItemsCount++};
-                                    if (tierCache[item] !== undefined) {item = item+" [T"+tierCache[item]+"]"};
+                                    if (tierCache[item] !== undefined) {
+                                        item = `${item} [T${tierCache[item]}]`;
+                                    };
+                                    let tier = item.match(/\[T([0-9])\]/);
+                                    if (tier && tier[1]) {
+                                        if (tierCounts.hasOwnProperty(tier[1])) {
+                                            tierCounts[tier[1]]++;
+                                        } else {
+                                            tierCounts[tier[1]] = 1;
+                                        };
+                                    };
                                     if (itemCounts.hasOwnProperty(item)) {
                                         itemCounts[item]++;
                                         itemCountTotal++;
@@ -1166,6 +1177,8 @@ debug mode).`},
                     console.log(accountRecords);
                     console.log(`itemCounts (Total items: ${itemCountTotal}):`);
                     console.log(itemCounts);
+                    console.log(`tierCounts:`);
+                    console.log(tierCounts);
                     console.log(`emailPassList (Count: ${emailPassList.length}):`);
                     console.log(JSON.stringify(emailPassList));
                     console.log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
