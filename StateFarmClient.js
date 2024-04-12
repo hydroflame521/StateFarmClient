@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre27
+// @version      3.4.1-pre28
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1138,12 +1138,13 @@ debug mode).`},
                     let itemCountTotal = 0;
                     Object.entries(accountRecords).forEach(([key, account]) => {
                         if (account) {
-                            const inventoryList = account.inventoryList;
                             let countedAccount = false; accountCount++;
+                            let inventoryList=[];
+                            account.inventory.forEach(item=>{inventoryList.push(item.name)});
                             if (inventoryList) {
                                 for (let item of inventoryList) {
                                     if (!countedAccount) {countedAccount = true; accountWithItemsCount++};
-                                    if (tierCache[item] !== undefined) {
+                                    if (tierCache[item]) {
                                         item = `${item} [T${tierCache[item]}]`;
                                     };
                                     let tier = item.match(/\[T([0-9])\]/);
@@ -1161,7 +1162,7 @@ debug mode).`},
                                         itemCounts[item] = 1;
                                     };
                                 };
-                                if (account.emailPass) {
+                                if (account.emailPass && !emailPassList.includes(account.emailPass)) {
                                     if ((userInput == "1" && inventoryList.length > 0) || // with items
                                         (userInput == "2" && inventoryList.length < 1) || // no items
                                         (userInput !== "1" && userInput !== "2")) { // do them all
@@ -1179,6 +1180,8 @@ debug mode).`},
                     console.log(itemCounts);
                     console.log(`tierCounts:`);
                     console.log(tierCounts);
+                    console.log(`tierCache:`);
+                    console.log(tierCache);
                     console.log(`emailPassList (Count: ${emailPassList.length}):`);
                     console.log(JSON.stringify(emailPassList));
                     console.log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
@@ -1312,7 +1315,7 @@ debug mode).`},
                 });
                 tp.presetFolder.addSeparator();
                 initModule({ location: tp.presetFolder, title: "Save", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
-                    console.log("Config Main: ", configMain);
+                    // console.log("Config Main: ", configMain);
                     let saveString = '';
                     const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
                     Object.entries(configMain).forEach(([key, value]) => {
@@ -3821,16 +3824,29 @@ z-index: 999999;
             if (arguments['3'] == 'Reward item') {
                 let itemName = arguments['4'].slice(0, -4);
                 let tier = arguments['4'].slice(-1);
-                console.log("SFcw result: item: "+itemName+" is tier "+tier);
+
+                let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
+                let itemCount = 0;
+                Object.entries(accountRecords).forEach(([key, account]) => {
+                    if (account) {
+                        account.inventory.forEach(item=>{
+                            if (item.name == itemName) {
+                                itemCount++
+                            };
+                        });
+                    };
+                });
+
+                console.log(`[${extern.account.inventory.length}] SFcw result: item: ${itemName} is tier ${tier} (${itemCount} of this item)`);
                 let tierCache = GM_getValue("StateFarm_TierCache") || {};
                 tierCache[itemName] = tier;
                 GM_setValue("StateFarm_TierCache", tierCache);
             };
             if (arguments['3'] == 'Reward amount') {
-                console.log("SFcw result: eggs: "+arguments['4']);
+                console.log(`[${extern.account.inventory.length}] `+"SFcw result: eggs: "+arguments['4']);
             };
             if (arguments['3'] == 'Reward') {
-                console.log("SFcw reward: "+arguments['4']);
+                console.log(`[${extern.account.inventory.length}] `+"SFcw reward: "+arguments['4']);
             };
             oldGa.apply(this, arguments);
         });
