@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre30
+// @version      3.4.1-pre31
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -119,6 +119,7 @@ console.log("StateFarm: running (before function)");
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
     const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
     const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
+    const violentmonkeyURL = "https://violentmonkey.github.io/get-it/";
 
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
 
@@ -141,18 +142,25 @@ console.log("StateFarm: running (before function)");
         console.log("StateFarm: injectScript()");
         injectScript();
         document.addEventListener("DOMContentLoaded", function () {
-            onContentLoaded();
-            console.log("StateFarm: DOMContentLoaded, ran onContentLoaded, fetching sfx");
-
-            fetch(sfxURL).then(response => {
-                if (response.ok) return response.json();
-                else throw new Error('Failed to fetch folder contents');
-            }).then(data => {
-                data.forEach((file, index) => {
-                    retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
+            console.log("StateFarm: DOMContentLoaded, fetching sfx");
+            fetch(sfxURL)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to fetch folder contents');
+                    };
+                })
+                .then(data => {
+                    data.forEach((file, index) => {
+                        retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
+                    });
+                    onContentLoaded();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    onContentLoaded();
                 });
-                initMenu(false);
-            }).catch(error => console.error('Error:', error));
         });
     };
     //INIT VARS
@@ -2726,6 +2734,7 @@ z-index: 999999;
             unsafeWindow.globalSS.GM_listValues = GM_listValues;
             unsafeWindow.globalSS.GM_getValue = GM_getValue;
             unsafeWindow.globalSS.GM_setValue = GM_setValue;
+            unsafeWindow.globalSS.GM_info = GM_info;
             unsafeWindow.globalSS.getScrambled = getScrambled;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
             unsafeWindow.globalSS.accountStatus = accountStatus;
@@ -4006,43 +4015,45 @@ z-index: 999999;
         });
         createAnonFunction('modifyControls', function (CONTROLKEYS) {
             // if (AUTOMATED) { CONTROLKEYS=0 };
-            if (forceControlKeys) {
-                forceControlKeysCache = true;
-                return forceControlKeys;
-            } else if (forceControlKeysCache) {
-                forceControlKeysCache = false;
-                return 0;
-            } else {
-                if (extract("autoWalk")) { CONTROLKEYS |= ss.CONTROLKEYSENUM.up };
-                // credit for code: de_neuublue
-                if (extract("bunnyhop") && isKeyToggled.Space) {
-                    CONTROLKEYS |= ss.CONTROLKEYSENUM.jump;
-                };
-                if (extract("autoJump")) {
-                    if (Date.now() > (lastAutoJump + extract("autoJumpDelay"))) {
+            if (startUpComplete) {
+                if (forceControlKeys) {
+                    forceControlKeysCache = true;
+                    return forceControlKeys;
+                } else if (forceControlKeysCache) {
+                    forceControlKeysCache = false;
+                    return 0;
+                } else {
+                    if (extract("autoWalk")) { CONTROLKEYS |= ss.CONTROLKEYSENUM.up };
+                    // credit for code: de_neuublue
+                    if (extract("bunnyhop") && isKeyToggled.Space) {
                         CONTROLKEYS |= ss.CONTROLKEYSENUM.jump;
-                        lastAutoJump = Date.now();
                     };
-                };
-                if (extract("autoStrafe")) {
-                    if (Date.now() > (autoStrafeValue[0])) {
-                        if (autoStrafeValue[1] == 0) { //decide new strafe delay
-                            autoStrafeValue[0] = Date.now() + randomInt(500, 3000);
-                            autoStrafeValue[2] = (Math.random() > 0.5) ? "left" : "right";
-                            autoStrafeValue[1] = 1;
-                        } else if (autoStrafeValue[1] == 1) { //time to start strafe
-                            autoStrafeValue[3] = Date.now() + randomInt(500, 2000);
-                            autoStrafeValue[1] = 2;
-                        } else if (autoStrafeValue[1] == 2 && Date.now() < autoStrafeValue[3]) { //do strafe
-                            CONTROLKEYS |= ss.CONTROLKEYSENUM[autoStrafeValue[2]];
-                        } else if (autoStrafeValue[1] == 2) { //stop strafe
-                            CONTROLKEYS &= ~ss.CONTROLKEYSENUM.left;
-                            CONTROLKEYS &= ~ss.CONTROLKEYSENUM.right;
-                            autoStrafeValue[1] = 0;
+                    if (extract("autoJump")) {
+                        if (Date.now() > (lastAutoJump + extract("autoJumpDelay"))) {
+                            CONTROLKEYS |= ss.CONTROLKEYSENUM.jump;
+                            lastAutoJump = Date.now();
                         };
                     };
+                    if (extract("autoStrafe")) {
+                        if (Date.now() > (autoStrafeValue[0])) {
+                            if (autoStrafeValue[1] == 0) { //decide new strafe delay
+                                autoStrafeValue[0] = Date.now() + randomInt(500, 3000);
+                                autoStrafeValue[2] = (Math.random() > 0.5) ? "left" : "right";
+                                autoStrafeValue[1] = 1;
+                            } else if (autoStrafeValue[1] == 1) { //time to start strafe
+                                autoStrafeValue[3] = Date.now() + randomInt(500, 2000);
+                                autoStrafeValue[1] = 2;
+                            } else if (autoStrafeValue[1] == 2 && Date.now() < autoStrafeValue[3]) { //do strafe
+                                CONTROLKEYS |= ss.CONTROLKEYSENUM[autoStrafeValue[2]];
+                            } else if (autoStrafeValue[1] == 2) { //stop strafe
+                                CONTROLKEYS &= ~ss.CONTROLKEYSENUM.left;
+                                CONTROLKEYS &= ~ss.CONTROLKEYSENUM.right;
+                                autoStrafeValue[1] = 0;
+                            };
+                        };
+                    };
+                    return CONTROLKEYS;
                 };
-                return CONTROLKEYS;
             };
         });
         createAnonFunction('adBlocker', function (input) {
@@ -5714,6 +5725,19 @@ z-index: 999999;
     console.log("StateFarm: startUp()", attemptedInjection);
     startUp();
     console.log("StateFarm: after startUp()", attemptedInjection);
+
+    if (GM_info.scriptHandler == "Tampermonkey") {
+        let count = GM_getValue("StateFarm_TampermonkeyWarnings") || 0;
+        count++;
+        if (count <= 3) {
+            let userConfirmed = confirm("StateFarm Client: Tampermonkey detected! StateFarm Client does not support this manager, use Violentmonkey instead. Press OK to be redirected to the Violentmonkey website. You can continue to use this, but expect unreliable results. For more information, visit our Discord server: "+discordURL);
+            if (userConfirmed) {
+                GM_openInTab(violentmonkeyURL, { active: true });
+            };
+            alert(`This alert will show three times in total. Please install Violentmonkey before reporting issues. ${3-count} more warnings.`);
+        };
+        GM_setValue("StateFarm_TampermonkeyWarnings", count); //continue counting for the lulz
+    };
 
     setTimeout(() => {
         if (!attemptedInjection) {
