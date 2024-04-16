@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre32
+// @version      3.4.1-pre33
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -5726,7 +5726,7 @@ z-index: 999999;
         let count = GM_getValue("StateFarm_TampermonkeyWarnings") || 0;
         count++;
         if (count <= 3) {
-            let userConfirmed = confirm("StateFarm Client: Tampermonkey detected! StateFarm Client does not support this manager, use Violentmonkey instead. Press OK to be redirected to the Violentmonkey website. You can continue to use this, but expect unreliable results. For more information, visit our Discord server: "+discordURL);
+            let userConfirmed = confirm("StateFarm Client: Tampermonkey detected! StateFarm Client does not support this manager, use Violentmonkey instead. Press OK to be redirected to the Violentmonkey website. You can continue to use Tampermonkey, but expect unreliable results. For more information, visit our Discord server: "+discordURL);
             if (userConfirmed) {
                 GM_openInTab(violentmonkeyURL, { active: true });
             };
