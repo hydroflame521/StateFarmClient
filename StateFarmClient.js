@@ -141,25 +141,21 @@ console.log("StateFarm: running (before function)");
         console.log("StateFarm: injectScript()");
         injectScript();
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("StateFarm: DOMContentLoaded, fetching sfx");
-            fetch(sfxURL)
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Failed to fetch folder contents');
-                    };
-                })
-                .then(data => {
-                    data.forEach((file, index) => {
-                        retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
-                    });
-                    onContentLoaded();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    onContentLoaded();
+            onContentLoaded();
+            console.log("StateFarm: DOMContentLoaded, ran onContentLoaded, fetching sfx");
+            
+            fetch(sfxURL).then(response => {
+                if (response.ok) return response.json();
+                else throw new Error('Failed to fetch folder contents');
+            }).then(data => {
+                data.forEach((file, index) => {
+                    retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
                 });
+                initMenu(false);
+            }).catch(error => {
+                console.error('Error:', error);
+                initMenu(false);
+            });
         });
     };
     //INIT VARS
@@ -3006,7 +3002,7 @@ z-index: 999999;
         };
 
         const banPopup = document.getElementById("bannedPopup");
-        if (attemptedInjection && banPopup && unsafeWindow.vueApp.bannedPopup.expire !== "") isBanned = true;
+        if (attemptedInjection && banPopup && unsafeWindow.vueApp?.bannedPopup?.expire !== "") isBanned = true;
         if (isBanned && extract("autoUnban") && (!attemptedAutoUnban) && unsafeWindow.vueApp?.bannedPopup) {
             console.log("eep!");
             banPopup.textContent = 'StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
