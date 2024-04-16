@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre31
+// @version      3.4.1-pre32
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -142,25 +142,21 @@ console.log("StateFarm: running (before function)");
         console.log("StateFarm: injectScript()");
         injectScript();
         document.addEventListener("DOMContentLoaded", function () {
-            console.log("StateFarm: DOMContentLoaded, fetching sfx");
-            fetch(sfxURL)
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error('Failed to fetch folder contents');
-                    };
-                })
-                .then(data => {
-                    data.forEach((file, index) => {
-                        retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
-                    });
-                    onContentLoaded();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    onContentLoaded();
+            onContentLoaded();
+            console.log("StateFarm: DOMContentLoaded, ran onContentLoaded, fetching sfx");
+
+            fetch(sfxURL).then(response => {
+                if (response.ok) return response.json();
+                else throw new Error('Failed to fetch folder contents');
+            }).then(data => {
+                data.forEach((file, index) => {
+                    retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
                 });
+                initMenu(false);
+            }).catch(error => {
+                console.error('Error:', error);
+                initMenu(false);
+            });
         });
     };
     //INIT VARS
