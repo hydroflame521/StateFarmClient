@@ -152,10 +152,7 @@ console.log("StateFarm: running (before function)");
                     retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
                 });
                 initMenu(false);
-            }).catch(error => {
-                console.error('Error:', error);
-                initMenu(false);
-            });
+            }).catch(error => console.error('Error:', error));
         });
     };
     //INIT VARS
