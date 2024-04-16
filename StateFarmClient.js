@@ -143,7 +143,7 @@ console.log("StateFarm: running (before function)");
         document.addEventListener("DOMContentLoaded", function () {
             onContentLoaded();
             console.log("StateFarm: DOMContentLoaded, ran onContentLoaded, fetching sfx");
-            
+
             fetch(sfxURL).then(response => {
                 if (response.ok) return response.json();
                 else throw new Error('Failed to fetch folder contents');
@@ -1778,6 +1778,21 @@ debug mode).`},
                     opacity: 1;
                 }
             }
+
+            /* also remove ads because annoying stop adding spyware yarg */
+            .house-small,
+            #big-house-ad,
+            .house-ad-wrapper,
+            .display-ad-container,
+            .respawn-one,
+            .respawn-two,
+            #ShellShockers_LoadingScreen_HouseAds,
+            #display-ad-header-home,
+            .display-ad-header-home,
+            #display-ad-header-equip,
+            #shellshockers_respawn_banner_3_ad {
+                display: none;
+            }
         `;
 
         document.head.appendChild(styleElement);
@@ -3041,7 +3056,7 @@ z-index: 999999;
             };
         };
         if (extract("useCustomName")) {
-            unsafeWindow.vueApp.setPlayerName(extract("usernameAutoJoin"));
+            unsafeWindow.vueApp?.setPlayerName(extract("usernameAutoJoin"));
         };
         if ((!ranEverySecond) && startUpComplete) {
             if (extract("autoChickenWinner")) {
