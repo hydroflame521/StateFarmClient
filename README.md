@@ -61,8 +61,8 @@ The information below is accurate as of StateFarm version **3.4.0-pre57**.
 
 # [](#installation-tutorial)Installation Tutorial:
 Before you can install the client, there are a few things you must set up to be able to run userscripts.
-1. Install Tampermonkey from [https://tampermonkey.net/](https://tampermonkey.net/) or any other userscript manager.
-2. Open the Tampermonkey dashboard.
+1. Install Violentmonkey from [https://violentmonkey.github.io/get-it/](https://violentmonkey.github.io/get-it/) or any other userscript manager. PS: DO NOT use Tampermonkey unless no other option available!
+2. Open the Violentmonkey dashboard.
 3. Visit the [GreasyFork](https://greasyfork.org/scripts/482982) page & click `Install this script`.
     - Alternatively, use the raw version from [Github](https://github.com/Hydroflame522/StateFarmClient/raw/main/StateFarmClient.js).
 4. Visit [https://shellshock.io](https://shellshock.io/) (or another Shell Shockers link), & use StateFarm!
