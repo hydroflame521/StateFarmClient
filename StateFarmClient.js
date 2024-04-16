@@ -25,11 +25,11 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre29
+// @version      3.4.1-pre30
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
-// @match        *://*.algebra.best/*   
+// @match        *://*.algebra.best/*
 // @match        *://*.algebra.vip/*
 // @match        *://*.biologyclass.club/*
 // @match        *://*.deadlyegg.com/*
@@ -326,9 +326,10 @@ console.log("StateFarm: running (before function)");
         ' ͠°)︻デ═一',
         ')︻デ═一',
     ];
-    
-    const getScrambled = function () { return Array.from({ length: 10 }, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('') };
+
+    const getScrambled = () => Array.from({ length: 10 }, () => String.fromCharCode(97 + Math.floor(Math.random() * 26))).join('');
     let skyboxName = getScrambled();
+    let mapData = getScrambled();
 
     //menu interaction functions
     //menu extraction
@@ -899,7 +900,7 @@ sniping and someone sneaks up on you
                 title: "WIP", content:
 `Sorry! No guide yet!
 But check out the GitHub guide.`},
-        ]); 
+        ]);
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", defaultBind: "J", clickFunction: () => {
                 if (typeof isCrackedShell === 'undefined') tp.botPanel.hidden = !tp.botPanel.hidden;
                 else alert(`Botting is currently not supported on CrackedShell.`);
@@ -912,7 +913,7 @@ But check out the GitHub guide.`},
             {
                 title: "WIP", content:
 `Sorry! No guide yet!`},
-        ]);            
+        ]);
             initModule({ location: tp.themingTab.pages[0], title: "Skybox", storeAs: "skybox", bindLocation: tp.themingTab.pages[1], dropdown: [
                     { text: 'Default', value: 'default' },
                     { text: 'aurora', value: 'aurora' },
@@ -925,7 +926,11 @@ But check out the GitHub guide.`},
                 ], changeFunction: (newSkybox) => {
                     if (!unsafeWindow[skyboxName]) return;
 
-                    unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${newSkybox.value}/skybox`, ss.SCENE);
+                    if (newSkybox.value !== 'default') // custom skybox
+                        unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${newSkybox.value}/skybox`, ss.SCENE); // eslint-disable-line
+                    else // reverts to old skybox
+                        unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`img/skyboxes/${mapData.skybox || 'default'}/skybox`, ss.SCENE); // eslint-disable-line
+
                     unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
                 }});
             tp.themingTab.pages[0].addSeparator();
@@ -1083,7 +1088,7 @@ debug mode).`},
                     };
                 } });
                 initModule({ location: tp.loginDatabaseFolder, title: 'Delete LoginDB', storeAs: 'loginDatabaseDelete', button: 'DELETE!', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
-                    if (prompt("WARNING! This is a destructive action! Type 'ok' if you are really sure you want to delete your LoginDB! This cannot be reversed, export first to be safe.") === 'ok') { 
+                    if (prompt("WARNING! This is a destructive action! Type 'ok' if you are really sure you want to delete your LoginDB! This cannot be reversed, export first to be safe.") === 'ok') {
                         GM_setValue("StateFarm_LoginDB", []); //o7 data
                     };
                 } });
@@ -1122,7 +1127,7 @@ debug mode).`},
                     };
                 } });
                 initModule({ location: tp.accountRecordsFolder, title: 'Delete DB', storeAs: 'accountRecordsDelete', button: 'DELETE!', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
-                    if (prompt("WARNING! This is a destructive action! Type 'ok' if you are really sure you want to delete your AccountRecords DB! This cannot be reversed, export first to be safe.") === 'ok') { 
+                    if (prompt("WARNING! This is a destructive action! Type 'ok' if you are really sure you want to delete your AccountRecords DB! This cannot be reversed, export first to be safe.") === 'ok') {
                         GM_setValue("StateFarm_AccountRecords", {}); //o7 data
                     };
                 } });
@@ -2653,7 +2658,7 @@ z-index: 999999;
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
-        const modifiedFirstPart = parts[0].substring(0, 1) + 
+        const modifiedFirstPart = parts[0].substring(0, 1) +
                                     parts[0].substring(1, parts[0].length - 1).replace(/./g, '*') +
                                     parts[0].substring(parts[0].length - 1);
         return modifiedFirstPart + '@' + parts[1];
@@ -4234,6 +4239,7 @@ z-index: 999999;
             modifyJS('"IFRAME"==document.activeElement.tagName', `("IFRAME"==document.activeElement.tagName&&document.activeElement.id!=='sfChat-iframe')`);
             // skybox (yay)
             modifyJS(`infiniteDistance=!0;`, `infiniteDistance=!0;window["${skyboxName}"]=${H.skybox};`);
+            modifyJS(`.name)}vueApp`, `.name)}window["${mapData}"]=${H.mapData};vueApp`);
 
             modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g, '');
@@ -5393,17 +5399,25 @@ z-index: 999999;
             shellprint.remove();
         });
 
+        const applySkybox = () => {
+            if (!unsafeWindow[skyboxName]) return;
+
+            if (extract('skybox') === 'default' || extract('skybox') === true) return;
+
+            unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${extract("skybox")}/skybox`, ss.SCENE);
+            unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
+        };
 
         createAnonFunction("STATEFARM", function () {
             ss.PLAYERS.forEach((PLAYER) => (PLAYER.hasOwnProperty("ws")) ? (ss.MYPLAYER = PLAYER) : null);
-            
+
             if (!ranOneTime) {
                 oneTime();
             } else if (typeof (L.BABYLON) !== 'undefined') {
                 initVars();
                 updateLinesESP();
                 mapStuff();
-
+                applySkybox();
 
                 let isVisible;
                 const player = currentlyTargeting || playerLookingAt || undefined;
