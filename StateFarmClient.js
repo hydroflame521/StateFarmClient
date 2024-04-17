@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre33
+// @version      3.4.1-pre34
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -454,7 +454,7 @@ console.log("StateFarm: running (before function)");
                             case ("hide"):
                                 popupText = "Toggled StateFarm Panel"; break;
                             case ("showBotPanel"):
-                                if (typeof isCrackedShell === 'undefined') popupText = "Toggled Bot Panel";
+                                popupText = "Toggled Bot Panel";
                                 break;
                             case ("sfChatShowHide"):
                                 popupText = "Toggled SFC Chat"; break;
@@ -899,8 +899,7 @@ sniping and someone sneaks up on you
 But check out the GitHub guide.`},
         ]);
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", defaultBind: "J", clickFunction: () => {
-                if (typeof isCrackedShell === 'undefined') tp.botPanel.hidden = !tp.botPanel.hidden;
-                else alert(`Botting is currently not supported on CrackedShell.`);
+                tp.botPanel.hidden = !tp.botPanel.hidden;
             }});
             tp.bottingTab.pages[0].addSeparator();
             initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function () { GM_openInTab(bottingGuideURL, { active: true }) }, });
@@ -2730,7 +2729,7 @@ z-index: 999999;
             unsafeWindow.globalSS.GM_listValues = GM_listValues;
             unsafeWindow.globalSS.GM_getValue = GM_getValue;
             unsafeWindow.globalSS.GM_setValue = GM_setValue;
-            unsafeWindow.globalSS.GM_info = GM_info;
+            if (typeof GM_info !== 'undefined') unsafeWindow.globalSS.GM_info = GM_info;
             unsafeWindow.globalSS.getScrambled = getScrambled;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
             unsafeWindow.globalSS.accountStatus = accountStatus;
@@ -4283,7 +4282,7 @@ z-index: 999999;
         return retVal;
     };
 
-    const deployBots = function () {
+    const deployBots = async () => {
         updateBotParams();
         if (!load("firstTimeBots")) {
             save("firstTimeBots", true);
@@ -4306,6 +4305,8 @@ z-index: 999999;
             };
             botNames.push(name);
         };
+        
+        let canMassBot = undefined;
 
         for (let i = 0; i < extract("numberBots"); i++) {
             let leftOffset = ((i % 15) * 100);
@@ -4326,7 +4327,26 @@ z-index: 999999;
             addParam("usernameAutoJoin", name, true);
 
             console.log("PARAMS:", params)
-            unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
+            if (typeof isCrackedShell === 'undefined') return unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
+            
+            try {
+                if (canMassBot === undefined) {
+                    let data = await fetch(`https://${getScrambled().replace([0-9], '')}.${location.host}/mod/data`);
+                    data = await data.json();
+                    if (!data.success) {
+                        alert('You are not on verson of CrackedShell that supports botting.');
+                        canMassBot = false;
+                        return;
+                    } else canMassBot = true;
+                };
+            } catch (err) {
+                console.log(err);
+                canMassBot = false;
+                alert('You are not on verson of CrackedShell that supports botting.');
+            };
+            
+            if (canMassBot === true)
+                unsafeWindow.open(`https://${getScrambled().replace([0-9], '')}.${location.host}/${params}&cs=${new URLSearchParams(new URL(location.href).searchParams).get('cs')}`, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
         };
     };
 
@@ -5722,7 +5742,7 @@ z-index: 999999;
     startUp();
     console.log("StateFarm: after startUp()", attemptedInjection);
 
-    if (GM_info.scriptHandler == "Tampermonkey") {
+    if (typeof GM_info !== 'undefined' && GM_info?.scriptHandler == "Tampermonkey") {
         let count = GM_getValue("StateFarm_TampermonkeyWarnings") || 0;
         count++;
         if (count <= 3) {
