@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre33
+// @version      3.4.1-pre34
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -454,7 +454,7 @@ console.log("StateFarm: running (before function)");
                             case ("hide"):
                                 popupText = "Toggled StateFarm Panel"; break;
                             case ("showBotPanel"):
-                                if (typeof isCrackedShell === 'undefined') popupText = "Toggled Bot Panel";
+                                popupText = "Toggled Bot Panel";
                                 break;
                             case ("sfChatShowHide"):
                                 popupText = "Toggled SFC Chat"; break;
@@ -899,8 +899,7 @@ sniping and someone sneaks up on you
 But check out the GitHub guide.`},
         ]);
             initModule({ location: tp.bottingTab.pages[0], title: "Show Panel", storeAs: "showBotPanel", bindLocation: tp.bottingTab.pages[1], button: "Show Panel", defaultBind: "J", clickFunction: () => {
-                if (typeof isCrackedShell === 'undefined') tp.botPanel.hidden = !tp.botPanel.hidden;
-                else alert(`Botting is currently not supported on CrackedShell.`);
+                tp.botPanel.hidden = !tp.botPanel.hidden;
             }});
             tp.bottingTab.pages[0].addSeparator();
             initModule({ location: tp.bottingTab.pages[0], title: "How To?", storeAs: "bottingGuide", button: "Link", clickFunction: function () { GM_openInTab(bottingGuideURL, { active: true }) }, });
@@ -1058,11 +1057,9 @@ debug mode).`},
                     let userInput = prompt(`Input data you would like to add to your LoginDB. This will NOT replace your current data. All data added here will be put at the end of the queue. Also make sure that this data goes here and not into the AccountRecords DB.`, 'Reminder: JSON format!');
                     try {
                         let loginDB = GM_getValue("StateFarm_LoginDB") || []; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other. (yes this needed to be said again)
-                        appendedData = JSON.parse(userInput);
+                        let appendedData = JSON.parse(userInput);
                         appendedData.forEach(data => {
-                            if (data && !loginDB.includes(data)) {
-                                loginDB.push(data);
-                            };
+                            if (data && !loginDB.includes(data)) loginDB.push(data);
                         });
                         GM_setValue("StateFarm_LoginDB", loginDB);
                         createPopup("Success! Data appended to LoginDB.", "success");
@@ -1111,11 +1108,9 @@ debug mode).`},
                     let userInput = prompt(`Input data you would like to add to your AccountRecords DB. This will NOT replace your current data. All data added here either be added or replace existing records. Also make sure that this data goes here and not into the LoginDB.`, 'Reminder: JSON format!');
                     try {
                         let accountRecords = GM_getValue("StateFarm_AccountRecords") || {}; //why declare this so many times? the DBs need to be constantly rechecked, as other clients may have modified. we wouldnt want to be overwriting each other.
-                        appendedData = JSON.parse(userInput);
+                        let appendedData = JSON.parse(userInput);
                         Object.entries(appendedData).forEach(([key, account]) => {
-                            if (account) {
-                                accountRecords[key] = account;
-                            };
+                            if (account) accountRecords[key] = account;
                         });
                         GM_setValue("StateFarm_AccountRecords", accountRecords);
                         createPopup("Success! Data appended to AccountRecords.", "success");
@@ -1175,7 +1170,7 @@ debug mode).`},
                         };
                     });
                     console.log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
-                    console.log('%c' + 'AccountRecords Info', 'color: red; font-size: 30px;');
+                    console.log('%cAccountRecords Info', 'color: red; font-size: 30px;');
                     console.log("Full AccountRecords:");
                     console.log(accountRecords);
                     console.log(`itemCounts (Total items: ${itemCountTotal}):`);
@@ -1237,7 +1232,7 @@ debug mode).`},
             },});
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "FastChickenWinner", storeAs: "chickenWinner", bindLocation: tp.miscTab.pages[1], button: "Force Play", clickFunction: function(){
-                extern.chwTryPlay();
+                unsafeWindow.extern.chwTryPlay();
                 const eggElement = document.getElementById("eggOne");
                 eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();eggElement.click();
                 let chicknWinnerElementLoaded = false;
@@ -1266,7 +1261,8 @@ debug mode).`},
                 (async () => {
                     try {
                         console.log(extract("customMacro"));
-                        await eval(extract("customMacro")); //stay safe out there. this runs in the **userscript** environment. make sure to use unsafeWindow for whatever reason you may need the window object
+                        // stay safe out there. this runs in the **userscript** environment. make sure to use unsafeWindow for whatever reason you may need the window object.
+                        await eval(extract("customMacro")); // eslint-disable-line
                     } catch (error) {
                         console.error("Error executing code:", error);
                     }
@@ -1679,7 +1675,7 @@ debug mode).`},
                             createPopup(message.user.name + ": " + message.message.substring(0, 50) + "...");
                         }
                         if (extract("sfChatNotificationSound")){
-                            BAWK.play("grenade_cellphone");
+                            unsafeWindow.BAWK.play("grenade_cellphone");
                         }
                     }
                 }
@@ -2677,7 +2673,7 @@ z-index: 999999;
     };
     const updateAccountRecords = function(key, value) {
         let currentEmail = load("MostRecentEmail");
-        let maskedEmail = extern.account.maskedEmail;
+        let maskedEmail = unsafeWindow.extern.account.maskedEmail;
         if (currentEmail && obfuscateEmail(currentEmail) == maskedEmail) {
             console.log("no change in email");
             //do nothing i guess. its good.
@@ -2691,16 +2687,16 @@ z-index: 999999;
         let tierCache = GM_getValue("StateFarm_TierCache") || {};
 
         let accountDetails = accountRecords[currentEmail] || {};
-        accountDetails.inventory = JSON.parse(JSON.stringify(extern.account.inventory));
-        accountDetails.eggCount = extern.account.currentBalance;
+        accountDetails.inventory = JSON.parse(JSON.stringify(unsafeWindow.extern.account.inventory));
+        accountDetails.eggCount = unsafeWindow.extern.account.currentBalance;
         delete accountDetails.inventoryWorth;
-        accountDetails.dateCreated = extern.account.dateCreated;
-        accountDetails.eggsSpent = extern.account.eggsSpent;
+        accountDetails.dateCreated = unsafeWindow.extern.account.dateCreated;
+        accountDetails.eggsSpent = unsafeWindow.extern.account.eggsSpent;
         accountDetails.totalWorth = accountDetails.eggCount + accountDetails.eggsSpent;
         accountDetails.inventoryList = [];
         accountDetails.inventory.forEach(item => {
-            itemName = item.name;
-            if (tierCache[itemName] !== undefined) {itemName = itemName+" [T"+tierCache[itemName]+"]"};
+            let itemName = item.name;
+            if (tierCache[itemName] !== undefined) itemName = itemName+" [T"+tierCache[itemName]+"]";
             accountDetails.inventoryList.push(itemName);
         });
         if (key && value) {
@@ -2730,7 +2726,7 @@ z-index: 999999;
             unsafeWindow.globalSS.GM_listValues = GM_listValues;
             unsafeWindow.globalSS.GM_getValue = GM_getValue;
             unsafeWindow.globalSS.GM_setValue = GM_setValue;
-            unsafeWindow.globalSS.GM_info = GM_info;
+            if (typeof GM_info !== 'undefined') unsafeWindow.globalSS.GM_info = GM_info;
             unsafeWindow.globalSS.getScrambled = getScrambled;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
             unsafeWindow.globalSS.accountStatus = accountStatus;
@@ -3361,7 +3357,7 @@ z-index: 999999;
         console.log("gonna create/login an account that will send/has email to", email, "with the password", pass);
         save("MostRecentEmail", email);
         //try both. who cares about some stupid errors?
-        firebase.auth().createUserWithEmailAndPassword(email, pass)
+        unsafeWindow.firebase.auth().createUserWithEmailAndPassword(email, pass)
             .then(response => {
                 console.log("success?!?!?!? created account");
                 setTimeout(function(){
@@ -3369,9 +3365,8 @@ z-index: 999999;
                     accountStatus = "created account";
                 }, 2000);
             })
-            .catch(error => {
-            });
-        firebase.auth().signInWithEmailAndPassword(email, pass)
+            .catch(() => { });
+        unsafeWindow.firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(response => {
                 console.log("success?!?!?!? signed in");
                 setTimeout(function(){
@@ -3380,8 +3375,7 @@ z-index: 999999;
                 }, 2000);
                 accountStatus = "signed in";
             })
-            .catch(error => {
-            });
+            .catch(() => { });
     };
     const saveConfig = function () {
         save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
@@ -3855,16 +3849,16 @@ z-index: 999999;
                     };
                 });
 
-                console.log(`[${extern.account.inventory.length}, ${extern.account.currentBalance}] SFcw result: item: ${itemName} is tier ${tier} (${itemCount} of this item)`);
+                console.log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw result: item: ${itemName} is tier ${tier} (${itemCount} of this item)`);
                 let tierCache = GM_getValue("StateFarm_TierCache") || {};
                 tierCache[itemName] = tier;
                 GM_setValue("StateFarm_TierCache", tierCache);
             };
             if (arguments['3'] == 'Reward amount') {
-                console.log(`[${extern.account.inventory.length}, ${extern.account.currentBalance}] `+"SFcw result: eggs: "+arguments['4']);
+                console.log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw result: eggs: ${arguments['4']}`);
             };
             if (arguments['3'] == 'Reward') {
-                console.log(`[${extern.account.inventory.length}, ${extern.account.currentBalance}] `+"SFcw reward: "+arguments['4']);
+                console.log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw reward: ${arguments['4']}`);
             };
             oldGa.apply(this, arguments);
         });
@@ -4283,7 +4277,7 @@ z-index: 999999;
         return retVal;
     };
 
-    const deployBots = function () {
+    const deployBots = async () => {
         updateBotParams();
         if (!load("firstTimeBots")) {
             save("firstTimeBots", true);
@@ -4307,6 +4301,8 @@ z-index: 999999;
             botNames.push(name);
         };
 
+        let canMassBot = undefined;
+
         for (let i = 0; i < extract("numberBots"); i++) {
             let leftOffset = ((i % 15) * 100);
             // let topOffset=((i%3)*100);
@@ -4326,7 +4322,26 @@ z-index: 999999;
             addParam("usernameAutoJoin", name, true);
 
             console.log("PARAMS:", params)
-            unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
+            if (typeof isCrackedShell === 'undefined') return unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
+
+            try {
+                if (canMassBot === undefined) {
+                    let data = await fetch(`https://${getScrambled().replace([0-9], '')}.${location.host}/mod/data`);
+                    data = await data.json();
+                    if (!data.success) {
+                        alert('You are not on verson of CrackedShell that supports botting.');
+                        canMassBot = false;
+                        return;
+                    } else canMassBot = true;
+                };
+            } catch (err) {
+                console.log(err);
+                canMassBot = false;
+                alert('You are not on verson of CrackedShell that supports botting.');
+            };
+
+            if (canMassBot === true)
+                unsafeWindow.open(`https://${getScrambled().replace([0-9], '')}.${location.host}/${params}&cs=${new URLSearchParams(new URL(location.href).searchParams).get('cs')}`, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
         };
     };
 
@@ -5722,7 +5737,7 @@ z-index: 999999;
     startUp();
     console.log("StateFarm: after startUp()", attemptedInjection);
 
-    if (GM_info.scriptHandler == "Tampermonkey") {
+    if (typeof GM_info !== 'undefined' && GM_info?.scriptHandler == "Tampermonkey") {
         let count = GM_getValue("StateFarm_TampermonkeyWarnings") || 0;
         count++;
         if (count <= 3) {
