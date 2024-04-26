@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre34
+// @version      3.4.1-pre35
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2470,9 +2470,11 @@ z-index: 999999;
         return resultRgb;
     };
     const distancePlayers = function (player, yMultiplier) {
-        yMultiplier = yMultiplier || 1;
-        let vector = getDirectionVectorFacingTarget(player);
-        return Math.hypot(vector.x, vector.y * yMultiplier, vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
+        if (player && player[H.actor] && player[H.actor][H.mesh]) {
+            yMultiplier = yMultiplier || 1;
+            let vector = getDirectionVectorFacingTarget(player);
+            return Math.hypot(vector.x, vector.y * yMultiplier, vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
+        } else return 0; 
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
@@ -2485,12 +2487,20 @@ z-index: 999999;
         return Math.abs(obj1[H.yaw] - obj2.yawReal) + Math.abs(obj1[H.pitch] - obj2.pitchReal);
     };
     const getDirectionVectorFacingTarget = function (target, vectorPassed, offsetY) {
-        target = vectorPassed ? target : target[H.actor][H.mesh].position;
-        offsetY = offsetY || 0;
-        return {
-            x: target.x - ss.MYPLAYER[H.actor][H.mesh].position.x,
-            y: target.y - ss.MYPLAYER[H.actor][H.mesh].position.y + offsetY,
-            z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
+        if (target && target[H.actor] && target[H.actor][H.mesh]) { //in case of zizzy's weird error
+            target = vectorPassed ? target : target[H.actor][H.mesh].position;
+            offsetY = offsetY || 0;
+            return {
+                x: target.x - ss.MYPLAYER[H.actor][H.mesh].position.x,
+                y: target.y - ss.MYPLAYER[H.actor][H.mesh].position.y + offsetY,
+                z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
+            };
+        } else { //we really dont want this happening tho
+            return {
+                x: 0,
+                y: 0,
+                z: 0,
+            };
         };
     };
     const deg2rad = function (deg) {
@@ -3425,7 +3435,7 @@ z-index: 999999;
     const sendChatMessage = function (text) { //basic method (simulates legit method of sending message)
         let chatThing = document.getElementById('chatIn');
         if (chatThing.value.includes("unlock")) {
-            createPopup("Message send failed: Account too new! (try ShellPrint)", "error");
+            createPopup("Message send failed: Account too new! (try ShellPrint or LoginDB)", "error");
             return false;
         } else if (ss.MYPLAYER.chatLines > 2) {
             createPopup("Chat Cooldown: " + (ss.MYPLAYER.chatLines - 2) + " remaining.", "error");
