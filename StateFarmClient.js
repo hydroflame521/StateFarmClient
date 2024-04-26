@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre35
+// @version      3.4.1-pre36
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2474,7 +2474,7 @@ z-index: 999999;
             yMultiplier = yMultiplier || 1;
             let vector = getDirectionVectorFacingTarget(player);
             return Math.hypot(vector.x, vector.y * yMultiplier, vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
-        } else return 0; 
+        } else console.log("fuck2", player); return 0; 
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
@@ -2487,7 +2487,7 @@ z-index: 999999;
         return Math.abs(obj1[H.yaw] - obj2.yawReal) + Math.abs(obj1[H.pitch] - obj2.pitchReal);
     };
     const getDirectionVectorFacingTarget = function (target, vectorPassed, offsetY) {
-        if (target && target[H.actor] && target[H.actor][H.mesh]) { //in case of zizzy's weird error
+        if (vectorPassed || (target && target[H.actor] && target[H.actor][H.mesh])) { //in case of zizzy's weird error
             target = vectorPassed ? target : target[H.actor][H.mesh].position;
             offsetY = offsetY || 0;
             return {
@@ -2496,6 +2496,10 @@ z-index: 999999;
                 z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
             };
         } else { //we really dont want this happening tho
+            console.log("fuck");
+            // console.log(vectorPassed);
+            // console.log(target);
+            // console.trace();
             return {
                 x: 0,
                 y: 0,
@@ -3025,7 +3029,7 @@ z-index: 999999;
         };
 
         const banPopup = document.getElementById("bannedPopup");
-        if (attemptedInjection && banPopup && unsafeWindow.vueApp?.bannedPopup?.expire !== "") isBanned = true;
+        if (attemptedInjection && banPopup && unsafeWindow.vueApp?.bannedPopup?.expire && (unsafeWindow.vueApp.bannedPopup.expire !== "")) isBanned = true;
         if (isBanned && extract("autoUnban") && (!attemptedAutoUnban) && unsafeWindow.vueApp?.bannedPopup) {
             console.log("eep!");
             banPopup.textContent = 'StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
