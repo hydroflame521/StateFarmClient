@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre36
+// @version      3.4.1-pre37
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -4336,26 +4336,28 @@ z-index: 999999;
             addParam("usernameAutoJoin", name, true);
 
             console.log("PARAMS:", params)
-            if (typeof isCrackedShell === 'undefined') return unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
-
-            try {
-                if (canMassBot === undefined) {
-                    let data = await fetch(`https://${getScrambled().replace([0-9], '')}.${location.host}/mod/data`);
-                    data = await data.json();
-                    if (!data.success) {
-                        alert('You are not on verson of CrackedShell that supports botting.');
-                        canMassBot = false;
-                        return;
-                    } else canMassBot = true;
+            if (typeof isCrackedShell === 'undefined') {
+                unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset)
+            } else {
+                try {
+                    if (canMassBot === undefined) {
+                        let data = await fetch(`https://${getScrambled().replace([0-9], '')}.${location.host}/mod/data`);
+                        data = await data.json();
+                        if (!data.success) {
+                            alert('You are not on verson of CrackedShell that supports botting.');
+                            canMassBot = false;
+                            return;
+                        } else canMassBot = true;
+                    };
+                } catch (err) {
+                    console.log(err);
+                    canMassBot = false;
+                    alert('You are not on verson of CrackedShell that supports botting.');
                 };
-            } catch (err) {
-                console.log(err);
-                canMassBot = false;
-                alert('You are not on verson of CrackedShell that supports botting.');
+    
+                if (canMassBot === true)
+                    unsafeWindow.open(`https://${getScrambled().replace([0-9], '')}.${location.host}/${params}&cs=${new URLSearchParams(new URL(location.href).searchParams).get('cs')}`, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
             };
-
-            if (canMassBot === true)
-                unsafeWindow.open(`https://${getScrambled().replace([0-9], '')}.${location.host}/${params}&cs=${new URLSearchParams(new URL(location.href).searchParams).get('cs')}`, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
         };
     };
 
