@@ -688,6 +688,7 @@ sniping and someone sneaks up on you
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+                initModule({ location: tp.aimbotFolder, title: "SemiSilent", storeAs: "aimbSemiSilent", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true], ["silentAimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true], ["silentAimbot", false]], });
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
@@ -4030,6 +4031,10 @@ z-index: 999999;
                     state[H.pitch] = setPrecision(aimbot.pitchReal);
                     ss.MYPLAYER[H.stateBuffer][Math.mod(ss.MYPLAYER.stateIdx - i, 256)] = state;
                 };
+                if(extract("aimbSemiSilent") && extract("silentAimbot")){
+                    ss.MYPLAYER[H.yaw] = getAimbot(currentlyTargeting).yawReal;
+                    ss.MYPLAYER[H.pitch] = getAimbot(currentlyTargeting).pitchReal;
+                }   
                 console.log("force update?");
                 ss.SERVERSYNC();
             };
