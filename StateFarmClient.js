@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         StateFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
+// @name         StatFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
 // @description  Fixed for 0.47.5! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ and de_Neuublue
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
@@ -717,6 +717,7 @@ sniping and someone sneaks up on you
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "pPlayerESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1], });
@@ -2477,7 +2478,7 @@ z-index: 999999;
             yMultiplier = yMultiplier || 1;
             let vector = getDirectionVectorFacingTarget(player);
             return Math.hypot(vector.x, vector.y * yMultiplier, vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
-        } else console.log("fuck2", player); return 0; 
+        } else console.log("fuck2", player); return 0;
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
@@ -2618,7 +2619,11 @@ z-index: 999999;
             newPosition = object[H.actor][H.mesh].position;
             newScene = object[H.actor].scene;
             newParent = object[H.actor][H.mesh];
-        } else {
+        } else if(type == "pPredESP"){ //object will be a player with custom vaks added. mybe
+            newPosition = object.position;
+            newScene = ss.MYPLAYER[H.actor].scene;
+            newScene = object.pESPMesh;
+        }  else {
             newPosition = object.position;
             newScene = object._scene;
             newParent = object;
@@ -2633,10 +2638,12 @@ z-index: 999999;
             //FUCK WIREFRAME BOXES! LIBERTYMUTUAL dictates we making our own MANUALLY bitch! to hell with those diagonal lines
             const boxSize = {
                 playerESP: { width: 0.5, height: 0.75, depth: 0.5 },
+                pPredESP: { width: 0.5, height: 0.75, depth: 0.5 },
                 ammoESP: { width: 0.25, height: 0.35, depth: 0.25 },
             };
             const boxOffset = {
                 playerESP: 0,
+                pPredESP: 0,
                 ammoESP: -0.05,
             };
             const vertices = [
@@ -2678,8 +2685,10 @@ z-index: 999999;
             ESPArray.push([object, tracerLines, box, target]);
         };
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-        object.tracerLines.color = new L.BABYLON.Color3(...color);
-        object.box.color = new L.BABYLON.Color3(...color);
+        if(type!="pPredESP"){
+          object.tracerLines.color = new L.BABYLON.Color3(...color);
+          object.box.color = new L.BABYLON.Color3(...color);
+        }
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
@@ -4409,7 +4418,7 @@ z-index: 999999;
                     canMassBot = false;
                     alert('You are not on verson of CrackedShell that supports botting.');
                 };
-    
+
                 if (canMassBot === true)
                     unsafeWindow.open(`https://${getScrambled().replace([0-9], '')}.${location.host}/${params}&cs=${new URLSearchParams(new URL(location.href).searchParams).get('cs')}`, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
             };
@@ -5252,6 +5261,22 @@ z-index: 999999;
                     const blacklisted = (extract("blacklistESPType") == "justexclude" && extract("enableBlacklistTracers") && playerMatchesList(blacklistPlayers, player));
                     const passedLists = whitelisted && (!blacklisted);
                     const tracersType = extract("tracersType");
+
+                    //predEsp
+                    if(extract("predictionESP")){
+                      if(!player.pred) {
+                        console.log("not pred");
+                        player.pred = {
+                          mesh : new L.BABYLON.Mesh("pPredMesh", ss.MYPLAYER[H.actor].scene),
+                          position : predictPosition(player)
+                        }
+                      }
+                      if(mesh){
+                        if((!mesh._scene) || (mesh._scene != ss.MYPLAYER[H.actor].scene)){
+                          mesh._scene = ss.MYPLAYER[H.actor].scene;
+                        }
+                      }
+                    }
 
                     let color, progress;
                     if (extract("enableWhitelistTracers") && extract("whitelistESPType") == "highlight" && playerMatchesList(whitelistPlayers, player)) {
