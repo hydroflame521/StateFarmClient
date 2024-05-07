@@ -2619,10 +2619,10 @@ z-index: 999999;
             newPosition = object[H.actor][H.mesh].position;
             newScene = object[H.actor].scene;
             newParent = object[H.actor][H.mesh];
-        } else if(type == "pPredESP"){ //object will be a player with custom vaks added. mybe
+        } else if(type == "pPredESP"){ //objects will be player.pred
             newPosition = object.position;
-            newScene = ss.MYPLAYER[H.actor].scene;
-            newScene = object.pESPMesh;
+            newScene = object.scene;
+            newParent = object.mesh;
         }  else {
             newPosition = object.position;
             newScene = object._scene;
@@ -5267,14 +5267,20 @@ z-index: 999999;
                       if(!player.pred) {
                         console.log("not pred");
                         player.pred = {
-                          mesh : new L.BABYLON.Mesh("pPredMesh", ss.MYPLAYER[H.actor].scene),
-                          position : predictPosition(player)
+                          mesh : new L.BABYLON.Mesh("pPredMesh", player[H.actor].scene),
+                          position : predictPosition(player),
+                          scene : player[H.actor].scene,
                         }
                       }
-                      if(mesh){
-                        if((!mesh._scene) || (mesh._scene != ss.MYPLAYER[H.actor].scene)){
-                          mesh._scene = ss.MYPLAYER[H.actor].scene;
-                        }
+                      if(!player.pred.scene){
+                        player.pred.scene = player[H.actor].scene;
+                      }
+                      if(player.pred.mesh && player.pred.scene){
+                        player.pred.position = predictPosition(player);
+                        player.pred.mesh.position = player.pred.position;
+                        updateOrCreateLinesESP(player.pred, "pPredESP", new L.BABYLON.Color3(1,0,1));
+                        player.pred.exists = objExists;
+                        player.pred.tracerLines.visibility = false;
                       }
                     }
 
