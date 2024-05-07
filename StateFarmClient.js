@@ -718,7 +718,8 @@ sniping and someone sneaks up on you
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1], });
-            initModule({ location: tp.renderTab.pages[0], title: "pPlayerESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "pPredESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "pPredESP Color", storeAs: "predictionESPColor", defaultValue: "#ff0000", disableConditions: [ ["predictionESP", false]], });
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1], });
@@ -2686,10 +2687,10 @@ z-index: 999999;
             ESPArray.push([object, tracerLines, box, target]);
         };
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-        if(type!="pPredESP"){
+        //if(type!="pPredESP"){
           object.tracerLines.color = new L.BABYLON.Color3(...color);
           object.box.color = new L.BABYLON.Color3(...color);
-        }
+          //}
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
@@ -4034,7 +4035,7 @@ z-index: 999999;
                 if(extract("aimbSemiSilent") && extract("silentAimbot")){
                     ss.MYPLAYER[H.yaw] = getAimbot(currentlyTargeting).yawReal;
                     ss.MYPLAYER[H.pitch] = getAimbot(currentlyTargeting).pitchReal;
-                }   
+                }
                 console.log("force update?");
                 ss.SERVERSYNC();
             };
@@ -5283,7 +5284,7 @@ z-index: 999999;
                       if(player.pred.mesh && player.pred.scene){
                         player.pred.position = predictPosition(player);
                         player.pred.mesh.position = player.pred.position;
-                        updateOrCreateLinesESP(player.pred, "pPredESP", new L.BABYLON.Color3(1,0,1));
+                        updateOrCreateLinesESP(player.pred, "pPredESP", hexToRgb(extract("predictionESPColor")));
                         player.pred.exists = objExists;
                         player.pred.tracerLines.visibility = false;
                       }
