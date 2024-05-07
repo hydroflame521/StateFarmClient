@@ -5617,11 +5617,11 @@ z-index: 999999;
                         minangleCircle.style.height = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
                         minangleCircle.style.bottom = offsettedY + 'px';
                         minangleCircle.style.right = offsettedX + 'px';
-                    } else {
-                        minangleCircle.style.display = 'none';
                     };
                 };
-
+                if (!extract("showMinAngle")) {
+                    minangleCircle.style.display = 'none';
+                };
                 // playerNearest=undefined; //currently unused and not defined
                 // enemyLookingAt=undefined; //currently unused and not defined
 
