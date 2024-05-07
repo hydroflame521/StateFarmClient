@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre39
+// @version      3.4.1-pre40
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -4026,29 +4026,31 @@ z-index: 999999;
             };
         });
         createAnonFunction('onConnectFail', function (ERRORCODE, ERRORARRAY) {
-            errorString = findKeyByValue(ERRORARRAY, ERRORCODE);
-            console.log("StateFarm has detected a connection error...", errorString, ERRORCODE, ERRORARRAY);
-            if (document.getElementById("genericPopup").textContent === ' Game Not Found Sorry! This game ID is either invalid, or no longer exists.  OK ') {
-                document.getElementById("genericPopup").children[1].textContent = 'joinCode not found! check your autoJoin settings and get a new code';
-                document.getElementById("genericPopup").children[2].children[1].textContent = "heeheeheehaw";
-                document.getElementById("genericPopup").children[0].children[1].textContent = 'MAKE NEW AUTOJOIN CODE';
+            if (ERRORCODE !== ERRORARRAY.mainMenu) {
+                errorString = findKeyByValue(ERRORARRAY, ERRORCODE);
+                console.log("StateFarm has detected a connection error...", errorString, ERRORCODE, ERRORARRAY);
+                if (document.getElementById("genericPopup").textContent === ' Game Not Found Sorry! This game ID is either invalid, or no longer exists.  OK ') {
+                    document.getElementById("genericPopup").children[1].textContent = 'joinCode not found! check your autoJoin settings and get a new code';
+                    document.getElementById("genericPopup").children[2].children[1].textContent = "heeheeheehaw";
+                    document.getElementById("genericPopup").children[0].children[1].textContent = 'MAKE NEW AUTOJOIN CODE';
+                };
+                if ((!attemptedAutoUnban) && extract("autoUnban") && (errorString == "sessionNotFound")) {
+                    // console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
+                    // createPopup("AutoUnban: Reloading page in 5 seconds...");
+                    // attemptedAutoUnban = true;
+                    // setTimeout(() => {
+                    //     if (extract("autoUnban")) { //you get a bit of time to stop it
+                    //         createPopup("AutoUnban: Reloading page now.");
+                    //         reloadPage(); attemptedAutoUnban = false;
+                    //     } else {
+                    //         createPopup("AutoUnban: Reload page cancelled.");
+                    //     };
+                    // }, 5000);
+                    isBanned = true;
+                };
+                createPopup("Leaving due to connection error.");
+                change("leaveGame");
             };
-            if ((!attemptedAutoUnban) && extract("autoUnban") && (errorString == "sessionNotFound")) {
-                // console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
-                // createPopup("AutoUnban: Reloading page in 5 seconds...");
-                // attemptedAutoUnban = true;
-                // setTimeout(() => {
-                //     if (extract("autoUnban")) { //you get a bit of time to stop it
-                //         createPopup("AutoUnban: Reloading page now.");
-                //         reloadPage(); attemptedAutoUnban = false;
-                //     } else {
-                //         createPopup("AutoUnban: Reload page cancelled.");
-                //     };
-                // }, 5000);
-                isBanned = true;
-            };
-            createPopup("Leaving due to connection error.");
-            change("leaveGame");
         });
         createAnonFunction('modifyChat', function (msg) {
             if (msg[0] === '%') { //message is a command
