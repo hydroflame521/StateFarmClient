@@ -96,7 +96,6 @@
 
 let attemptedInjection = false;
 console.log("StateFarm: running (before function)");
-let unsafeWindow = window;
 
 (function () {
 
