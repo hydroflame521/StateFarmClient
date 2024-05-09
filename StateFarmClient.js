@@ -5619,8 +5619,8 @@ z-index: 999999;
                         let idkWhatThisIs = 25 * (1.25 / ss.CAMERA.fov);
                         minangleCircle.style.width = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
                         minangleCircle.style.height = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
-                        minangleCircle.style.bottom = offsettedY + 'px';
-                        minangleCircle.style.right = offsettedX + 'px';
+                        minangleCircle.style.bottom = centerY + 'px';
+                        minangleCircle.style.right = centerX + 'px';
                     };
                 };
                 if (!extract("showMinAngle")) {
