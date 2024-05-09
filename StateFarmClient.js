@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre40
+// @version      3.4.1-pre41
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -153,9 +153,11 @@ console.log("StateFarm: running (before function)");
                     retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
                 });
                 initMenu(false);
+                tp.mainPanel.hidden = extract("hideAtStartup");
             }).catch(error => {
                 console.error('Error:', error);
                 initMenu(false);
+                tp.mainPanel.hidden = extract("hideAtStartup");
             });
         });
     };
@@ -584,6 +586,7 @@ console.log("StateFarm: running (before function)");
         if (tp.botPanel) { tp.botPanel.dispose() };
 
         tp.mainPanel = new Tweakpane.Pane(); // eslint-disable-line
+        tp.mainPanel.hidden = true;
         tp.mainPanel.title = menuTitle;
         //SFC CHAT
         initFolder({ location: tp.mainPanel, title: "StateFarm Chat", storeAs: "sfChatFolder", });
@@ -1291,6 +1294,7 @@ debug mode).`},
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function () { tp.mainPanel.hidden = !tp.mainPanel.hidden }, defaultBind: "H", });
+            initModule({ location: tp.clientTab.pages[0], title: "Hide at Startup", storeAs: "hideAtStartup", bindLocation: tp.clientTab.pages[1], defaultValue: false,});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true, });
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function () { if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) } }, defaultBind: "X", enableConditions: [["enablePanic", true]], });
