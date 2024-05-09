@@ -96,6 +96,7 @@
 
 let attemptedInjection = false;
 console.log("StateFarm: running (before function)");
+let unsafeWindow = window;
 
 (function () {
 
@@ -683,6 +684,7 @@ sniping and someone sneaks up on you
         ]);
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind: "V", });
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder", });
+                initModule({ location: tp.aimbotFolder, title: "Force target refresh", storeAs: "targetRefresh", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], }); //I hate this but whatever
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind: "T", dropdown: [{ text: "Pointing At", value: "pointingat" }, { text: "Nearest", value: "nearest" }], defaultValue: "pointingat", enableConditions: [["aimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Prioritise Visible", value: "prioritise" }, { text: "Only Visible", value: "onlyvisible" }], defaultValue: "disabled", enableConditions: [["aimbot", true]] });
                 tp.aimbotFolder.addSeparator();
@@ -5669,6 +5671,9 @@ z-index: 999999;
                 enemyNearest = undefined; //used for antisneak
 
                 let previousTarget = currentlyTargeting;
+                if(extract("targetRefresh")){
+                    currentlyTargeting = false; //this is a hack to deselect player if target requirements are not met anymore, but fuck it
+                }
                 let selectNewTarget = (!extract("antiSwitch") || !currentlyTargeting);
                 let isDoingAimbot = (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
                 // console.log(targetingComplete);
