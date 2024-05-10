@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Shell Shockers Aimbot & ESP: StateFarm Client V3 - Cheats For Bloom, Chat, Botting, Unbanning & More
 // @description  Fixed for 0.47.7! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
-// @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ and de_Neuublue
+// @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ, Seq and de_Neuublue
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
 // @license      GPL-3.0
@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre42
+// @version      3.4.1-pre43
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -153,9 +153,11 @@ console.log("StateFarm: running (before function)");
                     retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
                 });
                 initMenu(false);
+                tp.mainPanel.hidden = extract("hideAtStartup");
             }).catch(error => {
                 console.error('Error:', error);
                 initMenu(false);
+                tp.mainPanel.hidden = extract("hideAtStartup");
             });
         });
     };
@@ -584,6 +586,7 @@ console.log("StateFarm: running (before function)");
         if (tp.botPanel) { tp.botPanel.dispose() };
 
         tp.mainPanel = new Tweakpane.Pane(); // eslint-disable-line
+        tp.mainPanel.hidden = true;
         tp.mainPanel.title = menuTitle;
         //SFC CHAT
         initFolder({ location: tp.mainPanel, title: "StateFarm Chat", storeAs: "sfChatFolder", });
@@ -1291,6 +1294,7 @@ debug mode).`},
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function () { tp.mainPanel.hidden = !tp.mainPanel.hidden }, defaultBind: "H", });
+            initModule({ location: tp.clientTab.pages[0], title: "Hide at Startup", storeAs: "hideAtStartup", bindLocation: tp.clientTab.pages[1], defaultValue: false,});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true, });
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function () { if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) } }, defaultBind: "X", enableConditions: [["enablePanic", true]], });
@@ -3200,7 +3204,7 @@ z-index: 999999;
         };
 
         if (startUpComplete && extract("autoLogin") && unsafeWindow.vueApp.accountCreated == null) {
-            if ((previousLogin + 10000) < Date.now()) {
+            if ((previousLogin + 3000) < Date.now()) {
                 change("loginDatabaseLogin");
                 previousLogin = Date.now();
             };
@@ -5615,13 +5619,13 @@ z-index: 999999;
                         let idkWhatThisIs = 25 * (1.25 / ss.CAMERA.fov);
                         minangleCircle.style.width = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
                         minangleCircle.style.height = extract("aimbotMinAngle") * idkWhatThisIs + 'px';
-                        minangleCircle.style.bottom = offsettedY + 'px';
-                        minangleCircle.style.right = offsettedX + 'px';
-                    } else {
-                        minangleCircle.style.display = 'none';
+                        minangleCircle.style.bottom = centerY + 'px';
+                        minangleCircle.style.right = centerX + 'px';
                     };
                 };
-
+                if (!extract("showMinAngle")) {
+                    minangleCircle.style.display = 'none';
+                };
                 // playerNearest=undefined; //currently unused and not defined
                 // enemyLookingAt=undefined; //currently unused and not defined
 
