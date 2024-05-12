@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre43
+// @version      3.4.1-pre44
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -3620,6 +3620,7 @@ z-index: 999999;
             "noob": "1v1 me you bot",
             "lmfao": "who is this LMFAO, and is he working with LMBAO?",
             "?": "ask a better question",
+            "zert": "we're just better",
             "huh": "huh, are u bot?",
             "your mom": "Yo mama's so poor, she can't even afford to pay attention",
             "your mum": "Yo mama's so poor, she can't even afford to pay attention",
@@ -3637,6 +3638,7 @@ z-index: 999999;
             "no": "ohhhhhh yeeesss",
             "hey": "hey is for horses",
             "mess": "you might not want to mess with me",
+            "statefarm": "i am not using StateFarm, definitely not on greasyfork",
             "client": "i am not using ЅtateFarm, definitely not on greasyfork",
             "script": "i am not using ЅtateFarm, definitely not on greasyfork",
             "troll": "yea i sometimes do trolling. but its not that funny",
@@ -3658,6 +3660,8 @@ z-index: 999999;
             "father": "look in a mirror for a lack of father figure",
             "dad": "look in a mirror for a lack of father figure",
             "mad": "imagine getting mad over an egg game",
+            "deathlylove": "he has a deathly love for men",
+            "better": "that's me",
             "angry": "imagine getting angry over an egg game",
             "sad": "imagine getting sad over an egg game",
             "happy": "imagine getting happy over an egg game",
