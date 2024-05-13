@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre47
+// @version      3.4.1-pre48
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -224,7 +224,7 @@ console.log("StateFarm: running (before function)");
     // blank variables
     let ss = {};
     let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
-    let whitelistPlayers, scrambledMsgEl, accountStatus, oldGa, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
+    let whitelistPlayers, scrambledMsgEl, accountStatus, annoyancesRemoved, oldGa, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -722,21 +722,21 @@ sniping and someone sneaks up on you
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1], });
-            initModule({ location: tp.renderTab.pages[0], title: "Player PredictionESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
-            initModule({ location: tp.renderTab.pages[0], title: "PredictionESP Color", storeAs: "predictionESPColor", defaultValue: "#ff0000", disableConditions: [ ["predictionESP", false]], });
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Targets", storeAs: "targets", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "PredictionESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
             tp.renderTab.pages[0].addSeparator();
             initFolder({ location: tp.renderTab.pages[0], title: "Player ESP/Tracers Options", storeAs: "tracersFolder", });
                 initModule({ location: tp.tracersFolder, title: "Type", storeAs: "tracersType", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "Static", value: "static" }, { text: "Proximity", value: "proximity" }, { text: "Visibility", value: "visibility" }], defaultValue: "static", disableConditions: [["tracers", false], ["playerESP", false]], });
                 initModule({ location: tp.tracersFolder, title: "Color 1", storeAs: "tracersColor1", defaultValue: "#ff0000", disableConditions: [["tracers", false], ["playerESP", false]], });
                 initModule({ location: tp.tracersFolder, title: "Color 2", storeAs: "tracersColor2", defaultValue: "#00ff00", disableConditions: [["tracers", false], ["playerESP", false]], hideConditions: [["tracersType", "static"]], });
                 initModule({ location: tp.tracersFolder, title: "Color 3", storeAs: "tracersColor3", defaultValue: "#ffffff", disableConditions: [["tracers", false], ["playerESP", false]], showConditions: [["tracersType", "proximity"]], });
-                // tp.tracersFolder.addSeparator();
                 initModule({ location: tp.tracersFolder, title: "Dist 1->2", storeAs: "tracersColor1to2", slider: { min: 0, max: 30, step: 0.25 }, defaultValue: 5, showConditions: [["tracersType", "proximity"]], disableConditions: [["tracers", false], ["playerESP", false]], });
                 initModule({ location: tp.tracersFolder, title: "Dist 2->3", storeAs: "tracersColor2to3", slider: { min: 0, max: 30, step: 0.25 }, defaultValue: 15, showConditions: [["tracersType", "proximity"]], disableConditions: [["tracers", false], ["playerESP", false]], });
+                tp.tracersFolder.addSeparator();
+                initModule({ location: tp.tracersFolder, title: "PredictionESPColor", storeAs: "predictionESPColor", defaultValue: "#ff0000", disableConditions: [ ["predictionESP", false]], });
             tp.renderTab.pages[0].addSeparator();
             initFolder({ location: tp.renderTab.pages[0], title: "Ammo ESP/Tracers Options", storeAs: "tracersAmmoFolder", });
                 initFolder({ location: tp.tracersAmmoFolder, title: "Ammo", storeAs: "ammoFolder", });
@@ -1207,7 +1207,10 @@ debug mode).`},
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.miscTab.pages[0], title: "Ad Block", storeAs: "adBlock", bindLocation: tp.miscTab.pages[1], });
-            initModule({ location: tp.miscTab.pages[0], title: "VIP Spoof", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1], });
+            initModule({ location: tp.miscTab.pages[0], title: "VIP Badge", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1], });
+            initModule({ location: tp.miscTab.pages[0], title: "NoAnnoyances", storeAs: "noAnnoyances", bindLocation: tp.miscTab.pages[1], });
+            initModule({ location: tp.miscTab.pages[0], title: "NoTrack", storeAs: "noTrack", bindLocation: tp.miscTab.pages[1], });
+            tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1], });
             tp.miscTab.pages[0].addSeparator();
@@ -1788,21 +1791,6 @@ debug mode).`},
                     transform: none;
                     opacity: 1;
                 }
-            }
-
-            /* also remove ads because annoying stop adding spyware yarg */
-            .house-small,
-            #big-house-ad,
-            .house-ad-wrapper,
-            .display-ad-container,
-            .respawn-one,
-            .respawn-two,
-            #ShellShockers_LoadingScreen_HouseAds,
-            #display-ad-header-home,
-            .display-ad-header-home,
-            #display-ad-header-equip,
-            #shellshockers_respawn_banner_3_ad {
-                display: none;
             }
         `;
 
@@ -2864,6 +2852,28 @@ z-index: 999999;
             });
         };
 
+        if (extract("noAnnoyances") && !annoyancesRemoved) {
+            const styleElement = document.createElement('style');
+            styleElement.textContent = `
+            /* remove ads because annoying stop adding spyware yarg */
+                .house-small,
+                #big-house-ad,
+                .house-ad-wrapper,
+                .display-ad-container,
+                .respawn-one,
+                .respawn-two,
+                #ShellShockers_LoadingScreen_HouseAds,
+                #display-ad-header-home,
+                .display-ad-header-home,
+                #display-ad-header-equip,
+                #shellshockers_respawn_banner_3_ad {
+                    display: none;
+                }
+            `;
+            document.head.appendChild(styleElement);
+            annoyancesRemoved = true;
+        }
+
         if (extract('spoofVIP') && document.getElementById("chickenBadge")) document.getElementById("chickenBadge").style.display = "block";
         else if (!extract('spoofVIP') && document.getElementById("chickenBadge")) document.getElementById("chickenBadge").style.display = 'none';
 
@@ -3189,9 +3199,8 @@ z-index: 999999;
                     }
                 } else {
                     sendChatMessage("Invalid setpathdespawn message");
-                }
-
-        }
+                };
+        };
     };
     const clearPath = function () {
         activePath = undefined;
@@ -3985,7 +3994,7 @@ z-index: 999999;
             if (arguments['3'] == 'Reward') {
                 console.log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw reward: ${arguments['4']}`);
             };
-            oldGa.apply(this, arguments);
+            if (!extract("noTrack")) oldGa.apply(this, arguments); //does google really need to know that we cracked the egg in the middle instead of the one on the right?
         });
         createAnonFunction('interceptDeath', (KILLER, DEAD) => {
             if (DEAD.name === KILLER.name === ss.MYPLAYER.name) return; // killed self (with grenade)
@@ -4600,10 +4609,10 @@ z-index: 999999;
 
     // begin pathfinding
 
-    function BinaryHeap(scoreFunction) {
+    const BinaryHeap = function(scoreFunction) {
         this.content = [];
         this.scoreFunction = scoreFunction;
-    }
+    };
 
     BinaryHeap.prototype = {
         push: function (element) {
@@ -4714,17 +4723,17 @@ z-index: 999999;
                 this.content[n] = this.content[swap];
                 this.content[swap] = element;
                 n = swap;
-            }
+            };
         }
     };
 
-    function isNodeAir(item) {
+    const isNodeAir = function(item) {
         return item.mesh === undefined
-    }
+    };
 
-    function canTravelThroughNode(item) {
+    const canTravelThroughNode = function(item) {
         return isNodeAir(item) || item.mesh.name.includes("none")
-    }
+    };
 
     class Position {
         constructor(x, y, z) {
@@ -4763,25 +4772,25 @@ z-index: 999999;
                     for (var z = -1; z <= 1; z++) {
                         if (x == 0 && y == 0 && z == 0) {
                             continue;
-                        }
+                        };
                         if (Math.abs(x) + Math.abs(y) + Math.abs(z) > 1) {
                             continue;
-                        }
+                        };
                         var map_data_x = this.position.x + x;
                         var map_data_y = this.position.y + y;
                         var map_data_z = this.position.z + z;
                         if (map_data_x < 0 || map_data_y < 0 || map_data_z < 0) {
                             continue;
 
-                        }
+                        };
                         if (map_data_x >= map_data.length || map_data_y >= map_data[0].length || map_data_z >= map_data[0][0].length) {
                             continue;
-                        }
+                        };
 
                         var attemptedNode = map_data[map_data_x][map_data_y][map_data_z];
 
                         if (!canTravelThroughNode(attemptedNode)) {
-                            continue;
+                            ;continue;
                         }
 
                         /* for the tested node:
@@ -4795,7 +4804,7 @@ z-index: 999999;
                         } catch (error) {
                             console.log(error)
                             continue;
-                        }
+                        };
 
                         var is_air_directly_below = isNodeAir(node_below_checked_node); // self explanatory
                         var is_solid_directly_below = !is_air_directly_below ? node_below_checked_node.mesh.name.includes("full") : false;
@@ -4820,14 +4829,13 @@ z-index: 999999;
                             // ideally if there's a partial below it prunes back to the start of the fall
                             // that's hard
                             // i just want this to work
-                        )
+                        );
 
                         if (y == -1 && !is_partial_directly_below) {
                             // console.log('weird case, looking downwards to x/y/z from x/y/z', map_data_x, map_data_y, map_data_z, this.position.x, this.position.y, this.position.z, 'is air directly below?', is_air_directly_below, 'is solid directly below?', is_solid_directly_below, 'is partial directly below?', is_partial_directly_below, 'is valid candidate?', is_valid_candidate)
                             //shit lags, lol
-                        }
-
-
+                        };
+                        
                         // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
                         // if it's air / equivalent to air we can create it (but not necessarily link to it)
                         if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) { // eslint-disable-line
@@ -4850,46 +4858,46 @@ z-index: 999999;
                                     found_link++;
                                     this.add_link(new_node);
 
-                                }
-                            }
-                    }
-                }
-            }
+                                };
+                            };
+                    };
+                };
+            };
             // console.log("done with recursive for node at x/y/z", this.position.x, this.position.y, this.position.z, "found", found_node, "new nodes and", found_link, "links, this is the nth node created", GLOBAL_NODE_LIST.length)
             //shit lags, lol
         }
-    }
+    };
 
-    function get_node_at(position) {
+    const get_node_at = function(position) {
         return GLOBAL_NODE_LIST.find(item => item.position.x == position.x && item.position.y == position.y && item.position.z == position.z);
-    }
+    };
 
-    function get_player_position(player) {
+    const get_player_position = function(player) {
         var x = Math.floor(player[H.actor][H.mesh].position.x);
         var y = Math.floor(player[H.actor][H.mesh].position.y);
         var z = Math.floor(player[H.actor][H.mesh].position.z);
         return new Position(x, y, z);
     }
 
-    function get_player_linked_nodes(player) {
+    const get_player_linked_nodes = function(player) {
         var position = get_player_position(player);
         var node = get_node_at(position);
         if (node) {
             return node.linked;
         } else {
             return [];
-        }
-    }
+        };
+    };
 
     var map_data_created = false;
 
     // kazowie
 
-    function TaxicabDist3D(pos1, pos2) {
+    const TaxicabDist3D = function(pos1, pos2) {
         return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y) + Math.abs(pos1.z - pos2.z);
     };
 
-    function pathTo(node) {
+    const pathTo = function(node) {
         var current = node;
         var path = [];
         while (current.parent) {
@@ -4899,15 +4907,15 @@ z-index: 999999;
         }
         //console.log("done")
         return path;
-    }
+    };
 
-    function getHeap() {
+    const getHeap = function() {
         return new BinaryHeap(function (node) {
             return node.f;
         });
-    }
+    };
 
-    function cleanList(items) {
+    const cleanList = function(items) {
         for (var i = 0; i < items.length; i++) {
             var item = items[i];
             item.f = undefined;
@@ -4916,13 +4924,10 @@ z-index: 999999;
             item.closed = undefined;
             item.parent = undefined;
             item.visited = undefined;
-        }
-    }
+        };
+    };
 
-
-
-
-    function AStar(start, goal) {
+    const AStar = function(start, goal) {
         console.log("astar called")
         cleanList(GLOBAL_NODE_LIST)
         // start and goal are map nodes
@@ -4980,30 +4985,24 @@ z-index: 999999;
                         open_heap.rescoreElement(neighbor);
                     };
                 };
-
-
             };
-
         };
-
 
         console.log("done with astar - no path found")
         // return null if no path has been found
         return null
-
-
     };
 
-    function print_node_list(list) {
+    const print_node_list = function(list) {
         var output = "";
         console.log("printing node list, length:", list.length, "list:", list);
         for (var i = 0; i < list.length; i++) {
             output += list[i].position.x + ", " + list[i].position.y + ", " + list[i].position.z + "\n";
-        }
+        };
         console.log(output);
-    }
+    };
 
-    function create_red_line_between_nodes(ss, node1, node2) {
+    const create_red_line_between_nodes = function(ss, node1, node2) {
         // const tracerLines = L.BABYLON.MeshBuilder.CreateLines("tracerLines", { points: [newPosition, crosshairsPosition] }, newScene);
         let pos1 = [node1.position.x - 0.5, node1.position.y - 0.5, node1.position.z - 0.5];
         let pos2 = [node2.position.x - 0.5, node2.position.y - 0.5, node2.position.z - 0.5];
@@ -5017,10 +5016,10 @@ z-index: 999999;
             node_lines.color = new L.BABYLON.Color3(1, 0, 0);
             node_lines.renderingGroupId = 1;
             window.pathLines.push(node_lines);
-        }
-    }
+        };
+    };
 
-    function create_pathfinding_lines(ss, path) {
+    const create_pathfinding_lines = function(ss, path) {
         for (var i = 0; i < path.length - 1; i++) {
             create_red_line_between_nodes(ss, path[i], path[i + 1]);
         };
@@ -5316,26 +5315,26 @@ z-index: 999999;
                     const tracersType = extract("tracersType");
 
                     //predEsp
-                    if(extract("predictionESP")){
-                      if(!player.pred) {
-                        console.log("not pred");
-                        player.pred = {
-                          mesh : new L.BABYLON.Mesh("pPredMesh", player[H.actor].scene),
-                          position : predictPosition(player),
-                          scene : player[H.actor].scene,
-                        }
-                      }
-                      if(!player.pred.scene){
-                        player.pred.scene = player[H.actor].scene;
-                      }
-                      if(player.pred.mesh && player.pred.scene){
-                        player.pred.position = predictPosition(player);
-                        player.pred.mesh.position = player.pred.position;
-                        updateOrCreateLinesESP(player.pred, "pPredESP", hexToRgb(extract("predictionESPColor")));
-                        player.pred.exists = objExists;
-                        player.pred.tracerLines.visibility = false;
-                      }
-                    }
+                    if (extract("predictionESP")) {
+                        if (!player.pred) {
+                            // console.log("not pred");
+                            player.pred = {
+                                mesh: new L.BABYLON.Mesh("pPredMesh", player[H.actor].scene),
+                                position: predictPosition(player),
+                                scene: player[H.actor].scene,
+                            };
+                        };
+                        if (!player.pred.scene) {
+                            player.pred.scene = player[H.actor].scene;
+                        };
+                        if (player.pred.mesh && player.pred.scene) {
+                            player.pred.position = predictPosition(player);
+                            player.pred.mesh.position = player.pred.position;
+                            updateOrCreateLinesESP(player.pred, "pPredESP", hexToRgb(extract("predictionESPColor")));
+                            player.pred.exists = objExists;
+                            player.pred.tracerLines.visibility = false;
+                        };
+                    };
 
                     let color, progress;
                     if (extract("enableWhitelistTracers") && extract("whitelistESPType") == "highlight" && playerMatchesList(whitelistPlayers, player)) {
