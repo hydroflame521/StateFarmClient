@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre44
+// @version      3.4.1-pre45
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1052,7 +1052,7 @@ debug mode).`},
                     };
                 } });
                 initModule({ location: tp.loginDatabaseFolder, title: "Selection Type", storeAs: "loginDatabaseSelection", bindLocation: tp.accountsTab.pages[1], dropdown: [{ text: "In Order", value: "inorder" }, { text: "Random", value: "random" }], defaultValue: "inorder" });
-                initModule({ location: tp.loginDatabaseFolder, title: "Auto Login", storeAs: "autoLogin", bindLocation: tp.accountsTab.pages[1], });
+                initModule({ location: tp.loginDatabaseFolder, title: "Auto Login", storeAs: "autoLogin", bindLocation: tp.accountsTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "When No Account", value: "noaccount" }, { text: "Always", value: "always" }], defaultValue: "disabled" });
                 tp.loginDatabaseFolder.addSeparator();
                 initModule({ location: tp.loginDatabaseFolder, title: 'Export DB(JSON)', storeAs: 'loginDatabaseExport', button: 'EXPORT (COPY)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
                     GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_LoginDB") || []), "text", () => console.log("Clipboard set!"));
@@ -1463,7 +1463,7 @@ debug mode).`},
         initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function () { broadcastToBots("newproxy") }, });
         initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function () { broadcastToBots("unban") }, });
         initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true, });
-        initModule({ location: tp.botTabs.pages[1], title: "AutoLoginBot", storeAs: "botAutoLogin", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "AutoLoginBot", storeAs: "botAutoLogin", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "When No Account", value: "noaccount" }, { text: "Always", value: "always" }], defaultValue: "disabled", botParam: true, });
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true, });
         initModule({ location: tp.botTabs.pages[1], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true, });
@@ -2971,7 +2971,7 @@ z-index: 999999;
             addStreamsToInGameUI();
         } else {
             if ((!document.getElementById("progressBar"))) {
-                if (extract("autoJoin")) {
+                if (extract("autoJoin") && (extract("autoLogin") !== "disabled" && unsafeWindow.vueApp.accountCreated !== null)) {
                     unsafeWindow.vueApp.externPlayObject(
                         (extract("joinCode").length === 7) ? 2 : 0,
                         unsafeWindow.vueApp.currentGameType,
@@ -3203,8 +3203,9 @@ z-index: 999999;
             unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer ,io game";
         };
 
-        if (startUpComplete && extract("autoLogin") && unsafeWindow.vueApp.accountCreated == null) {
-            if ((previousLogin + 3000) < Date.now()) {
+        if (startUpComplete && (!unsafeWindow.extern.inGame) && extract("autoLogin") !== "disabled" && (extract("autoLogin") == "always" || extract("autoLogin") == "noaccount" && unsafeWindow.vueApp.accountCreated == null)) {
+            if ((previousLogin + 5000) < Date.now()) {
+                unban();
                 change("loginDatabaseLogin");
                 previousLogin = Date.now();
             };
@@ -4471,7 +4472,7 @@ z-index: 999999;
         addParam("autoWeapon", extractAsDropdownInt("botWeapon") + 1);
         addParam("autoTeam", extractAsDropdownInt("botTeam"));
         addParam("autoUnban", extract("botAutoUnban"));
-        addParam("autoLogin", extract("botAutoLogin"));
+        addParam("autoLogin", extractAsDropdownInt("botAutoLogin"));
         addParam("loginDatabaseSelection", 1);
         addParam("autoRegion", extractAsDropdownInt("autoRegionBots"));
         addParam("autoGamemode", extractAsDropdownInt("autoGamemodeBots"));
