@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         StatFarm Client V3 - Combat, Bloom, ESP, Rendering, Chat, Automation, Botting, Unbanning and more
-// @description  Fixed for 0.47.5! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @name         Shell Shockers Aimbot & ESP: StateFarm Client V3 - Cheats For Bloom, Chat, Botting, Unbanning & More
+// @description  Fixed for 0.47.7! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ and de_Neuublue
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre41
+// @version      3.4.1-pre46
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1056,7 +1056,7 @@ debug mode).`},
                     };
                 } });
                 initModule({ location: tp.loginDatabaseFolder, title: "Selection Type", storeAs: "loginDatabaseSelection", bindLocation: tp.accountsTab.pages[1], dropdown: [{ text: "In Order", value: "inorder" }, { text: "Random", value: "random" }], defaultValue: "inorder" });
-                initModule({ location: tp.loginDatabaseFolder, title: "Auto Login", storeAs: "autoLogin", bindLocation: tp.accountsTab.pages[1], });
+                initModule({ location: tp.loginDatabaseFolder, title: "Auto Login", storeAs: "autoLogin", bindLocation: tp.accountsTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "When No Account", value: "noaccount" }, { text: "Always", value: "always" }], defaultValue: "disabled" });
                 tp.loginDatabaseFolder.addSeparator();
                 initModule({ location: tp.loginDatabaseFolder, title: 'Export DB(JSON)', storeAs: 'loginDatabaseExport', button: 'EXPORT (COPY)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
                     GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_LoginDB") || []), "text", () => console.log("Clipboard set!"));
@@ -1467,7 +1467,7 @@ debug mode).`},
         initModule({ location: tp.botTabs.pages[1], title: "New Proxies", storeAs: "newProxyBots", button: "NEW PROXIES", clickFunction: function () { broadcastToBots("newproxy") }, });
         initModule({ location: tp.botTabs.pages[1], title: "Unban All", storeAs: "unbanBots", button: "UNBAN BOTS", clickFunction: function () { broadcastToBots("unban") }, });
         initModule({ location: tp.botTabs.pages[1], title: "AutoUnbanBot", storeAs: "botAutoUnban", botParam: true, });
-        initModule({ location: tp.botTabs.pages[1], title: "AutoLoginBot", storeAs: "botAutoLogin", botParam: true, });
+        initModule({ location: tp.botTabs.pages[1], title: "AutoLoginBot", storeAs: "botAutoLogin", dropdown: [{ text: "Disabled", value: "disabled" }, { text: "When No Account", value: "noaccount" }, { text: "Always", value: "always" }], defaultValue: "disabled", botParam: true, });
         tp.botTabs.pages[1].addSeparator();
         initModule({ location: tp.botTabs.pages[1], title: "Don'tKillMe", storeAs: "botNoKillMe", botParam: true, });
         initModule({ location: tp.botTabs.pages[1], title: "Don'tKillBot", storeAs: "botNoKillBots", botParam: true, });
@@ -2983,7 +2983,7 @@ z-index: 999999;
             addStreamsToInGameUI();
         } else {
             if ((!document.getElementById("progressBar"))) {
-                if (extract("autoJoin")) {
+                if (extract("autoJoin") && (extract("autoLogin") !== "disabled" && unsafeWindow.vueApp.accountCreated !== null)) {
                     unsafeWindow.vueApp.externPlayObject(
                         (extract("joinCode").length === 7) ? 2 : 0,
                         unsafeWindow.vueApp.currentGameType,
@@ -3215,8 +3215,9 @@ z-index: 999999;
             unsafeWindow.document.title = "Shell Shockers 🍳 Multiplayer ,io game";
         };
 
-        if (startUpComplete && extract("autoLogin") && unsafeWindow.vueApp.accountCreated == null) {
-            if ((previousLogin + 3000) < Date.now()) {
+        if (startUpComplete && (!unsafeWindow.extern.inGame) && extract("autoLogin") !== "disabled" && (extract("autoLogin") == "always" || extract("autoLogin") == "noaccount" && unsafeWindow.vueApp.accountCreated == null)) {
+            if ((previousLogin + 5000) < Date.now()) {
+                unban();
                 change("loginDatabaseLogin");
                 previousLogin = Date.now();
             };
@@ -3594,30 +3595,57 @@ z-index: 999999;
             "you r": "no im not. proof?",
             "you are": "no im not. proof?",
             "you're": "no im not. proof?",
+            "do you": "truthfully, no i dont.",
+            "do u": "honestly, yes i do.",
             "imagine": "imagine who asked",
             "f u": "funny uncleburger",
             "gg": "good grief",
             "shut up": "B͇͈͉͍͎̽̾̿̀́͂̓̈́͆͊͋͌͗ͅ͏͎͗͏͇͇̽̾̿̀́̽̿̀̀́̽̀͆̓̈́̓͋͌ͅ͏͌͏͎͉͗͗͌̓̓̓̓̓́̿",
             "shush": "cant be bothered to be quiet",
             "nuh": "uh huh",
+            "proof": "after looking at this proof, i can confidently say its 100% fake.",
             "real": "pretty sure its fake. you have no proof.",
+            "fake": "pretty sure its real. you have enough proof.",
+            "true": "its false. everyone knows this. why dont you?",
+            "false": "its true. everyone knows this. why dont you?",
             "test": "testing me? do it on rats instead.",
             "gift": "\"not everything in life is free\" - me, today",
+            "free": "\"not everything in life is free\" - me, today",
+            "toxic": "thats really rude",
+            "level": "[Your rank is: Subpar Human]",
+            "rank": "[Your rank is: Subpar Human]",
+            "clan": "[Your clan is: The Gay Nobodies]",
+            "smart": "well, i mean, i am quite clever..",
+            "clever": "well, i mean, i am quite clever..",
+            "hello": "i dont need your stupid greetings.",
+            "bye": "wa wa wa you'll see everyone later anyway",
+            "thank": "why are you so thankful? grow up!!",
+            "please": "you: \"please, please pleeease??\", why dont you PLEASE GET THE POINT",
+            "sorry": "why are you sorry all the time? just live your life.",
+            "help": "help yourself",
+            "kill": "more like kill everyone with the new godmode exploit",
+            "kys": "more like kill everyone with the new godmode exploit",
             "kek": ":trol_4k:",
             "bwd": "cool company. i have coffees with wizups every day",
             "wiz": "E X H A U S T P I P E",
             "stroke": "im just stroking",
             "flip": "please dont say that my parents are watching",
             "frick": "please dont say that im streaming rn",
-            "harrison": "yeah i beat him in a 1v1, 10:1, very easy",
+            "harri": "yeah i beat him in a 1v1, 10:1, very easy",
             "chill": "you think i can just CALM DOWN?!?",
             "stfu": "just reported u for swearing",
             "look": "im looking but im not seeing",
-            "nigg": "WHOA we cant have racism on our egg game! tone it down yo",
-            "fuck": "pipe down with those swears boi",
-            "shit": "pipe down with those swears boi",
-            "piss": "pipe down with those swears boi",
-            "dick": "pipe down with those swears boi",
+            "watch": "are you quite alright up there? i dont have EYES",
+            "yap": "i dont yap 😭",
+            "yip": "i dont yip 😢",
+            "bark": "i dont bark 💀",
+            "nigg": "WHOA we cant have racism in our egg game! tone it down yo",
+            "fuck": "phrase that more elegantly before talking to me",
+            "shit": "yea i ѕhit on ur grave. and ur friends' ones too.",
+            "piss": "ima be pisѕing on ur grave icl",
+            "dick": "i refuse to comment",
+            "sex": "i refuse to comment",
+            "pussy": "i refuse to comment",
             "loser": "ive been speccing u, cheater",
             "code": "A1BXDQ is the code",
             "rip": "rest in small pieces",
@@ -3631,7 +3659,7 @@ z-index: 999999;
             "bruh": "did you just say bruh? that is a racist remark",
             "noob": "1v1 me you bot",
             "lmfao": "who is this LMFAO, and is he working with LMBAO?",
-            "?": "ask a better question",
+            "zert": "we're just better",
             "huh": "huh, are u bot?",
             "your mom": "Yo mama's so poor, she can't even afford to pay attention",
             "your mum": "Yo mama's so poor, she can't even afford to pay attention",
@@ -3645,17 +3673,20 @@ z-index: 999999;
             "literally": "can you literally just be quiet",
             "hah": "its not that funny, take a seat",
             "leave": "i'll leave if you leave",
-            "oh": "ohhhhhh yeahh!!!",
-            "no": "ohhhhhh yeeesss",
             "hey": "hey is for horses",
             "mess": "you might not want to mess with me",
+            "statefarm": "i am not using StateFarm, definitely not on greasyfork",
             "client": "i am not using ЅtateFarm, definitely not on greasyfork",
             "script": "i am not using ЅtateFarm, definitely not on greasyfork",
             "troll": "yea i sometimes do trolling. but its not that funny",
             "well done": "thanks g",
+            "patch": "the patch is coming soon..! sooner..!! soonest..!!!",
+            "phrase": "sorry if i have a somewhat \"mechanical\" manner of speech",
+            "response": "sorry if i have a somewhat \"mechanical\" manner of speech",
+            "commu": "404. response not found.",
             "that was": "was it though?",
+            "that is": "is it though?",
             "how": "i want to know too",
-            "esp": "you think people can see thru walls? thats absurd",
             "shell": "thats what we're playing",
             "weird": "ur odd",
             "lag": "get better internet pooron lol",
@@ -3670,6 +3701,8 @@ z-index: 999999;
             "father": "look in a mirror for a lack of father figure",
             "dad": "look in a mirror for a lack of father figure",
             "mad": "imagine getting mad over an egg game",
+            "deathlylove": "he has a deathly love for men",
+            "better": "that's me",
             "angry": "imagine getting angry over an egg game",
             "sad": "imagine getting sad over an egg game",
             "happy": "imagine getting happy over an egg game",
@@ -3682,12 +3715,21 @@ z-index: 999999;
             "perfect": "i cant say i agree",
             "think": "i cant say i agree",
             "4k": "sorry, maximum resolution is 360p. upgrade to ЅtateFarm Pro for 480p!",
-            "generate": "sorry, this requires an active ЅtateFarm Pro subscription",
+            "gen": "sorry, this requires an active ЅtateFarm Pro subscription",
             "tf": "toasted fries",
             "1v1": 'no ew go away',
-            'doescolder': 'doescolder is a cutie', // written by 1ust
-            'seq': 'seq is a cutie', // fa-face-awesome
+            'doescolder': 'doescolder is a cutie',
+            'puppy': 'who?',
+            'seq': 'seq is a cutie',
             "black": "im not programmed to be racis- oops, no im not a bot",
+            "esp": "you think people can see thru walls? thats absurd",
+            "why": "why are you asking me? are you lonely?",
+            "?": "ask a better question",
+            "oh": "ohhhhhh yeahh!!!",
+            "no": "ohhhhhh yeeesss",
+            "@": "very clever lmaoo",
+            "ssh": "Enter statefarm_bot@192.168.0.18's password:",
+            "pass": "\\*grins, leans back into chair\\* We're in.",
         };
 
         const foundKeywords = Object.keys(responses).filter(keyword =>
@@ -4483,7 +4525,7 @@ z-index: 999999;
         addParam("autoWeapon", extractAsDropdownInt("botWeapon") + 1);
         addParam("autoTeam", extractAsDropdownInt("botTeam"));
         addParam("autoUnban", extract("botAutoUnban"));
-        addParam("autoLogin", extract("botAutoLogin"));
+        addParam("autoLogin", extractAsDropdownInt("botAutoLogin"));
         addParam("loginDatabaseSelection", 1);
         addParam("autoRegion", extractAsDropdownInt("autoRegionBots"));
         addParam("autoGamemode", extractAsDropdownInt("autoGamemodeBots"));
