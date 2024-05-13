@@ -722,8 +722,8 @@ sniping and someone sneaks up on you
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1], });
-            initModule({ location: tp.renderTab.pages[0], title: "pPredESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
-            initModule({ location: tp.renderTab.pages[0], title: "pPredESP Color", storeAs: "predictionESPColor", defaultValue: "#ff0000", disableConditions: [ ["predictionESP", false]], });
+            initModule({ location: tp.renderTab.pages[0], title: "Player PredictionESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "PredictionESP Color", storeAs: "predictionESPColor", defaultValue: "#ff0000", disableConditions: [ ["predictionESP", false]], });
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1], });
@@ -2692,10 +2692,8 @@ z-index: 999999;
             ESPArray.push([object, tracerLines, box, target]);
         };
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-        //if(type!="pPredESP"){
           object.tracerLines.color = new L.BABYLON.Color3(...color);
           object.box.color = new L.BABYLON.Color3(...color);
-          //}
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
