@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Shell Shockers Aimbot & ESP: StateFarm Client V3 - Cheats For Bloom, Chat, Botting, Unbanning & More
 // @description  Fixed for 0.47.7! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
-// @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ, Seq and de_Neuublue
+// @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ and de_Neuublue
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
 // @license      GPL-3.0
@@ -686,11 +686,13 @@ sniping and someone sneaks up on you
         ]);
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind: "V", });
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder", });
+                initModule({ location: tp.aimbotFolder, title: "Force target refresh", storeAs: "targetRefresh", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], }); //I hate this but whatever
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind: "T", dropdown: [{ text: "Pointing At", value: "pointingat" }, { text: "Nearest", value: "nearest" }], defaultValue: "pointingat", enableConditions: [["aimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Prioritise Visible", value: "prioritise" }, { text: "Only Visible", value: "onlyvisible" }], defaultValue: "disabled", enableConditions: [["aimbot", true]] });
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "ToggleRM", storeAs: "aimbotRightClick", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "SilentAim", storeAs: "silentAimbot", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+                initModule({ location: tp.aimbotFolder, title: "SemiSilent", storeAs: "aimbSemiSilent", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true], ["silentAimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "NoWallTrack", storeAs: "noWallTrack", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true], ["silentAimbot", false]], });
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
@@ -720,6 +722,8 @@ sniping and someone sneaks up on you
 `Sorry! No guide yet!`},
         ]);
             initModule({ location: tp.renderTab.pages[0], title: "PlayerESP", storeAs: "playerESP", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "Player PredictionESP", storeAs: "predictionESP", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "PredictionESP Color", storeAs: "predictionESPColor", defaultValue: "#ff0000", disableConditions: [ ["predictionESP", false]], });
             initModule({ location: tp.renderTab.pages[0], title: "Tracers", storeAs: "tracers", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Chams", storeAs: "chams", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Nametags", storeAs: "nametags", bindLocation: tp.renderTab.pages[1], });
@@ -2481,7 +2485,7 @@ z-index: 999999;
             yMultiplier = yMultiplier || 1;
             let vector = getDirectionVectorFacingTarget(player);
             return Math.hypot(vector.x, vector.y * yMultiplier, vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
-        } else console.log("fuck2", player); return 0; 
+        } else console.log("fuck2", player); return 0;
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
@@ -2622,7 +2626,11 @@ z-index: 999999;
             newPosition = object[H.actor][H.mesh].position;
             newScene = object[H.actor].scene;
             newParent = object[H.actor][H.mesh];
-        } else {
+        } else if(type == "pPredESP"){ //objects will be player.pred
+            newPosition = object.position;
+            newScene = object.scene;
+            newParent = object.mesh;
+        }  else {
             newPosition = object.position;
             newScene = object._scene;
             newParent = object;
@@ -2637,10 +2645,12 @@ z-index: 999999;
             //FUCK WIREFRAME BOXES! LIBERTYMUTUAL dictates we making our own MANUALLY bitch! to hell with those diagonal lines
             const boxSize = {
                 playerESP: { width: 0.5, height: 0.75, depth: 0.5 },
+                pPredESP: { width: 0.5, height: 0.75, depth: 0.5 },
                 ammoESP: { width: 0.25, height: 0.35, depth: 0.25 },
             };
             const boxOffset = {
                 playerESP: 0,
+                pPredESP: 0,
                 ammoESP: -0.05,
             };
             const vertices = [
@@ -2682,8 +2692,8 @@ z-index: 999999;
             ESPArray.push([object, tracerLines, box, target]);
         };
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-        object.tracerLines.color = new L.BABYLON.Color3(...color);
-        object.box.color = new L.BABYLON.Color3(...color);
+          object.tracerLines.color = new L.BABYLON.Color3(...color);
+          object.box.color = new L.BABYLON.Color3(...color);
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
@@ -4067,6 +4077,10 @@ z-index: 999999;
                     state[H.pitch] = setPrecision(aimbot.pitchReal);
                     ss.MYPLAYER[H.stateBuffer][Math.mod(ss.MYPLAYER.stateIdx - i, 256)] = state;
                 };
+                if(extract("aimbSemiSilent") && extract("silentAimbot")){
+                    ss.MYPLAYER[H.yaw] = getAimbot(currentlyTargeting).yawReal;
+                    ss.MYPLAYER[H.pitch] = getAimbot(currentlyTargeting).pitchReal;
+                }
                 console.log("force update?");
                 ss.SERVERSYNC();
             };
@@ -4457,7 +4471,7 @@ z-index: 999999;
                     canMassBot = false;
                     alert('You are not on verson of CrackedShell that supports botting.');
                 };
-    
+
                 if (canMassBot === true)
                     unsafeWindow.open(`https://${getScrambled().replace([0-9], '')}.${location.host}/${params}&cs=${new URLSearchParams(new URL(location.href).searchParams).get('cs')}`, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset);
             };
@@ -5301,6 +5315,28 @@ z-index: 999999;
                     const passedLists = whitelisted && (!blacklisted);
                     const tracersType = extract("tracersType");
 
+                    //predEsp
+                    if(extract("predictionESP")){
+                      if(!player.pred) {
+                        console.log("not pred");
+                        player.pred = {
+                          mesh : new L.BABYLON.Mesh("pPredMesh", player[H.actor].scene),
+                          position : predictPosition(player),
+                          scene : player[H.actor].scene,
+                        }
+                      }
+                      if(!player.pred.scene){
+                        player.pred.scene = player[H.actor].scene;
+                      }
+                      if(player.pred.mesh && player.pred.scene){
+                        player.pred.position = predictPosition(player);
+                        player.pred.mesh.position = player.pred.position;
+                        updateOrCreateLinesESP(player.pred, "pPredESP", hexToRgb(extract("predictionESPColor")));
+                        player.pred.exists = objExists;
+                        player.pred.tracerLines.visibility = false;
+                      }
+                    }
+
                     let color, progress;
                     if (extract("enableWhitelistTracers") && extract("whitelistESPType") == "highlight" && playerMatchesList(whitelistPlayers, player)) {
                         color = hexToRgb(extract("whitelistColor"));
@@ -5678,6 +5714,9 @@ z-index: 999999;
                 enemyNearest = undefined; //used for antisneak
 
                 let previousTarget = currentlyTargeting;
+                if(extract("targetRefresh")){
+                    currentlyTargeting = false; //this is a hack to deselect player if target requirements are not met anymore, but fuck it
+                }
                 let selectNewTarget = (!extract("antiSwitch") || !currentlyTargeting);
                 let isDoingAimbot = (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
                 // console.log(targetingComplete);
