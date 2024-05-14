@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre48
+// @version      3.4.1-pre49
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -686,7 +686,7 @@ sniping and someone sneaks up on you
         ]);
             initModule({ location: tp.combatTab.pages[0], title: "Aimbot", storeAs: "aimbot", bindLocation: tp.combatTab.pages[1], defaultBind: "V", });
             initFolder({ location: tp.combatTab.pages[0], title: "Aimbot Options", storeAs: "aimbotFolder", });
-                initModule({ location: tp.aimbotFolder, title: "Force target refresh", storeAs: "targetRefresh", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], }); //I hate this but whatever
+                initModule({ location: tp.aimbotFolder, title: "Force target refresh", storeAs: "targetRefresh", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true], ["antiSwitch", false]], }); //I hate this but whatever
                 initModule({ location: tp.aimbotFolder, title: "TargetMode", storeAs: "aimbotTargetMode", bindLocation: tp.combatTab.pages[1], defaultBind: "T", dropdown: [{ text: "Pointing At", value: "pointingat" }, { text: "Nearest", value: "nearest" }], defaultValue: "pointingat", enableConditions: [["aimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "TargetVisible", storeAs: "aimbotVisibilityMode", bindLocation: tp.combatTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "Prioritise Visible", value: "prioritise" }, { text: "Only Visible", value: "onlyvisible" }], defaultValue: "disabled", enableConditions: [["aimbot", true]] });
                 tp.aimbotFolder.addSeparator();
@@ -698,7 +698,7 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.aimbotFolder, title: "Prediction", storeAs: "prediction", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
                 initModule({ location: tp.aimbotFolder, title: "AntiBloom", storeAs: "antiBloom", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
                 tp.aimbotFolder.addSeparator();
-                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
+                initModule({ location: tp.aimbotFolder, title: "AntiSwitch", storeAs: "antiSwitch", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true], ["targetRefresh", false]], });
                 initModule({ location: tp.aimbotFolder, title: "1 Kill", storeAs: "oneKill", bindLocation: tp.combatTab.pages[1], enableConditions: [["aimbot", true]], });
                 tp.aimbotFolder.addSeparator();
                 initModule({ location: tp.aimbotFolder, title: "MinAngle", storeAs: "aimbotMinAngle", slider: { min: 0.05, max: 360, step: 1 }, defaultValue: 360, enableConditions: [["aimbot", true]], });
@@ -5714,7 +5714,7 @@ z-index: 999999;
 
                 let previousTarget = currentlyTargeting;
                 if(extract("targetRefresh")){
-                    currentlyTargeting = false; //this is a hack to deselect player if target requirements are not met anymore, but fuck it
+                    currentlyTargeting = false; //this is a hack to deselect player if target requirements are not met anymore, but fuck it. Will prob get removed and impl by default bc it looks like it's supposed to work that way by default.
                 }
                 let selectNewTarget = (!extract("antiSwitch") || !currentlyTargeting);
                 let isDoingAimbot = (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
