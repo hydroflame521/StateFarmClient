@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Shell Shockers Aimbot & ESP: StateFarm Client V3 - Cheats For Bloom, Chat, Botting, Unbanning & More
 // @description  Fixed for 0.48.0! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
-// @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ, Sq and de_Neuublue
+// @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ, Seq and de_Neuublue
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
 // @license      GPL-3.0
@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre51
+// @version      3.4.1-pre51real
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2738,17 +2738,17 @@ z-index: 999999;
             unsafeWindow.globalSS.extractDropdownList = extractDropdownList;
             unsafeWindow.globalSS.save = save;
             unsafeWindow.globalSS.load = load;
-            unsafeWindow.globalSS.remove = remove;
-            unsafeWindow.globalSS.change = change;
-            unsafeWindow.globalSS.unban = unban;
             unsafeWindow.globalSS.GM_listValues = GM_listValues;
             unsafeWindow.globalSS.GM_getValue = GM_getValue;
             unsafeWindow.globalSS.GM_setValue = GM_setValue;
+            unsafeWindow.globalSS.createPopup = createPopup;
+            unsafeWindow.globalSS.remove = remove;
+            unsafeWindow.globalSS.change = change;
+            unsafeWindow.globalSS.unban = unban;
             if (typeof GM_info !== 'undefined') unsafeWindow.globalSS.GM_info = GM_info;
             unsafeWindow.globalSS.getScrambled = getScrambled;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
             unsafeWindow.globalSS.accountStatus = accountStatus;
-            unsafeWindow.globalSS.createPopup = createPopup;
             unsafeWindow.globalSS.pathfindingInfo = {
                 activePath: activePath,
                 pathfindingTargetOverride: pathfindingTargetOverride,
@@ -5712,7 +5712,9 @@ z-index: 999999;
                 enemyNearest = undefined; //used for antisneak
 
                 let previousTarget = currentlyTargeting;
+
                 let selectNewTarget = (!extract("antiSwitch") || !currentlyTargeting);
+                if (selectNewTarget) currentlyTargeting = false;
                 let isDoingAimbot = (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
                 // console.log(targetingComplete);
 
@@ -5725,7 +5727,7 @@ z-index: 999999;
                 const candidates = [];
                 let amountVisible = 0;
 
-                ss.PLAYERS.forEach(player => { //iterate over all players to
+                ss.PLAYERS.forEach(player => { //iterate over all players to filter out players that we definitely wont target, and also calc some stats for later use
                     if (player && (player !== ss.MYPLAYER) && player[H.playing] && (player[H.hp] > 0)) {
                         const whitelisted = (!extract("enableWhitelistAimbot") || extract("enableWhitelistAimbot") && playerMatchesList(whitelistPlayers, player));
                         const blacklisted = (extract("enableBlacklistAimbot") && playerMatchesList(blacklistPlayers, player));
@@ -5755,10 +5757,6 @@ z-index: 999999;
                         };
                     };
                 });
-
-                if((!extract("antiSwitch")) && extract("silentAimbot")){
-                    currentlyTargeting = false; //deselect to prevent targets who don't meet minAngle anymore.
-                }
 
                 candidates.forEach(player => {
                     const valueToUse = ((targetType == "nearest" && player.adjustedDistance) || (targetType == "pointingat" && player.angleDiff));
