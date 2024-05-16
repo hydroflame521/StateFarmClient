@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre51real
+// @version      3.4.1-pre52
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -95,9 +95,21 @@
 // {{!CRACKEDSHELL}}
 
 let attemptedInjection = false;
-console.log("StateFarm: running (before function)");
+// log("StateFarm: running (before function)");
 
 (function () {
+    const storageKey = "StateFarm_" + (unsafeWindow.document.location.host.replaceAll(".", "")) + "_";
+    const log = function(...args) {
+        let condition;
+        try {
+            condition = extract("consoleLogs");
+        } catch (error) {
+            condition = GM_getValue(storageKey + "DisableLogs");
+        };
+        if (!condition) {
+            console.log(...args);
+        };
+    };
 
     let originalReplace = String.prototype.replace;
     let originalReplaceAll = String.prototype.replaceAll;
@@ -109,7 +121,7 @@ console.log("StateFarm: running (before function)");
         return originalReplaceAll.apply(this, arguments);
     };
 
-    console.log("StateFarm: running (after function)");
+    log("StateFarm: running (after function)");
     //script info
     const name = "ЅtateFarm Client";
     const version = typeof (GM_info) !== 'undefined' ? GM_info.script.version : "3";
@@ -135,15 +147,15 @@ console.log("StateFarm: running (before function)");
 
     //startup sequence
     const startUp = function () {
-        console.log("StateFarm: detectURLParams()");
+        log("StateFarm: detectURLParams()");
         detectURLParams();
-        console.log("StateFarm: mainLoop()");
+        log("StateFarm: mainLoop()");
         mainLoop();
-        console.log("StateFarm: injectScript()");
+        log("StateFarm: injectScript()");
         injectScript();
         document.addEventListener("DOMContentLoaded", function () {
             onContentLoaded();
-            console.log("StateFarm: DOMContentLoaded, ran onContentLoaded, fetching sfx");
+            log("StateFarm: DOMContentLoaded, ran onContentLoaded, fetching sfx");
 
             fetch(sfxURL).then(response => {
                 if (response.ok) return response.json();
@@ -176,8 +188,7 @@ console.log("StateFarm: running (before function)");
     let sfChatContainer;
     let sfChatUsername;
     let presetIgnore = ['sfChatUsername', 'otherSettingYouMightWantNotToBeExported'];
-    const storageKey = "StateFarm_" + (unsafeWindow.document.location.host.replaceAll(".", "")) + "_";
-    console.log("Save key:", storageKey);
+    log("Save key:", storageKey);
     let binding = false;
     let previousFrame = 0;
     let previousLogin = 0;
@@ -378,14 +389,14 @@ console.log("StateFarm: running (before function)");
                     if (newValue !== (!!currentValue)) {
                         checkbox.click(); // Toggle checkbox
                     };
-                    console.log(module, "checkbox", currentValue, newValue);
+                    log(module, "checkbox", currentValue, newValue);
                     return extract(module, true);
                 };
                 // check for button
                 const button = inputContainer.querySelector('.tp-btnv_b');
                 if (button) {
                     button.click(); // Trigger button click
-                    console.log(module, "button", currentValue, newValue);
+                    log(module, "button", currentValue, newValue);
                     return ("NOMSG"); //no change of state, dont show pop up message
                 };
                 // check for dropdown
@@ -396,7 +407,7 @@ console.log("StateFarm: running (before function)");
                     };
                     dropdown.selectedIndex = newValue;
                     dropdown.dispatchEvent(new Event('change')); // trigger change event for dropdown
-                    console.log(module, "dropdown", currentValue, newValue);
+                    log(module, "dropdown", currentValue, newValue);
                     return extract(module, true);
                 };
                 // check for text input
@@ -864,7 +875,7 @@ sniping and someone sneaks up on you
                 //the name usernameAutoJoin is only kept for compatability
                 initModule({ location: tp.autoNamesFolder, title: "Copy Name", storeAs: "copyName", button: "Steal Name", enableConditions: [["useCustomName", true]], bindLocation: tp.automationTab.pages[1], clickFunction: function(){
                     const copiedName = retrieveCopiedName();
-                    console.log("Retrieved copied name:",copiedName);
+                    log("Retrieved copied name:",copiedName);
                     change("usernameAutoJoin",(copiedName||"ЅtateFarmer"));
                 },});
                 initModule({ location: tp.autoNamesFolder, title: "Random Name", storeAs: "randomName", button: "Randomise Name", enableConditions: [["useCustomName", true]], bindLocation: tp.automationTab.pages[1], clickFunction: function(){
@@ -1043,10 +1054,10 @@ debug mode).`},
                     let loginDBlength = loginDB.length;
                     if (loginDBlength > 0) {
                         let index = extract("loginDatabaseSelection") == "inorder" ? 0 : Math.ceil((Math.random()*0.75)*(loginDBlength-1));
-                        console.log(`selecting index ${index}, this is out of ${loginDBlength} entries.`);
+                        log(`selecting index ${index}, this is out of ${loginDBlength} entries.`);
                         let [emailPass] = loginDB.splice(index, 1); //delete and retrieve
                         loginDB.push(emailPass);
-                        console.log(`deleted and reinserted ${emailPass} at the end.`);
+                        log(`deleted and reinserted ${emailPass} at the end.`);
                         loginOrCreateWithEmailPass(emailPass);
                         GM_setValue("StateFarm_LoginDB", loginDB);
                         createPopup(`Logging in from index ${index}...`);
@@ -1058,7 +1069,7 @@ debug mode).`},
                 initModule({ location: tp.loginDatabaseFolder, title: "Auto Login", storeAs: "autoLogin", bindLocation: tp.accountsTab.pages[1], dropdown: [{ text: "Disabled", value: "disabled" }, { text: "When No Account", value: "noaccount" }, { text: "Always", value: "always" }], defaultValue: "disabled" });
                 tp.loginDatabaseFolder.addSeparator();
                 initModule({ location: tp.loginDatabaseFolder, title: 'Export DB(JSON)', storeAs: 'loginDatabaseExport', button: 'EXPORT (COPY)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
-                    GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_LoginDB") || []), "text", () => console.log("Clipboard set!"));
+                    GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_LoginDB") || []), "text", () => log("Clipboard set!"));
                     createPopup("Login DB copied to clipboard...");
                 } });
                 initModule({ location: tp.loginDatabaseFolder, title: 'Import Into LoginDB', storeAs: 'loginDatabaseExport', button: 'APPEND (PASTE)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
@@ -1109,7 +1120,7 @@ debug mode).`},
             initFolder({ location: tp.accountsTab.pages[0], title: "Account Records Database", storeAs: "accountRecordsFolder", });
                 initModule({ location: tp.accountRecordsFolder, title: "Disable Logging", storeAs: "accountRecordsLogging", bindLocation: tp.accountsTab.pages[1], });
                 initModule({ location: tp.accountRecordsFolder, title: 'Export DB (JSON)', storeAs: 'accountRecordsExport', button: 'EXPORT (COPY)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
-                    GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_AccountRecords") || {}), "text", () => console.log("Clipboard set!"));
+                    GM_setClipboard(JSON.stringify(GM_getValue("StateFarm_AccountRecords") || {}), "text", () => log("Clipboard set!"));
                     createPopup("AccountRecords DB copied to clipboard...");
                 } });
                 initModule({ location: tp.accountRecordsFolder, title: 'Import Into DB', storeAs: 'accountRecordsImport', button: 'APPEND (PASTE)', bindLocation: tp.accountsTab.pages[1], clickFunction: function () {
@@ -1177,19 +1188,19 @@ debug mode).`},
                             };
                         };
                     });
-                    console.log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
-                    console.log('%cAccountRecords Info', 'color: red; font-size: 30px;');
-                    console.log("Full AccountRecords:");
-                    console.log(accountRecords);
-                    console.log(`itemCounts (Total items: ${itemCountTotal}):`);
-                    console.log(itemCounts);
-                    console.log(`tierCounts:`);
-                    console.log(tierCounts);
-                    console.log(`tierCache:`);
-                    console.log(tierCache);
-                    console.log(`emailPassList (Count: ${emailPassList.length}):`);
-                    console.log(JSON.stringify(emailPassList));
-                    console.log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
+                    log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
+                    log('%cAccountRecords Info', 'color: red; font-size: 30px;');
+                    log("Full AccountRecords:");
+                    log(accountRecords);
+                    log(`itemCounts (Total items: ${itemCountTotal}):`);
+                    log(itemCounts);
+                    log(`tierCounts:`);
+                    log(tierCounts);
+                    log(`tierCache:`);
+                    log(tierCache);
+                    log(`emailPassList (Count: ${emailPassList.length}):`);
+                    log(JSON.stringify(emailPassList));
+                    log('%c' + ' '.repeat(500), 'background: white; color: white; font-size: 50px;');
                     alert(`Results:\nAccounts Total: ${accountCount}; With Items: ${accountWithItemsCount}\nItem Count: ${itemCountTotal}\nOther info has been pasted into console.`);
                 } });
             tp.accountsTab.pages[0].addSeparator();
@@ -1256,7 +1267,7 @@ debug mode).`},
                             gotWinnerOkElement.click();
                         };
                         if (chicknWinnerElement.style.display == 'none') {
-                            console.log("ermm, found");
+                            log("ermm, found");
                             clearInterval(checkInterval);
                             updateAccountRecords();
                             accountStatus = "chwDone";
@@ -1266,12 +1277,12 @@ debug mode).`},
             },});
             initModule({ location: tp.miscTab.pages[0], title: "AutoChickenWinner", storeAs: "autoChickenWinner", bindLocation: tp.miscTab.pages[1],});
             tp.miscTab.pages[0].addSeparator();
-            initModule({ location: tp.miscTab.pages[0], title: "Custom Macro", storeAs: "customMacro", defaultValue: "console.log('cool');" });
+            initModule({ location: tp.miscTab.pages[0], title: "Custom Macro", storeAs: "customMacro", defaultValue: "log('cool');" });
             initModule({ location: tp.miscTab.pages[0], title: "Execute Macro", storeAs: "executeMacro", bindLocation: tp.miscTab.pages[1], button: "EXECUTE", clickFunction: function(){
                 //use at your own risk, i guess. but is this really any more dangerous than pasting something into console? not really.
                 (async () => {
                     try {
-                        console.log(extract("customMacro"));
+                        log(extract("customMacro"));
                         // stay safe out there. this runs in the **userscript** environment. make sure to use unsafeWindow for whatever reason you may need the window object.
                         await eval(extract("customMacro")); // eslint-disable-line
                     } catch (error) {
@@ -1301,6 +1312,7 @@ debug mode).`},
         ]);
             initModule({ location: tp.clientTab.pages[0], title: "Hide GUI", storeAs: "hide", bindLocation: tp.clientTab.pages[1], button: "Hide!", clickFunction: function () { tp.mainPanel.hidden = !tp.mainPanel.hidden }, defaultBind: "H", });
             initModule({ location: tp.clientTab.pages[0], title: "Hide at Startup", storeAs: "hideAtStartup", bindLocation: tp.clientTab.pages[1], defaultValue: false,});
+            initModule({ location: tp.clientTab.pages[0], title: "No Console Logs", storeAs: "consoleLogs", bindLocation: tp.clientTab.pages[1], defaultValue: false,});
             initModule({ location: tp.clientTab.pages[0], title: "Pop-ups", storeAs: "popups", bindLocation: tp.clientTab.pages[1], defaultValue: true, });
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function () { if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) } }, defaultBind: "X", enableConditions: [["enablePanic", true]], });
@@ -1325,11 +1337,11 @@ debug mode).`},
                 });
                 tp.presetFolder.addSeparator();
                 initModule({ location: tp.presetFolder, title: "Save", storeAs: "savePreset", button: "Save As Preset", clickFunction: function () {
-                    // console.log("Config Main: ", configMain);
+                    // log("Config Main: ", configMain);
                     let saveString = '';
                     const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
                     Object.entries(configMain).forEach(([key, value]) => {
-                        console.log(key, value);
+                        log(key, value);
                         if (typeof(value) == 'string') {
                             try {
                                 let dropdown = extractAsDropdownInt(key)
@@ -1345,15 +1357,15 @@ debug mode).`},
                     saveString = saveString.substring(0, saveString.length - 1);
                     let presetName = prompt("Name of preset:"); // asks user for name of preset
                     if (presetName == "" || presetName == null) {
-                        console.log("User cancelled save");
+                        log("User cancelled save");
                     } else {
                         let result = saveUserPreset(presetName, saveString);//saves user preset
                         addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                        console.log("Saved Preset: ", saveString);
-                        console.log("User Preset Result: ", result);
+                        log("Saved Preset: ", saveString);
+                        log("User Preset Result: ", result);
                     };
-                    console.log("InbuiltPrests:");
-                    console.log(inbuiltPresets);
+                    log("InbuiltPrests:");
+                    log(inbuiltPresets);
                     initMenu(false); //Reloads menu to add to dropdown list
                 },});
                 initModule({ location: tp.presetFolder, title: "Delete", storeAs: "deletePreset", button: "Remove Preset", clickFunction: function () { // Function won't do anything if they select a preset that was loaded in the gamecode
@@ -1361,29 +1373,29 @@ debug mode).`},
                     delete currUserPresets[extract("selectedPreset")];//deletes
                     delete inbuiltPresets[extract("selectedPreset")];//deletes
                     save(presetStorageLocation, currUserPresets); // saves cnages to file.
-                    console.log("Current User Presets: ",currUserPresets);
+                    log("Current User Presets: ",currUserPresets);
                     initMenu(false); //reloads menu
                 },});
                 tp.presetFolder.addSeparator();
                 initModule({ location: tp.presetFolder, title: "Import", storeAs: "importPreset", button: "Import Preset", clickFunction: function () {
                     let preset = prompt("Paste preset here:"); // asks user to paste preset
                     if (preset == "" || preset == null) {
-                        console.log("User cancelled save");
+                        log("User cancelled save");
                     } else {
                         const pattern = /([a-zA-Z]*>[^<]*<)+[a-zA-Z]*>[^<]*/;
                         if (pattern.test(preset)){
                             let presetName = prompt("Name of preset:"); // asks user for name of preset
                             if (presetName == "" || presetName == null) {
-                                console.log("User cancelled save");
+                                log("User cancelled save");
                             } else {
                                 let result = saveUserPreset(presetName, preset);//saves user preset
                                 addUserPresets(loadUserPresets()); //updates inbuiltPresets to include
-                                console.log("Saved Preset: ", preset);
-                                console.log("User Preset Result: ", result);
+                                log("Saved Preset: ", preset);
+                                log("User Preset Result: ", result);
                             }
                         } else {
                             alert("Not A Valid Preset!");
-                            console.log("Preset Not Valid");
+                            log("Preset Not Valid");
                         };
                         initMenu(false);
                     };
@@ -1392,7 +1404,7 @@ debug mode).`},
                     let saveString = '';
                     const addParam = function(module,setTo) {saveString=saveString+module+">"+JSON.stringify(setTo)+"<"};
                     Object.entries(configMain).forEach(([key, value]) => {
-                        console.log(key, value);
+                        log(key, value);
                         if (typeof(value) == 'string') {
                             try {
                                 let dropdown = extractAsDropdownInt(key)
@@ -1406,7 +1418,7 @@ debug mode).`},
                         }
                     });
                     saveString = saveString.substring(0, saveString.length - 1);
-                    GM_setClipboard(saveString, "text", () => console.log("Clipboard set!"));
+                    GM_setClipboard(saveString, "text", () => log("Clipboard set!"));
                     createPopup("Preset copied to clipboard...");
                 },});
             tp.clientTab.pages[0].addSeparator();
@@ -1516,7 +1528,7 @@ debug mode).`},
             if (!load("StateFarmConfigMainPanel") || reset) {
                 saveConfig();
             } else {
-                console.log("##############################################")
+                log("##############################################")
                 tp.mainPanel.importPreset(load("StateFarmConfigMainPanel"));
                 tp.botPanel.importPreset(load("StateFarmConfigBotPanel"));
             };
@@ -1541,9 +1553,9 @@ debug mode).`},
         makeDraggable(tp.botPanel.containerElem_);
     };
     const onContentLoaded = function () {
-        console.log("StateFarm: initMenu()");
+        log("StateFarm: initMenu()");
         initMenu();
-        console.log("StateFarm: applyStylesAddElements()");
+        log("StateFarm: applyStylesAddElements()");
         applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
         const intervalId1 = setInterval(everySecond, 1000);
         const intervalId2 = setInterval(everyDecisecond, 100);
@@ -1553,7 +1565,7 @@ debug mode).`},
     };
     //visual functions
     const createPopup = function (text, type) {
-        console.log("Creating Popup Type:", type, "With Text:", text);
+        log("Creating Popup Type:", type, "With Text:", text);
         try {
             if (extract("popups")) {
                 const messageContainer = document.getElementById('message-container');
@@ -1662,7 +1674,7 @@ debug mode).`},
         document.getElementsByTagName("body")[0].appendChild(sfChatContainer);
 
         const startTimeout = setTimeout(function () {
-            console.log("settings");
+            log("settings");
             sendSettings();
             let nameChange = setTimeout(function () {
                 sfChatUsername = extract("sfChatUsername");
@@ -2410,7 +2422,7 @@ z-index: 999999;
         unsafeWindow.location.replace(unsafeWindow.location.href.replace(unsafeWindow.location.hostname, proxyList[3]));
     };
     const unban = function () {
-        console.log("STATEFARM UNBANNING...");
+        log("STATEFARM UNBANNING...");
         updateAccountRecords();
         unsafeWindow.extern.signOut();
         accountStatus = "logged out";
@@ -2444,7 +2456,7 @@ z-index: 999999;
 
     const broadcastToBots = function (command) {
         const commandTime = Date.now();
-        console.log("StateFarm: sending command to bots:", command, "| at time:", commandTime);
+        log("StateFarm: sending command to bots:", command, "| at time:", commandTime);
         GM_setValue("StateFarm_Command", command);
         GM_setValue("StateFarm_CommandTime", commandTime);
     };
@@ -2472,7 +2484,7 @@ z-index: 999999;
             yMultiplier = yMultiplier || 1;
             let vector = getDirectionVectorFacingTarget(player);
             return Math.hypot(vector.x, vector.y * yMultiplier, vector.z); //pythagoras' theorem in 3 dimensions. no one owns maths, zert.
-        } else console.log("fuck2", player); return 0;
+        } else log("fuck2", player); return 0;
     };
     const setPrecision = function (value) { return Math.round(value * 8192) / 8192 }; //required precision
     const calculateYaw = function (pos) {
@@ -2494,9 +2506,9 @@ z-index: 999999;
                 z: target.z - ss.MYPLAYER[H.actor][H.mesh].position.z,
             };
         } else { //we really dont want this happening tho
-            console.log("fuck");
-            // console.log(vectorPassed);
-            // console.log(target);
+            log("fuck");
+            // log(vectorPassed);
+            // log(target);
             // console.trace();
             return {
                 x: 0,
@@ -2540,7 +2552,7 @@ z-index: 999999;
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         };
-        console.log(contextName);
+        log(contextName);
         source.connect(newPanner);
         newPanner.connect(audioContext.destination);
         source.start();
@@ -2693,13 +2705,13 @@ z-index: 999999;
         let currentEmail = load("MostRecentEmail");
         let maskedEmail = unsafeWindow.extern.account.maskedEmail;
         if (currentEmail && obfuscateEmail(currentEmail) == maskedEmail) {
-            console.log("no change in email");
+            log("no change in email");
             //do nothing i guess. its good.
         } else {
-            console.log("not using obfuscated email (sadly)");
+            log("not using obfuscated email (sadly)");
             currentEmail = maskedEmail; //better than nothing, eh? :<
         };
-        console.log("the email is:", currentEmail);
+        log("the email is:", currentEmail);
 
         let accountRecords = GM_getValue("StateFarm_AccountRecords") || {};
         let tierCache = GM_getValue("StateFarm_TierCache") || {};
@@ -2757,9 +2769,10 @@ z-index: 999999;
                 mapNodes: GLOBAL_NODE_LIST,
             };
         };
+        save("DisableLogs", extract("consoleLogs"));
         if (extract('sfChatAutoStart') && !sfChatContainer){
             startStateFarmChat(true);
-        }
+        };
         startUpComplete = (!document.getElementById("progressBar"));
         let botsDict = GM_getValue("StateFarm_BotStatus");
         sfChatUsernameSet();
@@ -2820,7 +2833,7 @@ z-index: 999999;
                 };
             };
             if (oldBlacklist !== botBlacklist) {
-                console.log("old:", oldBlacklist, "new:", botBlacklist);
+                log("old:", oldBlacklist, "new:", botBlacklist);
                 updateBotParams();
             };
             monitorObjects.botOnline = ((amountOnline) + " bots online.") + monitorObjects.botOnline;
@@ -2902,12 +2915,12 @@ z-index: 999999;
                     const key = fileName.replace('.mp3', '');
                     audioBuffer.disablePanning = !!config.disablePanning;
                     soundsSFC[key] = audioBuffer;
-                    console.log("Loaded sound for:", key);
+                    log("Loaded sound for:", key);
                     loadedCount++;
 
                     if (loadedCount === totalRequests) {
                         createPopup("Loaded Custom SFX!", "success");
-                        console.log("LOADED!");
+                        log("LOADED!");
                     };
                 });
             } catch (error) {
@@ -2917,7 +2930,7 @@ z-index: 999999;
 
         if (initialisedCustomSFX !== extract("customSFX")) {
             initialisedCustomSFX = extract("customSFX");
-            console.log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
+            log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
             soundsSFC = {};
             if (initialisedCustomSFX !== true && initialisedCustomSFX !== "default") {
                 createPopup("Loading Custom SFX...");
@@ -2931,7 +2944,7 @@ z-index: 999999;
             if (extract("mockMode")) {
                 let textAfterLastColon = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length - 1].children[1].textContent;
                 let chatName = document.getElementById("chatOut").children[document.getElementById("chatOut").children.length - 1].children[0].textContent.slice(0, -2);
-                // console.log("Chat Name:", chatName);
+                // log("Chat Name:", chatName);
                 if (chatName && chatName !== username && textAfterLastColon !== "joined." && textAfterLastColon !== "left." && !handleChat(textAfterLastColon)) {
                     sendChatMessage(textAfterLastColon);
                 }; //mockMode, this will copy and send the chat into message when joining, but doesn't show to other players, so it's fine. solvable with an if statement bool
@@ -2966,7 +2979,7 @@ z-index: 999999;
                 } else if (autoLeaveReminder > 10 && remaining <= 10) {
                     createPopup("AutoLeave: 10 seconds remaining");
                 };
-                // console.log(autoLeaveReminder, remaining);
+                // log(autoLeaveReminder, remaining);
                 autoLeaveReminder = remaining;
             };
 
@@ -3057,7 +3070,7 @@ z-index: 999999;
         const banPopup = document.getElementById("bannedPopup");
         if (attemptedInjection && banPopup && unsafeWindow.vueApp?.bannedPopup?.expire && (unsafeWindow.vueApp.bannedPopup.expire !== "")) isBanned = true;
         if (isBanned && extract("autoUnban") && (!attemptedAutoUnban) && unsafeWindow.vueApp?.bannedPopup) {
-            console.log("eep!");
+            log("eep!");
             banPopup.textContent = 'StateFarm AutoUnban:\nPLEASE RELOAD FOR THE NEXT\n20s to 1min for new database\nID for unban. Enjoy! :)\nBan message will be automatically removed from screen in 15 seconds.';
             unban();
             attemptedAutoUnban = true;
@@ -3101,16 +3114,16 @@ z-index: 999999;
         };
         if ((!ranEverySecond) && startUpComplete) {
             if (extract("autoChickenWinner")) {
-                console.log("automatically do chw");
+                log("automatically do chw");
                 change("chickenWinner");
             };
             updateAccountRecords();
             if (extract("autoMacro")) {
-                console.log("automatically do your macro");
+                log("automatically do your macro");
                 change("executeMacro");
             };
 
-            console.log("swapping out google analytics...");
+            log("swapping out google analytics...");
             oldGa = unsafeWindow.ga;
             unsafeWindow.ga = F.interceptGa;
             ranEverySecond = true;
@@ -3126,7 +3139,7 @@ z-index: 999999;
             case "setconfig":
                 let receivedConfig = decodeURIComponent(unsafeWindow.escape(window.atob(args[1]))); // eslint-disable-line
                 if (URLParams !== "") { receivedConfig = URLParams + "<" + receivedConfig };
-                console.log("StateFarm: Change in Bot Panel detected.", receivedConfig);
+                log("StateFarm: Change in Bot Panel detected.", receivedConfig);
                 applySettings(receivedConfig);
                 configNotSet = false;
                 break;
@@ -3352,11 +3365,11 @@ z-index: 999999;
                 // alert("New command incoming");
                 cachedCommand = GM_getValue("StateFarm_Command");
                 cachedCommandTime = GM_getValue("StateFarm_CommandTime");
-                console.log("Command received:", cachedCommand);
+                log("Command received:", cachedCommand);
                 handleCommand(cachedCommand);
             } else {
                 // uncommment if needed
-                // console.log("No new command, cached command:", cachedCommand, "cached time:", cachedCommandTime, "diff to now:", Date.now() - cachedCommandTime);
+                // log("No new command, cached command:", cachedCommand, "cached time:", cachedCommandTime, "diff to now:", Date.now() - cachedCommandTime);
             };
         };
     };
@@ -3401,12 +3414,12 @@ z-index: 999999;
     const loginOrCreateWithEmailPass = function (emailPass) {
         let email, pass;
         [email, pass] = emailPass.split(":");
-        console.log("gonna create/login an account that will send/has email to", email, "with the password", pass);
+        log("gonna create/login an account that will send/has email to", email, "with the password", pass);
         save("MostRecentEmail", email);
         //try both. who cares about some stupid errors?
         unsafeWindow.firebase.auth().createUserWithEmailAndPassword(email, pass)
             .then(response => {
-                console.log("success?!?!?!? created account");
+                log("success?!?!?!? created account");
                 setTimeout(function(){
                     updateAccountRecords("emailPass", emailPass);
                     accountStatus = "created account";
@@ -3415,7 +3428,7 @@ z-index: 999999;
             .catch(() => { });
         unsafeWindow.firebase.auth().signInWithEmailAndPassword(email, pass)
             .then(response => {
-                console.log("success?!?!?!? signed in");
+                log("success?!?!?!? signed in");
                 setTimeout(function(){
                     updateAccountRecords("emailPass", emailPass);
                     accountStatus = "created account";
@@ -3451,7 +3464,7 @@ z-index: 999999;
     };
     const loadUserPresets = function () { //gets user presets
         let result = load(presetStorageLocation);
-        console.log("Loaded StateFarmUserPresets: ", result);
+        log("Loaded StateFarmUserPresets: ", result);
         return load(presetStorageLocation);
     };
     const saveUserPreset = function (presetName, preset) {
@@ -3545,7 +3558,7 @@ z-index: 999999;
             } else {
                 playerListItem.style.backgroundColor = '';
             };
-            // console.log(playerArray.find(player => player.name === playerListItem.textContent.slice(0, -3))?[H.hp]);
+            // log(playerArray.find(player => player.name === playerListItem.textContent.slice(0, -3))?[H.hp]);
         });
     };
     const highlightCrossHairReticleDot = function (bool) {
@@ -3745,14 +3758,14 @@ z-index: 999999;
         if (foundKeywords.length > 0) {
             const firstKeyword = foundKeywords[0];
             sendChatMessage(responses[firstKeyword]);
-            // console.log(firstKeyword);
+            // log(firstKeyword);
             return true;
         };
         return false;
     };
     const constructChatPacket = function (str) {
         if (str.length > 255) {
-            console.log('%c UH OH UR PACKET IS TOO LONG!!!!', css);
+            log('%c UH OH UR PACKET IS TOO LONG!!!!', css);
             str.length = 255;
         };
 
@@ -3764,7 +3777,7 @@ z-index: 999999;
             arr[2 * i + 2] = str[i].charCodeAt(0) & 255;
             arr[2 * i + 3] = str[i].charCodeAt(0) >> 8 & 255; // ripped straight outta packInt16
         };
-        // console.log(arr);
+        // log(arr);
         return arr;
     };
     const extractChatPacket = function (packet) {
@@ -3780,10 +3793,10 @@ z-index: 999999;
     const chatPacketHandler = function (packet) {
         let string = extractChatPacket(packet);
         if (string.includes(antiAFKString)) {
-            console.log(packet)
-            console.log("AntiAFK replacement...", string.originalReplace(antiAFKString, ""));
+            log(packet)
+            log("AntiAFK replacement...", string.originalReplace(antiAFKString, ""));
             var constructed = constructChatPacket(string.originalReplace(antiAFKString, ""));
-            console.log(constructed)
+            log(constructed)
             return constructed;
         };
         return packet;
@@ -3801,19 +3814,19 @@ z-index: 999999;
         var arr = new Uint8Array(data);
 
         // if (arr[0]!==17) {
-        //     console.log(arr)
+        //     log(arr)
         // };
 
         if (arr[0] == ss.SERVERCODES.throwGrenade) { // comm code 27 = client to server grenade throw
             if (extract("grenadeMax")) {
                 arr[1] = 255;
-                console.log("StateFarm: modified a grenade packet to be at full power");
+                log("StateFarm: modified a grenade packet to be at full power");
                 return arr.buffer;
             } else {
-                console.log("StateFarm: didn't modify grenade packet")
+                log("StateFarm: didn't modify grenade packet")
             };
         } else if (arr[0] == ss.SERVERCODES.chat) {
-            console.log('%c Chat packet sent, chat handler!!!', css);
+            log('%c Chat packet sent, chat handler!!!', css);
             return chatPacketHandler(data);
         } else {
 
@@ -3866,13 +3879,13 @@ z-index: 999999;
         const bulletPitch = calculatePitch(finalBulletTranslation);
         const bulletYawDiff = radianAngleDiff(yaw, bulletYaw)
         const bulletPitchDiff = radianAngleDiff(pitch, bulletPitch)
-        //console.log("current accuracy: ",accuracy)
-        //console.log("input yaw: ",yaw)
-        //console.log("input pitch: ",pitch)
-        //console.log("calculated bullet yaw: ",bulletYaw)
-        //console.log("calculated bullet pitch: ",bulletPitch)
-        //console.log("therefore yaw diff: ",bulletYawDiff)
-        //console.log("therefore pitch diff: ",bulletPitchDiff)
+        //log("current accuracy: ",accuracy)
+        //log("input yaw: ",yaw)
+        //log("input pitch: ",pitch)
+        //log("calculated bullet yaw: ",bulletYaw)
+        //log("calculated bullet pitch: ",bulletPitch)
+        //log("therefore yaw diff: ",bulletYawDiff)
+        //log("therefore pitch diff: ",bulletPitchDiff)
 
         return [bulletYawDiff, bulletPitchDiff];
     };
@@ -3896,7 +3909,7 @@ z-index: 999999;
         const predictedY = velocityVector.y * timeAccelerating + timeAccelerating * (timeAccelerating) * -0.012 / 2 + newPos.y + terminalVelocity * Math.max(timeDiff - timeAccelerating, 0);
         const rayToGround = ss.RAYS[H.rayCollidesWithMap](newPos, new L.BABYLON.Vector3(0, predictedY - 1 - newPos.y, 0), ss.RAYS.grenadeCollidesWithCell);
         newPos.y = Math.max(rayToGround ? rayToGround.pick.pickedPoint.y : 0, predictedY) - 0.072;
-        // console.log(velocityVector, bulletSpeed, timeDiff, cappedVector, terminalVelocity, timeAccelerating, predictedY, rayToGround, newPos);
+        // log(velocityVector, bulletSpeed, timeDiff, cappedVector, terminalVelocity, timeAccelerating, predictedY, rayToGround, newPos);
         return newPos;
     };
     const getLineOfSight = function (target, usePrediction) { //returns true if no wall collisions
@@ -3982,16 +3995,16 @@ z-index: 999999;
                     };
                 });
 
-                console.log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw result: item: ${itemName} is tier ${tier} (${itemCount} of this item)`);
+                log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw result: item: ${itemName} is tier ${tier} (${itemCount} of this item)`);
                 let tierCache = GM_getValue("StateFarm_TierCache") || {};
                 tierCache[itemName] = tier;
                 GM_setValue("StateFarm_TierCache", tierCache);
             };
             if (arguments['3'] == 'Reward amount') {
-                console.log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw result: eggs: ${arguments['4']}`);
+                log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw result: eggs: ${arguments['4']}`);
             };
             if (arguments['3'] == 'Reward') {
-                console.log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw reward: ${arguments['4']}`);
+                log(`[${unsafeWindow.extern.account.inventory.length}, ${unsafeWindow.extern.account.currentBalance}] SFcw reward: ${arguments['4']}`);
             };
             if (!extract("noTrack")) oldGa.apply(this, arguments); //does google really need to know that we cracked the egg in the middle instead of the one on the right?
         });
@@ -4006,7 +4019,7 @@ z-index: 999999;
             };
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
-            // console.log(0, name, panner, somethingelse);
+            // log(0, name, panner, somethingelse);
             let customAudio = soundsSFC[name];
             if (panner && panner.positionX && extract("distanceMult") !== 1) {
                 panner.setPosition(
@@ -4079,7 +4092,7 @@ z-index: 999999;
                             newControlKeys |= ss.CONTROLKEYS & ss.CONTROLKEYSENUM.down ? ss.CONTROLKEYSENUM.down + ss.CONTROLKEYSENUM.right : 0
                         };
                     };
-                    // console.log(ss.CONTROLKEYS, newControlKeys);
+                    // log(ss.CONTROLKEYS, newControlKeys);
                     state.controlKeys |= newControlKeys;
                     state[H.yaw] = setPrecision(aimbot.yawReal);
                     state[H.pitch] = setPrecision(aimbot.pitchReal);
@@ -4089,21 +4102,21 @@ z-index: 999999;
                     ss.MYPLAYER[H.yaw] = getAimbot(currentlyTargeting).yawReal;
                     ss.MYPLAYER[H.pitch] = getAimbot(currentlyTargeting).pitchReal;
                 }
-                console.log("force update?");
+                log("force update?");
                 ss.SERVERSYNC();
             };
         });
         createAnonFunction('onConnectFail', function (ERRORCODE, ERRORARRAY) {
             if (ERRORCODE !== ERRORARRAY.mainMenu) {
                 errorString = findKeyByValue(ERRORARRAY, ERRORCODE);
-                console.log("StateFarm has detected a connection error...", errorString, ERRORCODE, ERRORARRAY);
+                log("StateFarm has detected a connection error...", errorString, ERRORCODE, ERRORARRAY);
                 if (document.getElementById("genericPopup").textContent === ' Game Not Found Sorry! This game ID is either invalid, or no longer exists.  OK ') {
                     document.getElementById("genericPopup").children[1].textContent = 'joinCode not found! check your autoJoin settings and get a new code';
                     document.getElementById("genericPopup").children[2].children[1].textContent = "heeheeheehaw";
                     document.getElementById("genericPopup").children[0].children[1].textContent = 'MAKE NEW AUTOJOIN CODE';
                 };
                 if ((!attemptedAutoUnban) && extract("autoUnban") && (errorString == "sessionNotFound")) {
-                    // console.log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
+                    // log("StateFarm: Gonna refresh, could be banned but you can't play with this error anyways.");
                     // createPopup("AutoUnban: Reloading page in 5 seconds...");
                     // attemptedAutoUnban = true;
                     // setTimeout(() => {
@@ -4202,7 +4215,7 @@ z-index: 999999;
             if (blacklistedGameCodes.length >= 1) {
                 blacklistedGameCodes.forEach(function (code) {
                     if (t.id == code) {
-                        console.log("Blacklisted Game: ", t.id, code);
+                        log("Blacklisted Game: ", t.id, code);
                         result = true;
                         return true;
                     }
@@ -4230,7 +4243,7 @@ z-index: 999999;
             }
         });
         const applyStateFarm = function (js) {
-            console.log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
+            log('%cATTEMPTING TO START STATEFARM', 'color: magenta; font-weight: bold; font-size: 1.5em; text-decoration: underline;');
             let match;
             let clientKeys;
 
@@ -4253,10 +4266,10 @@ z-index: 999999;
                     try {
                         clientKeys = JSON.parse(userInput);
                     } catch {
-                        console.log("maybe they did a hash??");
+                        log("maybe they did a hash??");
                         try {
                             const archivedJS = fetchTextContent(`${jsArchiveURL}${userInput}.js`);
-                            console.log("did that just work??");
+                            log("did that just work??");
                             js = archivedJS;
                             hash = userInput.split("_")[5];
                             onlineClientKeys = getVardata(hash);
@@ -4277,7 +4290,7 @@ z-index: 999999;
                 };
             };
 
-            console.log(hash, onlineClientKeys);
+            log(hash, onlineClientKeys);
 
             H = clientKeys.vars;
 
@@ -4285,8 +4298,8 @@ z-index: 999999;
 
             //SERVERSYNC
             match = new RegExp(`!${H.CULL}&&(.+?\\}\\})`).exec(js);
-            H.SERVERSYNC = match ? match[1].replace(/[a-zA-Z$_\.\[\]]+shots/, 0) : "function(){console.log('no serversync womp womp')}";
-            console.log("SERVERSYNC:", match);
+            H.SERVERSYNC = match ? match[1].replace(/[a-zA-Z$_\.\[\]]+shots/, 0) : "function(){log('no serversync womp womp')}";
+            log("SERVERSYNC:", match);
 
             const variableNameRegex = /^[a-zA-Z0-9_$\[\]"\\]*$/;
             for (let name in H) {
@@ -4295,40 +4308,40 @@ z-index: 999999;
                     injectionString = `${injectionString}${name}: (() => { try { return ${deobf}; } catch (error) { return "value_undefined"; } })(),`;
                 } else {
                     alert("Message from the StateFarm Devs: WARNING! The keys inputted contain non-variable characters! There is a possibility that this could run code unintended by the StateFarm team, although possibly there is also a mistake. Do NOT proceed with using this, and report to the StateFarm developers what is printed in the console.");
-                    console.log("REPORT THIS IN THE DISCORD SERVER:", name, deobf, clientKeys);
+                    log("REPORT THIS IN THE DISCORD SERVER:", name, deobf, clientKeys);
                     const crashplease = "balls";
                     crashplease = "balls2";
                 };
             };
 
-            console.log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+            log('%cSTATEFARM INJECTION STAGE 1: GATHER VARS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
 
             const modifyJS = function (find, replace) {
                 let oldJS = js;
                 try {
                     js = js.originalReplaceAll(find, replace);
                 } catch (err) {
-                    console.log("%cReplacement failed! Likely a required var was not found. Attempted to replace " + find + " with: " + replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    log("%cReplacement failed! Likely a required var was not found. Attempted to replace " + find + " with: " + replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
                 if (oldJS !== js) {
-                    console.log("%cReplacement successful! Injected code: replaced: " + find + " with: " + replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    log("%cReplacement successful! Injected code: replaced: " + find + " with: " + replace, 'color: green; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 } else {
-                    console.log("%cReplacement failed! Attempted to replace " + find + " with: " + replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
+                    log("%cReplacement failed! Attempted to replace " + find + " with: " + replace, 'color: red; font-weight: bold; font-size: 0.6em; text-decoration: italic;');
                 };
             };
 
             const f = function (varName) { return varName.replace("$", "\\$") };
 
-            console.log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+            log('%cSTATEFARM INJECTION STAGE 2: INJECT VAR RETRIEVAL FUNCTION AND MAIN LOOP', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for main loop function in render loop
             modifyJS(f(H.SCENE) + '.' + f(H.render), `window["${functionNames.retrieveFunctions}"]({${injectionString}},true)||${f(H.SCENE)}.render`);
-            modifyJS('console.log("After Game Ready"),', `console.log("After Game Ready: StateFarm is also trying to add vars..."),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
-            console.log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
-            console.log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+            modifyJS('log("After Game Ready"),', `log("After Game Ready"),window["${functionNames.retrieveFunctions}"]({${injectionString}}),`);
+            log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
+            log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
             modifyJS(`${f(H.CULL)})r`, `true)r`);
-            console.log('%cSuccess! Cull inhibition hooked ' + f(H.CULL), 'color: green; font-weight: bold;');
-            console.log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+            log('%cSuccess! Cull inhibition hooked ' + f(H.CULL), 'color: green; font-weight: bold;');
+            log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
             modifyJS('fire(){var', 'fire(){window.' + functionNames.beforeFiring + '(this.player);var');
             //hook for fov mods
@@ -4346,29 +4359,29 @@ z-index: 999999;
             match = js.match(/inventory\[[a-zA-Z$_]+\].id===[a-zA-Z$_]+.id\)return!0;return!1/);
             if (match) { modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`) };
             //reset join/leave msgs
-            modifyJS(',console.log("joinGame()', ',window.' + functionNames.setNewGame + '(),console.log("value changed, also joinGame()');
+            modifyJS(',log("joinGame()', ',window.' + functionNames.setNewGame + '(),log("value changed, also joinGame()');
             //bypass chat filter
             modifyJS('.trim();', '.trim();' + f(H._chat) + '=window.' + functionNames.modifyChat + '(' + f(H._chat) + ');')
             //hook for control interception
             match = new RegExp(`${f(H._update)}=function\\([a-zA-Z$_,]+\\)\\{`).exec(js)[0];
-            console.log("player update function:", match);
+            log("player update function:", match);
             modifyJS(match, `${match}${f(H.CONTROLKEYS)}=window.${functionNames.modifyControls}(${f(H.CONTROLKEYS)});`);
             //admin spoof lol
             modifyJS('isGameOwner(){return ', 'isGameOwner(){return window.' + functionNames.getAdminSpoof + '()?true:')
             modifyJS('adminRoles(){return ', 'adminRoles(){return window.' + functionNames.getAdminSpoof + '()?255:')
             //grab reason for connect fail
             const FUNCTIONPARAM = new RegExp('function ' + f(H._connectFail) + '\\(([a-zA-Z$_]+)\\)').exec(js)[1];
-            console.log("FUNCTIONPARAM:", FUNCTIONPARAM);
+            log("FUNCTIONPARAM:", FUNCTIONPARAM);
             modifyJS('function ' + f(H._connectFail) + '(' + f(FUNCTIONPARAM) + '){', 'function ' + f(H._connectFail) + '(' + f(FUNCTIONPARAM) + '){window.' + functionNames.onConnectFail + '(' + f(FUNCTIONPARAM) + ',' + f(H.ERRORARRAY) + ');')
             //get rid of tutorial popup because its a stupid piece of shit
             modifyJS(',vueApp.onTutorialPopupClick()', '');
             //annoying shit
-            modifyJS('alert', 'console.log');
+            modifyJS('alert', 'log');
             //pointer escape
             modifyJS('onpointerlockchange=function(){', 'onpointerlockchange=function(){if (window.' + functionNames.getPointerEscape + '()) {return};');
             //death hook
             const DEATHARGS = new RegExp('function ' + f(H._deathFunction) + '\\(([a-zA-Z$_]+,[a-zA-Z$_]+)\\)').exec(js)[1];
-            console.log("DEATHARGS", DEATHARGS);
+            log("DEATHARGS", DEATHARGS);
             modifyJS('function ' + f(H._deathFunction) + '(' + DEATHARGS + '){', 'function ' + f(H._deathFunction) + '(' + f(DEATHARGS) + '){window.' + functionNames.interceptDeath + '(' + f(DEATHARGS) + ');');
             //vip spoof/no ads credit absolutely goes to OakSwingZZZ
             modifyJS('adsBlocked=' + FUNCTIONPARAM, 'adsBlocked=' + functionNames.adBlocker + '("adsBlocked")');
@@ -4382,18 +4395,17 @@ z-index: 999999;
             };
             //intercept and replace audio
             match = js.match(/static play\(([a-zA-Z$_,]+)\){/);
-            console.log("AUDIO INTERCEPTION", match);
+            log("AUDIO INTERCEPTION", match);
             modifyJS(match[0], `${match[0]}[${match[1]}] = window.${functionNames.interceptAudio}(${match[1]});`);
             modifyJS('"IFRAME"==document.activeElement.tagName', `("IFRAME"==document.activeElement.tagName&&document.activeElement.id!=='sfChat-iframe')`);
             // skybox (yay)
             modifyJS(`infiniteDistance=!0;`, `infiniteDistance=!0;window["${skyboxName}"]=${H.skybox};`);
             modifyJS(`.name)}vueApp`, `.name)}window["${mapData}"]=${H.mapData};vueApp`);
 
-            modifyJS('console.log("startShellShockers"),', `console.log("STATEFARM ACTIVE!"),`);
             modifyJS(/tp-/g, '');
 
-            console.log(H);
-            console.log(js);
+            log(H);
+            log(js);
 
             attemptedInjection = true;
             return js;
@@ -4425,7 +4437,7 @@ z-index: 999999;
 
         GM_setValue("StateFarm_BotStatus", {});
 
-        console.log("Deploying " + extract("numberBots") + " bots...");
+        log("Deploying " + extract("numberBots") + " bots...");
 
         let botNames = [];
         for (let i = 0; i < extract("numberBots"); i++) {
@@ -4460,7 +4472,7 @@ z-index: 999999;
 
             addParam("usernameAutoJoin", name, true);
 
-            console.log("PARAMS:", params)
+            log("PARAMS:", params)
             if (typeof isCrackedShell === 'undefined') {
                 unsafeWindow.open("https://" + proxyURL + "/" + params, '_blank', `width=${extract("botWindowWidth")}},height=${extract("botWindowHeight")},left=` + leftOffset + ',top=' + topOffset)
             } else {
@@ -4475,7 +4487,7 @@ z-index: 999999;
                         } else canMassBot = true;
                     };
                 } catch (err) {
-                    console.log(err);
+                    log(err);
                     canMassBot = false;
                     alert('You are not on verson of CrackedShell that supports botting.');
                 };
@@ -4551,32 +4563,32 @@ z-index: 999999;
     const detectURLParams = function () {
 
         if (getSearchParam("AUTOMATED") == "true") {
-            console.log("Automated Window!");
+            log("Automated Window!");
             AUTOMATED = true;
         };
         let customSettings = getSearchParam("StateFarm")
         if (customSettings !== null) {
             customSettings = customSettings.split("|");
             URLParams = customSettings[0];
-            console.log("StateFarm: Custom Settings in URL!", URLParams);
+            log("StateFarm: Custom Settings in URL!", URLParams);
             // let setVars=[];
             // let setBinds=[];
             // if (customSettings[0]) {setVars=customSettings[0].split("<")};
             // if (customSettings[1]) {setVars=customSettings[0].split("<")};
-            // console.log(setVars,setBinds);
+            // log(setVars,setBinds);
             // setBinds.forEach(element=>{ //not yet done
             // });
         };
     };
 
     const applySettings = function (receivedConfig, reset, secondPassThru) {
-        console.log(AUTOMATED, receivedConfig);
+        log(AUTOMATED, receivedConfig);
         let settings = receivedConfig.split("<");
-        if (reset) { initMenu(true); console.log("StateFarm: clearing before applying settings") };
+        if (reset) { initMenu(true); log("StateFarm: clearing before applying settings") };
         settings.forEach(element => {
             element = element.split(">");
             if (element[0] == "customMacro") {element[1] = element[1].replaceAll("{less}","<").replaceAll("{greater}",">")};
-            console.log(change(element[0], JSON.parse(element[1])));
+            log(change(element[0], JSON.parse(element[1])));
         });
         createPopup("Custom StateFarm Settings Applying...");
         if (!secondPassThru) {
@@ -4594,7 +4606,7 @@ z-index: 999999;
         } else {
             const botParams = constructBotParams();
             broadcastToBots("setconfig " + btoa(unsafeWindow.unescape(encodeURIComponent(botParams))));
-            console.log("StateFarm: attempted to set bot params.");
+            log("StateFarm: attempted to set bot params.");
         };
     };
 
@@ -4801,7 +4813,7 @@ z-index: 999999;
                         try {
                             var node_below_checked_node = map_data[map_data_x][map_data_y - 1][map_data_z];
                         } catch (error) {
-                            console.log(error)
+                            log(error)
                             continue;
                         };
 
@@ -4814,7 +4826,7 @@ z-index: 999999;
                         try {
                             node_directly_below_node_doing_the_checking = map_data[this.position.x][this.position.y - 1][this.position.z];
                         } catch (error) {
-                            console.log(error);
+                            log(error);
                             node_directly_below_node_doing_the_checking = {};
                         };
 
@@ -4831,7 +4843,7 @@ z-index: 999999;
                         );
 
                         if (y == -1 && !is_partial_directly_below) {
-                            // console.log('weird case, looking downwards to x/y/z from x/y/z', map_data_x, map_data_y, map_data_z, this.position.x, this.position.y, this.position.z, 'is air directly below?', is_air_directly_below, 'is solid directly below?', is_solid_directly_below, 'is partial directly below?', is_partial_directly_below, 'is valid candidate?', is_valid_candidate)
+                            // log('weird case, looking downwards to x/y/z from x/y/z', map_data_x, map_data_y, map_data_z, this.position.x, this.position.y, this.position.z, 'is air directly below?', is_air_directly_below, 'is solid directly below?', is_solid_directly_below, 'is partial directly below?', is_partial_directly_below, 'is valid candidate?', is_valid_candidate)
                             //shit lags, lol
                         };
                         
@@ -4862,7 +4874,7 @@ z-index: 999999;
                     };
                 };
             };
-            // console.log("done with recursive for node at x/y/z", this.position.x, this.position.y, this.position.z, "found", found_node, "new nodes and", found_link, "links, this is the nth node created", GLOBAL_NODE_LIST.length)
+            // log("done with recursive for node at x/y/z", this.position.x, this.position.y, this.position.z, "found", found_node, "new nodes and", found_link, "links, this is the nth node created", GLOBAL_NODE_LIST.length)
             //shit lags, lol
         }
     };
@@ -4901,10 +4913,10 @@ z-index: 999999;
         var path = [];
         while (current.parent) {
             path.unshift(current);
-            if (current.parent === undefined) { console.log("parent undefined; path nodes successfully acquired:", path.length) }
+            if (current.parent === undefined) { log("parent undefined; path nodes successfully acquired:", path.length) }
             current = current.parent;
         }
-        //console.log("done")
+        //log("done")
         return path;
     };
 
@@ -4927,7 +4939,7 @@ z-index: 999999;
     };
 
     const AStar = function(start, goal) {
-        console.log("astar called")
+        log("astar called")
         cleanList(GLOBAL_NODE_LIST)
         // start and goal are map nodes
         // map data is the list of all the nodes
@@ -4952,9 +4964,9 @@ z-index: 999999;
             var current = open_heap.pop();
 
             if (current === goal) {
-                console.log("done with astar - path found")
+                log("done with astar - path found")
                 var val = pathTo(current);
-                console.log("path length:", val.length)
+                log("path length:", val.length)
                 print_node_list(val);
                 return val;
             }
@@ -4987,18 +4999,18 @@ z-index: 999999;
             };
         };
 
-        console.log("done with astar - no path found")
+        log("done with astar - no path found")
         // return null if no path has been found
         return null
     };
 
     const print_node_list = function(list) {
         var output = "";
-        console.log("printing node list, length:", list.length, "list:", list);
+        log("printing node list, length:", list.length, "list:", list);
         for (var i = 0; i < list.length; i++) {
             output += list[i].position.x + ", " + list[i].position.y + ", " + list[i].position.z + "\n";
         };
-        console.log(output);
+        log(output);
     };
 
     const create_red_line_between_nodes = function(ss, node1, node2) {
@@ -5055,7 +5067,7 @@ z-index: 999999;
         const oneTime = function () {
             //xd lmao
             if (ss.MYPLAYER) {
-                console.log('%cSTATEFARM IS ATTEMPTING TO LOAD L.BABYLON', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                log('%cSTATEFARM IS ATTEMPTING TO LOAD L.BABYLON', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                 var script = document.createElement("script");
                 script.src = babylonURL;
                 script.onload = function () {
@@ -5063,15 +5075,15 @@ z-index: 999999;
                         L.BABYLON = unsafeWindow.BABYLON;
                         delete unsafeWindow.BABYLON;
 
-                        console.log("Babylon.js loaded successfully");
-                        console.log(L.BABYLON.Engine.Version);
+                        log("Babylon.js loaded successfully");
+                        log(L.BABYLON.Engine.Version);
 
-                        console.log('%cSTATEFARM SUCCESSFULLY LOADED BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                        log('%cSTATEFARM SUCCESSFULLY LOADED BABYLON!', 'color: green; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
 
                         H.actor = findKeyWithProperty(ss.MYPLAYER, H.mesh);
                         // Math.capVector3 = Math[H.capVector3];
 
-                        console.log("StateFarm: found vars:", H);
+                        log("StateFarm: found vars:", H);
 
                         crosshairsPosition = new L.BABYLON.Vector3();
                         Object.defineProperty(ss.MYPLAYER.scene, 'forceWireframe', {
@@ -5085,7 +5097,7 @@ z-index: 999999;
                         };
 
                     } else {
-                        console.log('%cSTATEFARM COULD NOT LOAD L.BABYLON', 'color: red; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
+                        log('%cSTATEFARM COULD NOT LOAD L.BABYLON', 'color: red; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
                     };
                 };
                 document.body.appendChild(script);
@@ -5095,7 +5107,7 @@ z-index: 999999;
 
         const createMapData = function () {
             if (!map_data_created) {
-                console.log("Creating map data");
+                log("Creating map data");
                 new MapNode(new Position(ss.GAMEMAP.data.length - 1, ss.GAMEMAP.data[0].length - 1, ss.GAMEMAP.data[0][0].length - 1), [], ss.GAMEMAP.data);
                 map_data_created = true;
                 return true;
@@ -5104,7 +5116,7 @@ z-index: 999999;
 
         const mapStuff = function () {
 
-            //console.log("node = " + get_node_at(get_player_position(ss.MYPLAYER)), "nodelist len = " + GLOBAL_NODE_LIST.length);
+            //log("node = " + get_node_at(get_player_position(ss.MYPLAYER)), "nodelist len = " + GLOBAL_NODE_LIST.length);
 
             if (findNewPath && !activePath && !activeNodeTarget && get_node_at(get_player_position(ss.MYPLAYER))) {
 
@@ -5120,25 +5132,25 @@ z-index: 999999;
                     let random_node = get_node_at(position);
 
                     if (!(player_node === random_node) && random_node) {
-                        console.log("location, target:")
+                        log("location, target:")
                         print_node_list([player_node, random_node])
                         activePath = AStar(player_node, random_node);
                         if (activePath) {
-                            console.log("setting active node target");
+                            log("setting active node target");
                             print_node_list(activePath);
                             activeNodeTarget = activePath[0];
-                            console.log("list printed, target set, creating pathfinding lines")
+                            log("list printed, target set, creating pathfinding lines")
                             create_pathfinding_lines(ss, activePath);
                             findNewPath = false;
-                            console.log("found path to random node")
+                            log("found path to random node")
                         } else {
-                            console.log("unable to find path to random node")
+                            log("unable to find path to random node")
                         }
                     } else {
-                        console.log("player node / random node not air")
+                        log("player node / random node not air")
                     }
                 } else {
-                    console.log("player not on air node currently")
+                    log("player not on air node currently")
                 }
             }
 
@@ -5155,7 +5167,7 @@ z-index: 999999;
                             activePath = path;
                             activeNodeTarget = path[0];
                         } else {
-                            console.log('already at target')
+                            log('already at target')
                             activePath = null;
                             activeNodeTarget = null;
                             pathfindingTargetOverride = undefined;
@@ -5168,30 +5180,30 @@ z-index: 999999;
                 } else {
                     if (!activePath) {
                         if (player_node) {
-                            console.log("playernode good")
+                            log("playernode good")
                         }
                         if (target_node) {
-                            console.log("targetnode good")
+                            log("targetnode good")
                         }
                         if (!player_node) {
-                            console.log("playernode bad")
+                            log("playernode bad")
                         }
                         if (!target_node) {
-                            console.log("targetnode bad")
+                            log("targetnode bad")
                         }
                     }
                 }
             }
 
             if (activeNodeTarget && activePath) {
-                //console.log("found target and path");
+                //log("found target and path");
                 let player_node = get_node_at(get_player_position(ss.MYPLAYER));
                 if (player_node == activeNodeTarget || activePath.includes(player_node)) { // if we are at the target or have somehow skipped ahead in the list
                     if (player_node == activeNodeTarget) {
                         activeNodeTarget = activePath.shift();
-                        console.log("update target");
+                        log("update target");
                         if (activePath.length == 0) {
-                            console.log("path completed");
+                            log("path completed");
                             activePath = null;
                             activeNodeTarget = null;
                             pathfindingTargetOverride = undefined;
@@ -5201,7 +5213,7 @@ z-index: 999999;
                             activeNodeTarget = activePath.shift();
                         }
                         if (activePath.length == 0) {
-                            console.log("path completed");
+                            log("path completed");
                             activePath = null;
                             activeNodeTarget = null;
                             pathfindingTargetOverride = undefined;
@@ -5209,13 +5221,13 @@ z-index: 999999;
 
                     }
                 } else {
-                    //console.log("not at target");
+                    //log("not at target");
                 }
                 /* if (!(activePath.includes(get_node_at(get_player_position(ss.MYPLAYER))))) { // went off path somehow, need to find new path
                     findNewPath = true;
                     activePath = null;
                     activeNodeTarget = null;
-                    console.log("went off path, finding new path")
+                    log("went off path, finding new path")
                 } */
             }
 
@@ -5230,11 +5242,11 @@ z-index: 999999;
                     isFirstFrameAttemptingToPathfind = false;
 
                 } else {
-                    //console.log("looking towards node");
+                    //log("looking towards node");
 
                     let playerPosition = get_player_position(ss.MYPLAYER);
                     let directionVector = new L.BABYLON.Vector3(activeNodeTarget.position.x - playerPosition.x, activeNodeTarget.position.y - playerPosition.y, activeNodeTarget.position.z - playerPosition.z);
-                    /* console.log(`
+                    /* log(`
                     --PATHING UPDATE--
                     target: ${activeNodeTarget.position.x}, ${activeNodeTarget.position.y}, ${activeNodeTarget.position.z}
                     current: ${playerPosition.x}, ${playerPosition.y}, ${playerPosition.z}
@@ -5282,7 +5294,7 @@ z-index: 999999;
 
             if (didStateFarm) {
                 if (!loggedGameMap) {
-                    console.log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
+                    log(ss.GAMEMAP.width, ss.GAMEMAP.height, ss.GAMEMAP.data);
                     loggedGameMap = true;
                 };
                 username = ss.MYPLAYER?.name;
@@ -5316,7 +5328,7 @@ z-index: 999999;
                     //predEsp
                     if (extract("predictionESP")) {
                         if (!player.pred) {
-                            // console.log("not pred");
+                            // log("not pred");
                             player.pred = {
                                 mesh: new L.BABYLON.Mesh("pPredMesh", player[H.actor].scene),
                                 position: predictPosition(player),
@@ -5386,7 +5398,7 @@ z-index: 999999;
                         player.logged = true;
                         if (extract("debug")) {
                             playerLogger.push(player);
-                            console.log("Logged player: " + player.name, player)
+                            log("Logged player: " + player.name, player)
                         }; //if youre a l33t kiddy who did a search for the term "logger", this does not in fact log any of the user's info. it just keeps track of players who joined and prints them to console.
                         if (extract("joinMessages") && (!newGame)) {
                             if (extract("publicBroadcast")) {
@@ -5463,10 +5475,10 @@ z-index: 999999;
                     //do nothing, lol
                 } else {
                     if (ESPArray[i][0]) { //obj still exists but no longer relevant
-                        console.log('%cRemoving tracer line due to irrelevant object', 'color: white; background: red');
+                        log('%cRemoving tracer line due to irrelevant object', 'color: white; background: red');
                         ESPArray[i][0].generatedESP = false;
                     } else { //obj no longer exists
-                        console.log('%cRemoving tracer line due to no longer exists', 'color: white; background: red');
+                        log('%cRemoving tracer line due to no longer exists', 'color: white; background: red');
                     };
                     ESPArray[i][1].dispose(); //tracer
                     ESPArray[i][2].dispose(); //esp box
@@ -5489,7 +5501,7 @@ z-index: 999999;
                 didStateFarm = true;
                 return F.STATEFARM();
             } else {
-                console.log("StateFarm: creating silence audio");
+                log("StateFarm: creating silence audio");
                 unsafeWindow.BAWK.sounds.silence = Object.assign({}, unsafeWindow.BAWK.sounds.ammo);
                 unsafeWindow.BAWK.sounds.silence.end = 0.001;
             };
@@ -5649,7 +5661,7 @@ z-index: 999999;
                     document.getElementById("chatOut").style.userSelect = "text"
                 };
                 if (extract("autoRefill")) {
-                    //console.log(ss.MYPLAYER.weapon);
+                    //log(ss.MYPLAYER.weapon);
                     if (ammo.rounds == 0) {
                         ss.MYPLAYER.reload();
                     } else if (extract("smartRefill")) {
@@ -5716,7 +5728,7 @@ z-index: 999999;
                 let selectNewTarget = (!extract("antiSwitch") || !currentlyTargeting);
                 if (selectNewTarget) currentlyTargeting = false;
                 let isDoingAimbot = (extract("aimbot") && (extract("aimbotRightClick") ? isRightButtonDown : true) && ss.MYPLAYER[H.playing]);
-                // console.log(targetingComplete);
+                // log(targetingComplete);
 
                 const targetType = extract("aimbotTargetMode");
                 const visibilityMode = extract("aimbotVisibilityMode");
@@ -5813,7 +5825,7 @@ z-index: 999999;
                                 else { ss.MYPLAYER.reload(); }
                             };
                             ss.MYPLAYER.pullTrigger();
-                            // console.log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
+                            // log("ANTISNEAK---->", enemyNearest?.name, enemyMinimumDistance);
                         };
                     } else {
                         if (extract("oneKill")) {
@@ -5890,9 +5902,9 @@ z-index: 999999;
     var css = "text-shadow: -1px -1px hsl(0,100%,50%), 1px 1px hsl(5.4, 100%, 50%), 3px 2px hsl(10.8, 100%, 50%), 5px 3px hsl(16.2, 100%, 50%), 7px 4px hsl(21.6, 100%, 50%), 9px 5px hsl(27, 100%, 50%), 11px 6px hsl(32.4, 100%, 50%), 13px 7px hsl(37.8, 100%, 50%), 14px 8px hsl(43.2, 100%, 50%), 16px 9px hsl(48.6, 100%, 50%), 18px 10px hsl(54, 100%, 50%), 20px 11px hsl(59.4, 100%, 50%), 22px 12px hsl(64.8, 100%, 50%), 23px 13px hsl(70.2, 100%, 50%), 25px 14px hsl(75.6, 100%, 50%), 27px 15px hsl(81, 100%, 50%), 28px 16px hsl(86.4, 100%, 50%), 30px 17px hsl(91.8, 100%, 50%), 32px 18px hsl(97.2, 100%, 50%), 33px 19px hsl(102.6, 100%, 50%), 35px 20px hsl(108, 100%, 50%), 36px 21px hsl(113.4, 100%, 50%), 38px 22px hsl(118.8, 100%, 50%), 39px 23px hsl(124.2, 100%, 50%), 41px 24px hsl(129.6, 100%, 50%), 42px 25px hsl(135, 100%, 50%), 43px 26px hsl(140.4, 100%, 50%), 45px 27px hsl(145.8, 100%, 50%), 46px 28px hsl(151.2, 100%, 50%), 47px 29px hsl(156.6, 100%, 50%), 48px 30px hsl(162, 100%, 50%), 49px 31px hsl(167.4, 100%, 50%), 50px 32px hsl(172.8, 100%, 50%), 51px 33px hsl(178.2, 100%, 50%), 52px 34px hsl(183.6, 100%, 50%), 53px 35px hsl(189, 100%, 50%), 54px 36px hsl(194.4, 100%, 50%), 55px 37px hsl(199.8, 100%, 50%), 55px 38px hsl(205.2, 100%, 50%), 56px 39px hsl(210.6, 100%, 50%), 57px 40px hsl(216, 100%, 50%), 57px 41px hsl(221.4, 100%, 50%), 58px 42px hsl(226.8, 100%, 50%), 58px 43px hsl(232.2, 100%, 50%), 58px 44px hsl(237.6, 100%, 50%), 59px 45px hsl(243, 100%, 50%), 59px 46px hsl(248.4, 100%, 50%), 59px 47px hsl(253.8, 100%, 50%), 59px 48px hsl(259.2, 100%, 50%), 59px 49px hsl(264.6, 100%, 50%), 60px 50px hsl(270, 100%, 50%), 59px 51px hsl(275.4, 100%, 50%), 59px 52px hsl(280.8, 100%, 50%), 59px 53px hsl(286.2, 100%, 50%), 59px 54px hsl(291.6, 100%, 50%), 59px 55px hsl(297, 100%, 50%), 58px 56px hsl(302.4, 100%, 50%), 58px 57px hsl(307.8, 100%, 50%), 58px 58px hsl(313.2, 100%, 50%), 57px 59px hsl(318.6, 100%, 50%), 57px 60px hsl(324, 100%, 50%), 56px 61px hsl(329.4, 100%, 50%), 55px 62px hsl(334.8, 100%, 50%), 55px 63px hsl(340.2, 100%, 50%), 54px 64px hsl(345.6, 100%, 50%), 53px 65px hsl(351, 100%, 50%), 52px 66px hsl(356.4, 100%, 50%), 51px 67px hsl(361.8, 100%, 50%), 50px 68px hsl(367.2, 100%, 50%), 49px 69px hsl(372.6, 100%, 50%), 48px 70px hsl(378, 100%, 50%), 47px 71px hsl(383.4, 100%, 50%), 46px 72px hsl(388.8, 100%, 50%), 45px 73px hsl(394.2, 100%, 50%), 43px 74px hsl(399.6, 100%, 50%), 42px 75px hsl(405, 100%, 50%), 41px 76px hsl(410.4, 100%, 50%), 39px 77px hsl(415.8, 100%, 50%), 38px 78px hsl(421.2, 100%, 50%), 36px 79px hsl(426.6, 100%, 50%), 35px 80px hsl(432, 100%, 50%), 33px 81px hsl(437.4, 100%, 50%), 32px 82px hsl(442.8, 100%, 50%), 30px 83px hsl(448.2, 100%, 50%), 28px 84px hsl(453.6, 100%, 50%), 27px 85px hsl(459, 100%, 50%), 25px 86px hsl(464.4, 100%, 50%), 23px 87px hsl(469.8, 100%, 50%), 22px 88px hsl(475.2, 100%, 50%), 20px 89px hsl(480.6, 100%, 50%), 18px 90px hsl(486, 100%, 50%), 16px 91px hsl(491.4, 100%, 50%), 14px 92px hsl(496.8, 100%, 50%), 13px 93px hsl(502.2, 100%, 50%), 11px 94px hsl(507.6, 100%, 50%), 9px 95px hsl(513, 100%, 50%), 7px 96px hsl(518.4, 100%, 50%), 5px 97px hsl(523.8, 100%, 50%), 3px 98px hsl(529.2, 100%, 50%), 1px 99px hsl(534.6, 100%, 50%), 7px 100px hsl(540, 100%, 50%), -1px 101px hsl(545.4, 100%, 50%), -3px 102px hsl(550.8, 100%, 50%), -5px 103px hsl(556.2, 100%, 50%), -7px 104px hsl(561.6, 100%, 50%), -9px 105px hsl(567, 100%, 50%), -11px 106px hsl(572.4, 100%, 50%), -13px 107px hsl(577.8, 100%, 50%), -14px 108px hsl(583.2, 100%, 50%), -16px 109px hsl(588.6, 100%, 50%), -18px 110px hsl(594, 100%, 50%), -20px 111px hsl(599.4, 100%, 50%), -22px 112px hsl(604.8, 100%, 50%), -23px 113px hsl(610.2, 100%, 50%), -25px 114px hsl(615.6, 100%, 50%), -27px 115px hsl(621, 100%, 50%), -28px 116px hsl(626.4, 100%, 50%), -30px 117px hsl(631.8, 100%, 50%), -32px 118px hsl(637.2, 100%, 50%), -33px 119px hsl(642.6, 100%, 50%), -35px 120px hsl(648, 100%, 50%), -36px 121px hsl(653.4, 100%, 50%), -38px 122px hsl(658.8, 100%, 50%), -39px 123px hsl(664.2, 100%, 50%), -41px 124px hsl(669.6, 100%, 50%), -42px 125px hsl(675, 100%, 50%), -43px 126px hsl(680.4, 100%, 50%), -45px 127px hsl(685.8, 100%, 50%), -46px 128px hsl(691.2, 100%, 50%), -47px 129px hsl(696.6, 100%, 50%), -48px 130px hsl(702, 100%, 50%), -49px 131px hsl(707.4, 100%, 50%), -50px 132px hsl(712.8, 100%, 50%), -51px 133px hsl(718.2, 100%, 50%), -52px 134px hsl(723.6, 100%, 50%), -53px 135px hsl(729, 100%, 50%), -54px 136px hsl(734.4, 100%, 50%), -55px 137px hsl(739.8, 100%, 50%), -55px 138px hsl(745.2, 100%, 50%), -56px 139px hsl(750.6, 100%, 50%), -57px 140px hsl(756, 100%, 50%), -57px 141px hsl(761.4, 100%, 50%), -58px 142px hsl(766.8, 100%, 50%), -58px 143px hsl(772.2, 100%, 50%), -58px 144px hsl(777.6, 100%, 50%), -59px 145px hsl(783, 100%, 50%), -59px 146px hsl(788.4, 100%, 50%), -59px 147px hsl(793.8, 100%, 50%), -59px 148px hsl(799.2, 100%, 50%), -59px 149px hsl(804.6, 100%, 50%), -60px 150px hsl(810, 100%, 50%), -59px 151px hsl(815.4, 100%, 50%), -59px 152px hsl(820.8, 100%, 50%), -59px 153px hsl(826.2, 100%, 50%), -59px 154px hsl(831.6, 100%, 50%), -59px 155px hsl(837, 100%, 50%), -58px 156px hsl(842.4, 100%, 50%), -58px 157px hsl(847.8, 100%, 50%), -58px 158px hsl(853.2, 100%, 50%), -57px 159px hsl(858.6, 100%, 50%), -57px 160px hsl(864, 100%, 50%), -56px 161px hsl(869.4, 100%, 50%), -55px 162px hsl(874.8, 100%, 50%), -55px 163px hsl(880.2, 100%, 50%), -54px 164px hsl(885.6, 100%, 50%), -53px 165px hsl(891, 100%, 50%), -52px 166px hsl(896.4, 100%, 50%), -51px 167px hsl(901.8, 100%, 50%), -50px 168px hsl(907.2, 100%, 50%), -49px 169px hsl(912.6, 100%, 50%), -48px 170px hsl(918, 100%, 50%), -47px 171px hsl(923.4, 100%, 50%), -46px 172px hsl(928.8, 100%, 50%), -45px 173px hsl(934.2, 100%, 50%), -43px 174px hsl(939.6, 100%, 50%), -42px 175px hsl(945, 100%, 50%), -41px 176px hsl(950.4, 100%, 50%), -39px 177px hsl(955.8, 100%, 50%), -38px 178px hsl(961.2, 100%, 50%), -36px 179px hsl(966.6, 100%, 50%), -35px 180px hsl(972, 100%, 50%), -33px 181px hsl(977.4, 100%, 50%), -32px 182px hsl(982.8, 100%, 50%), -30px 183px hsl(988.2, 100%, 50%), -28px 184px hsl(993.6, 100%, 50%), -27px 185px hsl(999, 100%, 50%), -25px 186px hsl(1004.4, 100%, 50%), -23px 187px hsl(1009.8, 100%, 50%), -22px 188px hsl(1015.2, 100%, 50%), -20px 189px hsl(1020.6, 100%, 50%), -18px 190px hsl(1026, 100%, 50%), -16px 191px hsl(1031.4, 100%, 50%), -14px 192px hsl(1036.8, 100%, 50%), -13px 193px hsl(1042.2, 100%, 50%), -11px 194px hsl(1047.6, 100%, 50%), -9px 195px hsl(1053, 100%, 50%), -7px 196px hsl(1058.4, 100%, 50%), -5px 197px hsl(1063.8, 100%, 50%), -3px 198px hsl(1069.2, 100%, 50%), -1px 199px hsl(1074.6, 100%, 50%), -1px 200px hsl(1080, 100%, 50%), 1px 201px hsl(1085.4, 100%, 50%), 3px 202px hsl(1090.8, 100%, 50%), 5px 203px hsl(1096.2, 100%, 50%), 7px 204px hsl(1101.6, 100%, 50%), 9px 205px hsl(1107, 100%, 50%), 11px 206px hsl(1112.4, 100%, 50%), 13px 207px hsl(1117.8, 100%, 50%), 14px 208px hsl(1123.2, 100%, 50%), 16px 209px hsl(1128.6, 100%, 50%), 18px 210px hsl(1134, 100%, 50%), 20px 211px hsl(1139.4, 100%, 50%), 22px 212px hsl(1144.8, 100%, 50%), 23px 213px hsl(1150.2, 100%, 50%), 25px 214px hsl(1155.6, 100%, 50%), 27px 215px hsl(1161, 100%, 50%), 28px 216px hsl(1166.4, 100%, 50%), 30px 217px hsl(1171.8, 100%, 50%), 32px 218px hsl(1177.2, 100%, 50%), 33px 219px hsl(1182.6, 100%, 50%), 35px 220px hsl(1188, 100%, 50%), 36px 221px hsl(1193.4, 100%, 50%), 38px 222px hsl(1198.8, 100%, 50%), 39px 223px hsl(1204.2, 100%, 50%), 41px 224px hsl(1209.6, 100%, 50%), 42px 225px hsl(1215, 100%, 50%), 43px 226px hsl(1220.4, 100%, 50%), 45px 227px hsl(1225.8, 100%, 50%), 46px 228px hsl(1231.2, 100%, 50%), 47px 229px hsl(1236.6, 100%, 50%), 48px 230px hsl(1242, 100%, 50%), 49px 231px hsl(1247.4, 100%, 50%), 50px 232px hsl(1252.8, 100%, 50%), 51px 233px hsl(1258.2, 100%, 50%), 52px 234px hsl(1263.6, 100%, 50%), 53px 235px hsl(1269, 100%, 50%), 54px 236px hsl(1274.4, 100%, 50%), 55px 237px hsl(1279.8, 100%, 50%), 55px 238px hsl(1285.2, 100%, 50%), 56px 239px hsl(1290.6, 100%, 50%), 57px 240px hsl(1296, 100%, 50%), 57px 241px hsl(1301.4, 100%, 50%), 58px 242px hsl(1306.8, 100%, 50%), 58px 243px hsl(1312.2, 100%, 50%), 58px 244px hsl(1317.6, 100%, 50%), 59px 245px hsl(1323, 100%, 50%), 59px 246px hsl(1328.4, 100%, 50%), 59px 247px hsl(1333.8, 100%, 50%), 59px 248px hsl(1339.2, 100%, 50%), 59px 249px hsl(1344.6, 100%, 50%), 60px 250px hsl(1350, 100%, 50%), 59px 251px hsl(1355.4, 100%, 50%), 59px 252px hsl(1360.8, 100%, 50%), 59px 253px hsl(1366.2, 100%, 50%), 59px 254px hsl(1371.6, 100%, 50%), 59px 255px hsl(1377, 100%, 50%), 58px 256px hsl(1382.4, 100%, 50%), 58px 257px hsl(1387.8, 100%, 50%), 58px 258px hsl(1393.2, 100%, 50%), 57px 259px hsl(1398.6, 100%, 50%), 57px 260px hsl(1404, 100%, 50%), 56px 261px hsl(1409.4, 100%, 50%), 55px 262px hsl(1414.8, 100%, 50%), 55px 263px hsl(1420.2, 100%, 50%), 54px 264px hsl(1425.6, 100%, 50%), 53px 265px hsl(1431, 100%, 50%), 52px 266px hsl(1436.4, 100%, 50%), 51px 267px hsl(1441.8, 100%, 50%), 50px 268px hsl(1447.2, 100%, 50%), 49px 269px hsl(1452.6, 100%, 50%), 48px 270px hsl(1458, 100%, 50%), 47px 271px hsl(1463.4, 100%, 50%), 46px 272px hsl(1468.8, 100%, 50%), 45px 273px hsl(1474.2, 100%, 50%), 43px 274px hsl(1479.6, 100%, 50%), 42px 275px hsl(1485, 100%, 50%), 41px 276px hsl(1490.4, 100%, 50%), 39px 277px hsl(1495.8, 100%, 50%), 38px 278px hsl(1501.2, 100%, 50%), 36px 279px hsl(1506.6, 100%, 50%), 35px 280px hsl(1512, 100%, 50%), 33px 281px hsl(1517.4, 100%, 50%), 32px 282px hsl(1522.8, 100%, 50%), 30px 283px hsl(1528.2, 100%, 50%), 28px 284px hsl(1533.6, 100%, 50%), 27px 285px hsl(1539, 100%, 50%), 25px 286px hsl(1544.4, 100%, 50%), 23px 287px hsl(1549.8, 100%, 50%), 22px 288px hsl(1555.2, 100%, 50%), 20px 289px hsl(1560.6, 100%, 50%), 18px 290px hsl(1566, 100%, 50%), 16px 291px hsl(1571.4, 100%, 50%), 14px 292px hsl(1576.8, 100%, 50%), 13px 293px hsl(1582.2, 100%, 50%), 11px 294px hsl(1587.6, 100%, 50%), 9px 295px hsl(1593, 100%, 50%), 7px 296px hsl(1598.4, 100%, 50%), 5px 297px hsl(1603.8, 100%, 50%), 3px 298px hsl(1609.2, 100%, 50%), 1px 299px hsl(1614.6, 100%, 50%), 2px 300px hsl(1620, 100%, 50%), -1px 301px hsl(1625.4, 100%, 50%), -3px 302px hsl(1630.8, 100%, 50%), -5px 303px hsl(1636.2, 100%, 50%), -7px 304px hsl(1641.6, 100%, 50%), -9px 305px hsl(1647, 100%, 50%), -11px 306px hsl(1652.4, 100%, 50%), -13px 307px hsl(1657.8, 100%, 50%), -14px 308px hsl(1663.2, 100%, 50%), -16px 309px hsl(1668.6, 100%, 50%), -18px 310px hsl(1674, 100%, 50%), -20px 311px hsl(1679.4, 100%, 50%), -22px 312px hsl(1684.8, 100%, 50%), -23px 313px hsl(1690.2, 100%, 50%), -25px 314px hsl(1695.6, 100%, 50%), -27px 315px hsl(1701, 100%, 50%), -28px 316px hsl(1706.4, 100%, 50%), -30px 317px hsl(1711.8, 100%, 50%), -32px 318px hsl(1717.2, 100%, 50%), -33px 319px hsl(1722.6, 100%, 50%), -35px 320px hsl(1728, 100%, 50%), -36px 321px hsl(1733.4, 100%, 50%), -38px 322px hsl(1738.8, 100%, 50%), -39px 323px hsl(1744.2, 100%, 50%), -41px 324px hsl(1749.6, 100%, 50%), -42px 325px hsl(1755, 100%, 50%), -43px 326px hsl(1760.4, 100%, 50%), -45px 327px hsl(1765.8, 100%, 50%), -46px 328px hsl(1771.2, 100%, 50%), -47px 329px hsl(1776.6, 100%, 50%), -48px 330px hsl(1782, 100%, 50%), -49px 331px hsl(1787.4, 100%, 50%), -50px 332px hsl(1792.8, 100%, 50%), -51px 333px hsl(1798.2, 100%, 50%), -52px 334px hsl(1803.6, 100%, 50%), -53px 335px hsl(1809, 100%, 50%), -54px 336px hsl(1814.4, 100%, 50%), -55px 337px hsl(1819.8, 100%, 50%), -55px 338px hsl(1825.2, 100%, 50%), -56px 339px hsl(1830.6, 100%, 50%), -57px 340px hsl(1836, 100%, 50%), -57px 341px hsl(1841.4, 100%, 50%), -58px 342px hsl(1846.8, 100%, 50%), -58px 343px hsl(1852.2, 100%, 50%), -58px 344px hsl(1857.6, 100%, 50%), -59px 345px hsl(1863, 100%, 50%), -59px 346px hsl(1868.4, 100%, 50%), -59px 347px hsl(1873.8, 100%, 50%), -59px 348px hsl(1879.2, 100%, 50%), -59px 349px hsl(1884.6, 100%, 50%), -60px 350px hsl(1890, 100%, 50%), -59px 351px hsl(1895.4, 100%, 50%), -59px 352px hsl(1900.8, 100%, 50%), -59px 353px hsl(1906.2, 100%, 50%), -59px 354px hsl(1911.6, 100%, 50%), -59px 355px hsl(1917, 100%, 50%), -58px 356px hsl(1922.4, 100%, 50%), -58px 357px hsl(1927.8, 100%, 50%), -58px 358px hsl(1933.2, 100%, 50%), -57px 359px hsl(1938.6, 100%, 50%), -57px 360px hsl(1944, 100%, 50%), -56px 361px hsl(1949.4, 100%, 50%), -55px 362px hsl(1954.8, 100%, 50%), -55px 363px hsl(1960.2, 100%, 50%), -54px 364px hsl(1965.6, 100%, 50%), -53px 365px hsl(1971, 100%, 50%), -52px 366px hsl(1976.4, 100%, 50%), -51px 367px hsl(1981.8, 100%, 50%), -50px 368px hsl(1987.2, 100%, 50%), -49px 369px hsl(1992.6, 100%, 50%), -48px 370px hsl(1998, 100%, 50%), -47px 371px hsl(2003.4, 100%, 50%), -46px 372px hsl(2008.8, 100%, 50%), -45px 373px hsl(2014.2, 100%, 50%), -43px 374px hsl(2019.6, 100%, 50%), -42px 375px hsl(2025, 100%, 50%), -41px 376px hsl(2030.4, 100%, 50%), -39px 377px hsl(2035.8, 100%, 50%), -38px 378px hsl(2041.2, 100%, 50%), -36px 379px hsl(2046.6, 100%, 50%), -35px 380px hsl(2052, 100%, 50%), -33px 381px hsl(2057.4, 100%, 50%), -32px 382px hsl(2062.8, 100%, 50%), -30px 383px hsl(2068.2, 100%, 50%), -28px 384px hsl(2073.6, 100%, 50%), -27px 385px hsl(2079, 100%, 50%), -25px 386px hsl(2084.4, 100%, 50%), -23px 387px hsl(2089.8, 100%, 50%), -22px 388px hsl(2095.2, 100%, 50%), -20px 389px hsl(2100.6, 100%, 50%), -18px 390px hsl(2106, 100%, 50%), -16px 391px hsl(2111.4, 100%, 50%), -14px 392px hsl(2116.8, 100%, 50%), -13px 393px hsl(2122.2, 100%, 50%), -11px 394px hsl(2127.6, 100%, 50%), -9px 395px hsl(2133, 100%, 50%), -7px 396px hsl(2138.4, 100%, 50%), -5px 397px hsl(2143.8, 100%, 50%), -3px 398px hsl(2149.2, 100%, 50%), -1px 399px hsl(2154.6, 100%, 50%); font-size: 40px;";
 
     //start init thingamajigs
-    console.log("StateFarm: startUp()", attemptedInjection);
+    log("StateFarm: startUp()", attemptedInjection);
     startUp();
-    console.log("StateFarm: after startUp()", attemptedInjection);
+    log("StateFarm: after startUp()", attemptedInjection);
 
     if (typeof GM_info !== 'undefined' && GM_info?.scriptHandler == "Tampermonkey") {
         let count = GM_getValue("StateFarm_TampermonkeyWarnings") || 0;
@@ -5909,9 +5921,9 @@ z-index: 999999;
 
     setTimeout(() => {
         if (!attemptedInjection) {
-            console.log("Injection didn't work for whatever reason, let's try again.");
+            log("Injection didn't work for whatever reason, let's try again.");
             reloadPage();
         };
     }, 30000);
 })();
-console.log("StateFarm: after function", attemptedInjection);
+// log("StateFarm: after function", attemptedInjection);
