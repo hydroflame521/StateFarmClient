@@ -20,7 +20,7 @@ StateFarm is the **BEST** hack client for Shell Shockers (shellshock.io), includ
 <h3 align='center'>Join our <a href='https://dsc.gg/sfnetwork'>Discord Server</a> for the latest news!</h3>
 <br>
 
-The information below is accurate as of StateFarm version **3.4.0-pre57**.
+The information below is accurate as of StateFarm version **3.4.1-pre52**. 
 <br><br>
 
 <h1 align='center'>Table of Contents</h1>
@@ -33,6 +33,7 @@ The information below is accurate as of StateFarm version **3.4.0-pre57**.
     - [ESP](#esp)
 - [ Features:](#-features)
     - [Binding Modules:](#binding-modules)
+    - [ StateFarm Chat:](#-statefarm-chat)
     - [ Combat:](#-combat)
     - [ Render:](#-render)
     - [ HUD:](#-hud)
@@ -44,7 +45,8 @@ The information below is accurate as of StateFarm version **3.4.0-pre57**.
     - [Deploy](#deploy)
     - [Manage](#manage)
     - [Params](#params)
-  - [ Themeing:](#-themeing)
+  - [ Theming:](#-theming)
+  - [ Accounts:](#-accounts)
   - [ Miscellaneous:](#-miscellaneous)
   - [ Client \& About:](#-client--about)
 - [Adblocking](#adblocking)
@@ -109,6 +111,15 @@ With the exception of the color pickers and some links, each option should all b
 4. Press the key to bind! It's that simple.
 > If you want to remove a bind, press your 'Delete' key instead of a bind.
 
+## [](#statefarm-chat) StateFarm Chat:
+StateFarm chat is a universal chatroom to chat with other client users or discord members. <br> 
+<!-- The chat is universal to all SFNetwork clients, so it also includes [**KrunkFarm**](https://github.com/onlypuppy7/KrunkFarmClient) users.--> <!-- uncomment once KrukFarm finished.-->
+- **Username** - your username in the chatroom.
+- **Show/Hide** - toggle chat panel visibility. 
+- **Notifications** - shows an in-game notification for every new chat message.
+- **Notification Sound** - play a sound for every new message.
+- **Auto Start Chat** - will show the chat panel and connect to the chatroom on startup.
+
 ## [](#combat) Combat:
 - **Aimbot** - locks onto targeted player.
   - **TargetMode** - decides the priority for which player aimbot should target.
@@ -120,6 +131,7 @@ With the exception of the color pickers and some links, each option should all b
     - **Only Visible** - only targets visible players. if none are visible, nobody is targeted.
   - **ToggleRM** - modifies aimbot to only lock when the right mouse is held.
   - **SilentAim** - shoots without moving the camera. ONLY visual, VERY blatant cheating. [more information](https://youtu.be/R1NkSsi2LrI?t=20)
+  - **SemiSilent** - SilentAimbot behavior, but will move the camera after a shot has been fired.
   - **NoWallTrack** - aimbot ignores the player if they're behind obstacles.
   - **Prediction** - predicts where the player will be when the bullet hits them.
   - **AntiBloom** - locks onto the predicted bloom point. good for shooting & moving.
@@ -136,7 +148,7 @@ With the exception of the color pickers and some links, each option should all b
   - **Force Automatic** - changes guns which normally aren't automatic into ones that are.
   - **While Visible** - automatically shoots the gun when a player is visible.
   - **While Aimbotting** - automatically shoot the gun when you're aimbotting.
-  - **When Visible + Aimbotting** - the above two things, together.
+  - **Visible and Aimbotting** - the above two things, together.
   - **Always** - forever shoot the gun like a maniac.
 - **GrenadeMAX** - sets grenades to be thrown to max power immediately without the need of charging.
 
@@ -146,22 +158,29 @@ With the exception of the color pickers and some links, each option should all b
 - **Chams** - renders players through walls.
 - **Nametags** - enlarges nametags and makes them appear through walls.
 - **Targets** - render a red sphere inside players that deals the most damage to them when shot.
+- **PredictionESP** - creates an ESP box at the predicted position of the player.
+- **Player ESP/Tracers options** - various options for the modules above.
+  - **Type** - how should PlayerESP color behave. Options are self-explanatory.
+  - **PredictionESP Color** - what color to use for the PredictionESP box
 - **Ammo ESP/Tracers options** - displays where ammo/grenades are on the map
   - **ESP** - outlines the ammo/grenades
   - **Tracers** - adds tracers like the ones with normal ESP to ammo/grenades
   - **Regime** - allows you to configure when to trace
 - **FOV** - controls the FOV of the client.
 - **ZoomFOV** - controls how zoomed in/out you are.
+- **CamWIP** - Work-in-progress module. You should leave this off if you are not a dev.
 - **Wireframe** - outlines map objects to allow you to see directly though walls.
-- **EggSize** - changes how big eggs are.
+- **EggSize** - changes how big eggs are. This does not affect hitboxes and is client-side only.
 - **SetDetail** - changes quality of game graphics.
 - **Textures** - disables some textures. primarily, the sky.
 - **RenderDelay** - basically, this adds extra FPS buffer.
 
 ## [](#hud) HUD:
 - **ShowBloom** - displays the next shot's bloom as a red dot onscreen.
-- **Leaderboard** - highlights currently aimbotting player on the leaderboard
-- **Coords** - displays current position on the map.
+- **ShowLOS** - will change the crosshair's color if the player is in an enemy's line of sight.
+- **Show MinAngle** - draws a circle representing the aimbot's minAngle to the hud. 
+- **Co-ords** - displays current position on the map.
+- **RadarWIP** - Work-in-progress module. You should leave this off if you are not a dev.
 - **HPDisplay** - displays the health of your opponents.
 - **PlayerInfo** - displays added information about the player you're targeting.
 - **GameInfo** - displays extra game information.
@@ -206,7 +225,7 @@ With the exception of the color pickers and some links, each option should all b
 
 ## [](#automation) Automation:
 - **FloodReport** - mass reports everyone. o7, comrade.
-- **Bunnyhop** - makes you automatically bunnyhop.
+- **Bunnyhop** - makes you automatically bunnyhop when holding down the jump button.
 - **AutoWalk** - walks forward automatically.
 - **AutoStrafe** - strafes automatically.
 - **AutoJump** - jumps on the specified interval (`JumpDelay`).
@@ -253,6 +272,7 @@ With the exception of the color pickers and some links, each option should all b
 - **AntiDupe** - prevents duplication of names with a random letter at the end.
 - **CopyNames** - copies names from other players in the lobby.
 - **BotColor** - sets the egg skin color of your bots.
+- **Use Macro** - every bot executes the given JS macro.
 - **BotStamp** - sets the stamp of your bots.
 - **BotHat** - sets the hat of your bots.
 ### Manage
@@ -292,7 +312,8 @@ With the exception of the color pickers and some links, each option should all b
 
 > The Info tab will display information about the bots.
 
-## [](#themeing) Theming:
+## [](#theming) Theming:
+- **Skybox** - allows you to switch out Shell's default skybox. CURRENTLY BROKEN!
 - **Mute Game** - mute the game?
 - **DistanMult** - makes the distance when playing sfx change.
 - **CustomSFX** - uses custom SFX packages.
@@ -300,9 +321,19 @@ With the exception of the color pickers and some links, each option should all b
 - **AnimateTitle** - makes the page title look cool.
 - **Theme** - controls the UI theme.
 
+## [](#accounts) Accounts:
+Various account management tools
+- **Account Login (Basic)** - log into an account using email:pass without using shell's UI.
+- **Account Login (Login Database)** - tools for managing accounts in a Database.
+- **Account Generator (Basic)** - basic Gmail account creation.
+- **Account Records Database** - Account Records Database options. Only needed when dealing with a lot of accounts.
+- **Account Generator (ShellPrint)** - account creation using ShellPrint™ technology. NOTE: ShellPrint is currently unsupported on this version of StateFarm Client.
+
 ## [](#misc) Miscellaneous:
 - **Ad Block** - prevents the anti-adblocker code.
-- **VIP Spoof** - makes you look like a VIP locally (other players won't see).
+- **VIP Badge** - makes the VIP badge visible locally (other players won't see).
+- **NoAnnoyances** - removes ads.
+- **NoTrack** - removes some user data tracking code.
 - **UnlockSkins** - unlocks all skins in locally (other players will not see these).
 - **AdminSpoof** - shows admin options such as `BOOT` and `BAN` in games. no ACTUAL functionality.
 - **Unban** - unbans you by signing out. you will lose skins if you're not signed in.
@@ -310,10 +341,19 @@ With the exception of the color pickers and some links, each option should all b
 - **NewProxy** - switches to a new shell shockers link. SF config won't be transferred.
 - **ReloadPage** - reloads the page.
 - **SwitchFocus** - controls the focus of the game.
+- **FastChickenWinner** - instantly plays the chick'n winner minigame.
+- **AutoChickenWinner** - automatically plays the chick'n winner minigame when cooldowns are over.
+- **Custom Macro** - allows for JS code to be executed from the client itself. Runs in userscript environment, so use unsafeWindow etc.
+- **DoAtStartup** - executes the entered macro at client startup.
 - **RandomPath** - forces a new random path (pathfinding currently disabled).
+<!-- I have no idea about silentRoll, so just gonna ignore and pretend like I missed it... -->
+- **SeizureX** - rotates the player by the specified amount around the y-axis (yaw).
+- **SeizureY** - rotates the player by the specified amount around the x-axis (pitch).
 
 ## [](#client-&-about) Client & About:
 - **HideGUI** - hides the big StateFarm menu. default key to do this is `H`.
+- **Hide at Startup** - hides the StateFarm menu by default.
+- **No Console Logs** - blocks the client frome sending messages to the browser console.
 - **Popups** - disables/enables bottom-left corner popups of configs changed & notifications.
 - **Panic** - allows you to quickly exit to a set URL. great for hacking in class.
 - **Presets**
