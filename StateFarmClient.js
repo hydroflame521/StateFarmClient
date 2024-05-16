@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre54
+// @version      3.4.1-pre55
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -3004,13 +3004,13 @@ z-index: 999999;
             addStreamsToInGameUI();
         } else {
             if ((!document.getElementById("progressBar"))) {
-                if (extract("autoJoin") && (extract("autoLogin") !== "disabled" && unsafeWindow.vueApp.accountCreated !== null)) {
+                if (extract("autoJoin") && (extract("autoLogin") == "disabled" || unsafeWindow.vueApp.accountCreated !== null)) {
                     unsafeWindow.vueApp.externPlayObject(
                         (extract("joinCode").length === 7) ? 2 : 0,
                         unsafeWindow.vueApp.currentGameType,
                         unsafeWindow.vueApp.playerName,
-                        -1,
-                        extract("joinCode")
+                        '',
+                        (extract("joinCode").length === 7) ? extract("joinCode") : '',
                     );
                 };
             };
