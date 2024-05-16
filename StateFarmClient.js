@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre52
+// @version      3.4.1-pre53
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1600,8 +1600,9 @@ debug mode).`},
     };
     //StateFarmChat functions
     const sfChatUsernameSet = function () {
-        if (sfChatUsername != extract("sfChatUsername") && sfChatIframe != undefined) {
-            sfChatUsername = extract("sfChatUsername");
+        let tagAdded = `[Shell] ${extract("sfChatUsername")}`;
+        if (sfChatUsername != tagAdded && sfChatIframe != undefined) {
+            sfChatUsername = tagAdded; console.log(sfChatUsername);
             sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({ name: sfChatUsername }), "*");
         };
     };
@@ -1677,7 +1678,7 @@ debug mode).`},
             log("settings");
             sendSettings();
             let nameChange = setTimeout(function () {
-                sfChatUsername = extract("sfChatUsername");
+                sfChatUsername = `[Shell] ${extract("sfChatUsername")}`;
                 sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({ name: sfChatUsername }), "*");
             }, 500);
         }, 1000);
