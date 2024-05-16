@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre53
+// @version      3.4.1-pre54
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -450,7 +450,7 @@ let attemptedInjection = false;
             tp[binding + "BindButton"].title = event;
             bindsArray[binding] = event;
             save(binding + "Bind", event);
-            createPopup("Binded " + tp[binding + "Button"].label + " to key: " + event);
+            createPopup("Bound " + tp[binding + "Button"].label + " to key: " + event);
             binding = false;
         } else {
             Object.keys(bindsArray).forEach(function (module) {
