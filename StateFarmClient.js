@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre55
+// @version      3.4.1-pre56
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -138,7 +138,7 @@ let attemptedInjection = false;
     const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
     const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
-    const skyboxURL = "https://raw.githubusercontent.com/xynacore/skybox/master/";
+    const skyboxURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/master/skyboxes/";
 
     const shellPrintURL = 'https://shellprint.villainsrule.xyz/v3/account?key=';
     const jsArchiveURL = 'https://raw.githubusercontent.com/onlypuppy7/ShellShockJSArchives/main/js_archive/';
@@ -3972,6 +3972,9 @@ z-index: 999999;
                 return false;
             };
          });
+        createAnonFunction('shouldNotCull', function () {
+            return true;
+         });
         createAnonFunction('getPointerEscape', function () {
             return noPointerPause;
         });
@@ -4340,7 +4343,7 @@ z-index: 999999;
             log('%cSuccess! Variable retrieval and main loop hooked.', 'color: green; font-weight: bold;');
             log('%cSTATEFARM INJECTION STAGE 3: INJECT CULL INHIBITION', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //stop removal of objects
-            modifyJS(`${f(H.CULL)})r`, `true)r`);
+            modifyJS(`${f(H.CULL)})r`, `${functionNames.shouldNotCull}())r`);
             log('%cSuccess! Cull inhibition hooked ' + f(H.CULL), 'color: green; font-weight: bold;');
             log('%cSTATEFARM INJECTION STAGE 4: INJECT OTHER FUNCTIONS', 'color: yellow; font-weight: bold; font-size: 1.2em; text-decoration: underline;');
             //hook for modifications just before firing
@@ -4360,7 +4363,7 @@ z-index: 999999;
             match = js.match(/inventory\[[a-zA-Z$_]+\].id===[a-zA-Z$_]+.id\)return!0;return!1/);
             if (match) { modifyJS(match[0], match[0] + `||window.${functionNames.getSkinHack}()`) };
             //reset join/leave msgs
-            modifyJS(',log("joinGame()', ',window.' + functionNames.setNewGame + '(),log("value changed, also joinGame()');
+            modifyJS(',console.log("joinGame()', ',window.' + functionNames.setNewGame + '(),console.log("value changed, also joinGame()');
             //bypass chat filter
             modifyJS('.trim();', '.trim();' + f(H._chat) + '=window.' + functionNames.modifyChat + '(' + f(H._chat) + ');')
             //hook for control interception
@@ -4377,7 +4380,7 @@ z-index: 999999;
             //get rid of tutorial popup because its a stupid piece of shit
             modifyJS(',vueApp.onTutorialPopupClick()', '');
             //annoying shit
-            modifyJS('alert', 'log');
+            modifyJS('alert', 'console.log');
             //pointer escape
             modifyJS('onpointerlockchange=function(){', 'onpointerlockchange=function(){if (window.' + functionNames.getPointerEscape + '()) {return};');
             //death hook
