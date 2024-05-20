@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre56
+// @version      3.4.1-pre57
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -183,6 +183,7 @@ let attemptedInjection = false;
     };
     const presetStorageLocation = "StateFarmUserPresets";
     let hudElementPositions = {};
+    let cachedRealData = {};
     let blacklistedGameCodes = [];
     let sfChatIframe;
     let sfChatContainer;
@@ -801,6 +802,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: { min: 0, max: 30, step: 1 }, defaultValue: 5, });
             initModule({ location: tp.chatTab.pages[0], title: "ShowFiltered", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1], });
+            initModule({ location: tp.chatTab.pages[0], title: "UnfilterNames", storeAs: "unfilterNames", bindLocation: tp.chatTab.pages[1], });
             tp.chatTab.pages[0].addSeparator();
             initModule({ location: tp.chatTab.pages[0], title: "BypassFilter", storeAs: "chatFilterBypass", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "Tall Chat", storeAs: "tallChat", bindLocation: tp.chatTab.pages[1], });
@@ -2762,6 +2764,7 @@ z-index: 999999;
             unsafeWindow.globalSS.getScrambled = getScrambled;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
             unsafeWindow.globalSS.accountStatus = accountStatus;
+            unsafeWindow.globalSS.cachedRealData = cachedRealData;
             unsafeWindow.globalSS.pathfindingInfo = {
                 activePath: activePath,
                 pathfindingTargetOverride: pathfindingTargetOverride,
@@ -3001,6 +3004,27 @@ z-index: 999999;
                     };
                 };
             };
+
+            
+            Array.from(document.getElementById("playerList").children).forEach(playerListItem => {
+                const playerSlotNameElement = playerListItem.children[0];
+                if (playerSlotNameElement) {
+                    let highlightSpan = playerSlotNameElement.querySelector('span');
+                    if (!highlightSpan) {
+                        highlightSpan = document.createElement('span');
+                        highlightSpan.textContent = playerSlotNameElement.textContent;
+                        playerSlotNameElement.textContent = '';
+                        playerSlotNameElement.appendChild(highlightSpan);
+                    };
+                    if (extract("unfilterNames") && ss.isBadWord(playerListItem.textContent)) {
+                        highlightSpan.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
+                        highlightSpan.style.color = 'red';
+                    } else {
+                        highlightSpan.style.backgroundColor = '';
+                        highlightSpan.style.color = '';
+                    };
+                };
+            });
             addStreamsToInGameUI();
         } else {
             if ((!document.getElementById("progressBar"))) {
@@ -3982,6 +4006,12 @@ z-index: 999999;
             newGame = true;
             timeJoinedGame = Date.now();
         });
+        createAnonFunction('realPlayerData', function (playerData) {
+            cachedRealData[playerData[H.uniqueId_]] = {
+                name: playerData[H.name_],
+                uniqueId: playerData[H.uniqueId_],
+            };
+        });
         createAnonFunction('interceptGa', function () {
             if (arguments['3'] == 'Reward item') {
                 let itemName = arguments['4'].slice(0, -4);
@@ -4405,6 +4435,8 @@ z-index: 999999;
             // skybox (yay)
             modifyJS(`infiniteDistance=!0;`, `infiniteDistance=!0;window["${skyboxName}"]=${H.skybox};`);
             modifyJS(`.name)}vueApp`, `.name)}window["${mapData}"]=${H.mapData};vueApp`);
+            //intercept player names before they are censored
+            modifyJS(`:{}};if(${H.playerData}.`, `:{}};window.${functionNames.realPlayerData}(${H.playerData});if(${H.playerData}.`);
 
             modifyJS(/tp-/g, '');
 
@@ -5389,6 +5421,10 @@ z-index: 999999;
                     player.exists = objExists;
                 };
                 if (player) {
+                    if (!ss.SETTINGS.safeNames) {
+                    };
+                    if (extract("unfilterNames")) { player.name = (cachedRealData[player.uniqueId]?.name || player.name);
+                    } else player.name = (player?.normalName || player.name);
                     if (extract("nametags") && player[H.actor] && player[H.actor].nameSprite) { //taken from shellshock.js, so var names are weird
                         player[H.actor].nameSprite._manager.renderingGroupId = 1;
                         player[H.actor].nameSprite.renderingGroupId = 1;
@@ -5857,7 +5893,6 @@ z-index: 999999;
                 if (extract("silentRoll")) {
                     ss.MYPLAYER[H.pitch] += 2 * Math.PI;
                 };
-
                 if (extract("enableAutoFire")) {
                     let autoFireType = extract("autoFireType");
                     let doAutoFire = false
