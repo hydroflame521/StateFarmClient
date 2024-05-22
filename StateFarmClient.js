@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre57
+// @version      3.4.1-pre58
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -766,6 +766,7 @@ sniping and someone sneaks up on you
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: { min: 0, max: 360, step: 3 }, defaultValue: 72, });
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: { min: 0, max: 72, step: 1 }, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C", });
             tp.renderTab.pages[0].addSeparator();
+            initModule({ location: tp.renderTab.pages[0], title: "Third Person", storeAs: "thirdPerson", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: { min: 0, max: 10, step: 0.25 }, defaultValue: 1, });
@@ -5666,8 +5667,7 @@ z-index: 999999;
                 if (extract("radar")) {
                     myPlayerDot.style.display = 'block';
                     ss.PLAYERS.forEach(player => { updateMiniMap(player, ss.MYPLAYER) });
-                }
-                else {
+                } else {
                     ss.PLAYERS.forEach(player => {
                         if (playerDotsMap.has(player.uniqueId)) {
                             const playerDotToRemove = playerDotsMap.get(player.uniqueId);
@@ -5676,11 +5676,20 @@ z-index: 999999;
                         }
                     });
                     myPlayerDot.style.display = 'none';
-                }
+                };
 
                 if (extract("freecam")) {
                     ss.MYPLAYER[H.actor][H.mesh].position.y = ss.MYPLAYER[H.actor][H.mesh].position.y + 1;
                 };
+
+                //credit to helloworld for the idea (worked it out on my own tho :P)
+                if (ss.MYPLAYER[H.playing]) {
+                    ss.CAMERA.position.y = extract("thirdPerson") ? 0.5 : 0;
+                    ss.CAMERA.position.z = extract("thirdPerson") ? -2 : 0;
+                    ss.MYPLAYER[H.actor].gunContainer._children[0].renderingGroupId = extract("thirdPerson") ? 0 : 2;
+                    ss.MYPLAYER[H.actor].gunContainer._children[2].renderingGroupId = extract("thirdPerson") ? 0 : 2;
+                };
+
                 if (extract("spamChat")) {
                     if (document.getElementById("chatIn").style.visibility == 'visible') {
                         if (spamDelay < Date.now()) {
