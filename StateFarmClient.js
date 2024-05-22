@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre59
+// @version      3.4.1-pre60
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -5691,8 +5691,11 @@ z-index: 999999;
                     ss.MYPLAYER[H.actor].gunContainer._children[0].renderingGroupId = extract("perspective") !== "firstPerson" ? 0 : 2;
                     ss.MYPLAYER[H.actor].gunContainer._children[2].renderingGroupId = extract("perspective") !== "firstPerson" ? 0 : 2;
                     if (!ss.MYPLAYER.stampApplied) ss.MYPLAYER[H.actor].applyStamp(ss.MYPLAYER.stampItem); ss.MYPLAYER.stampApplied = true;
-                    if (!ss.MYPLAYER[H.actor].hat) ss.MYPLAYER[H.actor].wearHat(ss.MYPLAYER.hatItem);
-                    ss.MYPLAYER[H.actor].hat.visibility = extract("perspective") !== "firstPerson" ? 1 : 0;
+                    if (!ss.MYPLAYER[H.actor].hat) {
+                        ss.MYPLAYER[H.actor].wearHat(ss.MYPLAYER.hatItem);
+                    } else {
+                        ss.MYPLAYER[H.actor].hat.visibility = extract("perspective") !== "firstPerson" ? 1 : 0;
+                    };
                     //alpha effect
                     ss.MYPLAYER[H.actor].hands.material.alphaMode = 5;
                     ss.MYPLAYER[H.actor][H.bodyMesh].material.alphaMode = 5;
