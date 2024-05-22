@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre58
+// @version      3.4.1-pre59
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -766,7 +766,12 @@ sniping and someone sneaks up on you
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: { min: 0, max: 360, step: 3 }, defaultValue: 72, });
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: { min: 0, max: 72, step: 1 }, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C", });
             tp.renderTab.pages[0].addSeparator();
-            initModule({ location: tp.renderTab.pages[0], title: "Third Person", storeAs: "thirdPerson", bindLocation: tp.renderTab.pages[1], });
+            initModule({ location: tp.renderTab.pages[0], title: "Perspective", storeAs: "perspective", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "1st Person (Default)", value: "firstPerson" }, { text: "3rd Person", value: "thirdPerson" }, { text: "3rd Person (Alt)", value: "thirdPersonAlt" } ], defaultValue: "disabled", defaultBind: "Digit5", });
+            initFolder({ location: tp.renderTab.pages[0], title: "Perspective Options", storeAs: "perspectiveFolder", });
+                initModule({ location: tp.perspectiveFolder, title: "Alpha Effect", storeAs: "perspectiveAlpha", bindLocation: tp.renderTab.pages[1], });
+                tp.perspectiveFolder.addSeparator();
+                initModule({ location: tp.perspectiveFolder, title: "Y Offset", storeAs: "perspectiveY", slider: { min: 0, max: 30, step: 0.25 }, defaultValue: 0.5});
+                initModule({ location: tp.perspectiveFolder, title: "Z Offset", storeAs: "perspectiveZ", slider: { min: 0, max: 30, step: 0.25 }, defaultValue: 2});
             initModule({ location: tp.renderTab.pages[0], title: "CamWIP", storeAs: "freecam", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Wireframe", storeAs: "wireframe", bindLocation: tp.renderTab.pages[1], });
             initModule({ location: tp.renderTab.pages[0], title: "Egg Size", storeAs: "eggSize", slider: { min: 0, max: 10, step: 0.25 }, defaultValue: 1, });
@@ -942,12 +947,6 @@ But check out the GitHub guide.`},
                     { text: 'sunset', value: 'sunset' }
                 ], changeFunction: (newSkybox) => {
                     if (!unsafeWindow[skyboxName]) return;
-
-                    if (newSkybox.value !== 'default') // custom skybox
-                        unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${newSkybox.value}/skybox`, ss.SCENE); // eslint-disable-line
-                    else // reverts to old skybox
-                        unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`img/skyboxes/${mapData.skybox || 'default'}/skybox`, ss.SCENE); // eslint-disable-line
-
                     unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
                 }});
             tp.themingTab.pages[0].addSeparator();
@@ -5639,11 +5638,11 @@ z-index: 999999;
 
         const applySkybox = () => {
             if (!unsafeWindow[skyboxName]) return;
-
-            if (extract('skybox') === 'default' || extract('skybox') === true) return;
-
-            unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${extract("skybox")}/skybox`, ss.SCENE);
-            unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
+            if (!(extract('skybox') === 'default' || extract('skybox') === true || unsafeWindow[skyboxName].material.skyboxTextureThing == extract('skybox'))) {
+                unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${extract("skybox")}/skybox`, ss.SCENE);
+                unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
+                unsafeWindow[skyboxName].material.skyboxTextureThing = extract('skybox');
+            };
         };
 
         createAnonFunction("STATEFARM", function () {
@@ -5684,10 +5683,21 @@ z-index: 999999;
 
                 //credit to helloworld for the idea (worked it out on my own tho :P)
                 if (ss.MYPLAYER[H.playing]) {
-                    ss.CAMERA.position.y = extract("thirdPerson") ? 0.5 : 0;
-                    ss.CAMERA.position.z = extract("thirdPerson") ? -2 : 0;
-                    ss.MYPLAYER[H.actor].gunContainer._children[0].renderingGroupId = extract("thirdPerson") ? 0 : 2;
-                    ss.MYPLAYER[H.actor].gunContainer._children[2].renderingGroupId = extract("thirdPerson") ? 0 : 2;
+                    //camera adjustments
+                    ss.CAMERA.position.y = extract("perspective") !== "firstPerson" ? extract("perspectiveY") : 0;
+                    ss.CAMERA.position.z = extract("perspective") !== "firstPerson" ? extract("perspective") == "thirdPerson" ? -extract("perspectiveZ") : extract("perspectiveZ") : 0;
+                    ss.CAMERA.rotation.x = extract("perspective") == "thirdPersonAlt" ? Math.PI : 0;
+                    //rendering
+                    ss.MYPLAYER[H.actor].gunContainer._children[0].renderingGroupId = extract("perspective") !== "firstPerson" ? 0 : 2;
+                    ss.MYPLAYER[H.actor].gunContainer._children[2].renderingGroupId = extract("perspective") !== "firstPerson" ? 0 : 2;
+                    if (!ss.MYPLAYER.stampApplied) ss.MYPLAYER[H.actor].applyStamp(ss.MYPLAYER.stampItem); ss.MYPLAYER.stampApplied = true;
+                    if (!ss.MYPLAYER[H.actor].hat) ss.MYPLAYER[H.actor].wearHat(ss.MYPLAYER.hatItem);
+                    ss.MYPLAYER[H.actor].hat.visibility = extract("perspective") !== "firstPerson" ? 1 : 0;
+                    //alpha effect
+                    ss.MYPLAYER[H.actor].hands.material.alphaMode = 5;
+                    ss.MYPLAYER[H.actor][H.bodyMesh].material.alphaMode = 5;
+                    ss.MYPLAYER[H.actor].hands.material.alpha = ((extract("perspective") !== "firstPerson") && extract("perspectiveAlpha")) ? .5 : 1;
+                    ss.MYPLAYER[H.actor][H.bodyMesh].material.alpha = ((extract("perspective") !== "firstPerson") && extract("perspectiveAlpha")) ? .5 : 1;
                 };
 
                 if (extract("spamChat")) {
