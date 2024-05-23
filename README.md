@@ -20,7 +20,7 @@ StateFarm is the **BEST** hack client for Shell Shockers (shellshock.io), includ
 <h3 align='center'>Join our <a href='https://dsc.gg/sfnetwork'>Discord Server</a> for the latest news!</h3>
 <br>
 
-The information below is accurate as of StateFarm version **3.4.1-pre52**. 
+The information below is accurate as of StateFarm version **3.4.1-pre61**. 
 <br><br>
 
 <h1 align='center'>Table of Contents</h1>
@@ -168,7 +168,12 @@ StateFarm chat is a universal chatroom to chat with other client users or discor
   - **Regime** - allows you to configure when to trace
 - **FOV** - controls the FOV of the client.
 - **ZoomFOV** - controls how zoomed in/out you are.
-- **CamWIP** - Work-in-progress module. You should leave this off if you are not a dev.
+- **Perspective** - Allows you to switch between third and first person. Think Minecraft f5!
+- **Perspective Options** - options for the Perspective.
+  - **Alpha Effect** - Makes your own player a bit transparent.
+  - **Y Offset** - offset of the camera in y-direction (how far behind should it be?)
+  - **Z Offset** - offset of the camera in z-direction (how far above should it be?)
+- **CamWIP** - Work-in-progress module. You should leave this off if you are not a dev. 
 - **Wireframe** - outlines map objects to allow you to see directly though walls.
 - **EggSize** - changes how big eggs are. This does not affect hitboxes and is client-side only.
 - **SetDetail** - changes quality of game graphics.
