@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre60
+// @version      3.4.1-pre61
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2628,10 +2628,10 @@ z-index: 999999;
             newPosition = object[H.actor][H.mesh].position;
             newScene = object[H.actor].scene;
             newParent = object[H.actor][H.mesh];
-        } else if(type == "pPredESP"){ //objects will be player.pred
-            newPosition = object.position;
-            newScene = object.scene;
-            newParent = object.mesh;
+        } else if(type == "pPredESP"){ //objects will be player.pred, object of BABYLON.TransformNode. https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode
+            newPosition = object.getAbsolutePosition(); //we now use the TN's absolutePosition instead of an own var. It's just cleaner this way imo
+            newScene = object.getScene(); //getters, yummy
+            newParent = object; //will be the TransformNode stored in player.pred, so we can keep this as parent.
         }  else {
             newPosition = object.position;
             newScene = object._scene;
@@ -3005,7 +3005,7 @@ z-index: 999999;
                 };
             };
 
-            
+
             Array.from(document.getElementById("playerList").children).forEach(playerListItem => {
                 const playerSlotNameElement = playerListItem.children[0];
                 if (playerSlotNameElement) {
@@ -4882,7 +4882,7 @@ z-index: 999999;
                             // log('weird case, looking downwards to x/y/z from x/y/z', map_data_x, map_data_y, map_data_z, this.position.x, this.position.y, this.position.z, 'is air directly below?', is_air_directly_below, 'is solid directly below?', is_solid_directly_below, 'is partial directly below?', is_partial_directly_below, 'is valid candidate?', is_valid_candidate)
                             //shit lags, lol
                         };
-                        
+
                         // if the node is already in the list, add a link to it. Otherwise create it and then add a link to it.
                         // if it's air / equivalent to air we can create it (but not necessarily link to it)
                         if (GLOBAL_NODE_LIST.some(item => item.position.x == map_data_x && item.position.y == map_data_y && item.position.z == map_data_z)) { // eslint-disable-line
@@ -5363,24 +5363,18 @@ z-index: 999999;
 
                     //predEsp
                     if (extract("predictionESP")) {
-                        if (!player.pred) {
-                            // log("not pred");
-                            player.pred = {
-                                mesh: new L.BABYLON.Mesh("pPredMesh", player[H.actor].scene),
-                                position: predictPosition(player),
-                                scene: player[H.actor].scene,
-                            };
-                        };
-                        if (!player.pred.scene) {
-                            player.pred.scene = player[H.actor].scene;
-                        };
-                        if (player.pred.mesh && player.pred.scene) {
-                            player.pred.position = predictPosition(player);
-                            player.pred.mesh.position = player.pred.position;
-                            updateOrCreateLinesESP(player.pred, "pPredESP", hexToRgb(extract("predictionESPColor")));
-                            player.pred.exists = objExists;
-                            player.pred.tracerLines.visibility = false;
-                        };
+                      if (!player.pred) { //do we need a new TN as parent?
+                        const pPTransformNode = new L.BABYLON.TransformNode("pPredTNode", player[H.actor].scene); //TN's are literally perfect for this wtf
+                        pPTransformNode.parent = player[H.actor][H.mesh]; //parent to the player's mesh. Not really needed, but good practise.
+                        player.pred = pPTransformNode; //why use object actually? All the info is stored right in the TN :)
+                      };
+                      if (player.pred && player.pred.getScene()) { //does pred exist and is on a valid scene? not really needed, as we literally
+                        //create the thing above if this is not the case, but eh. Better safe than sorry
+                        player.pred.setAbsolutePosition(predictPosition(player)); //transformNode is attached to mesh, so we need absolute pos here.
+                        updateOrCreateLinesESP(player.pred, "pPredESP", hexToRgb(extract("predictionESPColor"))); //I love names. pPredESP, pPTransformNode. Truly nice
+                        player.pred.exists = objExists; //make sure the lines don't get picked up by the ESPLines Garbage collector afterwards
+                        player.pred.tracerLines.visibility = false; //they just don't work for this.
+                      };
                     };
 
                     let color, progress;
