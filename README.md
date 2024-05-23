@@ -168,9 +168,9 @@ StateFarm chat is a universal chatroom to chat with other client users or discor
   - **Regime** - allows you to configure when to trace
 - **FOV** - controls the FOV of the client.
 - **ZoomFOV** - controls how zoomed in/out you are.
-- **Perspective** - Allows you to switch between third and first person. Think Minecraft f5!
+- **Perspective** - Allows you to switch between third and first person. Think Minecraft F5! Default bind is the DIGIT 5.
 - **Perspective Options** - options for the Perspective.
-  - **Alpha Effect** - Makes your own player a bit transparent.
+  - **Alpha Effect** - Makes your own player a bit transparent (currently affects ALL players though!).
   - **Y Offset** - offset of the camera in y-direction (how far behind should it be?)
   - **Z Offset** - offset of the camera in z-direction (how far above should it be?)
 - **CamWIP** - Work-in-progress module. You should leave this off if you are not a dev. 
@@ -196,6 +196,7 @@ StateFarm chat is a universal chatroom to chat with other client users or discor
 - **HighlightTxt** - allows you to highlight text from the chat to copy somewhere else.
 - **Max Ingame** - the number of messages to show ingame (if unset, infinite history will cause issues)
 - **ShowFiltered** - view messages that are caught by the game filter in red.
+- **UnfilterNames** - see filtered people's real names, highlighed in the leaderboard.
 - **BypassFilter** - bypass naughty word game message filter!
 - **TallChat** - makes the chat text taller, appends a character to all sent messages.
 - **AntiAFK** - prevents you from automatically leaving the lobby.
@@ -318,7 +319,7 @@ StateFarm chat is a universal chatroom to chat with other client users or discor
 > The Info tab will display information about the bots.
 
 ## [](#theming) Theming:
-- **Skybox** - allows you to switch out Shell's default skybox. CURRENTLY BROKEN!
+- **Skybox** - allows you to switch out Shell's default skybox.
 - **Mute Game** - mute the game?
 - **DistanMult** - makes the distance when playing sfx change.
 - **CustomSFX** - uses custom SFX packages.
