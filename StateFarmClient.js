@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre61
+// @version      3.4.1-pre62
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -5678,8 +5678,8 @@ z-index: 999999;
                 //credit to helloworld for the idea (worked it out on my own tho :P)
                 if (ss.MYPLAYER[H.playing]) {
                     //camera adjustments
-                    ss.CAMERA.position.y = extract("perspective") !== "firstPerson" ? extract("perspectiveY") : 0;
-                    ss.CAMERA.position.z = extract("perspective") !== "firstPerson" ? extract("perspective") == "thirdPerson" ? -extract("perspectiveZ") : extract("perspectiveZ") : 0;
+                    ss.CAMERA.position.y = extract("perspective") !== "firstPerson" ? extract("perspectiveY") || 0 : 0;
+                    ss.CAMERA.position.z = extract("perspective") !== "firstPerson" ? extract("perspective") == "thirdPerson" ? -(extract("perspectiveZ") || 0) : extract("perspectiveZ") || 0 : 0;
                     ss.CAMERA.rotation.x = extract("perspective") == "thirdPersonAlt" ? Math.PI : 0;
                     //rendering
                     ss.MYPLAYER[H.actor].gunContainer._children[0].renderingGroupId = extract("perspective") !== "firstPerson" ? 0 : 2;
