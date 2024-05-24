@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre63
+// @version      3.4.1-pre64
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -1319,7 +1319,7 @@ debug mode).`},
             tp.clientTab.pages[0].addSeparator();
             initModule({ location: tp.clientTab.pages[0], title: "Panic", storeAs: "panic", bindLocation: tp.clientTab.pages[1], button: "EXIT!", clickFunction: function () { if (extract("enablePanic")) { unsafeWindow.location.replace(extract("panicURL")) } }, defaultBind: "X", enableConditions: [["enablePanic", true]], });
             initFolder({ location: tp.clientTab.pages[0], title: "Panic Options", storeAs: "panicFolder", });
-                initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: true, });
+                initModule({ location: tp.panicFolder, title: "Enable", storeAs: "enablePanic", bindLocation: tp.clientTab.pages[1], defaultValue: false, });
                 initModule({ location: tp.panicFolder, title: "Set URL", storeAs: "panicURL", defaultValue: "https://classroom.google.com/", enableConditions: [["enablePanic", true]], });
             tp.clientTab.pages[0].addSeparator();
             let presetList = [];
@@ -4052,6 +4052,9 @@ z-index: 999999;
                 if (extract("autoEZ")) sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
             };
         });
+        createAnonFunction('interceptDrawTextOnNameTexture', (nameTexture) => {
+            // log(nameTexture);
+        });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
             // log(0, name, panner, somethingelse);
             let customAudio = soundsSFC[name];
@@ -4437,6 +4440,8 @@ z-index: 999999;
             modifyJS(`.name)}vueApp`, `.name)}window["${mapData}"]=${H.mapData};vueApp`);
             //intercept player names before they are censored
             modifyJS(`:{}};if(${H.playerData}.`, `:{}};window.${functionNames.realPlayerData}(${H.playerData});if(${H.playerData}.`);
+            //intercept player names before they are censored
+            modifyJS(`"transparent")},`, `"transparent");window.${functionNames.interceptDrawTextOnNameTexture}(${H.nameTexture})},`);
 
             modifyJS(/tp-/g, '');
 
