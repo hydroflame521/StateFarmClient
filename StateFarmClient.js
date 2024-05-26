@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre65
+// @version      3.4.1-pre66
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -246,7 +246,7 @@ let attemptedInjection = false;
     // blank variables
     let ss = {};
     let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
-    let whitelistPlayers, scrambledMsgEl, accountStatus, annoyancesRemoved, oldGa, newGame, previousDetail, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
+    let whitelistPlayers, scrambledMsgEl, accountStatus, annoyancesRemoved, oldGa, newGame, previousDetail, previousLegacyModels, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -962,6 +962,8 @@ But check out the GitHub guide.`},
                     if (!unsafeWindow[skyboxName]) return;
                     unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
                 }});
+            tp.themingTab.pages[0].addSeparator();
+            initModule({ location: tp.themingTab.pages[0], title: "Legacy Models", storeAs: "legacyModels", bindLocation: tp.themingTab.pages[1], });
             tp.themingTab.pages[0].addSeparator();
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder", });
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1], });
@@ -3094,6 +3096,16 @@ z-index: 999999;
             if (GM_getValue("StateFarm_firstRun") !== 1) {
                 firstExecution = true;
             };
+            if ((extract("legacyModels") !== previousLegacyModels)) {
+                let models = [3000, 3100, 3400, 3600, 3800, 4000, 4200];
+                models.forEach(ID => {
+                    let item = unsafeWindow.extern.catalog.findItemById(ID);
+                    item.item_data.meshName.replaceAll("_Legacy","");
+                    if (extract("legacyModels")) item.item_data.meshName = `${item.item_data.meshName}_Legacy`;
+                });
+            };
+            previousLegacyModels = extract("legacyModels");
+
             if ((extract("setDetail") !== previousDetail) && (extract("setDetail") !== "disabled")) {
                 unsafeWindow.vueApp.settingsUi.togglers.misc[3].value = false;
                 if (extract("setDetail") == "autodetail") {
