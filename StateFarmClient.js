@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre66
+// @version      3.4.1-pre67
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -129,6 +129,7 @@ let attemptedInjection = false;
     //INIT WEBSITE LINKS: store them here so they are easy to maintain and update!
     const discordURL = "https://dsc.gg/sfnetwork";
     const githubURL = "https://github.com/Hydroflame522/StateFarmClient";
+    const updateURL = "https://update.greasyfork.org/scripts/482982/Shell%20Shockers%20Aimbot%20%20ESP%3A%20StateFarm%20Client%20V3%20-%20Cheats%20For%20Bloom%2C%20Chat%2C%20Botting%2C%20Unbanning%20%20More.user.js";
     const featuresGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-features";
     const bottingGuideURL = "https://github.com/Hydroflame522/StateFarmClient/tree/main?tab=readme-ov-file#-botting";
     const violentmonkeyURL = "https://violentmonkey.github.io/get-it/";
@@ -1454,6 +1455,7 @@ debug mode).`},
             },});
             initModule({ location: tp.clientTab.pages[0], title: "Debug", storeAs: "debug", bindLocation: tp.clientTab.pages[1], });
         tp.mainPanel.addSeparator();
+        initModule({ location: tp.mainPanel, title: "Update", storeAs: "update", button: "Link", clickFunction: () => GM_openInTab(updateURL, { active: true }) });
         initModule({ location: tp.mainPanel, title: "Guide", storeAs: "documentation", button: "Link", clickFunction: () => GM_openInTab(featuresGuideURL, { active: true }) });
 
 
