@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre67
+// @version      3.4.1-pre68
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -965,6 +965,11 @@ But check out the GitHub guide.`},
                 }});
             tp.themingTab.pages[0].addSeparator();
             initModule({ location: tp.themingTab.pages[0], title: "Legacy Models", storeAs: "legacyModels", bindLocation: tp.themingTab.pages[1], });
+            initModule({ location: tp.themingTab.pages[0], title: "Game Filter", storeAs: "filter", bindLocation: tp.themingTab.pages[1], dropdown: [
+                {text: "Default", value: 2},
+                {text: "Blue", value: 3},
+                {text: "Mexico", value: 4},
+            ],});
             tp.themingTab.pages[0].addSeparator();
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder", });
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1], });
@@ -3519,17 +3524,18 @@ z-index: 999999;
     };
     const saveConfig = function () {
         if (menuInitiated !== "init") {
-            save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
             if (retrievedSFX && retrievedSFX.length > 1) {
                 save("StateFarmConfigSpecialItems", [
                     ["customSFX1", extractAsDropdownInt("customSFX1") || 0],
                     ["customSFX2", extractAsDropdownInt("customSFX2") || 0],
                     ["customSFX3", extractAsDropdownInt("customSFX3") || 0],
                     ["skybox",     extractAsDropdownInt("skybox")     || 0],
+                    ["filter",     extractAsDropdownInt("filter")     || 0],
                 ]);
             };
-            save("StateFarmConfigBotPanel", tp.botPanel.exportPreset());
         };
+        save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
+        save("StateFarmConfigBotPanel", tp.botPanel.exportPreset());
     };
     const save = function (key, value) {
         if (AUTOMATED) { return undefined };
@@ -4068,8 +4074,9 @@ z-index: 999999;
             return noPointerPause;
         });
         createAnonFunction('setNewGame', function () {
-            newGame = true;
+            newGame = true; log("NEWGAME");
             timeJoinedGame = Date.now();
+            if (ss.SCENE && ss.SCENE.skyboxTextureThing) ss.SCENE.skyboxTextureThing = false;
         });
         createAnonFunction('realPlayerData', function (playerData) {
             cachedRealData[playerData[H.uniqueId_]] = {
@@ -5703,10 +5710,10 @@ z-index: 999999;
 
         const applySkybox = () => {
             if (!unsafeWindow[skyboxName]) return;
-            if (!(extract('skybox') === 'default' || extract('skybox') === true || unsafeWindow[skyboxName].material.skyboxTextureThing == extract('skybox'))) {
+            if (!(extract('skybox') === 'default' || extract('skybox') === true || ss.SCENE.skyboxTextureThing == extract('skybox'))) {
                 unsafeWindow[skyboxName].material.reflectionTexture = new L.BABYLON.CubeTexture(`${skyboxURL}${extract("skybox")}/skybox`, ss.SCENE);
                 unsafeWindow[skyboxName].material.reflectionTexture.coordinatesMode = L.BABYLON.Texture.SKYBOX_MODE;
-                unsafeWindow[skyboxName].material.skyboxTextureThing = extract('skybox');
+                ss.SCENE.skyboxTextureThing = extract('skybox');
             };
         };
 
@@ -5766,6 +5773,13 @@ z-index: 999999;
                     ss.MYPLAYER[H.actor][H.bodyMesh].material.alphaMode = 5;
                     ss.MYPLAYER[H.actor].hands.material.alpha = ((extract("perspective") !== "firstPerson") && extract("perspectiveAlpha")) ? .5 : 1;
                     ss.MYPLAYER[H.actor][H.bodyMesh].material.alpha = ((extract("perspective") !== "firstPerson") && extract("perspectiveAlpha")) ? .5 : 1;
+                };
+                
+                let filter = typeof(extract("filter")) == 'number' ? extract("filter") : 2;
+                if (ss.SCENE && ss.SCENE.appliedFilter !== filter) {
+                    ss.SCENE.materials.forEach(material => {
+                        material.alphaMode = filter;
+                    }); ss.SCENE.appliedFilter = filter;
                 };
 
                 if (extract("spamChat")) {
