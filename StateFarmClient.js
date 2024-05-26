@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre64
+// @version      3.4.1-pre65
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -162,7 +162,7 @@ let attemptedInjection = false;
                 else throw new Error('Failed to fetch folder contents');
             }).then(data => {
                 data.forEach((file, index) => {
-                    retrievedSFX.push({ text: file.name.replace(".zip", ""), value: JSON.stringify(file.download_url) })
+                    retrievedSFX.push({ text: file.name.replace(".zip", ""), value: btoa(file.download_url) })
                 });
                 initMenu(false);
                 tp.mainPanel.hidden = extract("hideAtStartup");
@@ -219,13 +219,23 @@ let attemptedInjection = false;
     const audioContexts = {
         "BGM": createAudioContext(),
         "KOTC": createAudioContext(),
-        "OTHER": createAudioContext(),
+        "OTHER1": createAudioContext(),
+        "OTHER2": createAudioContext(),
+        "OTHER3": createAudioContext(),
+        "OTHER4": createAudioContext(),
+        "OTHER5": createAudioContext(),
+        "OTHER6": createAudioContext(),
+        "OTHER7": createAudioContext(),
+        "OTHER8": createAudioContext(),
+        "OTHER9": createAudioContext(),
         "SOUNDS": createAudioContext(),
     };
     const divertContexts = {
         "KOTC": ["kotc_capture", "kotc_capturing_opponents", "kotc_capturing_player", "kotc_contested", "kotc_pointscore", "kotc_roundend", "kotc_zonespawn"],
     };
     const L = {};
+    L.CryptoJS = CryptoJS;
+    delete CryptoJS;
     const functionNames = [];
     const isKeyToggled = {};
     let ESPArray = [];
@@ -591,8 +601,11 @@ let attemptedInjection = false;
         //INIT MENU
         //init tp.mainPanel
 
-        resetModules = reset;
+        resetModules = reset === true;
         menuInitiated = false;
+
+        log(load("StateFarmConfigMainPanel"));
+        log(JSON.parse(JSON.stringify(retrievedSFX)));
 
         if (tp.mainPanel) { tp.mainPanel.dispose() };
         if (tp.botPanel) { tp.botPanel.dispose() };
@@ -954,7 +967,9 @@ But check out the GitHub guide.`},
                 initModule({ location: tp.audioFolder, title: "Mute Game", storeAs: "muteGame", bindLocation: tp.themingTab.pages[1], });
                 initModule({ location: tp.audioFolder, title: "DistanMult", storeAs: "distanceMult", slider: { min: 0.01, max: 2, step: 0.01 }, defaultValue: 1, });
                 tp.audioFolder.addSeparator();
-                initModule({ location: tp.audioFolder, title: "CustomSFX", storeAs: "customSFX", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: retrievedSFX, });
+                initModule({ location: tp.audioFolder, title: "CustomSFX (1st)", storeAs: "customSFX1", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: JSON.parse(JSON.stringify(retrievedSFX)), });
+                initModule({ location: tp.audioFolder, title: "CustomSFX (2nd)", storeAs: "customSFX2", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: JSON.parse(JSON.stringify(retrievedSFX)), });
+                initModule({ location: tp.audioFolder, title: "CustomSFX (3rd)", storeAs: "customSFX3", bindLocation: tp.themingTab.pages[1], enableConditions: [["muteGame", false]], dropdown: JSON.parse(JSON.stringify(retrievedSFX)), });
             tp.themingTab.pages[0].addSeparator();
             initModule({ location: tp.themingTab.pages[0], title: "Replace Logo", storeAs: "replaceLogo", bindLocation: tp.themingTab.pages[1], });
             initModule({ location: tp.themingTab.pages[0], title: "Animate Title", storeAs: "titleAnimation", bindLocation: tp.themingTab.pages[1], });
@@ -1527,12 +1542,23 @@ debug mode).`},
         initModule({ location: tp.botTabs.pages[3], storeAs: "botOnline", monitor: 17.5, botParam: true, });
 
         if (!AUTOMATED) {
-            if (!load("StateFarmConfigMainPanel") || reset) {
+            if (!load("StateFarmConfigMainPanel") || reset===true) {
                 saveConfig();
             } else {
                 log("##############################################")
                 tp.mainPanel.importPreset(load("StateFarmConfigMainPanel"));
                 tp.botPanel.importPreset(load("StateFarmConfigBotPanel"));
+                try {
+                    let specialItems = load("StateFarmConfigSpecialItems"); //this is for the fucking shit that doesnt apply for NO reason!!
+                    if (specialItems) {
+                        specialItems.forEach(item => {
+                            change(item[0], item[1]);
+                            log(item[0], item[1]);
+                        });
+                    };
+                } catch (error) {
+                    
+                }
             };
         };
 
@@ -1543,9 +1569,16 @@ debug mode).`},
                 tp.mainPanel.hidden = true;
             };
             updateHiddenAndDisabled();
+            let specialItems = load("StateFarmConfigSpecialItems"); //this is for the fucking shit that doesnt apply for NO reason!!
+            if (specialItems) {
+                specialItems.forEach(item => {
+                    change(item[0], item[1]);
+                    log(item[0], item[1]);
+                });
+            };
         }, 500);
 
-        menuInitiated = true;
+        menuInitiated = reset == "init" ? "init" : true;
         const defaultSpamText = ("dsc.gg/s𝖿network: " + menuTitle + " On Top! ");
 
         if (extract("spamChatText").includes("On Top!")) { change("spamChatText", defaultSpamText) };
@@ -1556,7 +1589,7 @@ debug mode).`},
     };
     const onContentLoaded = function () {
         log("StateFarm: initMenu()");
-        initMenu();
+        initMenu("init");
         log("StateFarm: applyStylesAddElements()");
         applyStylesAddElements(); //set font and change menu cass, and other stuff to do with the page
         const intervalId1 = setInterval(everySecond, 1000);
@@ -1604,7 +1637,7 @@ debug mode).`},
     const sfChatUsernameSet = function () {
         let tagAdded = `[Shell] ${extract("sfChatUsername")}`;
         if (sfChatUsername != tagAdded && sfChatIframe != undefined) {
-            sfChatUsername = tagAdded; console.log(sfChatUsername);
+            sfChatUsername = tagAdded; log(sfChatUsername);
             sfChatIframe.contentWindow.postMessage("SFCHAT-UPDATE" + JSON.stringify({ name: sfChatUsername }), "*");
         };
     };
@@ -1704,10 +1737,10 @@ debug mode).`},
                         }
                         if (extract("sfChatNotificationSound")){
                             unsafeWindow.BAWK.play("grenade_cellphone");
-                        }
-                    }
-                }
-            }
+                        };
+                    };
+                };
+            };
         });
     };
 
@@ -2528,7 +2561,7 @@ z-index: 999999;
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
     const playAudio = function (name, panner, contextName) {
-        contextName = findStringInLists(divertContexts, name) || "OTHER";
+        contextName = findStringInLists(divertContexts, name) || "OTHER"+randomInt(1,9)
         let audioContext;
         audioContext = audioContexts[contextName];
         let source = audioContext.createBufferSource();
@@ -2555,7 +2588,7 @@ z-index: 999999;
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         };
-        log(contextName);
+        // log(contextName);
         source.connect(newPanner);
         newPanner.connect(audioContext.destination);
         source.start();
@@ -2628,7 +2661,7 @@ z-index: 999999;
             newPosition = object[H.actor][H.mesh].position;
             newScene = object[H.actor].scene;
             newParent = object[H.actor][H.mesh];
-        } else if(type == "pPredESP"){ //objects will be player.pred, object of BABYLON.TransformNode. https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode
+        } else if (type == "pPredESP") { //objects will be player.pred, object of BABYLON.TransformNode. https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode
             newPosition = object.getAbsolutePosition(); //we now use the TN's absolutePosition instead of an own var. It's just cleaner this way imo
             newScene = object.getScene(); //getters, yummy
             newParent = object; //will be the TransformNode stored in player.pred, so we can keep this as parent.
@@ -2678,7 +2711,7 @@ z-index: 999999;
             box.parent = newParent;
             object.box = box;
             //TARGETS
-            let target
+            let target;
             if (type == "playerESP") {
                 target = L.BABYLON.MeshBuilder.CreateSphere(getScrambled(), { diameter: 0.05 }, newScene);
                 target.material = new L.BABYLON.StandardMaterial(getScrambled(), newScene);
@@ -2765,6 +2798,7 @@ z-index: 999999;
             unsafeWindow.globalSS.soundsSFC = soundsSFC;
             unsafeWindow.globalSS.accountStatus = accountStatus;
             unsafeWindow.globalSS.cachedRealData = cachedRealData;
+            unsafeWindow.globalSS.retrievedSFX = retrievedSFX;
             unsafeWindow.globalSS.pathfindingInfo = {
                 activePath: activePath,
                 pathfindingTargetOverride: pathfindingTargetOverride,
@@ -2932,15 +2966,22 @@ z-index: 999999;
             };
         };
 
-        if (initialisedCustomSFX !== extract("customSFX")) {
-            initialisedCustomSFX = extract("customSFX");
+        let customSFXConfig = `${extract("customSFX1")}+${extract("customSFX2")}+${extract("customSFX3")}`;
+        if (initialisedCustomSFX !== customSFXConfig) {
+            initialisedCustomSFX = customSFXConfig;
             log("STARTING TO LOAD CUSTOM SFX...", initialisedCustomSFX);
             soundsSFC = {};
-            if (initialisedCustomSFX !== true && initialisedCustomSFX !== "default") {
+            if (extract("customSFX3") !== true && extract("customSFX3") !== "default") { //wa wa wa repeated code YOU FUNCTION IT THEN I DONT CARE!!!!! -onlypuppy7
                 createPopup("Loading Custom SFX...");
-
-                // Make the request to fetch and process audio data from the ZIP file
-                fetchAndProcessAudioFromZip(JSON.parse(initialisedCustomSFX));
+                fetchAndProcessAudioFromZip(atob(extract("customSFX3")));
+            };
+            if (extract("customSFX2") !== true && extract("customSFX2") !== "default") {
+                createPopup("Loading Custom SFX...");
+                fetchAndProcessAudioFromZip(atob(extract("customSFX2")));
+            };
+            if (extract("customSFX1") !== true && extract("customSFX1") !== "default") {
+                createPopup("Loading Custom SFX...");
+                fetchAndProcessAudioFromZip(atob(extract("customSFX1")));
             };
         };
 
@@ -3463,8 +3504,18 @@ z-index: 999999;
             .catch(() => { });
     };
     const saveConfig = function () {
-        save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
-        save("StateFarmConfigBotPanel", tp.botPanel.exportPreset());
+        if (menuInitiated !== "init") {
+            save("StateFarmConfigMainPanel", tp.mainPanel.exportPreset());
+            if (retrievedSFX && retrievedSFX.length > 1) {
+                save("StateFarmConfigSpecialItems", [
+                    ["customSFX1", extractAsDropdownInt("customSFX1") || 0],
+                    ["customSFX2", extractAsDropdownInt("customSFX2") || 0],
+                    ["customSFX3", extractAsDropdownInt("customSFX3") || 0],
+                    ["skybox",     extractAsDropdownInt("skybox")     || 0],
+                ]);
+            };
+            save("StateFarmConfigBotPanel", tp.botPanel.exportPreset());
+        };
     };
     const save = function (key, value) {
         if (AUTOMATED) { return undefined };
@@ -4052,8 +4103,9 @@ z-index: 999999;
                 if (extract("autoEZ")) sendChatMessage(`imagine dying ${DEAD.name}, couldn't be me`);
             };
         });
-        createAnonFunction('interceptDrawTextOnNameTexture', (nameTexture) => {
+        createAnonFunction('interceptDrawTextOnNameTexture', (nameTexture, args) => {
             // log(nameTexture);
+            ss.nameTexture = [nameTexture, [args]]; log(ss.nameTexture);
         });
         createAnonFunction('interceptAudio', function (name, panner, somethingelse) {
             // log(0, name, panner, somethingelse);
@@ -4293,7 +4345,7 @@ z-index: 999999;
 
 
             let hash, onlineClientKeys;
-            hash = CryptoJS.SHA256(originalJS).toString(CryptoJS.enc.Hex); // eslint-disable-line
+            hash = L.CryptoJS.SHA256(originalJS).toString(L.CryptoJS.enc.Hex); // eslint-disable-line
             onlineClientKeys = getVardata(hash);
 
             if (onlineClientKeys == "value_undefined" || onlineClientKeys == null) {
@@ -4441,7 +4493,7 @@ z-index: 999999;
             //intercept player names before they are censored
             modifyJS(`:{}};if(${H.playerData}.`, `:{}};window.${functionNames.realPlayerData}(${H.playerData});if(${H.playerData}.`);
             //intercept player names before they are censored
-            modifyJS(`"transparent")},`, `"transparent");window.${functionNames.interceptDrawTextOnNameTexture}(${H.nameTexture})},`);
+            modifyJS(`"transparent")},`, `"transparent");window.${functionNames.interceptDrawTextOnNameTexture}(${H.nameTexture}, arguments)},`);
 
             modifyJS(/tp-/g, '');
 
@@ -5529,12 +5581,12 @@ z-index: 999999;
         createAnonFunction("retrieveFunctions", function (vars, doStateFarm) {
             ss = vars;
 
-            unsafeWindow.vueApp._showGenericPopup = unsafeWindow.vueApp.showGenericPopup;
+            // unsafeWindow.vueApp._showGenericPopup = unsafeWindow.vueApp.showGenericPopup; //this just doesnt work
 
-            unsafeWindow.vueApp.showGenericPopup = (...args) => {
-                if (args[0] === 'session_expired') return;
-                return unsafeWindow.vueApp._showGenericPopup(...args);
-            };
+            // unsafeWindow.vueApp.showGenericPopup = (...args) => {
+            //     if (args[0] === 'session_expired') return;
+            //     return unsafeWindow.vueApp._showGenericPopup(...args);
+            // };
 
             if (doStateFarm) {
                 didStateFarm = true;
