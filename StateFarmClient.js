@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre68
+// @version      3.4.1-pre69 (funni 2)
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -953,10 +953,15 @@ But check out the GitHub guide.`},
             initModule({ location: tp.themingTab.pages[0], title: "Skybox", storeAs: "skybox", bindLocation: tp.themingTab.pages[1], dropdown: [
                     { text: 'Default', value: 'default' },
                     { text: 'aurora', value: 'aurora' },
+                    { text: 'city', value: 'city' },
                     { text: 'green', value: 'green' },
+                    { text: 'lava', value: 'lava' },
                     { text: 'moonlight', value: 'moonlight' },
                     { text: 'morning', value: 'morning' },
+                    { text: 'purple space', value: 'purple-space' },
+                    { text: 'rosey', value: 'rosey' },
                     { text: 'space explosion', value: 'space-explosion' },
+                    { text: 'spring', value: 'spring' },
                     { text: 'sunrise', value: 'sunrise' },
                     { text: 'sunset', value: 'sunset' }
                 ], changeFunction: (newSkybox) => {
@@ -4497,6 +4502,7 @@ z-index: 999999;
             modifyJS('adsBlocked=' + FUNCTIONPARAM, 'adsBlocked=' + functionNames.adBlocker + '("adsBlocked")');
             modifyJS('"user-has-adblock"', functionNames.adBlocker + '("user-has-adblock")');
             modifyJS('layed=!1', 'layed=window.' + functionNames.adBlocker + '(!1)');
+            modifyJS('showAdBlockerVideo', 'hideAdBlockerVideo'); //hello eggs bullshit
             modifyJS(H.USERDATA + '.playerAccount.isUpgraded()', functionNames.adBlocker + '(' + f(H.USERDATA) + '.playerAccount.isUpgraded())');
             //Modifies matchmaker JS to block gamecodes.
             match = js.match(/ion,([a-zA-Z$_]+)\(([a-zA-Z$_]+)/);
