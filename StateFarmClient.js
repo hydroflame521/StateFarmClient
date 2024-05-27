@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre69 (funni 2)
+// @version      3.4.1-pre70
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -137,6 +137,7 @@ let attemptedInjection = false;
     const babylonURL = "https://cdn.jsdelivr.net/npm/babylonjs@3.3.0/babylon.min.js";
 
     const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
+    const replacementFeedURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/ingamefeeds/";
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
     const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
     const skyboxURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/master/skyboxes/";
@@ -1250,6 +1251,8 @@ debug mode).`},
             initModule({ location: tp.miscTab.pages[0], title: "VIP Badge", storeAs: "spoofVIP", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "NoAnnoyances", storeAs: "noAnnoyances", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "NoTrack", storeAs: "noTrack", bindLocation: tp.miscTab.pages[1], });
+            tp.miscTab.pages[0].addSeparator();
+            initModule({ location: tp.miscTab.pages[0], title: "Replace Feeds", storeAs: "replaceFeeds", bindLocation: tp.miscTab.pages[1], defaultValue: true, });
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1], });
@@ -4342,14 +4345,20 @@ z-index: 999999;
         const originalXHROpen = XMLHttpRequest.prototype.open; //wtf??? libertymutual collab??????
         const originalXHRGetResponse = Object.getOwnPropertyDescriptor(XMLHttpRequest.prototype, 'response');
         let shellshockjs
-        XMLHttpRequest.prototype.open = function (...args) {
+        XMLHttpRequest.prototype.open = function (...args) { //outgoing
             const url = args[1];
-            if (url && url.includes("js/shellshock.js")) {
-                shellshockjs = this;
+            // log("====XMLHTTPREQUEST====", url, args);
+            if (url) {
+                let refresh = `?${Date.now()}`;
+                if (url.includes("js/shellshock.js")) shellshockjs = this;
+                if (extract("replaceFeeds")) {
+                    if (url.includes("data/shellYouTube.json")) args[1]   = replacementFeedURL+"shellYouTube.json"+refresh;
+                    else if (url.includes("data/shellNews.json")) args[1] = replacementFeedURL+"shellNews.json"+refresh;
+                };
             };
             originalXHROpen.apply(this, args);
         };
-        Object.defineProperty(XMLHttpRequest.prototype, 'response', {
+        Object.defineProperty(XMLHttpRequest.prototype, 'response', { //incoming
             get: function () {
                 if (this === shellshockjs) {
                     return applyStateFarm(originalXHRGetResponse.get.call(this));
