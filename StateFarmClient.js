@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre70
+// @version      3.4.1-pre71
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -138,6 +138,7 @@ let attemptedInjection = false;
 
     const replacementLogoURL = "https://github.com/Hydroflame522/StateFarmClient/blob/main/icons/shell-logo-replacement.png?raw=true";
     const replacementFeedURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/ingamefeeds/";
+    const badgeListURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/ingamebadges/";
     const iconURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/main/icons/StateFarmClientLogo384px.png";
     const sfxURL = "https://api.github.com/repos/Hydroflame522/StateFarmClient/contents/soundpacks/sfx";
     const skyboxURL = "https://raw.githubusercontent.com/Hydroflame522/StateFarmClient/master/skyboxes/";
@@ -158,7 +159,14 @@ let attemptedInjection = false;
         document.addEventListener("DOMContentLoaded", function () {
             onContentLoaded();
             log("StateFarm: DOMContentLoaded, ran onContentLoaded, fetching sfx");
-
+            try {
+                log("fetching badge list...", badgeListURL + "badges.json");
+                badgeList = fetchTextContent(badgeListURL + "badges.json");
+                badgeList = JSON.parse(badgeList);
+                log(badgeList);
+            } catch (error) {
+                log("couldnt fetch badge list :(");
+            };
             fetch(sfxURL).then(response => {
                 if (response.ok) return response.json();
                 else throw new Error('Failed to fetch folder contents');
@@ -248,7 +256,7 @@ let attemptedInjection = false;
     // blank variables
     let ss = {};
     let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
-    let whitelistPlayers, scrambledMsgEl, accountStatus, annoyancesRemoved, oldGa, newGame, previousDetail, previousLegacyModels, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
+    let whitelistPlayers, scrambledMsgEl, accountStatus, badgeList, annoyancesRemoved, oldGa, newGame, previousDetail, previousLegacyModels, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -1253,6 +1261,7 @@ debug mode).`},
             initModule({ location: tp.miscTab.pages[0], title: "NoTrack", storeAs: "noTrack", bindLocation: tp.miscTab.pages[1], });
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Replace Feeds", storeAs: "replaceFeeds", bindLocation: tp.miscTab.pages[1], defaultValue: true, });
+            initModule({ location: tp.miscTab.pages[0], title: "Custom Badges", storeAs: "customBadges", bindLocation: tp.miscTab.pages[1], defaultValue: true, });
             tp.miscTab.pages[0].addSeparator();
             initModule({ location: tp.miscTab.pages[0], title: "Unlock Skins", storeAs: "unlockSkins", bindLocation: tp.miscTab.pages[1], });
             initModule({ location: tp.miscTab.pages[0], title: "Admin Spoof", storeAs: "adminSpoof", bindLocation: tp.miscTab.pages[1], });
@@ -2577,6 +2586,20 @@ z-index: 999999;
     const isPartialMatch = function (array, searchString) {
         return array.some(item => item !== "" && searchString.toLowerCase().includes(item.toLowerCase()));
     };
+    const findBadgeForUsername = function(username) {
+        if (badgeList && username) {
+            username = username.toLowerCase().replaceAll("_","").replaceAll(" ","");
+            for (const [key, userList] of Object.entries(badgeList)) {
+                for (const user of userList) {
+                    if (username.includes(user.toLowerCase())) {
+                        return key;
+                    };
+                };
+            };
+        };
+        return false;
+    };
+    
     const playAudio = function (name, panner, contextName) {
         contextName = findStringInLists(divertContexts, name) || "OTHER"+randomInt(1,9)
         let audioContext;
@@ -2816,6 +2839,8 @@ z-index: 999999;
             unsafeWindow.globalSS.accountStatus = accountStatus;
             unsafeWindow.globalSS.cachedRealData = cachedRealData;
             unsafeWindow.globalSS.retrievedSFX = retrievedSFX;
+            unsafeWindow.globalSS.findBadgeForUsername = findBadgeForUsername;
+            unsafeWindow.globalSS.badgeList = badgeList;
             unsafeWindow.globalSS.pathfindingInfo = {
                 activePath: activePath,
                 pathfindingTargetOverride: pathfindingTargetOverride,
@@ -4351,7 +4376,11 @@ z-index: 999999;
             if (url) {
                 let refresh = `?${Date.now()}`;
                 if (url.includes("js/shellshock.js")) shellshockjs = this;
-                if (extract("replaceFeeds")) {
+                let replaceFeeds = false;
+                try {
+                    replaceFeeds = extract("replaceFeeds");
+                } catch (error) { };
+                if (replaceFeeds) {
                     if (url.includes("data/shellYouTube.json")) args[1]   = replacementFeedURL+"shellYouTube.json"+refresh;
                     else if (url.includes("data/shellNews.json")) args[1] = replacementFeedURL+"shellNews.json"+refresh;
                 };
@@ -5870,6 +5899,30 @@ z-index: 999999;
                 if (!extract("showMinAngle")) {
                     minangleCircle.style.display = 'none';
                 };
+                const playerSlots = document.querySelectorAll('#playerList .playerSlot');
+                playerSlots.forEach(slot => {
+                    const usernameElement = slot.querySelector('.playerSlot--name');
+                    let badgeImage = slot.querySelector('.badge-image');
+                    let username = usernameElement ? usernameElement.textContent.trim() : false;
+                    let badgeURL = findBadgeForUsername(username);
+                    if (username && badgeURL && extract("customBadges")) {
+                        if (!badgeImage) {
+                            badgeImage = document.createElement('img');
+                            badgeImage.src = badgeListURL + badgeURL;
+                            badgeImage.className = 'badge-image';
+                            badgeImage.style.height = '90%';
+                            badgeImage.style.width = 'auto';
+                            badgeImage.style.position = 'absolute';
+                            badgeImage.style.right = '-13%';
+                            badgeImage.style.top = '50%';
+                            badgeImage.style.transform = 'translateY(-50%)';
+                            slot.style.position = 'relative';
+                            slot.appendChild(badgeImage);
+                        };
+                    } else if (badgeImage) badgeImage.remove();
+                });
+
+
                 // playerNearest=undefined; //currently unused and not defined
                 // enemyLookingAt=undefined; //currently unused and not defined
 
