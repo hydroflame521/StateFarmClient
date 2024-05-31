@@ -33,8 +33,8 @@ The information below is accurate as of StateFarm version **3.4.1-pre72**.
     - [ESP](#esp)
 - [ Features:](#-features)
     - [Binding Modules:](#binding-modules)
-    - [ StateFarm Chat:](#-statefarm-chat)
     - [ Badges:](#-badges)
+    - [ StateFarm Chat:](#-statefarm-chat)
     - [ Combat:](#-combat)
     - [ Render:](#-render)
     - [ HUD:](#-hud)
@@ -112,6 +112,22 @@ With the exception of the color pickers and some links, each option should all b
 4. Press the key to bind! It's that simple.
 > If you want to remove a bind, press your 'Delete' key instead of a bind.
 
+## [](#badges) Badges:
+StateFarm Client version 3.4.1-pre71 added custom badges. These badges are displayed to yourself and other StateFarm users next to the respective username, like the golden VIP egg.
+There are a number of badges available, and they do stack. Anyone can get the basic StateFarm badge, all you need to do is add "SFC" (not case-sensitive) to your username, and you will see the icon next to your name, as will anyone else using StateFarm.
+> These badges are based on usernames and not any other metric, so a user who has a badge is not automatically another StateFarm user, nor are they the real person. The badges are for fun and don't serve to be a verification method.
+
+### Other Available Badges:
+
+- Gold StateFarm: For devs.
+- Silver StateFarm: For active server boosters (https://statefarm.onlypuppy7.online).
+- Bronze StateFarm: For previous server boosters and other things such as prize winners.
+- Basic StateFarm: Adding "sfc" to your username.
+- FBI: For Eggforcers.
+- Custom Icon: These are for individuals and cannot be requested. They are given at the discretion of onlypuppy7 or another SFC dev.
+
+The badges can be turned off by unchecking "CustomBadges" in the misc tab.
+
 ## [](#statefarm-chat) StateFarm Chat:
 StateFarm chat is a universal chatroom to chat with other client users or discord members. <br> 
 <!-- The chat is universal to all SFNetwork clients, so it also includes [**KrunkFarm**](https://github.com/onlypuppy7/KrunkFarmClient) users.--> <!-- uncomment once KrukFarm finished.-->
@@ -120,16 +136,6 @@ StateFarm chat is a universal chatroom to chat with other client users or discor
 - **Notifications** - shows an in-game notification for every new chat message.
 - **Notification Sound** - play a sound for every new message.
 - **Auto Start Chat** - will show the chat panel and connect to the chatroom on startup.
-
-## [](#badges) Badges:
-StateFarm Client version 3.4.1-pre71 added custom badges. These badges are displayed to yourself and other StateFarm users next to the respective username, like the golden VIP egg.
-To get a badge, all you need to do is add "SFC" to your username, and you will receive a badge.
-> These badges are based on usernames, so a user who has a badge is not automatically another StateFarm user. 
-> This also means that people naming themselves after a user with a special badges will have that badge too, even if they are not the real user, so do not trust the badges.
-
-the badges can be turned off by unchecking "CustomBadges" in the misc tab.
-<!-- TODO: Maybe explain the badges further? Dont know if that wouldnt just make people abuse it and name themselves to get a badge they shouldnt have. -->
-<!-- but then again, I am still jelous susdung got his own badge and I didnt, so... -->
 
 ## [](#combat) Combat:
 - **Aimbot** - locks onto targeted player.
