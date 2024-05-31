@@ -20,7 +20,7 @@ StateFarm is the **BEST** hack client for Shell Shockers (shellshock.io), includ
 <h3 align='center'>Join our <a href='https://dsc.gg/sfnetwork'>Discord Server</a> for the latest news!</h3>
 <br>
 
-The information below is accurate as of StateFarm version **3.4.1-pre61**. 
+The information below is accurate as of StateFarm version **3.4.1-pre72**. 
 <br><br>
 
 <h1 align='center'>Table of Contents</h1>
@@ -34,6 +34,7 @@ The information below is accurate as of StateFarm version **3.4.1-pre61**.
 - [ Features:](#-features)
     - [Binding Modules:](#binding-modules)
     - [ StateFarm Chat:](#-statefarm-chat)
+    - [ Badges:](#-badges)
     - [ Combat:](#-combat)
     - [ Render:](#-render)
     - [ HUD:](#-hud)
@@ -119,6 +120,16 @@ StateFarm chat is a universal chatroom to chat with other client users or discor
 - **Notifications** - shows an in-game notification for every new chat message.
 - **Notification Sound** - play a sound for every new message.
 - **Auto Start Chat** - will show the chat panel and connect to the chatroom on startup.
+
+## [](#badges) Badges:
+StateFarm Client version 3.4.1-pre71 added custom badges. These badges are displayed to yourself and other StateFarm users next to the respective username, like the golden VIP egg.
+To get a badge, all you need to do is add "SFC" to your username, and you will receive a badge.
+> These badges are based on usernames, so a user who has a badge is not automatically another StateFarm user. 
+> This also means that people naming themselves after a user with a special badges will have that badge too, even if they are not the real user, so do not trust the badges.
+
+the badges can be turned off by unchecking "CustomBadges" in the misc tab.
+<!-- TODO: Maybe explain the badges further? Dont know if that wouldnt just make people abuse it and name themselves to get a badge they shouldnt have. -->
+<!-- but then again, I am still jelous susdung got his own badge and I didnt, so... -->
 
 ## [](#combat) Combat:
 - **Aimbot** - locks onto targeted player.
@@ -320,9 +331,11 @@ StateFarm chat is a universal chatroom to chat with other client users or discor
 
 ## [](#theming) Theming:
 - **Skybox** - allows you to switch out Shell's default skybox.
+- **LegacyModels** - switches to the old models
+- **GameFilter** - adds a color tint to the game.
 - **Mute Game** - mute the game?
 - **DistanMult** - makes the distance when playing sfx change.
-- **CustomSFX** - uses custom SFX packages.
+- **CustomSFX(1-3)** - uses custom SFX packages. Allows for three different packages to be active at once.
 - **ReplaceLogo** - replaces shell shockers' logo with the StateFarm logo.
 - **AnimateTitle** - makes the page title look cool.
 - **Theme** - controls the UI theme.
@@ -340,6 +353,8 @@ Various account management tools
 - **VIP Badge** - makes the VIP badge visible locally (other players won't see).
 - **NoAnnoyances** - removes ads.
 - **NoTrack** - removes some user data tracking code.
+- **ReplaceFeeds** - replaces the game menu's news and videos feed with content by the StateFarm dev team.
+- **CustomBadges** - enables custom StateFarm badges. [more info](#-badges)
 - **UnlockSkins** - unlocks all skins in locally (other players will not see these).
 - **AdminSpoof** - shows admin options such as `BOOT` and `BAN` in games. no ACTUAL functionality.
 - **Unban** - unbans you by signing out. you will lose skins if you're not signed in.
@@ -402,6 +417,7 @@ Various account management tools
 - **susdung** - made the visuals improved on StateFarm client.
 <!-- **Zertalious** - old code in old versions. -->
 <!-- oops i commented this out! what a horrible mistake! someone should really fix this idk... -->
+<!-- you just need to watch an ad before you can get credited in the readme. -->
 
 <br>
 
