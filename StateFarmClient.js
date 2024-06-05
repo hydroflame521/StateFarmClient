@@ -783,6 +783,11 @@ sniping and someone sneaks up on you
                     initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "When Depleted", value: "whendepleted" }, { text: "When Low", value: "whenlow" }, { text: "Below Max", value: "belowmax" }, { text: "Always On", value: "alwayson" },], defaultValue: "whendepleted", disableConditions: [["grenadeESP", false], ["grenadeTracers", false]], });
                     initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff", disableConditions: [["grenadeESP", false], ["grenadeTracers", false]], });
             tp.renderTab.pages[0].addSeparator();
+            initModule({ location: tp.renderTab.pages[0], title: "show look dir", storeAs: "lookTracers", bindLocation: tp.renderTab.pages[1], });
+            initFolder({ location: tp.renderTab.pages[0], title: "look direction options", storeAs: "lookTracersFolder", });
+                initModule({ location: tp.lookTracersFolder, title: "length", storeAs: "lookTracersLength", slider: { min: 0, max: 100, step: 0.25 }, defaultValue: 75, });
+                initModule({ location: tp.lookTracersFolder, title: "color", storeAs: "lookTracersColor", defaultValue: "#00ffff", });
+            tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: { min: 0, max: 360, step: 3 }, defaultValue: 72, });
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: { min: 0, max: 72, step: 1 }, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C", });
             tp.renderTab.pages[0].addSeparator();
@@ -2760,13 +2765,37 @@ z-index: 999999;
                 target.parent = newParent;
                 object.target = target;
             };
+            //TODO: END LINE AT COLLISION WITH MAP
+            /*---ForwardLineTrace---*/
+            if(type == "playerESP"){ //only for players. anything else doesnt have eyes dumbass
+                const TRACE_LENGTH_MULTIPLIER = extract("lookTracersLength"); //we currently have the problem that it needs to be redone once the value changes but Ill fix that later
+
+                const playerEye = object[H.actor].eye; // BABYLON.TransformNode (https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode). TN of the "eye", as shell calls it. Basically camera pos.
+        
+                let conclusion /*:trol:*/ = playerEye.forward.clone(); // BABYLON.Vector3 (https://doc.babylonjs.com/typedoc/classes/BABYLON.Vector3). this vector is NORMALIZED
+                conclusion= conclusion.scale(TRACE_LENGTH_MULTIPLIER); //scale by the multiplier to extend the normalized vector. TODO: make multiplier customizable by USER
+                conclusion= conclusion.add(playerEye.absolutePosition); //add pos so we are relative to eye
+
+                const opts = {points: [playerEye.absolutePosition, conclusion]}; //not really needed, but cleaner code always better :). 
+                const lookDirLine = L.BABYLON.MeshBuilder.CreateLines(getScrambled(), opts, newScene); // BABYLON.Mesh (https://doc.babylonjs.com/features/featuresDeepDive/mesh/creation/param/lines)
+            
+                //lookDirLine.renderingGroupId = 1; //make the lines render above shell
+                lookDirLine.setParent(object[H.actor].eye); //attach to the eye(s)
+                lookDirLine.color = new L.BABYLON.Color3(...hexToRgb(extract("lookTracersColor"))); //temp colo(u)r 
+
+                object.lookDirLine = lookDirLine; //save for updatès
+            }
+            /*----------------------*/
             //stuff
             object.generatedESP = true;
-            ESPArray.push([object, tracerLines, box, target]);
+            ESPArray.push([object, tracerLines, box, target, object.lookDirLine]);
         };
+        if(object.lookDirLine){
+            object.lookDirLine.color = new L.BABYLON.Color3(...hexToRgb(extract("lookTracersColor")));
+        }
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-          object.tracerLines.color = new L.BABYLON.Color3(...color);
-          object.box.color = new L.BABYLON.Color3(...color);
+        object.tracerLines.color = new L.BABYLON.Color3(...color);
+        object.box.color = new L.BABYLON.Color3(...color);
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
@@ -5532,6 +5561,7 @@ z-index: 999999;
                     updateOrCreateLinesESP(player, "playerESP", color);
 
                     player.tracerLines.visibility = player[H.playing] && extract("tracers") && passedLists;
+                    player.lookDirLine.visibility = player[H.playing] && extract("lookTracers") && passedLists;
                     player.box.visibility = extract("playerESP") && passedLists;
                     // player.target.visibility = extract("targets") && passedLists;
                     player.target.visibility = false;
@@ -5648,6 +5678,7 @@ z-index: 999999;
                     ESPArray[i][1].dispose(); //tracer
                     ESPArray[i][2].dispose(); //esp box
                     if (ESPArray[i][3]) { ESPArray[i][3].dispose() }; //target
+                    if (ESPArray[i][4]) { ESPArray[i][4].dispose() }; //look linetrace forward line
                     ESPArray.splice(i, 1);
                 };
             }; newGame = false;
