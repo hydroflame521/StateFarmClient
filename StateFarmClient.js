@@ -785,7 +785,8 @@ sniping and someone sneaks up on you
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "show look dir", storeAs: "lookTracers", bindLocation: tp.renderTab.pages[1], });
             initFolder({ location: tp.renderTab.pages[0], title: "look direction options", storeAs: "lookTracersFolder", });
-                initModule({ location: tp.lookTracersFolder, title: "length", storeAs: "lookTracersLength", slider: { min: 0, max: 100, step: 0.25 }, defaultValue: 75, });
+                initModule({ location: tp.lookTracersFolder, title: "render above", storeAs: "lookTracersRGI1", bindLocation: tp.renderTab.pages[1], });
+                //initModule({ location: tp.lookTracersFolder, title: "length", storeAs: "lookTracersLength", slider: { min: 0, max: 100, step: 0.25 }, defaultValue: 75, });
                 initModule({ location: tp.lookTracersFolder, title: "color", storeAs: "lookTracersColor", defaultValue: "#00ffff", });
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: { min: 0, max: 360, step: 3 }, defaultValue: 72, });
@@ -2765,25 +2766,14 @@ z-index: 999999;
                 target.parent = newParent;
                 object.target = target;
             };
-            //TODO: END LINE AT COLLISION WITH MAP
-            /*---ForwardLineTrace---*/
-            if(type == "playerESP"){ //only for players. anything else doesnt have eyes dumbass
-                const TRACE_LENGTH_MULTIPLIER = extract("lookTracersLength"); //we currently have the problem that it needs to be redone once the value changes but Ill fix that later
+            /*---fwltv2---*/
+            if(type == "playerESP"){
+                //create line. other shit later
+                const l = L.BABYLON.MeshBuilder.CreateLines(getScrambled(),{points: [new L.BABYLON.Vector3(0, 0, 0),new L.BABYLON.Vector3(0, 0, 0)]}, newScene); //empty lines. will be edited l8er
+                //l.renderingGroupId = 1;
 
-                const playerEye = object[H.actor].eye; // BABYLON.TransformNode (https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode). TN of the "eye", as shell calls it. Basically camera pos.
-        
-                let conclusion /*:trol:*/ = playerEye.forward.clone(); // BABYLON.Vector3 (https://doc.babylonjs.com/typedoc/classes/BABYLON.Vector3). this vector is NORMALIZED
-                conclusion= conclusion.scale(TRACE_LENGTH_MULTIPLIER); //scale by the multiplier to extend the normalized vector. TODO: make multiplier customizable by USER
-                conclusion= conclusion.add(playerEye.absolutePosition); //add pos so we are relative to eye
-
-                const opts = {points: [playerEye.absolutePosition, conclusion]}; //not really needed, but cleaner code always better :). 
-                const lookDirLine = L.BABYLON.MeshBuilder.CreateLines(getScrambled(), opts, newScene); // BABYLON.Mesh (https://doc.babylonjs.com/features/featuresDeepDive/mesh/creation/param/lines)
-            
-                //lookDirLine.renderingGroupId = 1; //make the lines render above shell
-                lookDirLine.setParent(object[H.actor].eye); //attach to the eye(s)
-                lookDirLine.color = new L.BABYLON.Color3(...hexToRgb(extract("lookTracersColor"))); //temp colo(u)r 
-
-                object.lookDirLine = lookDirLine; //save for updatès
+                object.lookDirLine = l;
+                //line will be updated every call, not just creation. I hate this but fuck you
             }
             /*----------------------*/
             //stuff
@@ -2791,7 +2781,29 @@ z-index: 999999;
             ESPArray.push([object, tracerLines, box, target, object.lookDirLine]);
         };
         if(object.lookDirLine){
-            object.lookDirLine.color = new L.BABYLON.Color3(...hexToRgb(extract("lookTracersColor")));
+            const TRACE_LENGTH_MULTIPLIER = 75; //how long is the trace max? 
+            const playerEye = object[H.actor].eye; // BABYLON.TransformNode (https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode). TN of the "eye", as shell calls it. Basically camera pos.
+
+            let conclusion /*:trol:*/ = playerEye.forward.clone(); // BABYLON.Vector3 (https://doc.babylonjs.com/typedoc/classes/BABYLON.Vector3). this vector is NORMALIZED
+            conclusion= conclusion.scale(TRACE_LENGTH_MULTIPLIER); //scale by the multiplier to extend the normalized vector. TODO: make multiplier customizable by USER
+            conclusion= conclusion.add(playerEye.absolutePosition); //add pos so we are relative to eye
+
+            //RAYCAST
+            const rayToGround = ss.RAYS[H.rayCollidesWithMap](object[H.actor].eye.absolutePosition, conclusion, ss.RAYS.grenadeCollidesWithCell); //does player look at object, if yes, where? 
+            const g = playerEye.absolutePosition; //easier acess
+            if(rayToGround){
+                object.lookDirLine.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [g.x, g.y, g.z, rayToGround.pick.pickedPoint.x, rayToGround.pick.pickedPoint.y, rayToGround.pick.pickedPoint.z]); 
+                //set line to correct points, with the map collision as endpoint
+            }
+            if(!rayToGround){
+                const f = playerEye.absolutePosition;//easier acess
+                object.lookDirLine.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [g.x, g.y, g.z, f.x, f.y, f.z]); 
+                //set line to correct points, with the max dist scaled dirVec3 as endpoint
+            }
+
+            object.lookDirLine.color = new L.BABYLON.Color3(...hexToRgb(extract("lookTracersColor"))); //updaté line colo(u)r
+            object.lookDirLine.renderingGroupId = extract("lookTracersRGI1")? 1 : 0; //render in front shell?
+            //I dont really like the implementation without parenting, but IDK how the fuck bab's parenting system works and we need to update anyway. :/
         }
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
         object.tracerLines.color = new L.BABYLON.Color3(...color);
