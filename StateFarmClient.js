@@ -2796,7 +2796,7 @@ z-index: 999999;
                 //set line to correct points, with the map collision as endpoint
             }
             if(!rayToGround){
-                const f = playerEye.absolutePosition;//easier acess
+                const f = conclusion;//easier acess
                 object.lookDirLine.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [g.x, g.y, g.z, f.x, f.y, f.z]); 
                 //set line to correct points, with the max dist scaled dirVec3 as endpoint
             }
