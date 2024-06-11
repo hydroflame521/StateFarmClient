@@ -418,8 +418,8 @@ Various account management tools
 # [](#credits-and-disclaimer)Credits & Disclaimer
 
 - **Hydroflame521** - the man who started StateFarm client, a contributor of code.
-- **onlypuppy7**, **porcupane**, & **not_food** - the main developers of StateFarm Client.
-- **de_Neuublue**, **OakSwingZZZ** and **1ust** - contributed to code in StateFarm Client.
+- **onlypuppy7** and **porcupane**, & **not_food** (micro contributions, dead now) - the OG developers of StateFarm Client.
+- **de_Neuublue**, **OakSwingZZZ** and **1ust** - wave 2 developers in StateFarm Client.
 - **susdung** - made the visuals improved on StateFarm Client.
 - **gus/yk0_0** - made some skyboxes used in StateFarm Client.
 <!-- **Zertalious** - old code in old versions. -->
