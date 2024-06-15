@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Shell Shockers Aimbot & ESP: StateFarm Client V3 - Cheats For Bloom, Chat, Botting, Unbanning & More
-// @description  Fixed for 0.48.0! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
+// @description  Fixed for 0.48.1! Advanced, Open Source, No Ads. Best cheats menu for Shell Shockers in 2024. Many modules such as Aimbot, PlayerESP, AmmoESP, Chams, Nametags, Join/Leave messages, Chat Filter Disabling, AntiAFK, FOV Slider, Zooming, Co-ords, Player Stats, Auto Refill and many more whilst having unsurpassed customisation options such as binding to any key, easily editable colour scheme and themes - all on the fly!
 // @author       Hydroflame521, onlypuppy7, enbyte, notfood, 1ust, OakSwingZZZ, Seq and de_Neuublue
 // @namespace    http://github.com/Hydroflame522/StateFarmClient/
 // @supportURL   http://github.com/Hydroflame522/StateFarmClient/issues/
@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre73
+// @version      3.4.1-pre74
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -826,6 +826,7 @@ sniping and someone sneaks up on you
         ]);
             initModule({ location: tp.chatTab.pages[0], title: "InfiniHistory", storeAs: "chatExtend", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "HighlightTxt", storeAs: "chatHighlight", bindLocation: tp.chatTab.pages[1], });
+            initModule({ location: tp.chatTab.pages[0], title: "RestoreScroll", storeAs: "restoreScroll", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "Max Ingame", storeAs: "maxChat", slider: { min: 0, max: 30, step: 1 }, defaultValue: 5, });
             initModule({ location: tp.chatTab.pages[0], title: "ShowFiltered", storeAs: "disableChatFilter", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "UnfilterNames", storeAs: "unfilterNames", bindLocation: tp.chatTab.pages[1], });
@@ -980,6 +981,11 @@ But check out the GitHub guide.`},
                 {text: "Default", value: 2},
                 {text: "Blue", value: 3},
                 {text: "Mexico", value: 4},
+            ],});
+            initModule({ location: tp.themingTab.pages[0], title: "Gun Position", storeAs: "gunPosition", bindLocation: tp.themingTab.pages[1], dropdown: [
+                {text: "Right", value: "right"},
+                {text: "Left", value: "left"},
+                {text: "Hidden", value: "hidden"},
             ],});
             tp.themingTab.pages[0].addSeparator();
             initFolder({ location: tp.themingTab.pages[0], title: "Audio Settings", storeAs: "audioFolder", });
@@ -3107,6 +3113,17 @@ z-index: 999999;
                 };
             });
             addStreamsToInGameUI();
+
+            const pausedGameUI = document.querySelector('.paused-game-ui');
+            const hasZIndex1     = pausedGameUI.classList.contains('z-index-1');
+            const hasZIndex10000 = pausedGameUI.classList.contains('z-index-10000');
+            if (extract("restoreScroll") && (hasZIndex1 || !hasZIndex10000)) {
+                pausedGameUI.classList.remove('z-index-1', 'z-index-10000');
+                pausedGameUI.classList.add("z-index-10000");
+            } else if ((!extract("restoreScroll")) && (hasZIndex10000 || !hasZIndex1)) {
+                pausedGameUI.classList.remove('z-index-1', 'z-index-10000');
+                pausedGameUI.classList.add("z-index-1");
+            };
         } else {
             if ((!document.getElementById("progressBar"))) {
                 if (extract("autoJoin") && (extract("autoLogin") == "disabled" || unsafeWindow.vueApp.accountCreated !== null)) {
@@ -5833,6 +5850,11 @@ z-index: 999999;
                     ss.SCENE.materials.forEach(material => {
                         material.alphaMode = filter;
                     }); ss.SCENE.appliedFilter = filter;
+                };
+
+                if (ss.MYPLAYER && ss.MYPLAYER[H.actor] && ss.MYPLAYER[H.actor][H.mesh]) {
+                    ss.MYPLAYER[H.actor][H.mesh].scaling.x = (extract("gunPosition") == "left" ? -1 : 1);
+                    ss.MYPLAYER[H.actor].gunContainer.setEnabled(extract("gunPosition") !== "hidden");
                 };
 
                 if (extract("spamChat")) {
