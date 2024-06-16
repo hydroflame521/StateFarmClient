@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre74
+// @version      3.4.1-pre75
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -3112,7 +3112,7 @@ z-index: 999999;
                     };
                 };
             });
-            addStreamsToInGameUI();
+            // addStreamsToInGameUI(); //broken rn anyways
 
             const pausedGameUI = document.querySelector('.paused-game-ui');
             const hasZIndex1     = pausedGameUI.classList.contains('z-index-1');
@@ -5854,7 +5854,7 @@ z-index: 999999;
 
                 if (ss.MYPLAYER && ss.MYPLAYER[H.actor] && ss.MYPLAYER[H.actor][H.mesh]) {
                     ss.MYPLAYER[H.actor][H.mesh].scaling.x = (extract("gunPosition") == "left" ? -1 : 1);
-                    ss.MYPLAYER[H.actor].gunContainer.setEnabled(extract("gunPosition") !== "hidden");
+                    ss.MYPLAYER[H.actor].gunContainer.scaling = extract("gunPosition") == "hidden" ? {x: 0, y: 0, z: 0} : {x: 1, y: 1, z: 1};
                 };
 
                 if (extract("spamChat")) {
