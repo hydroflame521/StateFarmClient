@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre76
+// @version      3.4.1-pre77
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -2786,7 +2786,7 @@ z-index: 999999;
             object.generatedESP = true;
             ESPArray.push([object, tracerLines, box, target, object.lookDirLine]);
         };
-        if(object.lookDirLine){
+        if(object.lookDirLine && extract("lookTracers")){ //no need to update if module disabled. Raycasts aren't the best thing to run every frame without any use...
             const TRACE_LENGTH_MULTIPLIER = 75; //how long is the trace max? 
             const playerEye = object[H.actor].eye; // BABYLON.TransformNode (https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode). TN of the "eye", as shell calls it. Basically camera pos.
 
