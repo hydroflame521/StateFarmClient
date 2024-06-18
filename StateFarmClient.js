@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre75
+// @version      3.4.1-pre76
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -4562,7 +4562,7 @@ z-index: 999999;
             modifyJS(/\.fov\s*=\s*1\.25/g, '.fov = window.' + functionNames.fixCamera + '()');
             modifyJS(/\.fov\s*\+\s*\(1\.25/g, '.fov + (window.' + functionNames.fixCamera + '()');
             //chat mods: disable chat culling
-            const chatCull = /;[a-zA-Z$_]+\.length>4/.exec(js)[0];
+            const chatCull = /return\}[a-zA-Z$_]+\.length>4/.exec(js)[0];
             modifyJS(chatCull, chatCull.originalReplace('4', `window.${functionNames.getChatLimit}()`));
             //chat mods: disable filter (credit to A3+++ for this finding)
             modifyJS(`!${f(H._filterFunction)}(${f(H._insideFilterFunction)})`, `((!${f(H._filterFunction)}(${f(H._insideFilterFunction)}))||window.${functionNames.getDisableChatFilter}())`);
