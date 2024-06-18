@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre76
+// @version      3.4.1-pre77
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -782,6 +782,12 @@ sniping and someone sneaks up on you
                     tp.grenadesFolder.addSeparator();
                     initModule({ location: tp.grenadesFolder, title: "GRegime", storeAs: "grenadeESPRegime", bindLocation: tp.renderTab.pages[1], dropdown: [{ text: "When Depleted", value: "whendepleted" }, { text: "When Low", value: "whenlow" }, { text: "Below Max", value: "belowmax" }, { text: "Always On", value: "alwayson" },], defaultValue: "whendepleted", disableConditions: [["grenadeESP", false], ["grenadeTracers", false]], });
                     initModule({ location: tp.grenadesFolder, title: "GColor", storeAs: "grenadeESPColor", defaultValue: "#00ffff", disableConditions: [["grenadeESP", false], ["grenadeTracers", false]], });
+            tp.renderTab.pages[0].addSeparator();
+            initModule({ location: tp.renderTab.pages[0], title: "show look dir", storeAs: "lookTracers", bindLocation: tp.renderTab.pages[1], });
+            initFolder({ location: tp.renderTab.pages[0], title: "look direction options", storeAs: "lookTracersFolder", });
+                initModule({ location: tp.lookTracersFolder, title: "render above", storeAs: "lookTracersRGI1", bindLocation: tp.renderTab.pages[1], });
+                //initModule({ location: tp.lookTracersFolder, title: "length", storeAs: "lookTracersLength", slider: { min: 0, max: 100, step: 0.25 }, defaultValue: 75, });
+                initModule({ location: tp.lookTracersFolder, title: "color", storeAs: "lookTracersColor", defaultValue: "#00ffff", });
             tp.renderTab.pages[0].addSeparator();
             initModule({ location: tp.renderTab.pages[0], title: "FOV", storeAs: "fov", slider: { min: 0, max: 360, step: 3 }, defaultValue: 72, });
             initModule({ location: tp.renderTab.pages[0], title: "Zoom FOV", storeAs: "zoom", slider: { min: 0, max: 72, step: 1 }, defaultValue: 15, bindLocation: tp.renderTab.pages[1], defaultBind: "C", });
@@ -2766,13 +2772,48 @@ z-index: 999999;
                 target.parent = newParent;
                 object.target = target;
             };
+            /*---fwltv2---*/
+            if(type == "playerESP"){
+                //create line. other shit later
+                const l = L.BABYLON.MeshBuilder.CreateLines(getScrambled(),{points: [new L.BABYLON.Vector3(0, 0, 0),new L.BABYLON.Vector3(0, 0, 0)]}, newScene); //empty lines. will be edited l8er
+                //l.renderingGroupId = 1;
+
+                object.lookDirLine = l;
+                //line will be updated every call, not just creation. I hate this but fuck you
+            }
+            /*----------------------*/
             //stuff
             object.generatedESP = true;
-            ESPArray.push([object, tracerLines, box, target]);
+            ESPArray.push([object, tracerLines, box, target, object.lookDirLine]);
         };
+        if(object.lookDirLine && extract("lookTracers")){ //no need to update if module disabled. Raycasts aren't the best thing to run every frame without any use...
+            const TRACE_LENGTH_MULTIPLIER = 75; //how long is the trace max? 
+            const playerEye = object[H.actor].eye; // BABYLON.TransformNode (https://doc.babylonjs.com/typedoc/classes/BABYLON.TransformNode). TN of the "eye", as shell calls it. Basically camera pos.
+
+            let conclusion /*:trol:*/ = playerEye.forward.clone(); // BABYLON.Vector3 (https://doc.babylonjs.com/typedoc/classes/BABYLON.Vector3). this vector is NORMALIZED
+            conclusion= conclusion.scale(TRACE_LENGTH_MULTIPLIER); //scale by the multiplier to extend the normalized vector. TODO: make multiplier customizable by USER
+            conclusion= conclusion.add(playerEye.absolutePosition); //add pos so we are relative to eye
+
+            //RAYCAST
+            const rayToGround = ss.RAYS[H.rayCollidesWithMap](object[H.actor].eye.absolutePosition, conclusion, ss.RAYS.grenadeCollidesWithCell); //does player look at object, if yes, where? 
+            const g = playerEye.absolutePosition; //easier acess
+            if(rayToGround){
+                object.lookDirLine.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [g.x, g.y, g.z, rayToGround.pick.pickedPoint.x, rayToGround.pick.pickedPoint.y, rayToGround.pick.pickedPoint.z]); 
+                //set line to correct points, with the map collision as endpoint
+            }
+            if(!rayToGround){
+                const f = conclusion;//easier acess
+                object.lookDirLine.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [g.x, g.y, g.z, f.x, f.y, f.z]); 
+                //set line to correct points, with the max dist scaled dirVec3 as endpoint
+            }
+
+            object.lookDirLine.color = new L.BABYLON.Color3(...hexToRgb(extract("lookTracersColor"))); //updaté line colo(u)r
+            object.lookDirLine.renderingGroupId = extract("lookTracersRGI1")? 1 : 0; //render in front shell?
+            //I dont really like the implementation without parenting, but IDK how the fuck bab's parenting system works and we need to update anyway. :/
+        }
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-          object.tracerLines.color = new L.BABYLON.Color3(...color);
-          object.box.color = new L.BABYLON.Color3(...color);
+        object.tracerLines.color = new L.BABYLON.Color3(...color);
+        object.box.color = new L.BABYLON.Color3(...color);
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
@@ -5549,6 +5590,7 @@ z-index: 999999;
                     updateOrCreateLinesESP(player, "playerESP", color);
 
                     player.tracerLines.visibility = player[H.playing] && extract("tracers") && passedLists;
+                    player.lookDirLine.visibility = player[H.playing] && extract("lookTracers") && passedLists;
                     player.box.visibility = extract("playerESP") && passedLists;
                     // player.target.visibility = extract("targets") && passedLists;
                     player.target.visibility = false;
@@ -5665,6 +5707,7 @@ z-index: 999999;
                     ESPArray[i][1].dispose(); //tracer
                     ESPArray[i][2].dispose(); //esp box
                     if (ESPArray[i][3]) { ESPArray[i][3].dispose() }; //target
+                    if (ESPArray[i][4]) { ESPArray[i][4].dispose() }; //look linetrace forward line
                     ESPArray.splice(i, 1);
                 };
             }; newGame = false;
