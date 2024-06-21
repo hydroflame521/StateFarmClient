@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre77
+// @version      3.4.1-pre78
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -926,10 +926,23 @@ sniping and someone sneaks up on you
                 initModule({ location: tp.gameBlacklistFolder, title: "Codes:", storeAs: "gameBlacklistCodes", defaultValue: "", });
                 initModule({ location: tp.gameBlacklistFolder, title: "Get BL Code", storeAs: "getCodeBlacklist", button: "Retrieve", bindLocation: tp.automationTab.pages[1], clickFunction: function(){
                     if (GAMECODE != undefined && GAMECODE != null){
-                        extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
+                      if (extract("gameBlacklistCodes") != "" && extract("gameBlacklistCodes") != undefined) { //does the list exist yet?
+                          let cds = extract("gameBlacklistCodes").split(","); //get the codes as an array
+                          if(cds.includes(GAMECODE)){ //the code is already in the list!
+                            createPopup("gamecode already in list!"); //notify user that we aren't adding the code'
+                            return; //no need to add code to list, so gtfo
+                          }
+                      }
+                      extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
                     } else {
                         createPopup("Join a game first");
                     };
+                },});
+                initModule({ location: tp.gameBlacklistFolder, title: "clear BL Codes", storeAs: "clearCodeBlacklist", button: "clear", bindLocation: tp.automationTab.pages[1], clickFunction: function(){
+                  //not a big fan of this "logic in init" thing, but it's basically the norm now + the funcs are really designed to be used this way so yh :( (Seq rant)
+                  if(extract("gameBlacklistCodes") != undefined) //do we have codes yet? Otherwise the log is either gonna be pointless or error...
+                    log("Clearing BL codes, cleared list: " +extract("gameBlacklistCodes")); //wouldn't be needed but allows for retrival of codes on accidental/partial deletion, and one more line of log can't hurt too much, can it?
+                  change("gameBlacklistCodes", ""); //just set the blacklist to an empty String
                 },});
             tp.automationTab.pages[0].addSeparator();
             initModule({ location: tp.automationTab.pages[0], title: "LeaveGame", storeAs: "leaveGame", button: "Unjoin Game", bindLocation: tp.automationTab.pages[1], clickFunction: function () { unsafeWindow.vueApp.onLeaveGameConfirm() }, });
@@ -5551,7 +5564,7 @@ z-index: 999999;
                     const tracersType = extract("tracersType");
 
                     //predEsp
-                    if (extract("predictionESP")) {
+                    if (extract("predictionESP")) { //important note here is that we only create/update the predESP if the module is toggled on. saves resources from predictPosition raycast
                       if (!player.pred) { //do we need a new TN as parent?
                         const pPTransformNode = new L.BABYLON.TransformNode("pPredTNode", player[H.actor].scene); //TN's are literally perfect for this wtf
                         pPTransformNode.parent = player[H.actor][H.mesh]; //parent to the player's mesh. Not really needed, but good practise.
