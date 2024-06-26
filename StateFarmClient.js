@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre80
+// @version      3.4.1-pre81
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -457,16 +457,6 @@ let attemptedInjection = false;
     });
     //menu
     document.addEventListener("keydown", function (event) {
-        if (document.activeElement.classList.contains('tp-txtv_i') && event.key === ' ') {
-            event.preventDefault();
-            let input = document.activeElement;
-            let start = input.selectionStart;
-            let end = input.selectionEnd;
-            input.value = input.value.substring(0, start) + ' ' + input.value.substring(end);
-            input.setSelectionRange(start + 1, start + 1);
-            let event = new Event('input', { bubbles: true });
-            input.dispatchEvent(event);
-        };
         event = (event.code.originalReplace("Key", ""));
         isKeyToggled[event] = true;
         if (event == "Escape") { noPointerPause = false; unsafeWindow.document.onpointerlockchange() };
@@ -4211,6 +4201,9 @@ z-index: 999999;
         createAnonFunction('shouldNotCull', function () {
             return true;
          });
+        createAnonFunction('shouldInputSpace', function () {
+            return !document.activeElement.classList.contains('tp-txtv_i');
+        });
         createAnonFunction('getPointerEscape', function () {
             return noPointerPause;
         });
@@ -4674,6 +4667,8 @@ z-index: 999999;
             modifyJS(`"transparent")},`, `"transparent");window.${functionNames.interceptDrawTextOnNameTexture}(${H.nameTexture}, arguments)},`);
             //intercept signedIn function
             modifyJS(`if(this.isAnonymous`, `window.${functionNames.interceptSignedIn}(arguments);if(this.isAnonymous`);
+
+            modifyJS(`="SPACE",`,`="SPACE",window.${functionNames.shouldInputSpace}()&&`)
 
             modifyJS(/tp-/g, '');
 
