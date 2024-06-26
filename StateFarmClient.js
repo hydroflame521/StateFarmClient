@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre79
+// @version      3.4.1-pre80
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -464,6 +464,8 @@ let attemptedInjection = false;
             let end = input.selectionEnd;
             input.value = input.value.substring(0, start) + ' ' + input.value.substring(end);
             input.setSelectionRange(start + 1, start + 1);
+            let event = new Event('input', { bubbles: true });
+            input.dispatchEvent(event);
         };
         event = (event.code.originalReplace("Key", ""));
         isKeyToggled[event] = true;
