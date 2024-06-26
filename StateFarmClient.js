@@ -25,7 +25,7 @@
     //3.#.#-release for release (in the unlikely event that happens)
 // this ensures that each version of the script is counted as different
 
-// @version      3.4.1-pre78
+// @version      3.4.1-pre79
 
 // @match        *://*.shellshock.io/*
 // @match        *://*.shell.onlypuppy7.online/*
@@ -256,7 +256,7 @@ let attemptedInjection = false;
     // blank variables
     let ss = {};
     let msgElement, botBlacklist, initialisedCustomSFX, automatedBorder, clientID, didStateFarm, menuInitiated, GAMECODE, noPointerPause, resetModules, amountOnline, errorString, playersInGame, loggedGameMap, startUpComplete, isBanned, attemptedAutoUnban, coordElement, gameInfoElement, playerinfoElement, playerstatsElement, firstUseElement, minangleCircle, redCircle, crosshairsPosition, currentlyTargeting, ammo, ranOneTime, lastWeaponBox, lastChatItemLength, configMain, configBots, playerLogger;
-    let whitelistPlayers, scrambledMsgEl, accountStatus, badgeList, annoyancesRemoved, oldGa, newGame, previousDetail, previousLegacyModels, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
+    let whitelistPlayers, scrambledMsgEl, accountStatus, updateMenu, badgeList, annoyancesRemoved, oldGa, newGame, previousDetail, previousLegacyModels, previousTitleAnimation, blacklistPlayers, playerLookingAt, forceControlKeys, forceControlKeysCache, playerNearest, enemyLookingAt, enemyNearest, AUTOMATED, ranEverySecond
     let cachedCommand = "", cachedCommandTime = Date.now();
     let activePath, findNewPath, activeNodeTarget;
     let pathfindingTargetOverride = undefined;
@@ -457,6 +457,14 @@ let attemptedInjection = false;
     });
     //menu
     document.addEventListener("keydown", function (event) {
+        if (document.activeElement.classList.contains('tp-txtv_i') && event.key === ' ') {
+            event.preventDefault();
+            let input = document.activeElement;
+            let start = input.selectionStart;
+            let end = input.selectionEnd;
+            input.value = input.value.substring(0, start) + ' ' + input.value.substring(end);
+            input.setSelectionRange(start + 1, start + 1);
+        };
         event = (event.code.originalReplace("Key", ""));
         isKeyToggled[event] = true;
         if (event == "Escape") { noPointerPause = false; unsafeWindow.document.onpointerlockchange() };
@@ -842,15 +850,43 @@ sniping and someone sneaks up on you
             tp.chatTab.pages[0].addSeparator();
             initModule({ location: tp.chatTab.pages[0], title: "AntiAFK", storeAs: "antiAFK", bindLocation: tp.chatTab.pages[1], });
             initModule({ location: tp.chatTab.pages[0], title: "Spammer", storeAs: "spamChat", bindLocation: tp.chatTab.pages[1], });
+            tp.chatTab.pages[0].addSeparator();
+            initFolder({ location: tp.chatTab.pages[0], title: "FakeMessage", storeAs: "fakeMessageFolder", });
+                let listOfIDs = [];
+                if (unsafeWindow.extern && unsafeWindow.extern.inGame && ss && ss.PLAYERS) {
+                    ss.PLAYERS.forEach((player) => {
+                        listOfIDs.push({ text: player.name, value: String(player.id) });
+                        log({ text: player.name, value: player.id })
+                    });
+                };
+                initModule({ location: tp.fakeMessageFolder, title: "Send As", storeAs: "fakeMessageID", bindLocation: tp.chatTab.pages[1], dropdown: [ ...listOfIDs, { text: "MOD", value: "254" }, { text: "SERVER", value: "255" } ], defaultValue: "255" });
+                initModule({ location: tp.fakeMessageFolder, title: '(Refresh List)', storeAs: 'fakeMessageRefresh', button: 'REFRESH', bindLocation: tp.chatTab.pages[1], clickFunction: function () {
+                    updateMenu = true;
+                } });
+                initModule({ location: tp.fakeMessageFolder, title: "Content", storeAs: "fakeMessageText", defaultValue: "ЅtateFarm Client On Top! ", });
+                initModule({ location: tp.fakeMessageFolder, title: "Bold Text", storeAs: "fakeMessageBold", bindLocation: tp.chatTab.pages[1], });
+                initModule({ location: tp.fakeMessageFolder, title: 'SEND', storeAs: 'fakeMessageSend', button: 'SEND MESSAGE', bindLocation: tp.chatTab.pages[1], clickFunction: function () {
+                    if (ss.addChat && unsafeWindow.extern.inGame) {
+                        try {
+                            if (ss.isBadWord(extract("fakeMessageText"))) createPopup("Message is filtered.", "error");
+                            ss.addChat(extract("fakeMessageText"), !!extract("fakeMessageBold"), Number(extract("fakeMessageID")));
+                        } catch (error) {
+                            log("shit, sending a fake message failed. damn lmao.", error)
+                        };
+                    }
+                } });
+            tp.chatTab.pages[0].addSeparator();
             initFolder({ location: tp.chatTab.pages[0], title: "Spammer Options", storeAs: "spammerFolder", });
                 initModule({ location: tp.spammerFolder, title: "Delay (ms)", storeAs: "spamChatDelay", slider: { min: 250, max: 60000, step: 10 }, defaultValue: 500, enableConditions: [["spamChat", true]], });
                 initModule({ location: tp.spammerFolder, title: "Spam Text", storeAs: "spamChatText", defaultValue: "ЅtateFarm Client On Top! ", });
+            tp.chatTab.pages[0].addSeparator();
             initFolder({ location: tp.chatTab.pages[0], title: "Trolling", storeAs: "trollingFolder", });
                 initModule({ location: tp.trollingFolder, title: "Mock", storeAs: "mockMode", bindLocation: tp.chatTab.pages[1], });
                 initModule({ location: tp.trollingFolder, title: "Announcer", storeAs: "announcer", bindLocation: tp.chatTab.pages[1], });
                 tp.trollingFolder.addSeparator();
                 initModule({ location: tp.trollingFolder, title: "AutoEZ", storeAs: "autoEZ", bindLocation: tp.chatTab.pages[1], });
                 initModule({ location: tp.trollingFolder, title: "CheatAccuse", storeAs: "cheatAccuse", bindLocation: tp.chatTab.pages[1], });
+            tp.chatTab.pages[0].addSeparator();
             initFolder({ location: tp.chatTab.pages[0], title: "Join/Leave Msgs Options", storeAs: "joinLeaveFolder", });
                 initModule({ location: tp.joinLeaveFolder, title: "Join Msgs", storeAs: "joinMessages", bindLocation: tp.chatTab.pages[1], });
                 initModule({ location: tp.joinLeaveFolder, title: "Leave Msgs", storeAs: "leaveMessages", bindLocation: tp.chatTab.pages[1], });
@@ -929,11 +965,11 @@ sniping and someone sneaks up on you
                       if (extract("gameBlacklistCodes") != "" && extract("gameBlacklistCodes") != undefined) { //does the list exist yet?
                           let cds = extract("gameBlacklistCodes").split(","); //get the codes as an array
                           if(cds.includes(GAMECODE)){ //the code is already in the list!
-                            createPopup("gamecode already in list!"); //notify user that we aren't adding the code'
+                            createPopup("Gamecode already in list!"); //notify user that we aren't adding the code'
                             return; //no need to add code to list, so gtfo
                           }
                       }
-                      extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
+                        extract("gameBlacklistCodes") != undefined ? change("gameBlacklistCodes", extract("gameBlacklistCodes")+GAMECODE+",") : change("gameBlacklistCodes", GAMECODE+",");
                     } else {
                         createPopup("Join a game first");
                     };
@@ -1605,7 +1641,7 @@ debug mode).`},
                         });
                     };
                 } catch (error) {
-
+                    
                 }
             };
         };
@@ -1631,6 +1667,7 @@ debug mode).`},
 
         if (extract("spamChatText").includes("On Top!")) { change("spamChatText", defaultSpamText) };
         if (extract("spamChatTextBot").includes("On Top!")) { change("spamChatTextBot", defaultSpamText) };
+        if (extract("fakeMessageText").includes("On Top!")) { change("fakeMessageText", defaultSpamText) };
 
         makeDraggable(tp.mainPanel.containerElem_);
         makeDraggable(tp.botPanel.containerElem_);
@@ -2622,7 +2659,7 @@ z-index: 999999;
         };
         return found;
     };
-
+    
     const playAudio = function (name, panner, contextName) {
         contextName = findStringInLists(divertContexts, name) || "OTHER"+randomInt(1,9)
         let audioContext;
@@ -2825,8 +2862,8 @@ z-index: 999999;
             //I dont really like the implementation without parenting, but IDK how the fuck bab's parenting system works and we need to update anyway. :/
         }
         object.tracerLines.setVerticesData(L.BABYLON.VertexBuffer.PositionKind, [crosshairsPosition.x, crosshairsPosition.y, crosshairsPosition.z, newPosition.x, newPosition.y, newPosition.z]);
-        object.tracerLines.color = new L.BABYLON.Color3(...color);
-        object.box.color = new L.BABYLON.Color3(...color);
+          object.tracerLines.color = new L.BABYLON.Color3(...color);
+          object.box.color = new L.BABYLON.Color3(...color);
     };
     const obfuscateEmail = function(email) {
         const parts = email.split('@');
@@ -5900,7 +5937,7 @@ z-index: 999999;
                     ss.MYPLAYER[H.actor].hands.material.alpha = ((extract("perspective") !== "firstPerson") && extract("perspectiveAlpha")) ? .5 : 1;
                     ss.MYPLAYER[H.actor][H.bodyMesh].material.alpha = ((extract("perspective") !== "firstPerson") && extract("perspectiveAlpha")) ? .5 : 1;
                 };
-
+                
                 let filter = typeof(extract("filter")) == 'number' ? extract("filter") : 2;
                 if (ss.SCENE && ss.SCENE.appliedFilter !== filter) {
                     ss.SCENE.materials.forEach(material => {
@@ -5992,7 +6029,7 @@ z-index: 999999;
                     let username = usernameElement ? usernameElement.textContent.trim() : "";
                     const badgeURLs = Array.from(findBadgesForUsername(username)).reverse();
                     const existingBadges = slot.querySelectorAll('.badge-image');
-
+                    
                     if (username && badgeURLs && badgeURLs.length > 0 && existingBadges && existingBadges.length < 1) {
                         existingBadges.forEach(badge => badge.remove());
                         const eggIcon = !!slot.querySelector('.playerSlot--icons .fas.fa-egg:not(.hidden)');
@@ -6187,7 +6224,11 @@ z-index: 999999;
                         ss.MYPLAYER.weapon.constructor.automatic = false;
                     };
                 };
-
+                
+                if (updateMenu) {
+                    updateMenu = false; initMenu(false);
+                    tp.mainPanel.hidden = extract("hideAtStartup");
+                };
 
                 let doRender = true;
 
